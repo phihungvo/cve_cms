@@ -1,0 +1,17 @@
+<?php return [
+    'create' => 'Create',
+    'created_at' => 'Created',
+    'enabled' => 'Enabled',
+    'filter' => 'Filter...',
+    'meta-title' => 'Create Feature',
+    'name' => 'Name',
+    'alias' => 'Alias',
+    'description' => 'Description',
+    'created' => 'Created',
+    'success' => 'Successfully',
+    'update' => 'Update',
+    'delete-button' => 'Delete',
+    'delete-message' => 'Deleting a feature will also delete feature.',
+    'delete-success' => 'The feature has been deleted successfully',
+    'delete-title' => 'Delete Feature',
+];

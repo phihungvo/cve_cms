@@ -1,0 +1,36 @@
+<?php
+
+return [
+    'title' => 'Schedule List',
+    'meta-title' => 'Schedule List',
+    'filter' => 'Search schedules...',
+    'create' => 'Create New Schedule',
+    'ID' => 'ID',
+    'Active' => 'Active',
+    'Start Date' => 'Start Date',
+    'End Date' => 'End Date',
+    'Start Time' => 'Start Time',
+    'End Time' => 'End Time',
+    'Schedule Type' => 'Schedule Type',
+    'Playlist Name' => 'Playlist Name',
+    'Stop Type' => 'Stop Type',
+    'Repeat' => 'Repeat',
+    'Created At' => 'Created At',
+    'Actions' => 'Actions',
+    'Edit' => 'Edit',
+    'No schedules found' => 'No schedules found',
+    'Create Schedule' => 'Create Schedule',
+    'Update Schedule' => 'Update Schedule',
+    'Cancel' => 'Cancel',
+    'daily' => 'Daily',
+    'weekly' => 'Weekly',
+    'monthly' => 'Monthly',
+    'time' => 'Time',
+    'duration' => 'Duration',
+    'never' => 'Never',
+    'delete' => [
+        'title' => 'Delete Schedule',
+        'message' => 'Are you sure you want to permanently delete the schedule ":name"? This action cannot be undone.',
+    ],
+
+];

@@ -1,0 +1,18 @@
+<?php return [
+    'meta-title' => 'Enterprise',
+    'user' => 'User',
+    'no' => 'No.',
+    'id' => 'Id',
+    'name' => 'Name',
+    'email' => 'Email',
+    'role' => 'Role',
+    'enterpriseName' => 'Enterprise Name',
+    'action' => 'Action',
+    'inactive_button' => 'Inactive',
+    'delete-button' => 'Delete',
+    'restore-button' => 'Restore',
+    'force-delete-button' => 'Force Delete',
+    'edit-button' => 'Edit',
+    'delete-title' => 'Delete Enterprise',
+    'delete-message' => 'Deleting an enterprise will also delete all their users. Do you really want to continue? The deletion is permanent, this action cannot be undone.',
+];

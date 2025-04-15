@@ -1,0 +1,16 @@
+<?php return [
+    'updated_at' => 'Last Connection',
+    'create' => 'Create Device',
+    'enabled' => 'Enabled',
+    'filter' => 'Filter...',
+    'map' => 'Map',
+    'meta-title' => 'Devices',
+    'model' => 'Model',
+    'name' => 'Name',
+    'shared' => 'Shared',
+    'shared_public' => 'Shared Public',
+    'user' => 'User',
+    'vehicle' => 'Bookmark',
+    'device_type' => 'Device Type',
+    "enterprise" => "Enterprise",
+];
