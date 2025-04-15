@@ -1,17 +1,17 @@
 <div class="box h-full p-5 relative">
     <div class="grid grid-cols-3 gap-4 py-5" style="grid-template-columns: repeat(3, 1fr);">
         @if(auth()->user()?->isRoleRoot())
-        <div>
-            <select class="w-full p-2 border border-gray-300 rounded-lg"
-                    wire:change="handleSelectEnterprise(event.target.value)">
-                <option value="" selected>-- Select Enterprise --</option>
-                @foreach($enterprises as $enterprise)
-                    <option value="{{$enterprise->id}}">{{$enterprise->name}}</option>
-                @endforeach
-            </select>
-        </div>
+            <div>
+                <select class="w-full p-2 border border-gray-300 rounded-lg"
+                        wire:change="handleSelectEnterprise(event.target.value)">
+                    <option value="" selected>-- Select Enterprise --</option>
+                    @foreach($enterprises as $enterprise)
+                        <option value="{{$enterprise->id}}">{{$enterprise->name}}</option>
+                    @endforeach
+                </select>
+            </div>
         @else
-        <div></div>
+            <div></div>
         @endif
         <div></div> <!-- Empty middle column -->
         <div>
@@ -109,25 +109,27 @@
             $hlsUrl = str_replace('/{instance_id}', '', $hlsUrl);
             $hlsUrl = str_replace('/render', '/orginal', $hlsUrl);
         @endphp
-        <div class="modal-overlay absolute"
-             style="top:0; left:0; right:0; bottom:0; z-index: 100;"
-        >
-            <div class="modal-content">
+        <div class="modal-overlay absolute flex items-start justify-center"
+             style="top: {{ $showModal ? '20px' : '-100px' }}; left: 0; right: 0; bottom: 0; z-index: 100; background-color: rgba(255,255,255,0.8); opacity: {{ $showModal ? '1' : '0' }}; transition: top 0.5s ease-in-out, opacity 0.5s ease-in-out;">
+            <div class="modal-content" style="width:60%; pading: 0 auto" background-color="#ffffff">
                 <div class="camera-modal flex flex-col items-center justify-between">
                     <!-- Modal Body -->
-                    <div class="camera-modal__body grid grid-cols-2 gap-4 w-full" style="grid-auto-flow: column;grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);">
+                    <div class="camera-modal__body grid grid-cols-2 gap-2 w-full pt-4"
+                         style="grid-auto-flow: column;grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr);">
                         <!-- Cell 1: Original live video -->
-                        <div class="video-origin border border-gray-300 rounded w-full p-2">
-                            <h4 class="text-sm font-bold my-2">Original live</h4>
-                            <video width="100%"  class="hls-video mb-4" controls>
+                        <div
+                            class="video-origin flex flex-col justify-start items-center border border-gray-300 rounded p-2">
+                            <h4 class="text-sm font-bold">Original live</h4>
+                            <video width="95%" class="hls-video mb-4" controls>
                                 <source src="{{ $hlsUrl }}" type="application/x-mpegURL">
                                 Your browser does not support the video tag.
                             </video>
                         </div>
                         <!-- Cell 2: AI live video -->
-                        <div class="ai-video border border-gray-300 rounded w-full p-2">
+                        <div
+                            class="ai-video flex flex-col justify-start items-center border border-gray-300 rounded p-2">
                             <h4 class="text-sm font-bold my-2">AI live</h4>
-                            <video width="100%" class="hls-video mb-4" controls>
+                            <video width="95%" class="hls-video mb-4" controls>
                                 <source src="{{ $hlsUrl }}" type="application/x-mpegURL">
                                 Your browser does not support the video tag.
                             </video>
@@ -138,7 +140,8 @@
                                 <h3 class="text-sm font-bold my-2">Camera Details</h3>
                                 <p><strong>Name:</strong> {{ $selectedCamera->name }}</p>
                                 <p><strong>ID:</strong> {{ $selectedCamera->id }}</p>
-                                <p><strong>Enterprise:</strong> {{ $selectedCamera->device->enterprise->name ?? 'N/A' }}</p>
+                                <p><strong>Enterprise:</strong> {{ $selectedCamera->device->enterprise->name ?? 'N/A' }}
+                                </p>
                                 <p><strong>Device name:</strong> {{ $selectedCamera->device->name ?? 'N/A' }}</p>
                                 <p><strong>Status:</strong> {{ $selectedCamera->status ?? 'Active' }}</p>
                             </div>
@@ -155,7 +158,7 @@
                         </div>
                     </div>
                     <!-- Modal Footer -->
-                    <button wire:click="closeModal" class="camera-modal__footer my-4 btn btn-secondary">
+                    <button wire:click="closeModal" class="camera-modal__footer my-4 btn btn-sm btn-secondary">
                         Close
                     </button>
                 </div>

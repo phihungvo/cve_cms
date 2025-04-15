@@ -16,7 +16,10 @@ class Update extends CreateUpdateAbstract
                 $this->row->password = $this->data['password'];
                 $this->row->phone = $this->data['phone'];
 
-                $this->row->api_key_full = $this->data['api_key_full'];
+                if(isset($this->data['api_key_full'])){
+                    $this->row->api_key_full = $this->data['api_key_full'];
+                }
+
                 $this->row->api_key = $this->data['api_key'];
                 $this->row->api_key_prefix = $this->data['api_key_prefix'];
                 $this->row->api_key_enabled = $this->data['api_key_enabled'];
