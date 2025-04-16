@@ -29,17 +29,16 @@
         <!-- Bộ lọc Enterprise -->
         @if ($auth->isRoleRoot())
             <div class="flex justify-center mb-10">
-                <!-- Khoảng cách dọc 40px để khớp gap-10 -->
-                <form method="GET" class="w-full max-w-md">
+                <form method="GET" class="w-full max-w-3xl">
                     <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
                         placeholder="{{ __('dashboard-index.all_enterprises') }}" data-change-submit></x-select>
                 </form>
             </div>
         @endif
 
-        <!-- Hàng trên: 4 cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10 justify-center max-w-4xl mx-auto">
-            <!-- Nội dung to hơn nữa, căn giữa dọc -->
+        <div
+            class="grid grid-cols-1 md:grid-cols-2 @if ($auth->isRoleRoot()) lg:grid-cols-4 @else lg:grid-cols-3 @endif gap-10 mb-10 justify-center @if ($auth->isRoleRoot()) max-w-4xl @else max-w-3xl @endif mx-auto">
+
             @if ($auth->isRoleRoot())
                 {!! dashboard_card(
                     'briefcase',
