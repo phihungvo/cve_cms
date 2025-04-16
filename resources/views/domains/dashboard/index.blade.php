@@ -44,43 +44,37 @@
                     'briefcase',
                     __('dashboard-index.enterprises'),
                     $counts['enterprises'],
-                    'yellow',
+                    'black',
                     route('user.enterprise.index'),
                 ) !!}
             @endif
 
+            {!! dashboard_card('monitor', __('dashboard-index.devices'), $counts['devices'], 'black', route('device.index')) !!}
+            {!! dashboard_card('users', __('dashboard-index.users'), $counts['users'], 'black', route('user.index')) !!}
             {!! dashboard_card(
-                'monitor',
-                __('dashboard-index.devices'),
-                $counts['devices'],
-                'indigo',
-                route('device.index'),
-            ) !!}
-            {!! dashboard_card('users', __('dashboard-index.users'), $counts['users'], 'blue', route('user.index')) !!}
-            {!! dashboard_card(
-                'volume-2',
+                'triangle',
                 __('dashboard-index.campaigns'),
                 $counts['campaigns'],
-                'pink',
+                'black',
                 route('campaign.index'),
             ) !!}
         </div>
 
         <!-- Hàng dưới: 3 cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-center max-w-3xl mx-auto">
-            {!! dashboard_card('image', __('dashboard-index.media'), $counts['media'], 'green', route('fpp.media.index')) !!}
+            {!! dashboard_card('image', __('dashboard-index.media'), $counts['media'], 'black', route('fpp.media.index')) !!}
             {!! dashboard_card(
                 'list',
                 __('dashboard-index.playlists'),
                 $counts['playlists'],
-                'purple',
+                'black',
                 route('fpp.playlist.index'),
             ) !!}
             {!! dashboard_card(
                 'calendar',
                 __('dashboard-index.schedules'),
                 $counts['schedules'],
-                'red',
+                'black',
                 route('schedule.index'),
             ) !!}
         </div>
