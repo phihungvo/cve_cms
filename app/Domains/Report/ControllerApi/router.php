@@ -12,3 +12,5 @@ Route::get('/report/reach-and-distance', function (Request $request) {
     $service = ReachAndDistanceService::new($request, auth()->user());
     return (new ReachAndDistanceController($service))->data($request);
 });
+
+Route::post('/report/send-image-report', [SendImageReport::class, 'store']);
