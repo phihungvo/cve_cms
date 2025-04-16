@@ -68,7 +68,7 @@ class SendImageReport
      */
     public function __construct(SendImageReportService $sendImageReportService)
     {
-        Log::info('SendImageReport: Constructor initialized');
+        // Log::info('SendImageReport: Constructor initialized');
         $this->sendImageReportService = $sendImageReportService;
     }
 
@@ -84,13 +84,13 @@ class SendImageReport
     public function store(Request $request): JsonResponse
     {
         // Log request data for debugging
-        Log::info('SendImageReport: Starting store method', [
-            'request_data' => $request->all(),
-            'files' => $request->hasFile('image') ? $request->file('image')->getPathname() : null,
-        ]);
+        // Log::info('SendImageReport: Starting store method', [
+        //     'request_data' => $request->all(),
+        //     'files' => $request->hasFile('image') ? $request->file('image')->getPathname() : null,
+        // ]);
 
         // Validate input data
-        Log::info('SendImageReport: Starting validation');
+        // Log::info('SendImageReport: Starting validation');
         $startTime = microtime(true);
         $validator = Validator::make($request->all(), [
             'image' => 'required|image|mimes:jpeg,png,jpg', // Image file must be jpeg, png, or jpg
@@ -114,24 +114,24 @@ class SendImageReport
             ], 422);
         }
         $validationTime = microtime(true) - $startTime;
-        Log::info('SendImageReport: Validation completed', [
-            'validation_time_seconds' => $validationTime,
-        ]);
+        // Log::info('SendImageReport: Validation completed', [
+        //     'validation_time_seconds' => $validationTime,
+        // ]);
 
         try {
             // Fetch enterprise IDs from Media, Device, and Vehicle tables
-            Log::info('SendImageReport: Fetching enterprise IDs');
+            // Log::info('SendImageReport: Fetching enterprise IDs');
             $startTime = microtime(true);
             $media = Media::find($request->media_id);
             $device = $request->device_id ? Device::find($request->device_id) : null;
             $vehicle = $request->vehicle_id ? Vehicle::find($request->vehicle_id) : null;
             $fetchTime = microtime(true) - $startTime;
-            Log::info('SendImageReport: Enterprise IDs fetched', [
-                'media_id' => $request->media_id,
-                'device_id' => $request->device_id,
-                'vehicle_id' => $request->vehicle_id,
-                'fetch_time_seconds' => $fetchTime,
-            ]);
+            // Log::info('SendImageReport: Enterprise IDs fetched', [
+            //     'media_id' => $request->media_id,
+            //     'device_id' => $request->device_id,
+            //     'vehicle_id' => $request->vehicle_id,
+            //     'fetch_time_seconds' => $fetchTime,
+            // ]);
 
             // Check if media_id exists
             if (!$media) {
@@ -167,11 +167,11 @@ class SendImageReport
             $mediaEnterpriseId = $media->enterprise_id;
             $deviceEnterpriseId = $device ? $device->enterprise_id : null;
             $vehicleEnterpriseId = $vehicle ? $vehicle->enterprise_id : null;
-            Log::info('SendImageReport: Enterprise IDs retrieved', [
-                'media_enterprise_id' => $mediaEnterpriseId,
-                'device_enterprise_id' => $deviceEnterpriseId,
-                'vehicle_enterprise_id' => $vehicleEnterpriseId,
-            ]);
+            // Log::info('SendImageReport: Enterprise IDs retrieved', [
+            //     'media_enterprise_id' => $mediaEnterpriseId,
+            //     'device_enterprise_id' => $deviceEnterpriseId,
+            //     'vehicle_enterprise_id' => $vehicleEnterpriseId,
+            // ]);
 
             // Verify enterprise ID consistency
             if (
@@ -189,7 +189,7 @@ class SendImageReport
             }
 
             // Call service to handle image upload and database storage
-            Log::info('SendImageReport: Calling SendImageReportService');
+            // Log::info('SendImageReport: Calling SendImageReportService');
             $startTime = microtime(true);
             $result = $this->sendImageReportService->handle(
                 $request->file('image'),
@@ -208,13 +208,13 @@ class SendImageReport
                 )
             );
             $serviceTime = microtime(true) - $startTime;
-            Log::info('SendImageReport: SendImageReportService completed', [
-                'service_time_seconds' => $serviceTime,
-                'result_id' => $result->id ?? null,
-            ]);
+            // Log::info('SendImageReport: SendImageReportService completed', [
+            //     'service_time_seconds' => $serviceTime,
+            //     'result_id' => $result->id ?? null,
+            // ]);
 
             // Return success response
-            Log::info('SendImageReport: Store method completed successfully');
+            // Log::info('SendImageReport: Store method completed successfully');
             return response()->json([
                 'message' => 'Image report created successfully',
                 'data' => $result,
