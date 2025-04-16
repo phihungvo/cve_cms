@@ -1,18 +1,35 @@
 @extends('layouts.in')
 
 @section('body')
-    <!-- Thêm Feather Icons -->
+    <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            feather.replace(); // Khởi tạo Feather Icons
+            feather.replace();
         });
     </script>
 
+    @php
+        function dashboard_card($icon, $title, $count, $color, $href)
+        {
+            return <<<HTML
+                <a href="$href"
+                    class="transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 bg-white shadow-md hover:shadow-xl border border-gray-200 rounded-2xl p-6 flex flex-col items-center text-center min-h-[440px]">
+                    <div class="w-16 h-16 rounded-full bg-$color-100 flex items-center justify-center mb-4">
+                        <i data-feather="$icon" class="text-$color-600" style="width: 28px; height: 28px;"></i>
+                    </div>
+                    <p class="text-4xl font-extrabold text-gray-800 mb-2">$count</p>
+                    <h2 class="text-lg font-semibold text-gray-600">$title</h2>
+                </a>
+            HTML;
+        }
+    @endphp
+
     <div class="container mx-auto px-4 py-8">
-        <!-- Hàng 1: Bộ lọc Enterprise -->
+        <!-- Bộ lọc Enterprise -->
         @if ($auth->isRoleRoot())
-            <div class="flex justify-center mb-8">
+            <div class="flex justify-center mb-10">
+                <!-- Khoảng cách dọc 40px để khớp gap-10 -->
                 <form method="GET" class="w-full max-w-md">
                     <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
                         placeholder="{{ __('dashboard-index.all_enterprises') }}" data-change-submit></x-select>
@@ -20,82 +37,53 @@
             </div>
         @endif
 
-        <!-- Hàng 2: 4 Cards trên cùng -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            <!-- Card Enterprise (chỉ hiển thị cho Root) -->
+        <!-- Hàng trên: 4 cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10 justify-center max-w-6xl mx-auto">
+            <!-- Khoảng cách ngang/dọc 40px -->
             @if ($auth->isRoleRoot())
-                <a href="{{ route('user.enterprise.index') }}"
-                    class="card bg-white shadow-lg rounded-xl p-8 flex flex-col items-center hover:bg-gray-50 hover:shadow-xl transition-all duration-300 border border-gray-200 min-h-[250px]">
-                    <p class="font-bold text-gray-700 text-5xl mb-4">{{ $counts['enterprises'] }}</p>
-                    <div class="flex items-center">
-                        <i data-feather="briefcase" class="text-gray-500 mr-2" style="width: 24px; height: 24px;"></i>
-                        <h2 class="text-lg font-semibold text-gray-800">{{ __('dashboard-index.enterprises') }}</h2>
-                    </div>
-                </a>
+                {!! dashboard_card(
+                    'briefcase',
+                    __('dashboard-index.enterprises'),
+                    $counts['enterprises'],
+                    'yellow',
+                    route('user.enterprise.index'),
+                ) !!}
             @endif
 
-            <!-- Card Device -->
-            <a href="{{ route('device.index') }}"
-                class="card bg-white shadow-lg rounded-xl p-8 flex flex-col items-center hover:bg-gray-50 hover:shadow-xl transition-all duration-300 border border-gray-200 min-h-[250px]">
-                <p class="font-bold text-gray-700 text-5xl mb-4">{{ $counts['devices'] }}</p>
-                <div class="flex items-center">
-                    <i data-feather="monitor" class="text-gray-500 mr-2" style="width: 24px; height: 24px;"></i>
-                    <h2 class="text-lg font-semibold text-gray-800">{{ __('dashboard-index.devices') }}</h2>
-                </div>
-            </a>
-
-            <!-- Card User -->
-            <a href="{{ route('user.index') }}"
-                class="card bg-white shadow-lg rounded-xl p-8 flex flex-col items-center hover:bg-gray-50 hover:shadow-xl transition-all duration-300 border border-gray-200 min-h-[250px]">
-                <p class="font-bold text-gray-700 text-5xl mb-4">{{ $counts['users'] }}</p>
-                <div class="flex items-center">
-                    <i data-feather="users" class="text-gray-500 mr-2" style="width: 24px; height: 24px;"></i>
-                    <h2 class="text-lg font-semibold text-gray-800">{{ __('dashboard-index.users') }}</h2>
-                </div>
-            </a>
-
-            <!-- Card Campaign -->
-            <a href="{{ route('campaign.index') }}"
-                class="card bg-white shadow-lg rounded-xl p-8 flex flex-col items-center hover:bg-gray-50 hover:shadow-xl transition-all duration-300 border border-gray-200 min-h-[250px]">
-                <p class="font-bold text-gray-700 text-5xl mb-4">{{ $counts['campaigns'] }}</p>
-                <div class="flex items-center">
-                    <i data-feather="megaphone" class="text-gray-500 mr-2" style="width: 24px; height: 24px;"></i>
-                    <h2 class="text-lg font-semibold text-gray-800">{{ __('dashboard-index.campaigns') }}</h2>
-                </div>
-            </a>
+            {!! dashboard_card(
+                'monitor',
+                __('dashboard-index.devices'),
+                $counts['devices'],
+                'indigo',
+                route('device.index'),
+            ) !!}
+            {!! dashboard_card('users', __('dashboard-index.users'), $counts['users'], 'blue', route('user.index')) !!}
+            {!! dashboard_card(
+                'volume-2',
+                __('dashboard-index.campaigns'),
+                $counts['campaigns'],
+                'pink',
+                route('campaign.index'),
+            ) !!}
         </div>
 
-        <!-- Hàng 3: 3 Cards dưới cùng -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Card Media -->
-            <a href="{{ route('fpp.media.index') }}"
-                class="card bg-white shadow-lg rounded-xl p-8 flex flex-col items-center hover:bg-gray-50 hover:shadow-xl transition-all duration-300 border border-gray-200 min-h-[250px]">
-                <p class="font-bold text-gray-700 text-5xl mb-4">{{ $counts['media'] }}</p>
-                <div class="flex items-center">
-                    <i data-feather="image" class="text-gray-500 mr-2" style="width: 24px; height: 24px;"></i>
-                    <h2 class="text-lg font-semibold text-gray-800">{{ __('dashboard-index.media') }}</h2>
-                </div>
-            </a>
-
-            <!-- Card Playlist -->
-            <a href="{{ route('fpp.playlist.index') }}"
-                class="card bg-white shadow-lg rounded-xl p-8 flex flex-col items-center hover:bg-gray-50 hover:shadow-xl transition-all duration-300 border border-gray-200 min-h-[250px]">
-                <p class="font-bold text-gray-700 text-5xl mb-4">{{ $counts['playlists'] }}</p>
-                <div class="flex items-center">
-                    <i data-feather="list" class="text-gray-500 mr-2" style="width: 24px; height: 24px;"></i>
-                    <h2 class="text-lg font-semibold text-gray-800">{{ __('dashboard-index.playlists') }}</h2>
-                </div>
-            </a>
-
-            <!-- Card Schedule -->
-            <a href="{{ route('schedule.index') }}"
-                class="card bg-white shadow-lg rounded-xl p-8 flex flex-col items-center hover:bg-gray-50 hover:shadow-xl transition-all duration-300 border border-gray-200 min-h-[250px]">
-                <p class="font-bold text-gray-700 text-5xl mb-4">{{ $counts['schedules'] }}</p>
-                <div class="flex items-center">
-                    <i data-feather="calendar" class="text-gray-500 mr-2" style="width: 24px; height: 24px;"></i>
-                    <h2 class="text-lg font-semibold text-gray-800">{{ __('dashboard-index.schedules') }}</h2>
-                </div>
-            </a>
+        <!-- Hàng dưới: 3 cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-center max-w-5xl mx-auto">
+            {!! dashboard_card('image', __('dashboard-index.media'), $counts['media'], 'green', route('fpp.media.index')) !!}
+            {!! dashboard_card(
+                'list',
+                __('dashboard-index.playlists'),
+                $counts['playlists'],
+                'purple',
+                route('fpp.playlist.index'),
+            ) !!}
+            {!! dashboard_card(
+                'calendar',
+                __('dashboard-index.schedules'),
+                $counts['schedules'],
+                'red',
+                route('schedule.index'),
+            ) !!}
         </div>
     </div>
 @stop
