@@ -16,10 +16,10 @@
                 <a href="$href"
                     class="transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 bg-white shadow-md hover:shadow-xl border border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-[380px] !min-h-[380px]" style="min-height: 380px !important;">
                     <div class="w-16 h-16 rounded-full bg-$color-100 flex items-center justify-center mb-4">
-                        <i data-feather="$icon" class="text-$color-600" style="width: 28px; height: 28px;"></i>
+                        <i data-feather="$icon" class="text-$color-600" style="width: 48px; height: 48px;"></i>
                     </div>
-                    <p class="text-4xl font-extrabold text-gray-800 mb-2">$count</p>
-                    <h2 class="text-lg font-semibold text-gray-600">$title</h2>
+                    <p class="text-8xl font-extrabold text-gray-800 mb-2" style="font-size: 6rem !important;">$count</p>
+                    <h2 class="text-3xl font-semibold text-gray-600" style="font-size: 2rem !important;">$title</h2>
                 </a>
             HTML;
         }
@@ -39,7 +39,7 @@
 
         <!-- Hàng trên: 4 cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10 justify-center max-w-4xl mx-auto">
-            <!-- Nội dung căn giữa dọc trong card -->
+            <!-- Nội dung to hơn nữa, căn giữa dọc -->
             @if ($auth->isRoleRoot())
                 {!! dashboard_card(
                     'briefcase',
