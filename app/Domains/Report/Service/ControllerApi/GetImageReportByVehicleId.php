@@ -25,14 +25,14 @@ class GetImageReportByVehicleId
      */
     public function handle(string $startDate, string $endDate, array $vehicleIds): array
     {
-        Log::info('GetImageReportByVehicleIdService: Starting handle method', [
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'vehicle_ids' => $vehicleIds,
-        ]);
+        // Log::info('GetImageReportByVehicleIdService: Starting handle method', [
+        //     'start_date' => $startDate,
+        //     'end_date' => $endDate,
+        //     'vehicle_ids' => $vehicleIds,
+        // ]);
 
         // Check if all vehicle_ids exist
-        Log::info('GetImageReportByVehicleIdService: Checking vehicle IDs existence');
+        // Log::info('GetImageReportByVehicleIdService: Checking vehicle IDs existence');
         $startTime = microtime(true);
         $existingVehicles = Vehicle::whereIn('id', $vehicleIds)->pluck('id')->toArray();
         $missingIds = array_diff($vehicleIds, $existingVehicles);
@@ -43,17 +43,18 @@ class GetImageReportByVehicleId
             throw new \Exception('One or more vehicle IDs not found');
         }
         $fetchTime = microtime(true) - $startTime;
-        Log::info('GetImageReportByVehicleIdService: Vehicle IDs checked', [
-            'vehicle_ids' => $vehicleIds,
-            'fetch_time_seconds' => $fetchTime,
-        ]);
+        // Log::info('GetImageReportByVehicleIdService: Vehicle IDs checked', [
+        //     'vehicle_ids' => $vehicleIds,
+        //     'fetch_time_seconds' => $fetchTime,
+        // ]);
 
         // Initialize result
         $isSingleVehicle = count($vehicleIds) === 1;
         $result = $isSingleVehicle ? [] : array_fill_keys($vehicleIds, []);
 
         // Fetch reports within date range and vehicle_ids
-        Log::info('GetImageReportByVehicleIdService: Fetching reports');
+        // Log::info('GetImageReportByVehicleIdService: Fetching reports');
+
         $startTime = microtime(true);
         $reports = VehicleImageReport::whereIn('vehicle_id', $vehicleIds)
             ->whereBetween('created_at', [
@@ -100,13 +101,13 @@ class GetImageReportByVehicleId
         }
 
         $fetchTime = microtime(true) - $startTime;
-        Log::info('GetImageReportByVehicleIdService: Reports fetched', [
-            'vehicle_ids' => $vehicleIds,
-            'report_count' => $isSingleVehicle ? count($result) : array_sum(array_map('count', $result)),
-            'fetch_time_seconds' => $fetchTime,
-        ]);
+        // Log::info('GetImageReportByVehicleIdService: Reports fetched', [
+        //     'vehicle_ids' => $vehicleIds,
+        //     'report_count' => $isSingleVehicle ? count($result) : array_sum(array_map('count', $result)),
+        //     'fetch_time_seconds' => $fetchTime,
+        // ]);
 
-        Log::info('GetImageReportByVehicleIdService: Handle method completed successfully');
+        // Log::info('GetImageReportByVehicleIdService: Handle method completed successfully');
         return $result;
     }
 }

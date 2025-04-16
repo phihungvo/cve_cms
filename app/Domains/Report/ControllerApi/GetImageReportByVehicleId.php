@@ -56,7 +56,7 @@ class GetImageReportByVehicleId
      */
     public function __construct(GetImageReportByVehicleIdService $service)
     {
-        Log::info('GetImageReportByVehicleId: Constructor initialized');
+        // Log::info('GetImageReportByVehicleId: Constructor initialized');
         $this->service = $service;
     }
 
@@ -71,12 +71,13 @@ class GetImageReportByVehicleId
     public function index(Request $request): JsonResponse
     {
         // Log request data for debugging
-        Log::info('GetImageReportByVehicleId: Starting index method', [
-            'query_params' => $request->query(),
-        ]);
+        // Log::info('GetImageReportByVehicleId: Starting index method', [
+        //     'query_params' => $request->query(),
+        // ]);
 
         // Validate query parameters
-        Log::info('GetImageReportByVehicleId: Starting validation');
+        // Log::info('GetImageReportByVehicleId: Starting validation');
+
         $startTime = microtime(true);
         $validator = Validator::make($request->query(), [
             'start_date' => 'required|date_format:Y-m-d', // Start date must be YYYY-MM-DD
@@ -94,19 +95,21 @@ class GetImageReportByVehicleId
             ], 422);
         }
         $validationTime = microtime(true) - $startTime;
-        Log::info('GetImageReportByVehicleId: Validation completed', [
-            'validation_time_seconds' => $validationTime,
-        ]);
+
+        // Log::info('GetImageReportByVehicleId: Validation completed', [
+        //     'validation_time_seconds' => $validationTime,
+        // ]);
 
         try {
             // Parse vehicle_ids from comma-separated string
             $vehicleIds = array_map('intval', explode(',', $request->query('vehicle_ids')));
-            Log::info('GetImageReportByVehicleId: Parsed vehicle IDs', [
-                'vehicle_ids' => $vehicleIds,
-            ]);
+            // Log::info('GetImageReportByVehicleId: Parsed vehicle IDs', [
+            //     'vehicle_ids' => $vehicleIds,
+            // ]);
 
             // Call service to fetch reports
-            Log::info('GetImageReportByVehicleId: Calling service');
+            // Log::info('GetImageReportByVehicleId: Calling service');
+
             $startTime = microtime(true);
             $reports = $this->service->handle(
                 $request->query('start_date'),
@@ -114,20 +117,20 @@ class GetImageReportByVehicleId
                 $vehicleIds
             );
             $serviceTime = microtime(true) - $startTime;
-            Log::info('GetImageReportByVehicleId: Service completed', [
-                'service_time_seconds' => $serviceTime,
-                'report_count' => is_array($reports) ? count($reports) : array_sum(array_map('count', $reports)),
-            ]);
+            // Log::info('GetImageReportByVehicleId: Service completed', [
+            //     'service_time_seconds' => $serviceTime,
+            //     'report_count' => is_array($reports) ? count($reports) : array_sum(array_map('count', $reports)),
+            // ]);
 
             // Return reports
-            Log::info('GetImageReportByVehicleId: Index method completed successfully');
+            // Log::info('GetImageReportByVehicleId: Index method completed successfully');
             return response()->json($reports, 200);
         } catch (\Exception $e) {
             // Log and return error if an exception occurs
-            Log::error('GetImageReportByVehicleId: Exception occurred', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            // Log::error('GetImageReportByVehicleId: Exception occurred', [
+            //     'message' => $e->getMessage(),
+            //     'trace' => $e->getTraceAsString(),
+            // ]);
             return response()->json([
                 'error' => 'Failed to retrieve image reports: ' . $e->getMessage(),
             ], 500);
