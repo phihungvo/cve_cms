@@ -14,7 +14,7 @@
         {
             return <<<HTML
                 <a href="$href"
-                    class="transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 bg-white shadow-md hover:shadow-xl border border-gray-200 rounded-2xl p-6 flex flex-col items-center text-center min-h-[440px]">
+                    class="transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 bg-white shadow-md hover:shadow-xl border border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-[380px] !min-h-[380px]" style="min-height: 380px !important;">
                     <div class="w-16 h-16 rounded-full bg-$color-100 flex items-center justify-center mb-4">
                         <i data-feather="$icon" class="text-$color-600" style="width: 28px; height: 28px;"></i>
                     </div>
@@ -25,7 +25,7 @@
         }
     @endphp
 
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-8 h-full">
         <!-- Bộ lọc Enterprise -->
         @if ($auth->isRoleRoot())
             <div class="flex justify-center mb-10">
@@ -38,8 +38,8 @@
         @endif
 
         <!-- Hàng trên: 4 cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10 justify-center max-w-6xl mx-auto">
-            <!-- Khoảng cách ngang/dọc 40px -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10 justify-center max-w-4xl mx-auto">
+            <!-- Nội dung căn giữa dọc trong card -->
             @if ($auth->isRoleRoot())
                 {!! dashboard_card(
                     'briefcase',
@@ -68,7 +68,7 @@
         </div>
 
         <!-- Hàng dưới: 3 cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-center max-w-5xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-center max-w-3xl mx-auto">
             {!! dashboard_card('image', __('dashboard-index.media'), $counts['media'], 'green', route('fpp.media.index')) !!}
             {!! dashboard_card(
                 'list',
