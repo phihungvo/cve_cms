@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Domains\Dashboard\Controller;
 
@@ -22,6 +24,8 @@ class Index extends ControllerAbstract
      */
     protected function data(): array
     {
-        return ControllerService::new($this->request, $this->auth)->data();
+        $data = ControllerService::new($this->request, $this->auth)->data();
+        $data['auth'] = $this->auth; // Thêm $auth vào dữ liệu truyền cho view
+        return $data;
     }
 }
