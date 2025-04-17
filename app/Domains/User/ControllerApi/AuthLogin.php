@@ -79,7 +79,7 @@ class AuthLogin extends Controller
         $roleAliases = $user->roles->pluck('alias')->filter()->toArray();
 
         // Kiểm tra nếu user có role thuộc client portal
-        $isClient = array_intersect($roleAliases, ['client-goads-portal_led', 'client-goads-portal-decal']);
+        $isClient = array_intersect($roleAliases, ['client-goads-portal-led', 'client-goads-portal-decal']);
 
         // Kiểm tra nếu user có role thuộc driver
         $isDriver = array_intersect($roleAliases, [
