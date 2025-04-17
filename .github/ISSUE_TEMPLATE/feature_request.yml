@@ -44,21 +44,25 @@ body:
     validations:
       required: false
 
-  - type: dropdown
-  id: service
-  attributes:
-    label: Tính năng này hổ trợ cho loại dịch vụ nào?
-    options:
-      - Digital Signage
-      - Cam Cloud
+- type: dropdown
+    id: service
+    attributes:
+      label: Tính năng này hỗ trợ cho loại dịch vụ nào?
+      options:
+        - Digital Signage
+        - Cam Cloud
+    validations:
+      required: true
 
   - type: dropdown
-  id: customer
-  attributes:
-    label: Tính năng này khách hàng nào đề xuất?
-    options:
-      - GOADS MEDIA TECHNOLOGY
-      - ASIAMEDIA VIETNAM
-      - ANSCENTER HCM
-      - SILVER SEA
-      - VCV
+    id: customer
+    attributes:
+      label: Tính năng này do khách hàng nào đề xuất?
+      options:
+        - GOADS MEDIA TECHNOLOGY
+        - ASIAMEDIA VIETNAM
+        - ANSCENTER HCM
+        - SILVER SEA
+        - VCV
+    validations:
+      required: true
