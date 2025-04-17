@@ -18,7 +18,7 @@ body:
       required: true
       
   - type: textarea
-    id: benefit
+    id: description
     attributes:
       label: Mô tả chi tiết
       description: Mô tả rõ ràng tính năng này là gì và mục đích sử dụng của nó.
@@ -44,7 +44,7 @@ body:
     validations:
       required: false
 
-- type: dropdown
+  - type: dropdown
     id: service
     attributes:
       label: Tính năng này hỗ trợ cho loại dịch vụ nào?
