@@ -1,0 +1,37 @@
+name: ✨ Feature Request
+description: Suggest a feature or improvement for the project
+title: "[Feature] "
+labels: [enhancement]
+assignees: ""
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hãy cung cấp thông tin bên dưới để nhóm phát triển hiểu rõ hơn về yêu cầu của bạn.
+        
+  - type: input
+    id: feature-title
+    attributes:
+      label: Tên tính năng
+      placeholder: "Ví dụ: Hỗ trợ đăng nhập bằng Google"
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Lợi ích mang lại
+      description: Tính năng này sẽ giúp người dùng hoặc dự án như thế nào?
+      placeholder: "Tiết kiệm thời gian tạo tài khoản, tăng tính tiện lợi..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Ghi chú bổ sung
+      description: Thông tin bổ sung, tài liệu tham khảo, hoặc mockup nếu có.
+      placeholder: "Đính kèm ảnh, liên kết tài liệu mô tả chi tiết..."
+    validations:
+      required: false
