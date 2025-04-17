@@ -4,7 +4,6 @@ name: 🐛 Bug Report
 description: Report bugs for the dev team to check and fix
 title: "[BUG] "
 labels: [bug]
-assignees: ""
 
 body:
   - type: markdown
