@@ -1,0 +1,60 @@
+name: 💬 Client Feedback
+description: Ghi nhận phản hồi hoặc yêu cầu từ khách hàng
+title: "[Client Feedback] "
+labels: [client-feedback]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cảm ơn bạn đã ghi nhận phản hồi từ khách hàng. Vui lòng điền các thông tin dưới đây để đội phát triển tiện theo dõi.
+
+  - type: dropdown
+    id: customer
+    attributes:
+      label: Phản hồi đến từ khách hàng nào?
+      options:
+        - GOADS MEDIA TECHNOLOGY
+        - ASIAMEDIA VIETNAM
+        - ANSCENTER HCM
+        - SILVER SEA
+        - VCV
+    validations:
+      required: true
+
+  - type: dropdown
+    id: service
+    attributes:
+      label: Phản hồi liên quan đến dịch vụ nào?
+      options:
+        - Digital Signage
+        - Cam Cloud
+    validations:
+      required: true
+
+  - type: textarea
+    id: feedback_content
+    attributes:
+      label: Nội dung phản hồi
+      description: Ghi rõ nội dung phản hồi từ khách hàng (có thể trích dẫn nguyên văn).
+      placeholder: "VD: Khách nói 'Giao diện thống kê hơi khó nhìn, cần biểu đồ đơn giản hơn'"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Ngữ cảnh sử dụng / tình huống phát sinh phản hồi
+      description: Phản hồi được ghi nhận trong hoàn cảnh nào? (Demo, hỗ trợ kỹ thuật, họp khách hàng...)
+      placeholder: "VD: Trong buổi demo ngày 15/4, khách đã nêu vấn đề khi xem thống kê trên trình duyệt Safari..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Đề xuất xử lý (nếu có)
+      description: Gợi ý hành động tiếp theo từ phía bạn hoặc nhóm phát triển.
+      placeholder: "VD: Nên cải tiến UI phần thống kê, gợi ý dùng biểu đồ cột đơn giản."
+    validations:
+      required: false

@@ -16,6 +16,15 @@ body:
       placeholder: "Ví dụ: Hỗ trợ đăng nhập bằng Google"
     validations:
       required: true
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: Mô tả chi tiết
+      description: Mô tả rõ ràng tính năng này là gì và mục đích sử dụng của nó.
+      placeholder: "Tính năng cho phép người dùng đăng nhập bằng tài khoản Google thay vì tạo tài khoản riêng."
+    validations:
+      required: false
 
   - type: textarea
     id: benefit
@@ -34,3 +43,26 @@ body:
       placeholder: "Đính kèm ảnh, liên kết tài liệu mô tả chi tiết..."
     validations:
       required: false
+
+  - type: dropdown
+    id: service
+    attributes:
+      label: Tính năng này hỗ trợ cho loại dịch vụ nào?
+      options:
+        - Digital Signage
+        - Cam Cloud
+    validations:
+      required: true
+
+  - type: dropdown
+    id: customer
+    attributes:
+      label: Tính năng này do khách hàng nào đề xuất?
+      options:
+        - GOADS MEDIA TECHNOLOGY
+        - ASIAMEDIA VIETNAM
+        - ANSCENTER HCM
+        - SILVER SEA
+        - VCV
+    validations:
+      required: true
