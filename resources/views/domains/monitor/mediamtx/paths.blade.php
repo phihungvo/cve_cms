@@ -154,7 +154,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         @foreach ($paths as $index => $path)
             const video{{ $index }} = document.getElementById('hls-video-{{ $index }}');
-            const hlsUrl{{ $index }} = 'https://hls.aigova.com/{{ $path['name'] }}/index.m3u8';
+            const hlsUrl{{ $index }} = 'https://hls.cvedix.com/{{ $path['name'] }}/index.m3u8';
 
             if (Hls.isSupported()) {
                 const hls{{ $index }} = new Hls();

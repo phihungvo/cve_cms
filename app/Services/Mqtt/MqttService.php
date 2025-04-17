@@ -33,7 +33,10 @@ class MqttService
         $this->port = env('MQTT_PORT', 1883);
         $this->clientId = 'laravel-publisher-'.uniqid();
 
-        $this->connectionSettings = new ConnectionSettings();
+        $this->connectionSettings = (new ConnectionSettings)
+            ->setUseTls(true)
+            ->setTlsVerifyPeer(false)
+            ->setTlsVerifyPeerName(false);
 
         // Không kết nối ngay lập tức
         $this->mqtt = new MqttClient($this->server, $this->port, $this->clientId);
@@ -52,6 +55,7 @@ class MqttService
             try {
                 $this->mqtt->connect($this->connectionSettings);
                 $this->connected = true; // Đánh dấu là đã kết nối
+
             } catch (ProtocolNotSupportedException|ConfigurationInvalidException|ConnectingToBrokerFailedException $e) {
                 throw new Exception('MQTT connection failed: '.$e->getMessage());
             }
