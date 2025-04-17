@@ -71,10 +71,26 @@ class AuthLogin extends Controller
             'roles',
             'campaigns' => function ($query) {
                 $query->with('performance', 'media');
-            }
+            },
+            'devices.vehicle', // Load devices và vehicle liên quan
+            'devices.displays', // Load displays liên quan đến devices
         ]);
 
-        return [
+        $roleAliases = $user->roles->pluck('alias')->filter()->toArray();
+
+        // Kiểm tra nếu user có role thuộc client portal
+        $isClient = array_intersect($roleAliases, ['client-goads-portal_led', 'client-goads-portal-decal']);
+
+        // Kiểm tra nếu user có role thuộc driver
+        $isDriver = array_intersect($roleAliases, [
+            'driver-motocycle-led',
+            'driver-motocycle-decal',
+            'driver-car-led',
+            'driver-car-decal'
+        ]);
+
+        // Dữ liệu cơ bản của user 
+        $baseData = [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
@@ -90,7 +106,11 @@ class AuthLogin extends Controller
                     'alias' => $role->alias ?? null,
                 ];
             })->all(),
-            'campaigns' => $user->campaigns->map(function ($campaign) {
+        ];
+
+        // Nếu user là client
+        if ($isClient) {
+            $baseData['campaigns'] = $user->campaigns->map(function ($campaign) {
                 return [
                     'id' => $campaign->id,
                     'name' => $campaign->name,
@@ -127,7 +147,43 @@ class AuthLogin extends Controller
                         ];
                     })->all(),
                 ];
-            })->all(),
-        ];
+            })->all();
+        }
+
+        // Nếu user là driver
+        if ($isDriver) {
+            $baseData['devices'] = $user->devices->map(function ($device) {
+                return [
+                    'id' => $device->id,
+                    'serial' => $device->serial,
+                    'name' => $device->name,
+                    'enabled' => $device->enabled,
+                    'shared' => $device->shared,
+                    'shared_public' => $device->shared_public,
+                    'vehicle' => $device->vehicle ? [
+                        'id' => $device->vehicle->id,
+                        'name' => $device->vehicle->name,
+                        'enabled' => $device->vehicle->enabled,
+                        'timezone_id' => $device->vehicle->timezone_id,
+                    ] : null,
+                    'display' => $device->displays->map(function ($display) {
+                        return [
+                            'id' => $display->id,
+                            'status_id' => $display->status_id,
+                            'type' => $display->type,
+                            'description' => $display->description,
+                            'location_id' => $display->location_id,
+                            'schedule_id' => $display->schedule_id,
+                            'playlist_published' => $display->playlist_published,
+                            'schedule_published' => $display->schedule_published,
+                            'playlist_id' => $display->playlist_id,
+                        ];
+                    })->all(),
+                ];
+            })->all();
+        }
+
+        return $baseData;
     }
+
 }
