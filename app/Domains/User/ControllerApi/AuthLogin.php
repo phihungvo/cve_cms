@@ -89,7 +89,7 @@ class AuthLogin extends Controller
             'driver-car-decal'
         ]);
 
-        // Dữ liệu cơ bản của user
+        // Dữ liệu cơ bản của user 
         $baseData = [
             'id' => $user->id,
             'name' => $user->name,
