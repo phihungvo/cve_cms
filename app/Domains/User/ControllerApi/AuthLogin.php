@@ -98,7 +98,10 @@ class AuthLogin extends Controller
             'api_key' => $user->api_key_full,
             'api_key_prefix' => $user->api_key_prefix,
             'api_key_enabled' => $user->api_key_enabled,
-            'access_key' => $user->access_key,
+            'minio_access_key' => $user->minio_access_key,
+            'minio_secrect_key' => $user->minio_secrect_key,
+            'minio_region' => $user->minio_region,
+
             'roles' => $user->roles->map(function ($role) {
                 return [
                     'id' => $role->id,
