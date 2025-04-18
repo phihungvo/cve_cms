@@ -11,4 +11,6 @@ Route::delete('/device/{id}', Delete::class)->name('device.delete');
 Route::post('/device/log', DeviceLog::class)->name('device.log.create');
 Route::post('/device/status', DeviceStatus::class);
 Route::get('/device/status', GetDeviceStatusBySerial::class);
+Route::get('/device/media/capture/{id}', [GetListMediaCapture::class, 'data']);
+
 
