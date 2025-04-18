@@ -14,6 +14,7 @@ class Create extends ValidateAbstract
     public function rules(): array
     {
         return [
+            'enterprise_id' => ['bail', 'nullable', 'integer'],
             'code' => ['bail', 'required', 'uuid'],
             'name' => ['bail', 'required', 'string'],
             'model' => ['bail', 'required', 'string'],
@@ -22,7 +23,6 @@ class Create extends ValidateAbstract
             'information' => ['bail', 'nullable', 'json'],
             'phone_number' => ['bail', 'string'],
             'password' => ['bail', 'string'],
-            'user_id' => ['bail', 'integer'],
             'vehicle_id' => ['bail', 'nullable', 'integer'],
             'enabled' => ['bail', 'boolean'],
             'shared' => ['bail', 'boolean'],

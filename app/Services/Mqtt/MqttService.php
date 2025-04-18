@@ -31,9 +31,12 @@ class MqttService
     {
         $this->server = env('MQTT_SERVER', 'broker.emqx.io');
         $this->port = env('MQTT_PORT', 1883);
-        $this->clientId = 'laravel-publisher-'.uniqid();
+        $this->clientId = 'cvedix-publisher-'.uniqid();
 
-        $this->connectionSettings = new ConnectionSettings();
+        $this->connectionSettings = (new ConnectionSettings)
+            ->setUseTls(true)
+            ->setTlsVerifyPeer(false)
+            ->setTlsVerifyPeerName(false);
 
         // Không kết nối ngay lập tức
         $this->mqtt = new MqttClient($this->server, $this->port, $this->clientId);

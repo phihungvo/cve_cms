@@ -2,6 +2,7 @@
 
 namespace App\Domains\Device\Controller;
 
+use App\Exceptions\NotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use App\Domains\Device\Service\Controller\Update as ControllerService;
@@ -15,7 +16,12 @@ class Update extends ControllerAbstract
      */
     public function __invoke(int $id): Response|RedirectResponse
     {
-        $this->row($id);
+        try {
+            $this->row($id);
+        } catch (NotFoundException $e) {
+            $this->sessionMessage('error', $e->getMessage());
+            return redirect()->route('device.index');
+        }
 
         if ($response = $this->actions()) {
             return $response;
@@ -48,11 +54,14 @@ class Update extends ControllerAbstract
      */
     protected function update(): RedirectResponse
     {
-        $this->action()->update();
-
-        $this->sessionMessage('success', __('device-update.success'));
-
-        return redirect()->route('device.update', $this->row->id);
+        try {
+            $this->action()->update();
+            $this->sessionMessage('success', __('device-update.success'));
+            return redirect()->route('device.update', $this->row->id);
+        } catch (\Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+            return redirect()->back()->withInput();
+        }
     }
 
     /**
