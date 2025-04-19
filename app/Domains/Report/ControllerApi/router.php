@@ -13,7 +13,7 @@ use App\Domains\Report\Service\ControllerApi\DailyDistanceImpressionReach as Dai
 
 use Illuminate\Http\Request; // Sử dụng đúng namespace cho Request
 
-Route::get('/report/reach-and-distance', function (Request $request) {
+Route::get('/report/device/distance-impression-reach', function (Request $request) {
     $service = DeviceDistanceImpressionReachService::new($request, auth()->user());
     return (new DeviceDistanceImpressionReachController($service))->data($request);
 });
