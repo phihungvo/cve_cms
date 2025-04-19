@@ -83,18 +83,5 @@
             // Redirect with updated query parameters
             window.location.href = `${currentDomain}?${params.toString()}`;
         });
-
-        let selectUser = document.getElementById('device-user');
-        selectUser.addEventListener('change', function () {
-            const selectedValue = this.value;
-            const currentDomain = window.location.origin + window.location.pathname;
-            const params = new URLSearchParams(window.location.search);
-
-            // Update the query parameter
-            params.set('user_id', selectedValue);
-
-            // Redirect with updated query parameters
-            window.location.href = `${currentDomain}?${params.toString()}`;
-        });
     </script>
 @endpush

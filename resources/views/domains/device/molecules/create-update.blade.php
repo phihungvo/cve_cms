@@ -1,4 +1,5 @@
 <div class="box p-5 mt-5">
+    <!-- input code -->
     <div class="p-2">
         <label for="device-code" class="form-label">{{ __('device-update.code') }}</label>
         <div class="input-group">
@@ -9,64 +10,52 @@
                     tabindex="-1">@icon('refresh-cw', 'w-5 h-5')</button>
         </div>
     </div>
-
+    <!-- input name -->
     <div class="p-2">
         <label for="device-name" class="form-label">{{ __('device-create.name') }}</label>
         <input type="text" name="name" class="form-control form-control-lg" id="device-name"
-               value="{{ $REQUEST->input('name') }}" required>
+               value="{{ old('name', isset($row) ? $row->name : '') }}" required>
     </div>
-
+    <!-- input model -->
     <div class="p-2">
         <label for="device-model" class="form-label">{{ __('device-create.model') }}</label>
         <input type="text" name="model" class="form-control form-control-lg" id="device-model"
-               value="{{ $REQUEST->input('model') }}" required>
+               value="{{ old('model', isset($row) ? $row->model: '') }}" required>
     </div>
-
+    <!-- input serial -->
     <div class="p-2">
         <label for="device-serial" class="form-label">{{ __('device-create.serial') }}</label>
         <input type="text" name="serial" class="form-control form-control-lg" id="device-serial"
-               value="{{ $REQUEST->input('serial') }}" required>
+               value="{{ old('serial', isset($row) ? $row->serial: '') }}" required>
     </div>
-
+    <!-- input device_type_id -->
     <div class="p-2">
         <x-select name="device_type_id" :options="$device_types" value="id" text="name" id="device-create-type"
                   :label="__('device-create.device_type')" :placeholder="__('device-create.device_type-select')"
-                  :selected="isset($row) ? $row->device_type_id : null"></x-select>
+                  :selected="old('device_type_id', isset($row) ? $row->device_type_id : null)" required></x-select>
     </div>
-
-    {{--    <div class="p-2">--}}
-    {{--        @if (isset($enterprises)) <!-- Root thấy dropdown để chọn enterprise -->--}}
-    {{--        <x-select name="enterprise_id" :options="$enterprises" value="id" text="name" id="device-create-enterprise"--}}
-    {{--            :label="__('device-create.enterprise')" :placeholder="__('device-create.enterprise-select')"--}}
-    {{--            :selected="$REQUEST->input('enterprise_id', $row->enterprise_id ?? null)" required></x-select>--}}
-    {{--        @else <!-- User thường chỉ thấy tên enterprise -->--}}
-    {{--        <label for="device-enterprise" class="form-label">{{ __('device-create.enterprise') }}</label>--}}
-    {{--        <input type="text" class="form-control form-control-lg" id="device-enterprise"--}}
-    {{--            value="{{ $enterprise_name ?? 'N/A' }}" readonly>--}}
-    {{--        <input type="hidden" name="enterprise_id" value="{{ $enterprise_id ?? $row->enterprise_id ?? '' }}">--}}
-    {{--        @endif--}}
-    {{--    </div>--}}
-
+    <!-- input phone_number -->
     <div class="p-2">
         <label for="device-phone_number" class="form-label">{{ __('device-create.phone_number') }}</label>
         <input type="text" name="phone_number" class="form-control form-control-lg" id="device-phone_number"
-               value="{{ $REQUEST->input('phone_number') }}">
+               value="{{ old('phone_number',isset($row) ? $row->phone_number: '') }}">
     </div>
-
+    <!-- input password -->
     <div class="flex-1 p-2">
         <label for="device-password" class="form-label">{{ __('device-create.password') }}</label>
-
         <div class="input-group">
             <input type="password" name="password" class="form-control form-control-lg" id="device-password"
-                   value="{{ $REQUEST->input('password') }}" step="1"/>
+                   value="{{ old('password', isset($row) ? $row->password: '') }}" step="1"/>
             <button type="button" class="input-group-text input-group-text-lg" title="{{ __('common.show') }}"
                     data-password-show="#device-password" tabindex="-1">@icon('eye', 'w-5 h-5')</button>
         </div>
     </div>
-
+    <!-- input bookmark_id/vehicle_id -->
     <div class="p-2">
         <x-select name="vehicle_id" :options="$vehicles" value="id" text="name" id="device-create-vehicle"
-                  :label="__('device-create.vehicle')" :placeholder="__('device-create.vehicle-select')"></x-select>
+                  :label="__('device-create.vehicle')" :placeholder="__('device-create.vehicle-select')"
+                    :selected="old('vehicle_id', isset($row) ? $row->vehicle_id : null)"
+        ></x-select>
     </div>
 
     <!-- Thêm checkbox "Have camera supported?" -->
@@ -88,14 +77,14 @@
         <label for="device-camera-maximum"
                class="form-label">{{ __('device-create.maximum-number-of-cameras') }}</label>
         <input type="number" name="camera_maximum" class="form-control form-control-lg" id="device-camera-maximum"
-            value="{{ $REQUEST->input('camera_maximum', isset($row) ? $row->camera_maximum : 1) }}"
+            value="{{ old('camera_maximum', isset($row) ? $row->camera_maximum : 1) }}"
                min="1" step="1" {{ isset($row) && $row->camera_supported ? '' : 'disabled' }}>
     </div>
 
     <div class="p-2">
         <div class="form-check">
             <input type="checkbox" name="enabled" value="1" class="form-check-switch"
-                   id="device-enabled" {{ $REQUEST->input('enabled') ? 'checked' : '' }} />
+                   id="device-enabled" {{ old('enabled', isset($row) ? $row->enable : false) ? 'checked' : '' }} />
             <label for="device-enabled" class="form-check-label">{{ __('device-create.enabled') }}</label>
         </div>
     </div>
@@ -103,7 +92,7 @@
     <div class="p-2">
         <div class="form-check">
             <input type="checkbox" name="shared" value="1" class="form-check-switch"
-                   id="device-shared" {{ $REQUEST->input('shared') ? 'checked' : '' }} />
+                   id="device-shared" {{ old('shared', isset($row) ? $row->shared : false) ? 'checked' : '' }} />
             <label for="device-shared" class="form-check-label">{{ __('device-create.shared') }}</label>
         </div>
     </div>
@@ -111,7 +100,7 @@
     <div class="p-2">
         <div class="form-check">
             <input type="checkbox" name="shared_public" value="1" class="form-check-switch"
-                   id="device-shared_public" {{ $REQUEST->input('shared_public') ? 'checked' : '' }} / >
+                   id="device-shared_public" {{ old('shared_public', isset($row) ? $row->shared_public : false) ? 'checked' : '' }} / >
             <label for="device-shared_public" class="form-check-label">{{ __('device-create.shared_public') }}</label>
         </div>
     </div>
@@ -145,18 +134,6 @@
                   cameraMaximumField.setAttribute('disabled', 'disabled');
               }
           });
-        });
-
-        let inputCreateUser = document.getElementById('device-user');
-        let inputDeviceVehicle = document.getElementById('device-create-vehicle');
-
-        // Add event listener for change event on inputCreateUser
-        inputCreateUser.addEventListener('change', function () {
-            if (this.value === "") {
-                inputDeviceVehicle.setAttribute('disabled', 'disabled');
-            } else {
-                inputDeviceVehicle.removeAttribute('disabled');
-            }
         });
     </script>
 @endpush

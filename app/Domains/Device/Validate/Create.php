@@ -14,6 +14,7 @@ class Create extends ValidateAbstract
     public function rules(): array
     {
         return [
+            'device_type_id' => ['bail', 'required', 'integer'],
             'enterprise_id' => ['bail', 'nullable', 'integer'],
             'code' => ['bail', 'required', 'uuid'],
             'name' => ['bail', 'required', 'string'],

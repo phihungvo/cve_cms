@@ -24,7 +24,7 @@ class Create extends CreateUpdateAbstract
             'shared' => $this->data['shared'],
             'shared_public' => $this->data['shared_public'],
             'vehicle_id' => $this->data['vehicle_id'],
-            'user_id' => $this->data['user_id'] ?? null,
+            'user_id' => $this->data['user_id'],
             'device_type_id' => $this->data['device_type_id'],
             'enterprise_id' => $this->data['enterprise_id'],
             'camera_supported' => $this->data['camera_supported'] ?? 0,

@@ -5,6 +5,7 @@
         'serial-exists' => "Serial ':serial' already exists for another device",
         'vehicle-exists' => 'The selected bookmark is not available',
         'vehicle-not-found' => 'The selected bookmark does not exist',
+        'device_type-required' => 'The device type is required',
     ],
     'meta-title' => 'Devices > Create',
     'model' => 'Model',

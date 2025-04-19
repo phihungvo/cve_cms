@@ -80,7 +80,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
 
     protected function dataUserId(): void
     {
-        $this->data['userId'] = $this->data['vehicle_id'] ? Vehicle::find($this->data['vehicle_id'])->user_id : null;
+        $this->data['user_id'] = $this->data['vehicle_id'] ? Vehicle::find($this->data['vehicle_id'])->user_id : null;
     }
 
     protected function dataEnterpriseId(): void
