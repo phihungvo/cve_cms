@@ -7,11 +7,12 @@ use App\Domains\AlarmNotification\Model\AlarmNotification as AlarmNotificationMo
 use App\Domains\Device\Model\Device as Model;
 use App\Domains\DeviceMessage\Model\DeviceMessage as DeviceMessageModel;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract;
+use App\Exceptions\NotFoundException;
 
 abstract class ControllerAbstract extends ControllerWebAbstract
 {
     /**
-     * @var ?\App\Domains\Device\Model\Device
+     * @var ?Model
      */
     protected ?Model $row;
 
@@ -33,7 +34,8 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     /**
      * @param int $id
      *
-     * @return \App\Domains\Device\Model\Device
+     * @return Model
+     * @throws NotFoundException
      */
     protected function row(int $id): Model
     {
