@@ -45,8 +45,8 @@ return [
 
         'minio' => [
             'driver' => 's3',
-            'key' => env('MINIO_ACCESS_KEY', 'k5g76AUWC5QFIFk2xx0N'),
-            'secret' => env('MINIO_SECRET_KEY', '8v61VSGzNbS7TQveGU53OKoYZStNH5hN9uOiPMFK'),
+            'key' => env('MINIO_ACCESS_KEY', 'aURFYTzo9PyjFitmRI2A'),
+            'secret' => env('MINIO_SECRET_KEY', 'dy8RI1mZ3N4NgBA9fYTOZeOC88S9UWVePBshMX83'),
             'region' => env('MINIO_REGION', default: 'vn-middle-rack-01'),
             'bucket' => env('MINIO_DEFAULT_BUCKET', 'media'),
             'endpoint' => env('MINIO_ENDPOINT', 'https://minio.cvedix.com'),

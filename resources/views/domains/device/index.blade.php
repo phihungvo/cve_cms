@@ -25,7 +25,7 @@ $allPermission = $userPermission['all'] ?? [];
         @if(isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::ROOT->value]) || isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::OWNER->value]))
             @if ($users_multiple)
                 <div class="flex-grow mt-2 lg:mt-0">
-                    <x-select name="user_id" :options="$users" value="id" text="name" placeholder="{{ __('device-index.user') }}"
+                    <x-select name="user_id" :options="$users" value="id" text="name" placeholder="{{ __('device-index.select_user') }}"
                         data-change-submit></x-select>
                 </div>
             @endif
@@ -33,13 +33,13 @@ $allPermission = $userPermission['all'] ?? [];
 
         <div class="flex-grow mt-2 lg:mt-0">
             <x-select name="vehicle_id" :options="$vehicles" value="id" text="name"
-                placeholder="{{ __('device-index.vehicle') }}" data-change-submit></x-select>
+                placeholder="{{ __('device-index.select_vehicle') }}" data-change-submit></x-select>
         </div>
 
         @if(isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::ROOT->value]))
             <div class="flex-grow mt-2 lg:mt-0">
                 <x-select name="device_type" :options="$device_type" value="name" text="name"
-                    placeholder="{{ __('device-index.device_type') }}" data-change-submit></x-select>
+                    placeholder="{{ __('device-index.select_device_type') }}" data-change-submit></x-select>
             </div>
         @endif
 
@@ -115,7 +115,7 @@ $allPermission = $userPermission['all'] ?? [];
                             <td><a href="{{ $link }}" class="block">{{ $row->name }}</a></td>
                             <td><a href="{{ $link }}" class="block">{{ $row->model }}</a></td>
                             @if ($user_empty)
-                                <td><a href="{{ $link }}" class="block">{{ $row->user->name }}</a></td>
+                                <td><a href="{{ $link }}" class="block">{{ $row->user->name?? '-' }}</a></td>
                             @endif
                             @if (auth()->user()->isRoot())
                                 <td><a href="{{ $link }}" class="block">{{ $row->enterprise->name ?? '-' }}</a></td>
@@ -145,9 +145,9 @@ $allPermission = $userPermission['all'] ?? [];
                                     {{ $isOnline ? 'Online' : 'Offline' }}
                                 </span>
                             </td>
-            
+
                         </tr>
-           
+
             @endforeach
         </tbody>
     </table>

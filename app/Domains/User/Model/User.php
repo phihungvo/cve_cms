@@ -22,6 +22,7 @@ use App\Domains\UserSession\Model\UserSession as UserSessionModel;
 use App\Domains\User\Role\Model\Role as RoleModel;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Domains\User\Enterprise\Model\Enterprise as EnterpriseModel;
+use App\Domains\Device\Model\Device as DeviceModel;
 
 class User extends ModelAbstract implements Authenticatable
 {
@@ -168,6 +169,15 @@ class User extends ModelAbstract implements Authenticatable
     public function isOwner(): bool
     {
         return $this->hasRole(RoleEnum::OWNER->value) && $this->hasEnterprise($this->enterprise_id);
+    }
+
+    /**
+     * Thêm quan hệ đến Device
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function devices(): HasMany
+    {
+        return $this->hasMany(DeviceModel::class, 'user_id');
     }
 
     // Thêm quan hệ đến Role
