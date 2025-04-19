@@ -28,6 +28,7 @@ class VehicleImageReport extends Model
         'enterprise_id',
         'target',
         'source_type',
+        'label'
     ];
 
     protected $casts = [
@@ -39,6 +40,7 @@ class VehicleImageReport extends Model
         'enterprise_id' => 'integer',
         'target' => 'integer',
         'source_type' => 'string',
+        'label' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

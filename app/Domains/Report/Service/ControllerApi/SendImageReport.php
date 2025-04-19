@@ -163,6 +163,8 @@ class SendImageReport
             'enterprise_id' => $data['enterprise_id'],
             'target' => $data['target'] ?? 0,
             'source_type' => $data['source_type'] ?? null,
+            'label' => $data['label'] ?? null,
+
         ];
 
         // Handle database operation
@@ -209,6 +211,7 @@ class SendImageReport
                         'device_id' => $data['device_id'] ?? $existingReport->device_id,
                         'vehicle_id' => $data['vehicle_id'] ?? $existingReport->vehicle_id,
                         'source_type' => $data['source_type'] ?? $existingReport->source_type,
+                        'label' => $data['label'],
                     ]);
 
                     $report = $existingReport;

@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\Validator;
  *   - longitude: (required) Numeric, longitude coordinate
  *   - target: (optional) Integer, target value for the report
  *   - source_type: (optional) String, source of the report (e.g., driver, system)
+ *   - label: (optional) String, label of the report (e.g., odo, screen,..)
  * - Responses:
  *   - 201 Created: { "message": "Image report created successfully", "data": { ... } }
  *   - 422 Unprocessable Entity: { "error": { validation errors } }
@@ -56,7 +57,8 @@ use Illuminate\Support\Facades\Validator;
  *   -F "latitude=10.124" \
  *   -F "longitude=10.11" \
  *   -F "target=6" \
- *   -F "source_type=driver"
+ *   -F "source_type=driver" \
+ *   -F "label=odo"
  * ```
  */
 class SendImageReport
@@ -105,6 +107,7 @@ class SendImageReport
             'longitude' => 'required|numeric', // Longitude is required
             'target' => 'nullable|integer', // Target is optional
             'source_type' => 'nullable|string', // Source type is optional
+            'label' => 'nullable|string', // Label is optional
         ]);
 
         // Return validation errors if any
@@ -207,6 +210,7 @@ class SendImageReport
                         'longitude',
                         'target',
                         'source_type',
+                        'label'
                     ]),
                     ['enterprise_id' => $mediaEnterpriseId]
                 )
