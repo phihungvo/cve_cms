@@ -102,6 +102,7 @@ class SendImageReport
             $uploadTime = microtime(true) - $startTime;
             $fullPath = $directory ? $directory . '/' . $fileName : $fileName;
             // Log::info('SendImageReport: MinIO upload completed', [
+            // FORMATTING: Indent code consistently with 4 spaces
             //     'success' => $uploaded,
             //     'upload_time_seconds' => $uploadTime,
             //     'file_path' => $fullPath,
@@ -161,6 +162,7 @@ class SendImageReport
             'longitude' => $data['longitude'],
             'enterprise_id' => $data['enterprise_id'],
             'target' => $data['target'] ?? 0,
+            'source_type' => $data['source_type'] ?? null,
         ];
 
         // Handle database operation
@@ -206,6 +208,7 @@ class SendImageReport
                         'target' => $data['target'],
                         'device_id' => $data['device_id'] ?? $existingReport->device_id,
                         'vehicle_id' => $data['vehicle_id'] ?? $existingReport->vehicle_id,
+                        'source_type' => $data['source_type'] ?? $existingReport->source_type,
                     ]);
 
                     $report = $existingReport;

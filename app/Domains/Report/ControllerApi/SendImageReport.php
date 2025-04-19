@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Validator;
  *   - latitude: (required) Numeric, latitude coordinate
  *   - longitude: (required) Numeric, longitude coordinate
  *   - target: (optional) Integer, target value for the report
+ *   - source_type: (optional) String, source of the report (e.g., driver, system)
  * - Responses:
  *   - 201 Created: { "message": "Image report created successfully", "data": { ... } }
  *   - 422 Unprocessable Entity: { "error": { validation errors } }
@@ -54,7 +55,8 @@ use Illuminate\Support\Facades\Validator;
  *   -F "minio_bucket=media" \
  *   -F "latitude=10.124" \
  *   -F "longitude=10.11" \
- *   -F "target=6"
+ *   -F "target=6" \
+ *   -F "source_type=driver"
  * ```
  */
 class SendImageReport
@@ -102,6 +104,7 @@ class SendImageReport
             'latitude' => 'required|numeric', // Latitude is required
             'longitude' => 'required|numeric', // Longitude is required
             'target' => 'nullable|integer', // Target is optional
+            'source_type' => 'nullable|string', // Source type is optional
         ]);
 
         // Return validation errors if any
@@ -203,6 +206,7 @@ class SendImageReport
                         'latitude',
                         'longitude',
                         'target',
+                        'source_type',
                     ]),
                     ['enterprise_id' => $mediaEnterpriseId]
                 )
