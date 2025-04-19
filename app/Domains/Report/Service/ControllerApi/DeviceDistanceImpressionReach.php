@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class ReachAndDistance
+class DeviceDistanceImpressionReach
 {
     protected $request;
     protected $auth;
@@ -199,7 +199,7 @@ class ReachAndDistance
                 'media_id' => $stat['media_id'],
                 'impression' => $stat['impression'],
                 'total_views' => $stat['total_views'],
-                'total_distance_km' => number_format((float) ($distanceStats[$deviceId] ?? 0.00), 0, '', ''),
+                'total_distance_km' => (int) ($distanceStats[$deviceId] ?? 0),
                 'bookmark' => [
                     'vehicle_id' => $vehicles[$deviceId]['vehicle_id'] ?? null,
                     'name' => $vehicles[$deviceId]['name'] ?? null,
