@@ -1,0 +1,68 @@
+name: ✨ Feature Request
+description: Suggest a feature or improvement for the project
+title: "[Feature] "
+labels: [enhancement]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hãy cung cấp thông tin bên dưới để nhóm phát triển hiểu rõ hơn về yêu cầu của bạn.
+        
+  - type: input
+    id: feature-title
+    attributes:
+      label: Tên tính năng
+      placeholder: "Ví dụ: Hỗ trợ đăng nhập bằng Google"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: Mô tả chi tiết
+      description: Mô tả rõ ràng tính năng này là gì và mục đích sử dụng của nó.
+      placeholder: "Tính năng cho phép người dùng đăng nhập bằng tài khoản Google thay vì tạo tài khoản riêng."
+    validations:
+      required: false
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Lợi ích mang lại
+      description: Tính năng này sẽ giúp người dùng hoặc dự án như thế nào?
+      placeholder: "Tiết kiệm thời gian tạo tài khoản, tăng tính tiện lợi..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Ghi chú bổ sung
+      description: Thông tin bổ sung, tài liệu tham khảo, hoặc mockup nếu có.
+      placeholder: "Đính kèm ảnh, liên kết tài liệu mô tả chi tiết..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: service
+    attributes:
+      label: Tính năng này hỗ trợ cho loại dịch vụ nào?
+      options:
+        - Digital Signage
+        - Cam Cloud
+    validations:
+      required: true
+
+  - type: dropdown
+    id: customer
+    attributes:
+      label: Tính năng này do khách hàng nào đề xuất?
+      options:
+        - GOADS MEDIA TECHNOLOGY
+        - ASIAMEDIA VIETNAM
+        - ANSCENTER HCM
+        - SILVER SEA
+        - VCV
+    validations:
+      required: true

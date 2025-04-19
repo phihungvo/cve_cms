@@ -55,6 +55,7 @@ class MqttService
             try {
                 $this->mqtt->connect($this->connectionSettings);
                 $this->connected = true; // Đánh dấu là đã kết nối
+
             } catch (ProtocolNotSupportedException|ConfigurationInvalidException|ConnectingToBrokerFailedException $e) {
                 throw new Exception('MQTT connection failed: '.$e->getMessage());
             }

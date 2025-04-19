@@ -1,81 +1,82 @@
-@extends ('layouts.in')
+@extends('layouts.in')
 
-@section ('body')
+@section('body')
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
 
-@if ($onboarding)
+    @php
+        function dashboard_card($icon, $title, $count, $color, $href)
+        {
+            return <<<HTML
+                <a href="$href"
+                    class="transform hover:-translate-y-1 hover:scale-105 transition-all duration-300 bg-white shadow-md hover:shadow-xl border border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center min-h-[380px] !min-h-[380px]" style="min-height: 380px !important;">
+                    <div class="w-16 h-16 rounded-full bg-$color-100 flex items-center justify-center mb-4">
+                        <i data-feather="$icon" class="text-$color-600" style="width: 48px; height: 48px;"></i>
+                    </div>
+                    <p class="text-8xl font-extrabold text-gray-800 mb-2" style="font-size: 6rem !important;">$count</p>
+                    <h2 class="text-3xl font-semibold text-gray-600" style="font-size: 2rem !important;">$title</h2>
+                </a>
+            HTML;
+        }
+    @endphp
 
-@include ('domains.dashboard.molecules.onboarding')
-
-@else
-
-@each ('domains.alarm-notification.molecules.alert', $alarm_notifications, 'row')
-
-<form method="GET">
-    <div class="lg:flex lg:space-x-4">
-        @if ($users_multiple)
-
-        <div class="flex-1 mb-2">
-            <x-select name="user_id" :options="$users" value="id" text="name" data-change-submit></x-select>
-        </div>
-
-        @endif
-
-        @if ($vehicles_multiple)
-
-        <div class="mb-2">
-            <x-select name="vehicle_id" :options="$vehicles" value="id" text="name" data-change-submit></x-select>
-        </div>
-
-        @endif
-
-        @if ($devices_multiple)
-
-        <div class="mb-2">
-            <x-select name="device_id" :options="$devices" value="id" text="name" data-change-submit></x-select>
-        </div>
-
-        @endif
-
-        <div class="flex-1 mb-4">
-            <div class="flex">
-                <div class="flex-1">
-                    <x-select name="trip_id" :options="$trips" value="id" text="name" data-change-submit></x-select>
-                </div>
-
-                @if ($trip_previous_id)
-                <a href="?trip_id={{ $trip_previous_id }}" class="btn bg-white ml-2">@icon('chevrons-left', 'w-4 h-4')</a>
-                @else
-                <span class="btn bg-white ml-2 text-gray-300 cursor-default">@icon('chevrons-left', 'w-4 h-4')</span>
-                @endif
-
-                @if ($trip_next_id)
-                <a href="?trip_id={{ $trip_next_id }}" class="btn bg-white ml-2">@icon('chevrons-right', 'w-4 h-4')</a>
-                @else
-                <span class="btn bg-white ml-2 text-gray-300 cursor-default">@icon('chevrons-right', 'w-4 h-4')</span>
-                @endif
+    <div class="container mx-auto px-4 py-8 h-full">
+        <!-- Bộ lọc Enterprise -->
+        @if ($auth->isRoleRoot())
+            <div class="flex justify-center mb-10">
+                <form method="GET" class="w-full max-w-3xl">
+                    <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
+                        placeholder="{{ __('dashboard-index.all_enterprises') }}" data-change-submit></x-select>
+                </form>
             </div>
+        @endif
+
+        <div
+            class="grid grid-cols-1 md:grid-cols-2 @if ($auth->isRoleRoot()) lg:grid-cols-4 @else lg:grid-cols-3 @endif gap-10 mb-10 justify-center @if ($auth->isRoleRoot()) max-w-4xl @else max-w-3xl @endif mx-auto">
+
+            @if ($auth->isRoleRoot())
+                {!! dashboard_card(
+                    'briefcase',
+                    __('dashboard-index.enterprises'),
+                    $counts['enterprises'],
+                    'black',
+                    route('user.enterprise.index'),
+                ) !!}
+            @endif
+
+            {!! dashboard_card('monitor', __('dashboard-index.devices'), $counts['devices'], 'black', route('device.index')) !!}
+            {!! dashboard_card('users', __('dashboard-index.users'), $counts['users'], 'black', route('user.index')) !!}
+            {!! dashboard_card(
+                'triangle',
+                __('dashboard-index.campaigns'),
+                $counts['campaigns'],
+                'black',
+                route('campaign.index'),
+            ) !!}
         </div>
 
-        <div class="mb-4 text-center">
-            <a href="#" class="btn bg-white mr-2" data-map-live>@icon('play', 'w-4 h-4 sm:w-6 sm:h-6')</a>
-            <a href="{{ route('trip.update.stat', $trip->id) }}" class="btn bg-white mr-2">@icon('bar-chart-2', 'w-4 h-4 sm:w-6 sm:h-6')</a>
-            <a href="{{ route('trip.update.map', $trip->id) }}" class="btn bg-white mr-2">@icon('map', 'w-4 h-4 sm:w-6 sm:h-6')</a>
-            <a href="{{ route('trip.update.position', $trip->id) }}" class="btn bg-white mr-2">@icon('map-pin', 'w-4 h-4 sm:w-6 sm:h-6')</a>
-            <a href="{{ route('trip.update.alarm-notification', $trip->id) }}" class="btn bg-white mr-2">@icon('bell', 'w-4 h-4 sm:w-6 sm:h-6')</a>
-            <a href="{{ route('trip.update.merge', $trip->id) }}" class="btn bg-white">@icon('git-merge', 'w-4 h-4 sm:w-6 sm:h-6')</a>
+        <!-- Hàng dưới: 3 cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-center max-w-3xl mx-auto">
+            {!! dashboard_card('image', __('dashboard-index.media'), $counts['media'], 'black', route('fpp.media.index')) !!}
+            {!! dashboard_card(
+                'list',
+                __('dashboard-index.playlists'),
+                $counts['playlists'],
+                'black',
+                route('fpp.playlist.index'),
+            ) !!}
+            {!! dashboard_card(
+                'calendar',
+                __('dashboard-index.schedules'),
+                $counts['schedules'],
+                'black',
+                route('schedule.index'),
+            ) !!}
         </div>
     </div>
-</form>
-
-<x-map
-    :trip="$trip"
-    :positions="$positions"
-    :alarms="$alarms"
-    :notifications="$trip_alarm_notifications"
-    :data-map-show-last="$trip->finished()"
-    :data-map-positions-url="route('trip.update.position', $trip->id)"
-></x-map>
-
-@endif
-
 @stop
