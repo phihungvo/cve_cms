@@ -3,20 +3,20 @@
 namespace App\Domains\Report\ControllerApi;
 
 use Illuminate\Http\Request;
-use App\Domains\Report\Service\ControllerApi\ReachAndDistance as ReachAndDistanceService;
+use App\Domains\Report\Service\ControllerApi\DeviceDistanceImpressionReach as DeviceDistanceImpressionReachService;
 use Illuminate\Http\JsonResponse;
 
-class ReachAndDistance
+class DeviceDistanceImpressionReach
 {
     protected $service;
 
-    public function __construct(ReachAndDistanceService $service)
+    public function __construct(DeviceDistanceImpressionReachService $service)
     {
         $this->service = $service;
     }
 
     /**
-     * Xử lý API request và trả về dữ liệu ReachAndDistance
+     * Xử lý API request và trả về dữ liệu DeviceDistanceImpressionReach
      *
      * @param Request $request
      * @return JsonResponse
