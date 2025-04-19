@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use App\Domains\Device\Model\DeviceCaptureMedia as DeviceCaptureMediaModel;
 use App\Domains\Campaign\Media\Model\Media as MediaModel;
+use App\Domains\Campaign\Model\Campaign as CampaignModel;
 
 class GetListMediaCapture extends ControllerApiAbstract
 {
@@ -40,10 +41,20 @@ class GetListMediaCapture extends ControllerApiAbstract
             return [];
         }
 
-        // Get media details from MediaModel using the media_ids
+        // Get media details from MediaModel with campaign name from CampaignModel
         $media = MediaModel::query()
+            ->with([
+                'campaign' => function ($query) {
+                    $query->select('id', 'name'); // Adjust 'name' to the actual column if different
+                }
+            ])
             ->whereIn('id', $mediaIds)
             ->get()
+            ->map(function ($item) {
+                return array_merge($item->toArray(), [
+                    'campaign_name' => $item->campaign->name ?? null, // Adjust 'name' to the actual column if different
+                ]);
+            })
             ->toArray();
 
         return $media;
