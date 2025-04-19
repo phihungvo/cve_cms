@@ -34,12 +34,12 @@ class DailyDistanceImpressionReach
         $endDate = $this->request->input('end_date');
         $enterpriseId = $this->auth->enterprise_id ?? null;
 
-        // Log::info('Step 1 - Input Parameters:', [
-        //     'campaign_id' => $campaignId,
-        //     'start_date' => $startDate,
-        //     'end_date' => $endDate,
-        //     'enterprise_id' => $enterpriseId,
-        // ]);
+        Log::info('Step 1 - Input Parameters:', [
+            'campaign_id' => $campaignId,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'enterprise_id' => $enterpriseId,
+        ]);
 
         if (!$enterpriseId) {
             Log::error('Step 1 - Error: No enterprise_id found');
@@ -55,19 +55,19 @@ class DailyDistanceImpressionReach
             ->when($campaignId, fn($q) => $q->where('campaign_id', $campaignId));
 
         $mediaList = $mediaQuery->pluck('file_name', 'id')->all();
-        // Log::info('Step 2 - Media List:', $mediaList);
+        Log::info('Step 2 - Media List:', $mediaList);
 
         if (empty($mediaList)) {
-            // Log::info('Step 2 - No media found');
+            Log::info('Step 2 - No media found');
             return [];
         }
 
         $mediaIds = array_keys($mediaList);
         $fileNames = array_values($mediaList);
-        // Log::info('Step 2 - Extracted Media IDs and File Names:', [
-        //     'media_ids' => $mediaIds,
-        //     'file_names' => $fileNames,
-        // ]);
+        Log::info('Step 2 - Extracted Media IDs and File Names:', [
+            'media_ids' => $mediaIds,
+            'file_names' => $fileNames,
+        ]);
 
         // Log bước 3: Lấy danh sách device_id từ view_logs
         $deviceIds = DB::table('view_logs')
@@ -76,10 +76,10 @@ class DailyDistanceImpressionReach
             ->distinct()
             ->pluck('device_id')
             ->all();
-        // Log::info('Step 3 - Device IDs from view_logs:', $deviceIds);
+        Log::info('Step 3 - Device IDs from view_logs:', $deviceIds);
 
         if (empty($deviceIds)) {
-            // Log::info('Step 3 - No devices found');
+            Log::info('Step 3 - No devices found');
             return [];
         }
 
@@ -104,8 +104,7 @@ class DailyDistanceImpressionReach
                     ]
                 ];
             })->all();
-
-        // Log::info('Step 4 - View Stats:', $viewStats);
+        Log::info('Step 4 - View Stats:', $viewStats);
 
         // Log bước 5: Tính tổng khoảng cách từ trip, tổng hợp theo ngày
         $distanceStats = TripModel::query()
@@ -121,14 +120,13 @@ class DailyDistanceImpressionReach
                 $item->trip_date => (int) $item->total_distance_km
             ])
             ->all();
-
-        // Log::info('Step 5 - Distance Stats:', $distanceStats);
+        Log::info('Step 5 - Distance Stats:', $distanceStats);
 
         // Log bước 6: Kết hợp dữ liệu và trả về kết quả
         $results = [];
         foreach ($viewStats as $viewDate => $stat) {
             $results[] = [
-                'date' => Carbon::parse($viewDate)->format('d/m/Y'),
+                'date' => Carbon::parse($viewDate)->format('d-m-Y'),
                 'impression' => $stat['impression'],
                 'total_views' => $stat['total_views'],
                 'total_distance_km' => $distanceStats[$viewDate] ?? 0,
@@ -136,9 +134,9 @@ class DailyDistanceImpressionReach
         }
 
         // Sắp xếp theo ngày tăng dần
-        usort($results, fn($a, $b) => Carbon::createFromFormat('d/m/Y', $a['date'])->timestamp <=> Carbon::createFromFormat('d/m/Y', $b['date'])->timestamp);
+        usort($results, fn($a, $b) => Carbon::createFromFormat('d-m-Y', $a['date'])->timestamp <=> Carbon::createFromFormat('d-m-Y', $b['date'])->timestamp);
 
-        // Log::info('Step 6 - Final Results:', $results);
+        Log::info('Step 6 - Final Results:', $results);
         return $results;
     }
 }
