@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use App\Domains\Campaign\Media\Model\Media as MediaModel;
 use App\Domains\Trip\Model\Trip as TripModel;
+use App\Domains\Device\Model\Device as DeviceModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -58,7 +59,7 @@ class DailyDistanceImpressionReach
         // Log::info('Step 2 - Media List:', $mediaList);
 
         if (empty($mediaList)) {
-            // Log::info('Step 2 - No media found');
+            Log::info('Step 2 - No media found');
             return [];
         }
 
@@ -69,19 +70,56 @@ class DailyDistanceImpressionReach
         //     'file_names' => $fileNames,
         // ]);
 
-        // Log bước 3: Lấy danh sách device_id từ view_logs
-        $deviceIds = DB::table('view_logs')
+        // Log bước 3: Lấy danh sách serial từ view_logs
+        $serials = DB::table('view_logs')
             ->whereIn('media_filename', $fileNames)
             ->whereBetween('created_at', [$start, $end])
             ->distinct()
-            ->pluck('device_id')
+            ->pluck('serial')
             ->all();
-        // Log::info('Step 3 - Device IDs from view_logs:', $deviceIds);
+        // Log::info('Step 3 - Serials from view_logs:', $serials);
 
-        if (empty($deviceIds)) {
-            // Log::info('Step 3 - No devices found');
+        if (empty($serials)) {
+            Log::info('Step 3 - No serials found');
             return [];
         }
+
+        // Log bước 3.1: Lấy device_id từ DeviceModel dựa trên serial
+        $deviceMap = DeviceModel::query()
+            ->whereIn('serial', $serials)
+            ->select('id', 'serial')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->serial => $item->id];
+            })
+            ->all();
+
+        // Log::info('Step 3.1 - Device ID Mapping from Serials:', $deviceMap);
+
+        // Kiểm tra serial trùng lặp trong DeviceModel
+        $serialCounts = DeviceModel::query()
+            ->whereIn('serial', $serials)
+            ->groupBy('serial')
+            ->havingRaw('COUNT(*) > 1')
+            ->pluck('serial')
+            ->all();
+        if (!empty($serialCounts)) {
+            Log::error('Step 3.1 - Duplicate serials found in DeviceModel:', $serialCounts);
+            throw new \Exception('Duplicate serials detected in devices table: ' . implode(', ', $serialCounts));
+        }
+
+        // Kiểm tra serial không có trong DeviceModel
+        $missingSerials = array_diff($serials, array_keys($deviceMap));
+        if (!empty($missingSerials)) {
+            Log::warning('Step 3.1 - Serials not found in DeviceModel:', $missingSerials);
+        }
+
+        if (empty($deviceMap)) {
+            Log::info('Step 3.1 - No devices found for serials');
+            return [];
+        }
+
+        $deviceIds = array_values($deviceMap);
 
         // Log bước 4: Tính view stats từ view_logs, tổng hợp theo ngày
         $viewStats = DB::table('view_logs')
@@ -90,7 +128,7 @@ class DailyDistanceImpressionReach
                 DB::raw('COUNT(*) as impression'),
                 DB::raw('SUM(view_count) as total_views')
             )
-            ->whereIn('device_id', $deviceIds)
+            ->whereIn('serial', array_keys($deviceMap))
             ->whereIn('media_filename', $fileNames)
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('view_date')

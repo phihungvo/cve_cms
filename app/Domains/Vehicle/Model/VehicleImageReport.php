@@ -11,8 +11,6 @@ use App\Domains\User\Enterprise\Model\Enterprise;
 
 use App\Domains\Vehicle\Model\Vehicle;
 
-
-
 class VehicleImageReport extends Model
 {
     use SoftDeletes;
@@ -29,6 +27,8 @@ class VehicleImageReport extends Model
         'minio_bucket',
         'enterprise_id',
         'target',
+        'source_type',
+        'label'
     ];
 
     protected $casts = [
@@ -39,6 +39,8 @@ class VehicleImageReport extends Model
         'longitude' => 'float',
         'enterprise_id' => 'integer',
         'target' => 'integer',
+        'source_type' => 'string',
+        'label' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
