@@ -37,12 +37,12 @@ class DeviceDistanceImpressionReach
         $endDate = $this->request->input('end_date');
         $enterpriseId = $this->auth->enterprise_id ?? null;
 
-        Log::info('Step 1 - Input Parameters:', [
-            'campaign_id' => $campaignId,
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'enterprise_id' => $enterpriseId,
-        ]);
+        // Log::info('Step 1 - Input Parameters:', [
+        //     'campaign_id' => $campaignId,
+        //     'start_date' => $startDate,
+        //     'end_date' => $endDate,
+        //     'enterprise_id' => $enterpriseId,
+        // ]);
 
         if (!$enterpriseId) {
             Log::error('Step 1 - Error: No enterprise_id found');
@@ -58,7 +58,7 @@ class DeviceDistanceImpressionReach
             ->when($campaignId, fn($q) => $q->where('campaign_id', $campaignId));
 
         $mediaList = $mediaQuery->pluck('file_name', 'id')->all();
-        Log::info('Step 2 - Media List:', $mediaList);
+        // Log::info('Step 2 - Media List:', $mediaList);
 
         if (empty($mediaList)) {
             Log::info('Step 2 - No media found');
@@ -67,10 +67,10 @@ class DeviceDistanceImpressionReach
 
         $mediaIds = array_keys($mediaList);
         $fileNames = array_values($mediaList);
-        Log::info('Step 2 - Extracted Media IDs and File Names:', [
-            'media_ids' => $mediaIds,
-            'file_names' => $fileNames,
-        ]);
+        // Log::info('Step 2 - Extracted Media IDs and File Names:', [
+        //     'media_ids' => $mediaIds,
+        //     'file_names' => $fileNames,
+        // ]);
 
         // Log bước 3: Lấy danh sách serial từ view_logs
         $serials = DB::table('view_logs')
@@ -79,7 +79,8 @@ class DeviceDistanceImpressionReach
             ->distinct()
             ->pluck('serial')
             ->all();
-        Log::info('Step 3 - Serials from view_logs:', $serials);
+
+        // Log::info('Step 3 - Serials from view_logs:', $serials);
 
         if (empty($serials)) {
             Log::info('Step 3 - No serials found');
@@ -91,7 +92,8 @@ class DeviceDistanceImpressionReach
             ->whereIn('serial', $serials)
             ->pluck('id', 'serial')
             ->all();
-        Log::info('Step 3.1 - Device ID Mapping from Serials:', $deviceMap);
+
+        // Log::info('Step 3.1 - Device ID Mapping from Serials:', $deviceMap);
 
         if (empty($deviceMap)) {
             Log::info('Step 3.1 - No devices found for serials');
@@ -129,7 +131,8 @@ class DeviceDistanceImpressionReach
                     ]
                 ];
             })->all();
-        Log::info('Step 4 - View Stats:', $viewStats);
+
+        // Log::info('Step 4 - View Stats:', $viewStats);
 
         // Log bước 5: Tính tổng khoảng cách từ trip
         $distanceStats = TripModel::query()
@@ -139,7 +142,7 @@ class DeviceDistanceImpressionReach
             ->groupBy('device_id')
             ->pluck('total_distance_km', 'device_id')
             ->all();
-        Log::info('Step 5 - Distance Stats:', $distanceStats);
+        // Log::info('Step 5 - Distance Stats:', $distanceStats);
 
         // Log bước 6: Lấy thông tin phương tiện từ vehicle và user_id
         $vehicles = VehicleModel::query()
@@ -155,7 +158,7 @@ class DeviceDistanceImpressionReach
                 ]
             ])
             ->all();
-        Log::info('Step 6 - Vehicles:', $vehicles);
+        // Log::info('Step 6 - Vehicles:', $vehicles);
 
         // Log bước 6.1: Lấy thông tin user từ user_id
         $userIds = array_filter(array_column($vehicles, 'user_id'));
@@ -171,7 +174,7 @@ class DeviceDistanceImpressionReach
                 ]
             ])
             ->all();
-        Log::info('Step 6.1 - Users:', $users);
+        // Log::info('Step 6.1 - Users:', $users);
 
         // Log bước 6.2: Lấy thông tin address từ device
         $devices = DeviceModel::query()
@@ -184,7 +187,7 @@ class DeviceDistanceImpressionReach
                 ]
             ])
             ->all();
-        Log::info('Step 6.2 - Devices:', $devices);
+        // Log::info('Step 6.2 - Devices:', $devices);
 
         // Log bước 7: Lấy vị trí cuối cùng từ trip (trích xuất từ stats JSON)
         $lastPositions = TripModel::query()
@@ -206,7 +209,7 @@ class DeviceDistanceImpressionReach
                 ]
             ])
             ->all();
-        Log::info('Step 7 - Last Positions:', $lastPositions);
+        // Log::info('Step 7 - Last Positions:', $lastPositions);
 
         // Log bước 8: Kết hợp dữ liệu và trả về kết quả
         $results = [];
@@ -246,7 +249,7 @@ class DeviceDistanceImpressionReach
             ];
         }
 
-        Log::info('Step 8 - Final Results:', $results);
+        // Log::info('Step 8 - Final Results:', $results);
         return $results;
     }
 }
