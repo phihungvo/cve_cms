@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Class GetImageReportByVehicleId
  * 
- * Service to handle the logic for extracting image reports based on a date range and vehicle IDs.
+ * Service to handle the logic for extracting image reports based on a date range, vehicle IDs, and optional label.
  * Returns reports as an array for a single vehicle_id or grouped by vehicle_id for multiple.
  */
 class GetImageReportByVehicleId
@@ -20,15 +20,17 @@ class GetImageReportByVehicleId
      * @param string $startDate Start date in YYYY-MM-DD format
      * @param string $endDate End date in YYYY-MM-DD format
      * @param array $vehicleIds Array of vehicle IDs
+     * @param string|null $label Optional label to filter reports
      * @return array Reports as array (single vehicle_id) or grouped by vehicle_id (multiple)
      * @throws \Exception If vehicle IDs are invalid
      */
-    public function handle(string $startDate, string $endDate, array $vehicleIds): array
+    public function handle(string $startDate, string $endDate, array $vehicleIds, ?string $label = null): array
     {
         // Log::info('GetImageReportByVehicleIdService: Starting handle method', [
         //     'start_date' => $startDate,
         //     'end_date' => $endDate,
         //     'vehicle_ids' => $vehicleIds,
+        //     'label' => $label,
         // ]);
 
         // Check if all vehicle_ids exist
@@ -52,28 +54,35 @@ class GetImageReportByVehicleId
         $isSingleVehicle = count($vehicleIds) === 1;
         $result = $isSingleVehicle ? [] : array_fill_keys($vehicleIds, []);
 
-        // Fetch reports within date range and vehicle_ids
+        // Fetch reports within date range, vehicle_ids, and optional label
         // Log::info('GetImageReportByVehicleIdService: Fetching reports');
 
         $startTime = microtime(true);
-        $reports = VehicleImageReport::whereIn('vehicle_id', $vehicleIds)
+        $query = VehicleImageReport::whereIn('vehicle_id', $vehicleIds)
             ->whereBetween('created_at', [
                 $startDate . ' 00:00:00',
                 $endDate . ' 23:59:59',
-            ])
-            ->get([
-                'id',
-                'media_id',
-                'device_id',
-                'vehicle_id',
-                'minio_url',
-                'minio_bucket',
-                'latitude',
-                'longitude',
-                'enterprise_id',
-                'target',
-                'created_at',
             ]);
+
+        // Apply label filter if provided
+        if ($label !== null) {
+            $query->where('label', $label);
+        }
+
+        $reports = $query->get([
+            'id',
+            'media_id',
+            'device_id',
+            'vehicle_id',
+            'minio_url',
+            'minio_bucket',
+            'latitude',
+            'longitude',
+            'enterprise_id',
+            'target',
+            'label', // Added label column to retrieve from database
+            'created_at',
+        ]);
 
         // Process reports
         if ($reports->isNotEmpty()) {
@@ -89,6 +98,7 @@ class GetImageReportByVehicleId
                     'longitude' => $report->longitude,
                     'enterprise_id' => $report->enterprise_id,
                     'target' => $report->target,
+                    'label' => $report->label, // Added label to response data
                     'created_at' => $report->created_at->toIso8601String(),
                 ];
 
@@ -103,6 +113,7 @@ class GetImageReportByVehicleId
         $fetchTime = microtime(true) - $startTime;
         // Log::info('GetImageReportByVehicleIdService: Reports fetched', [
         //     'vehicle_ids' => $vehicleIds,
+        //     'label' => $label,
         //     'report_count' => $isSingleVehicle ? count($result) : array_sum(array_map('count', $result)),
         //     'fetch_time_seconds' => $fetchTime,
         // ]);
