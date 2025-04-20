@@ -10,6 +10,9 @@ use App\Domains\Report\Service\ControllerApi\DeviceDistanceImpressionReach as De
 use App\Domains\Report\ControllerApi\DailyDistanceImpressionReach as DailyDistanceImpressionReachController;
 use App\Domains\Report\Service\ControllerApi\DailyDistanceImpressionReach as DailyDistanceImpressionReachService;
 
+// use App\Domains\Report\ControllerApi\GetScreenCaptureRecognition as GetScreenCaptureRecognitionController;
+// use App\Domains\Report\Service\ControllerApi\GetScreenCaptureRecognition as GetScreenCaptureRecognitionService;
+
 
 use Illuminate\Http\Request; // Sử dụng đúng namespace cho Request
 
@@ -26,4 +29,6 @@ Route::get('/report/daily/distance-impression-reach', function (Request $request
 
 Route::post('/report/image/media-report', [SendImageReport::class, 'store']);
 
-Route::get('/reports/image/by-vehicle', [GetImageReportByVehicleId::class, 'index']);
+Route::get('/report/image/by-vehicle', [GetImageReportByVehicleId::class, 'index']);
+
+Route::get('/report/image/recognition/fpp', [GetScreenCaptureRecognition::class, 'index']);
