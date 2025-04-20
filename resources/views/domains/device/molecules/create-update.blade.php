@@ -39,7 +39,7 @@
     <div class="p-2">
         <label for="device-phone_number" class="form-label">{{ __('device-create.phone_number') }}</label>
         <input type="tel" name="phone_number" class="form-control form-control-lg" id="device-phone_number"
-                      value="{{ old('phone_number',isset($row) ? $row->phone_number: '') }}" autocomplete="off">
+               value="{{ old('phone_number',isset($row) ? $row->phone_number: '') }}" autocomplete="off">
     </div>
     <!-- input password -->
     <div class="flex-1 p-2">
@@ -83,24 +83,26 @@
                min="1" step="1" {{ isset($row) && $row->camera_supported ? '' : 'disabled' }}>
     </div>
     <!-- Enable AI -->
-    @if (auth()->user()->enterprise_id === null)
-    <div class="p-2">
-        <div class="form-check">
-            <input type="checkbox" name="enable_ai" id="device-enable_ai" value="1"
-                   class="form-check-switch"
-                {{old('enable_ai', isset($row) ? $row->enable_ai : false) ? 'checked' : ''}} />
-            <label for="device-enable_ai" class="form-check-label">{{__('device-create.enable-ai')}}</label>
+{{--    auth()->user()->isRoleRoot()--}}
+    @if (auth()->user()->isRoleRoot())
+        <div class="p-2">
+            <div class="form-check">
+                <input type="checkbox" name="enable_ai" id="device-enable_ai" value="1"
+                       class="form-check-switch"
+                    {{old('enable_ai', isset($row) ? $row->enable_ai : false) ? 'checked' : ''}} />
+                <label for="device-enable_ai" class="form-check-label">{{__('device-create.enable-ai')}}</label>
+            </div>
         </div>
-    </div>
+
+        <div class="p-2">
+            <div class="form-check">
+                <input type="checkbox" name="enabled" value="1" class="form-check-switch"
+                       id="device-enabled" {{ old('enabled', isset($row) ? $row->enabled  : false) ? 'checked' : '' }} />
+                <label for="device-enabled" class="form-check-label">{{ __('device-create.enabled') }}</label>
+            </div>
+        </div>
     @endif
 
-    <div class="p-2">
-        <div class="form-check">
-            <input type="checkbox" name="enabled" value="1" class="form-check-switch"
-                   id="device-enabled" {{ old('enabled', isset($row) ? $row->enabled  : false) ? 'checked' : '' }} />
-            <label for="device-enabled" class="form-check-label">{{ __('device-create.enabled') }}</label>
-        </div>
-    </div>
 
     <div class="p-2">
         <div class="form-check">

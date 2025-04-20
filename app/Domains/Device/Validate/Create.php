@@ -25,10 +25,10 @@ class Create extends ValidateAbstract
             'phone_number' => ['bail', 'string', 'regex:/^\+?[0-9]{10,15}$/'],
             'password' => ['bail', 'string'],
             'vehicle_id' => ['bail', 'nullable', 'integer'],
-            'enabled' => ['bail', 'boolean'],
+            'enabled' => ['bail', 'nullable', 'boolean'],
             'shared' => ['bail', 'boolean'],
             'shared_public' => ['bail', 'boolean'],
-            'enable_ai' => ['bail', 'boolean'],
+            'enable_ai' => ['bail', 'nullable', 'boolean'],
         ];
     }
 }

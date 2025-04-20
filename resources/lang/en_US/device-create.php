@@ -1,5 +1,5 @@
 <?php return [
-    'enabled' => 'Enabled',
+    'enabled' => 'Enabled Camera',
     'error' => [
         'code-exists' => 'The indicated code already exists',
         'serial-exists' => "Serial ':serial' already exists for another device",

@@ -16,9 +16,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     abstract protected function save(): void;
 
     /**
+     * @return Model
      * @throws ValidatorException
      *
-     * @return Model
      */
     public function handle(): Model
     {
@@ -44,6 +44,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         $this->dataEnterpriseId();
         $this->dataCameraSupported();
         $this->dataCameraMaximum();
+        $this->dataEnabled();
+        $this->dataEnableAi();
+
     }
 
     /**
@@ -113,9 +116,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
+     * @return void
      * @throws ValidatorException
      *
-     * @return void
      */
     protected function check(): void
     {
@@ -125,9 +128,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
+     * @return void
      * @throws ValidatorException
      *
-     * @return void
      */
     protected function checkCode(): void
     {
@@ -148,9 +151,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
+     * @return void
      * @throws ValidatorException
      *
-     * @return void
      */
     protected function checkSerial(): void
     {
@@ -171,9 +174,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
+     * @return void
      * @throws ValidatorException
      *
-     * @return void
      */
     protected function checkVehicleId(): void
     {
@@ -193,9 +196,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
+     * @return void
      * @throws ValidatorException
      *
-     * @return void
      */
     protected function dataDeviceTypeId(): void
     {
@@ -210,5 +213,42 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         return DeviceType::query()
             ->where('id', $this->data['device_type_id'])
             ->exists();
+    }
+
+    protected function dataEnabled(): void
+    {
+        if ($this->request['_action'] == 'create') {
+            if ($this->auth->isRoot()) {
+                $this->data['enabled'] = (bool)$this->request->input('enabled', false);
+            } else {
+                $this->data['enabled'] = (bool)$this->request->input('enabled', false);
+            }
+        }
+
+        if ($this->request['_action'] == 'update') {
+            if($this->auth->isRoot()) {
+                $this->data['enabled'] = (bool)$this->request->input('enabled', false);
+            } else {
+                $this->data['enabled'] = (bool)$this->request->input('enabled', $this->row->enabled ?? false);
+            }
+        }
+    }
+
+    protected function dataEnableAi(): void
+    {
+        if ($this->request['_action'] == 'create') {
+            if ($this->auth->isRoot()) {
+                $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', false);
+            } else {
+                $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', false);
+            }
+        }
+        if ($this->request['_action'] == 'update') {
+            if ($this->auth->isRoot()) {
+                $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', false);
+            } else {
+                $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', $this->row->enable_ai ?? false);
+            }
+        }
     }
 }
