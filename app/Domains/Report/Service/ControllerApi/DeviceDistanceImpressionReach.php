@@ -72,38 +72,57 @@ class DeviceDistanceImpressionReach
             'file_names' => $fileNames,
         ]);
 
-        // Log bước 3: Lấy danh sách device_id từ view_logs
-        $deviceIds = DB::table('view_logs')
+        // Log bước 3: Lấy danh sách serial từ view_logs
+        $serials = DB::table('view_logs')
             ->whereIn('media_filename', $fileNames)
             ->whereBetween('created_at', [$start, $end])
             ->distinct()
-            ->pluck('device_id')
+            ->pluck('serial')
             ->all();
-        Log::info('Step 3 - Device IDs from view_logs:', $deviceIds);
+        Log::info('Step 3 - Serials from view_logs:', $serials);
 
-        if (empty($deviceIds)) {
-            Log::info('Step 3 - No devices found');
+        if (empty($serials)) {
+            Log::info('Step 3 - No serials found');
             return [];
         }
+
+        // Log bước 3.1: Lấy device_id từ DeviceModel dựa trên serial
+        $deviceMap = DeviceModel::query()
+            ->whereIn('serial', $serials)
+            ->pluck('id', 'serial')
+            ->all();
+        Log::info('Step 3.1 - Device ID Mapping from Serials:', $deviceMap);
+
+        if (empty($deviceMap)) {
+            Log::info('Step 3.1 - No devices found for serials');
+            return [];
+        }
+
+        $deviceIds = array_values($deviceMap);
 
         // Log bước 4: Tính view stats từ view_logs
         $viewStats = DB::table('view_logs')
             ->select(
-                'device_id',
+                'serial',
                 'media_filename',
                 DB::raw('COUNT(*) as impression'),
                 DB::raw('SUM(view_count) as total_views')
             )
-            ->whereIn('device_id', $deviceIds)
+            ->whereIn('serial', $serials)
             ->whereIn('media_filename', $fileNames)
             ->whereBetween('created_at', [$start, $end])
-            ->groupBy('device_id', 'media_filename')
+            ->groupBy('serial', 'media_filename')
             ->get()
-            ->mapWithKeys(function ($item) use ($mediaList) {
+            ->mapWithKeys(function ($item) use ($mediaList, $deviceMap) {
                 $mediaId = array_search($item->media_filename, $mediaList);
+                $deviceId = $deviceMap[$item->serial] ?? null;
+                if (!$deviceId) {
+                    return [];
+                }
                 return [
-                    "{$item->device_id}_{$mediaId}" => [
-                        'device_id' => $item->device_id,
+                    "{$deviceId}_{$mediaId}" => [
+                        'device_id' => $deviceId,
+                        'serial' => $item->serial,
                         'media_id' => $mediaId,
                         'impression' => (int) $item->impression,
                         'total_views' => (int) $item->total_views,
@@ -196,6 +215,7 @@ class DeviceDistanceImpressionReach
             $userId = $vehicles[$deviceId]['user_id'] ?? null;
             $results[] = [
                 'device_id' => $deviceId,
+                'serial' => $stat['serial'],
                 'media_id' => $stat['media_id'],
                 'impression' => $stat['impression'],
                 'total_views' => $stat['total_views'],
