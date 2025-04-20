@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Class GetImageReportByVehicleId
  * 
- * Service to handle the logic for extracting image reports based on a date range, vehicle IDs, and optional label.
+ * Service to handle the logic for extracting image reports based on a date range, vehicle IDs, optional label, and optional media ID.
  * Returns reports as an array for a single vehicle_id or grouped by vehicle_id for multiple.
  */
 class GetImageReportByVehicleId
@@ -21,16 +21,18 @@ class GetImageReportByVehicleId
      * @param string $endDate End date in YYYY-MM-DD format
      * @param array $vehicleIds Array of vehicle IDs
      * @param string|null $label Optional label to filter reports
+     * @param int|null $mediaId Optional media ID to filter reports
      * @return array Reports as array (single vehicle_id) or grouped by vehicle_id (multiple)
      * @throws \Exception If vehicle IDs are invalid
      */
-    public function handle(string $startDate, string $endDate, array $vehicleIds, ?string $label = null): array
+    public function handle(string $startDate, string $endDate, array $vehicleIds, ?string $label = null, ?int $mediaId = null): array
     {
         // Log::info('GetImageReportByVehicleIdService: Starting handle method', [
         //     'start_date' => $startDate,
         //     'end_date' => $endDate,
         //     'vehicle_ids' => $vehicleIds,
         //     'label' => $label,
+        //     'media_id' => $mediaId,
         // ]);
 
         // Check if all vehicle_ids exist
@@ -54,7 +56,7 @@ class GetImageReportByVehicleId
         $isSingleVehicle = count($vehicleIds) === 1;
         $result = $isSingleVehicle ? [] : array_fill_keys($vehicleIds, []);
 
-        // Fetch reports within date range, vehicle_ids, and optional label
+        // Fetch reports within date range, vehicle_ids, optional label, and optional media_id
         // Log::info('GetImageReportByVehicleIdService: Fetching reports');
 
         $startTime = microtime(true);
@@ -67,6 +69,11 @@ class GetImageReportByVehicleId
         // Apply label filter if provided
         if ($label !== null) {
             $query->where('label', $label);
+        }
+
+        // Apply media_id filter if provided
+        if ($mediaId !== null) {
+            $query->where('media_id', $mediaId);
         }
 
         $reports = $query->get([
@@ -114,6 +121,7 @@ class GetImageReportByVehicleId
         // Log::info('GetImageReportByVehicleIdService: Reports fetched', [
         //     'vehicle_ids' => $vehicleIds,
         //     'label' => $label,
+        //     'media_id' => $mediaId,
         //     'report_count' => $isSingleVehicle ? count($result) : array_sum(array_map('count', $result)),
         //     'fetch_time_seconds' => $fetchTime,
         // ]);

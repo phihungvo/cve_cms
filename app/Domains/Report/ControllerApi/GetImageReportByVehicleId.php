@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 /**
  * Class GetImageReportByVehicleId
  * 
- * Handles retrieval of image reports based on a date range, vehicle IDs, and optional label via GET request.
+ * Handles retrieval of image reports based on a date range, vehicle IDs, optional label, and optional media ID via GET request.
  * Validates query parameters and delegates data processing to the service.
  * 
  * API Usage:
@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Validator;
  *   - end_date: (required) End date in YYYY-MM-DD format (e.g., "2025-04-16")
  *   - vehicle_ids: (required) Comma-separated vehicle IDs or single ID (e.g., "5" or "5,6,7")
  *   - label: (optional) String label to filter reports (e.g., "inspection")
+ *   - media_id: (optional) Integer media ID to filter reports (e.g., "123")
  * - Responses:
  *   - 200 OK:
  *     - Single vehicle_id: [{report_id, media_id, ...}] or []
@@ -35,13 +36,13 @@ use Illuminate\Support\Facades\Validator;
  * 
  * Example Requests:
  * ```
- * // Single vehicle_id with label
- * curl -X GET "http://127.0.0.1:8000/api/report/image-reports?start_date=2025-04-01&end_date=2025-04-16&vehicle_ids=5&label=inspection" \
+ * // Single vehicle_id with label and media_id
+ * curl -X GET "http://127.0.0.1:8000/api/report/image-reports?start_date=2025-04-01&end_date=2025-04-16&vehicle_ids=5&label=inspection&media_id=123" \
  *   -H "Accept: application/json" \
  *   -H "Authorization: Bearer your-token"
  * 
- * // Multiple vehicle_ids with label
- * curl -X GET "http://127.0.0.1:8000/api/report/image-reports?start_date=2025-04-01&end_date=2025-04-16&vehicle_ids=5,6&label=inspection" \
+ * // Multiple vehicle_ids with label and media_id
+ * curl -X GET "http://127.0.0.1:8000/api/report/image-reports?start_date=2025-04-01&end_date=2025-04-16&vehicle_ids=5,6&label=inspection&media_id=123" \
  *   -H "Accept: application/json" \
  *   -H "Authorization: Bearer your-token"
  * ```
@@ -62,7 +63,7 @@ class GetImageReportByVehicleId
     }
 
     /**
-     * Retrieve image reports by vehicle IDs, date range, and optional label.
+     * Retrieve image reports by vehicle IDs, date range, optional label, and optional media ID.
      *
      * Validates query parameters and calls the service to fetch and group reports.
      *
@@ -85,6 +86,7 @@ class GetImageReportByVehicleId
             'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date', // End date must be >= start_date
             'vehicle_ids' => 'required|regex:/^\d+(,\d+)*$/', // Comma-separated positive integers
             'label' => 'nullable|string|max:255', // Optional label, string, max 255 characters
+            'media_id' => 'nullable|integer|min:1', // Optional media ID, positive integer
         ]);
 
         // Return validation errors if any
@@ -117,7 +119,8 @@ class GetImageReportByVehicleId
                 $request->query('start_date'),
                 $request->query('end_date'),
                 $vehicleIds,
-                $request->query('label')
+                $request->query('label'),
+                $request->query('media_id')
             );
             $serviceTime = microtime(true) - $startTime;
             // Log::info('GetImageReportByVehicleId: Service completed', [
