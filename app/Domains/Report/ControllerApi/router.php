@@ -4,16 +4,26 @@ namespace App\Domains\Report\ControllerApi;
 
 use Illuminate\Support\Facades\Route;
 
-use App\Domains\Report\ControllerApi\ReachAndDistance as ReachAndDistanceController;
-use App\Domains\Report\Service\ControllerApi\ReachAndDistance as ReachAndDistanceService;
+use App\Domains\Report\ControllerApi\DeviceDistanceImpressionReach as DeviceDistanceImpressionReachController;
+use App\Domains\Report\Service\ControllerApi\DeviceDistanceImpressionReach as DeviceDistanceImpressionReachService;
+
+use App\Domains\Report\ControllerApi\DailyDistanceImpressionReach as DailyDistanceImpressionReachController;
+use App\Domains\Report\Service\ControllerApi\DailyDistanceImpressionReach as DailyDistanceImpressionReachService;
+
 
 use Illuminate\Http\Request; // Sử dụng đúng namespace cho Request
 
-Route::get('/report/reach-and-distance', function (Request $request) {
-    $service = ReachAndDistanceService::new($request, auth()->user());
-    return (new ReachAndDistanceController($service))->data($request);
+Route::get('/report/device/distance-impression-reach', function (Request $request) {
+    $service = DeviceDistanceImpressionReachService::new($request, auth()->user());
+    return (new DeviceDistanceImpressionReachController($service))->data($request);
 });
 
-Route::post('/report/send-image-report', [SendImageReport::class, 'store']);
+Route::get('/report/daily/distance-impression-reach', function (Request $request) {
+    $service = DailyDistanceImpressionReachService::new($request, auth()->user());
+    return (new DailyDistanceImpressionReachController($service))->data($request);
+});
 
-Route::get('/reports/images/by-vehicle', [GetImageReportByVehicleId::class, 'index']);
+
+Route::post('/report/image/media-report', [SendImageReport::class, 'store']);
+
+Route::get('/reports/image/by-vehicle', [GetImageReportByVehicleId::class, 'index']);

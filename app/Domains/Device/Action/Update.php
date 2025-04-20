@@ -2,8 +2,6 @@
 
 namespace App\Domains\Device\Action;
 
-use App\Domains\Device\Model\Camera;
-
 class Update extends CreateUpdateAbstract
 {
     /**
@@ -11,6 +9,8 @@ class Update extends CreateUpdateAbstract
      */
     protected function save(): void
     {
+        $this->row->user_id = $this->data['user_id'] ?? null;
+        $this->row->enterprise_id = $this->data['enterprise_id'];
         $this->row->code = $this->data['code'];
         $this->row->name = $this->data['name'];
         $this->row->model = is_string($this->data['model']) ? $this->data['model'] : null;

@@ -13,4 +13,7 @@
     'vehicle' => 'Bookmark',
     'device_type' => 'Device Type',
     "enterprise" => "Enterprise",
+    'select_user' => '-- select user --',
+    'select_device_type' => '-- select device type --',
+    'select_vehicle' => '-- select bookmark --',
 ];

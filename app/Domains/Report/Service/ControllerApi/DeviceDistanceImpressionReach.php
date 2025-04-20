@@ -7,11 +7,13 @@ use Illuminate\Http\Request;
 use App\Domains\Campaign\Media\Model\Media as MediaModel;
 use App\Domains\Trip\Model\Trip as TripModel;
 use App\Domains\Vehicle\Model\Vehicle as VehicleModel;
+use App\Domains\User\Model\User as UserModel;
+use App\Domains\Device\Model\Device as DeviceModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class ReachAndDistance
+class DeviceDistanceImpressionReach
 {
     protected $request;
     protected $auth;
@@ -120,19 +122,50 @@ class ReachAndDistance
             ->all();
         Log::info('Step 5 - Distance Stats:', $distanceStats);
 
-        // Log bước 6: Lấy thông tin phương tiện từ vehicle
+        // Log bước 6: Lấy thông tin phương tiện từ vehicle và user_id
         $vehicles = VehicleModel::query()
-            ->select('id', 'name', 'plate')
+            ->select('id', 'name', 'plate', 'user_id')
             ->whereIn('id', $deviceIds)
             ->get()
             ->mapWithKeys(fn($item) => [
                 $item->id => [
+                    'vehicle_id' => $item->id,
                     'name' => $item->name,
-                    'location' => $item->plate,
+                    'plate' => $item->plate,
+                    'user_id' => $item->user_id,
                 ]
             ])
             ->all();
         Log::info('Step 6 - Vehicles:', $vehicles);
+
+        // Log bước 6.1: Lấy thông tin user từ user_id
+        $userIds = array_filter(array_column($vehicles, 'user_id'));
+        $users = UserModel::query()
+            ->select('id', 'name', 'phone')
+            ->whereIn('id', $userIds)
+            ->get()
+            ->mapWithKeys(fn($item) => [
+                $item->id => [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'phone' => $item->phone,
+                ]
+            ])
+            ->all();
+        Log::info('Step 6.1 - Users:', $users);
+
+        // Log bước 6.2: Lấy thông tin address từ device
+        $devices = DeviceModel::query()
+            ->select('id', 'address')
+            ->whereIn('id', $deviceIds)
+            ->get()
+            ->mapWithKeys(fn($item) => [
+                $item->id => [
+                    'address' => $item->address,
+                ]
+            ])
+            ->all();
+        Log::info('Step 6.2 - Devices:', $devices);
 
         // Log bước 7: Lấy vị trí cuối cùng từ trip (trích xuất từ stats JSON)
         $lastPositions = TripModel::query()
@@ -160,14 +193,34 @@ class ReachAndDistance
         $results = [];
         foreach ($viewStats as $key => $stat) {
             $deviceId = $stat['device_id'];
+            $userId = $vehicles[$deviceId]['user_id'] ?? null;
             $results[] = [
                 'device_id' => $deviceId,
                 'media_id' => $stat['media_id'],
                 'impression' => $stat['impression'],
                 'total_views' => $stat['total_views'],
-                'total_distance_km' => $distanceStats[$deviceId] ?? 0.00,
-                'bookmark' => $vehicles[$deviceId] ?? ['name' => null, 'location' => null],
-                'position' => $lastPositions[$deviceId] ?? ['latitude' => null, 'longitude' => null, 'speed' => null],
+                'total_distance_km' => (int) ($distanceStats[$deviceId] ?? 0),
+                'bookmark' => [
+                    'vehicle_id' => $vehicles[$deviceId]['vehicle_id'] ?? null,
+                    'name' => $vehicles[$deviceId]['name'] ?? null,
+                    'plate' => $vehicles[$deviceId]['plate'] ?? null,
+                ],
+                'position' => $lastPositions[$deviceId] ?? [
+                    'latitude' => 0,
+                    'longitude' => 0,
+                    'speed' => 0,
+                ],
+                'user' => $userId && isset($users[$userId]) ? [
+                    'id' => $users[$userId]['id'],
+                    'name' => $users[$userId]['name'],
+                    'phone' => $users[$userId]['phone'],
+                    'address' => $devices[$deviceId]['address'] ?? null,
+                ] : [
+                    'id' => null,
+                    'name' => null,
+                    'phone' => null,
+                    'address' => $devices[$deviceId]['address'] ?? null,
+                ],
                 'start_date' => $start->toDateString(),
                 'end_date' => $end->toDateString(),
             ];

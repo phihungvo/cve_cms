@@ -21,6 +21,12 @@ use App\Domains\Vehicle\Model\Vehicle as VehicleModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use App\Domains\Device\Model\Camera;
 
+/**
+ * @property int $device_type_id
+ * @property int|null $enterprise_id
+ * @property int|mixed $camera_supported
+ * @property int|mixed $camera_maximum
+ */
 class Device extends ModelAbstract
 {
     use HasFactory;
