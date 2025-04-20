@@ -28,5 +28,5 @@ Route::get('/report/daily/distance-impression-reach', function (Request $request
 
 
 Route::post('/report/image/media', [SendImageReport::class, 'store']);
-
 Route::get('/report/image/vehicle', [GetImageReportByVehicleId::class, 'index']);
+Route::get('/report/image/recognition/fpp', [GetScreenCaptureRecognition::class, 'index']);
