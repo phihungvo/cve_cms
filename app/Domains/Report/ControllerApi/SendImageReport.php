@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Validator;
  *   - Authorization: Bearer {your-token} (if authentication is required)
  * - Body (multipart/form-data):
  *   - image: (required) Image file (jpeg, png, jpg)
- *   - media_id: (required) Integer, ID of the media
+ *   - media_id: (required unless label is 'odo') Integer, ID of the media
  *   - device_id: (optional) Integer, ID of the device
  *   - vehicle_id: (optional) Integer, ID of the vehicle
  *   - minio_url: (required) String, path to store image in MinIO (e.g., goads/image-driver-report/18/10.png)
@@ -34,6 +34,8 @@ use Illuminate\Support\Facades\Validator;
  *   - latitude: (required) Numeric, latitude coordinate
  *   - longitude: (required) Numeric, longitude coordinate
  *   - target: (optional) Integer, target value for the report
+ *   - source_type: (optional) String, source of the report (e.g., driver, system)
+ *   - label: (optional) String, label of the report (e.g., odo, screen,..)
  * - Responses:
  *   - 201 Created: { "message": "Image report created successfully", "data": { ... } }
  *   - 422 Unprocessable Entity: { "error": { validation errors } }
@@ -54,7 +56,9 @@ use Illuminate\Support\Facades\Validator;
  *   -F "minio_bucket=media" \
  *   -F "latitude=10.124" \
  *   -F "longitude=10.11" \
- *   -F "target=6"
+ *   -F "target=6" \
+ *   -F "source_type=driver" \
+ *   -F "label=odo"
  * ```
  */
 class SendImageReport
@@ -68,7 +72,6 @@ class SendImageReport
      */
     public function __construct(SendImageReportService $sendImageReportService)
     {
-        // Log::info('SendImageReport: Constructor initialized');
         $this->sendImageReportService = $sendImageReportService;
     }
 
@@ -83,25 +86,20 @@ class SendImageReport
      */
     public function store(Request $request): JsonResponse
     {
-        // Log request data for debugging
-        // Log::info('SendImageReport: Starting store method', [
-        //     'request_data' => $request->all(),
-        //     'files' => $request->hasFile('image') ? $request->file('image')->getPathname() : null,
-        // ]);
-
         // Validate input data
-        // Log::info('SendImageReport: Starting validation');
         $startTime = microtime(true);
         $validator = Validator::make($request->all(), [
-            'image' => 'required|image|mimes:jpeg,png,jpg', // Image file must be jpeg, png, or jpg
-            'media_id' => 'required|integer', // Media ID is required and must be an integer
-            'device_id' => 'nullable|integer', // Device ID is optional
-            'vehicle_id' => 'nullable|integer', // Vehicle ID is optional
-            'minio_url' => 'required|string', // MinIO URL path is required
-            'minio_bucket' => 'required|string', // MinIO bucket name is required
-            'latitude' => 'required|numeric', // Latitude is required
-            'longitude' => 'required|numeric', // Longitude is required
-            'target' => 'nullable|integer', // Target is optional
+            'image' => 'required|image|mimes:jpeg,png,jpg',
+            'media_id' => ['integer', 'required_unless:label,odo'],
+            'device_id' => 'nullable|integer',
+            'vehicle_id' => 'nullable|integer',
+            'minio_url' => 'required|string',
+            'minio_bucket' => 'required|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'target' => 'nullable|integer',
+            'source_type' => 'nullable|string',
+            'label' => 'nullable|string',
         ]);
 
         // Return validation errors if any
@@ -114,34 +112,37 @@ class SendImageReport
             ], 422);
         }
         $validationTime = microtime(true) - $startTime;
-        // Log::info('SendImageReport: Validation completed', [
-        //     'validation_time_seconds' => $validationTime,
-        // ]);
 
         try {
+            // Initialize variables
+            $media = null;
+            $device = null;
+            $vehicle = null;
+            $mediaEnterpriseId = null;
+            $deviceEnterpriseId = null;
+            $vehicleEnterpriseId = null;
+
+            // Check if label is 'odo'
+            $isOdoLabel = $request->input('label') === 'odo';
+
             // Fetch enterprise IDs from Media, Device, and Vehicle tables
-            // Log::info('SendImageReport: Fetching enterprise IDs');
             $startTime = microtime(true);
-            $media = Media::find($request->media_id);
+            if (!$isOdoLabel) {
+                $media = Media::find($request->media_id);
+                if (!$media) {
+                    Log::error('SendImageReport: Invalid media_id', [
+                        'media_id' => $request->media_id,
+                    ]);
+                    return response()->json([
+                        'error' => 'Invalid media_id',
+                    ], 404);
+                }
+                $mediaEnterpriseId = $media->enterprise_id;
+            }
+
             $device = $request->device_id ? Device::find($request->device_id) : null;
             $vehicle = $request->vehicle_id ? Vehicle::find($request->vehicle_id) : null;
             $fetchTime = microtime(true) - $startTime;
-            // Log::info('SendImageReport: Enterprise IDs fetched', [
-            //     'media_id' => $request->media_id,
-            //     'device_id' => $request->device_id,
-            //     'vehicle_id' => $request->vehicle_id,
-            //     'fetch_time_seconds' => $fetchTime,
-            // ]);
-
-            // Check if media_id exists
-            if (!$media) {
-                Log::error('SendImageReport: Invalid media_id', [
-                    'media_id' => $request->media_id,
-                ]);
-                return response()->json([
-                    'error' => 'Invalid media_id',
-                ], 404);
-            }
 
             // Check if device_id exists (if provided)
             if ($request->device_id && !$device) {
@@ -163,20 +164,30 @@ class SendImageReport
                 ], 404);
             }
 
-            // Get enterprise IDs from models
-            $mediaEnterpriseId = $media->enterprise_id;
+            // Get enterprise IDs from device and vehicle
             $deviceEnterpriseId = $device ? $device->enterprise_id : null;
             $vehicleEnterpriseId = $vehicle ? $vehicle->enterprise_id : null;
-            // Log::info('SendImageReport: Enterprise IDs retrieved', [
-            //     'media_enterprise_id' => $mediaEnterpriseId,
-            //     'device_enterprise_id' => $deviceEnterpriseId,
-            //     'vehicle_enterprise_id' => $vehicleEnterpriseId,
-            // ]);
 
-            // Verify enterprise ID consistency
+            // Determine enterprise_id for the report
+            $enterpriseId = $isOdoLabel ? ($deviceEnterpriseId ?? $vehicleEnterpriseId) : $mediaEnterpriseId;
+
+            // If no enterprise_id can be determined, throw an error
+            if (!$enterpriseId) {
+                Log::error('SendImageReport: No valid enterprise ID found', [
+                    'media_id' => $request->media_id,
+                    'device_id' => $request->device_id,
+                    'vehicle_id' => $request->vehicle_id,
+                    'label' => $request->label,
+                ]);
+                return response()->json([
+                    'error' => 'No valid enterprise ID found',
+                ], 422);
+            }
+
+            // Verify enterprise ID consistency (skip media_id check if label is 'odo')
             if (
-                ($deviceEnterpriseId && $mediaEnterpriseId !== $deviceEnterpriseId) ||
-                ($vehicleEnterpriseId && $mediaEnterpriseId !== $vehicleEnterpriseId)
+                ($deviceEnterpriseId && $enterpriseId !== $deviceEnterpriseId) ||
+                ($vehicleEnterpriseId && $enterpriseId !== $vehicleEnterpriseId)
             ) {
                 Log::error('SendImageReport: Enterprise IDs do not match', [
                     'media_enterprise_id' => $mediaEnterpriseId,
@@ -189,7 +200,6 @@ class SendImageReport
             }
 
             // Call service to handle image upload and database storage
-            // Log::info('SendImageReport: Calling SendImageReportService');
             $startTime = microtime(true);
             $result = $this->sendImageReportService->handle(
                 $request->file('image'),
@@ -203,18 +213,15 @@ class SendImageReport
                         'latitude',
                         'longitude',
                         'target',
+                        'source_type',
+                        'label'
                     ]),
-                    ['enterprise_id' => $mediaEnterpriseId]
+                    ['enterprise_id' => $enterpriseId]
                 )
             );
             $serviceTime = microtime(true) - $startTime;
-            // Log::info('SendImageReport: SendImageReportService completed', [
-            //     'service_time_seconds' => $serviceTime,
-            //     'result_id' => $result->id ?? null,
-            // ]);
 
             // Return success response
-            // Log::info('SendImageReport: Store method completed successfully');
             return response()->json([
                 'message' => 'Image report created successfully',
                 'data' => $result,
