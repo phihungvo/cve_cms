@@ -22,10 +22,7 @@ class Update extends CreateUpdateAbstract
         $this->row->shared_public = $this->data['shared_public'];
         $this->row->vehicle_id = $this->data['vehicle_id'];
         $this->row->device_type_id = $this->data['device_type_id'];
-
-        if ($this->auth->isRoot()) {
-            $this->row->enterprise_id = $this->data['enterprise_id']; // Root được phép thay đổi
-        }
+        $this->row->enable_ai = $this->data['enable_ai'];
 
         $previousCameraSupported = $this->row->camera_supported;
         $this->row->camera_supported = $this->data['camera_supported'] ?? 0;

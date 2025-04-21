@@ -28,4 +28,5 @@
     "user-select" => "--- select a user ---",
     "this-device-supports-camera" => "This device supports camera",
     "maximum-number-of-cameras" => "Maximum number of cameras",
+    'enable-ai' => 'Enable AI',
 ];

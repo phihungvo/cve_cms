@@ -16,8 +16,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     abstract protected function save(): void;
 
     /**
-     * @return Model
      * @throws ValidatorException
+     *
+     * @return Model
      */
     public function handle(): Model
     {
@@ -30,6 +31,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
 
     /**
      * @return void
+     * @throws ValidatorException
      */
     protected function data(): void
     {
@@ -86,7 +88,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     protected function dataEnterpriseId(): void
     {
         $enterpriseId = null;
-        if($this->auth->isRoot()) {
+        if ($this->auth->isRoot()) {
             if ($this->request->input('enterprise_id')) {
                 $enterpriseId = $this->request->input('enterprise_id');
             }
@@ -111,8 +113,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
+     *
+     * @return void
      */
     protected function check(): void
     {
@@ -122,8 +125,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
+     *
+     * @return void
      */
     protected function checkCode(): void
     {
@@ -144,8 +148,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
+     *
+     * @return void
      */
     protected function checkSerial(): void
     {
@@ -166,8 +171,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
+     *
+     * @return void
      */
     protected function checkVehicleId(): void
     {
@@ -187,8 +193,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
+     *
+     * @return void
      */
     protected function dataDeviceTypeId(): void
     {
