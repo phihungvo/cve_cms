@@ -129,6 +129,8 @@ class AuthLogin extends Controller
                     'location_id' => $campaign->location_id,
                     'budget' => $campaign->budget,
                     'status' => $campaign->status,
+                    'logo_url' => $campaign->logo_url,
+
                     'performance' => $campaign->performance ? [
                         'id' => $campaign->performance->id,
                         'reach' => $campaign->performance->reach,
