@@ -24,12 +24,25 @@ use App\Domains\Device\Model\Camera;
 /**
  * @property int $device_type_id
  * @property int|null $enterprise_id
- * @property int|mixed $camera_supported
+ * @property int $camera_supported
  * @property int|mixed $camera_maximum
+ * @property int|null $user_id
+ * @property string|null $code
+ * @property string $name
+ * @property string $model
+ * @property string $serial
+ * @property string|null $phone_number
+ * @property string $password
+ * @property int $enabled
+ * @property int $shared
+ * @property int $shared_public
+ * @property int|null $vehicle_id
+ * @property int $enable_ai
  */
 class Device extends ModelAbstract
 {
     use HasFactory;
+
 
     /**
      * @var string

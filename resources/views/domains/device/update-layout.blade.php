@@ -26,6 +26,10 @@
                 class="p-4 {{ ($ROUTE === 'device.update.transfer') ? 'active' : '' }}"
                 role="tab">{{ __('device-update.transfer') }}</a>
         @endif
+
+        <a href="{{ route('device.update.runtime-analytics', $row->id) }}"
+           class="p-4 {{ ($ROUTE === 'device.update.runtime-analytics') ? 'active' : '' }}"
+           role="tab">{{ __('camera.runtime-analytics') }}</a>
     </div>
 </div>
 

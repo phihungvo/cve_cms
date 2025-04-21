@@ -29,6 +29,7 @@ class Create extends CreateUpdateAbstract
             'enterprise_id' => $this->data['enterprise_id'],
             'camera_supported' => $this->data['camera_supported'] ?? 0,
             'camera_maximum' => $this->data['camera_maximum'] ?? 1,
+            'enable_ai' => $this->data['enable_ai'],
         ]);
 
         $deviceStatus = DeviceStatus::query()->create([
@@ -42,7 +43,7 @@ class Create extends CreateUpdateAbstract
             device: $this->row,
             deviceStatus: $deviceStatus,
             type: 'device_created',
-            description: 'New device created with serial: ' . $this->row->serial,
+            description: 'New device created with serial: '.$this->row->serial,
         );
     }
 }
