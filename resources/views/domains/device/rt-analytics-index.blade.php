@@ -18,8 +18,13 @@
 
         @if($row->enable_ai)
             <!--  -->
-        <h2>Runtime analytics available</h2>
+            <div class="flex justify-between items-center p-2">
+                <h2>All Instance list</h2>
+                <a class="btn btn-primary" href="{{route('device.runtime-analytics.create', $row->id)}}">Create Instance</a>
+            </div>
 
+{{--            table show list instance--}}
+{{--        @dd($list)--}}
             <hr class="my-4">
         @else
             <div class="mb-4">

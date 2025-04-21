@@ -22,7 +22,8 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::post('/device/{id}/camera-setting/create', [CameraSetting::class, '__invoke'])->name('device.camera-setting.create');
     Route::delete('/device/{id}/camera-setting/{camera_id}', [CameraSetting::class, '__invoke'])->name('device.update.camera-setting.delete');
 
-    Route::any('/device/{id}/runtime-analytics', RuntimeAnalytics::class)->name('device.update.runtime-analytics');
+    Route::get('/device/{id}/runtime-analytics', RTAnalyticsIndex::class)->name('device.runtime-analytics');
+    Route::any('/device/{id}/runtime-analytics/create', RTAnalyticsCreate::class)->name('device.runtime-analytics.create');
 });
 
 Route::group(['middleware' => ['user-auth-manager-mode']], static function () {

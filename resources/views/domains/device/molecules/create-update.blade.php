@@ -3,7 +3,7 @@
     <div class="p-2">
         <label for="device-code" class="form-label">{{ __('device-update.code') }}</label>
         <div class="input-group">
-            <input type="text" name="code" class="form-control form-control-lg" id="device-code"
+        <input type="text" name="code" class="form-control form-control-lg" id="device-code"
                    value="{{ $REQUEST->input('code') }}" readonly required>
             <button type="button" class="input-group-text input-group-text-lg" title="{{ __('common.generate') }}"
                     data-password-generate="#device-code" data-password-generate-format="uuid"

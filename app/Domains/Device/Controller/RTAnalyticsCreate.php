@@ -4,7 +4,7 @@ namespace App\Domains\Device\Controller;
 
 use App\Domains\Device\Service\Controller\RuntimeAnalytics as ControllerService;
 
-class RuntimeAnalytics extends ControllerAbstract
+class RTAnalyticsCreate extends ControllerAbstract
 {
     public function __invoke(int $id)
     {
@@ -17,7 +17,7 @@ class RuntimeAnalytics extends ControllerAbstract
 
         $this->meta('title', __('device-create.meta-title-analytics'));
 
-        return $this->page('device.update-runtime-analytics', $this->data());
+        return $this->page('device.rt-analytics-create', $this->data());
     }
 
     protected function data():array
