@@ -13,9 +13,9 @@ $allPermission = $userPermission['all'] ?? [];
 
 @section('body')
 
-@php use Illuminate\Support\Facades\Log; @endphp
-
 <form method="get">
+    @php use Illuminate\Support\Facades\Log; @endphp
+
     <div class="sm:flex sm:space-x-4">
         <div class="flex-grow mt-2 sm:mt-0">
             <input type="search" class="form-control form-control-lg" placeholder="{{ __('device-index.filter') }}"

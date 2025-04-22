@@ -1,7 +1,7 @@
 @extends ('layouts.in')
 
 @section ('body')
-
+{{--    @dd(get_defined_vars())--}}
 <div class="box flex items-center px-5">
     <div class="nav nav-tabs flex overflow-auto whitespace-nowrap" role="tablist">
         <a href="{{ route('device.update', $row->id) }}" class="p-4 {{ ($ROUTE === 'device.update') ? 'active' : '' }}"
@@ -28,8 +28,8 @@
         @endif
 
         <a href="{{ route('device.runtime-analytics', $row->id) }}"
-           class="p-4 {{ ($ROUTE === 'device.update.runtime-analytics') ? 'active' : '' }}"
-           role="tab">{{ __('camera.runtime-analytics') }}</a>
+           class="p-4 {{ (Illuminate\Support\Str::is('device.runtime-analytics*', $ROUTE)) ? 'active' : '' }}"
+           role="tab">{{ __('rt-analytics-index.runtime-analytics') }}</a>
     </div>
 </div>
 

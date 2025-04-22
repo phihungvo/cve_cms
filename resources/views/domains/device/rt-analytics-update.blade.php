@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="intro-y box p-5 mt-5">
-        <h2 class="text-lg font-medium mb-5">{{ __('rt-analytics-create.create-instance') }}</h2>
+        <h2 class="text-lg font-medium mb-5">{{ __('rt-analytics-create.edit-instance') }}</h2>
 
         <!-- Display Success or Error Messages -->
         @if (session('success'))
@@ -16,19 +16,24 @@
             </div>
         @endif
         @if($row->enable_ai && $row->enabled)
+            <!--  -->
             <div class="box mb-5 p-5">
-                <div id="create-instance-form">
+                <div id="update-instance-form">
                     <form method="POST">
-                        <input type="hidden" name="_action" value="create"/>
+                        <input type="hidden" name="_action" value="update"/>
                         @csrf
 
+                        {{--include phan chung cua 2 form create update--}}
                         @include('domains.device.molecules.create-update-instance')
 
                         <div class="box  p-5 mt-5">
                             <div class="text-right">
-                                <!--Btn Save -->
-                                <button type="submit"
-                                        class="btn btn-primary">{{__('rt-analytics-create.btn-save')}}</button>
+                                <!--Btn Delete -->
+                                <a href="javascript:;" data-toggle="modal" data-target="#delete-modal"
+                                   class="btn btn-danger mr-2"
+                                >{{__('Delete')}}</a>
+                                <!--Btn save -->
+                                <button type="submit" class="btn btn-primary">save</button>
                                 <!--Btn cancel-->
                                 <a href="{{ route('device.runtime-analytics', ['id' => $row->id]) }}"
                                    class="btn btn-outline-secondary ml-2">{{__('rt-analytics-create.btn-cancel')}}</a>
@@ -45,4 +50,10 @@
             </div>
         @endif
     </div>
+
+    @include ('molecules.delete-modal', [
+      'title' => __('Delete Instance'),
+      'message' => __('Are you sure delete Instance?'),
+    ])
+
 @stop

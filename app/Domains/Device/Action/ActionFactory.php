@@ -3,6 +3,7 @@
 namespace App\Domains\Device\Action;
 
 use App\Domains\Device\Model\Device as Model;
+use App\Domains\Device\Model\DeviceCveditInstance;
 use App\Domains\DeviceMessage\Model\DeviceMessage as DeviceMessageModel;
 use App\Domains\Core\Action\ActionFactoryAbstract;
 
@@ -12,6 +13,8 @@ class ActionFactory extends ActionFactoryAbstract
      * @var ?\App\Domains\Device\Model\Device
      */
     protected ?Model $row;
+
+    protected ?DeviceCveditInstance $instance;
 
     /**
      * @return \App\Domains\Device\Model\Device
@@ -83,5 +86,21 @@ class ActionFactory extends ActionFactoryAbstract
     public function deleteCamera(): void
     {
         $this->actionHandle(DeleteCamera::class);
+    }
+
+    public function createInstance(): void
+    {
+        $this->actionHandle(CreateInstance::class, $this->validate()->createInstance());
+    }
+
+    public function updateInstance(DeviceCveditInstance $instance):void
+    {
+        $this->instance = $instance;
+        $this->actionHandle(UpdateInstance::class, $this->validate()->updateInstance($instance));
+    }
+
+    public function deleteInstance(): void
+    {
+        $this->actionHandle(DeleteInstance::class);
     }
 }

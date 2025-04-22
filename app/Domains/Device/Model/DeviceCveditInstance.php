@@ -2,6 +2,8 @@
 
 namespace App\Domains\Device\Model;
 
+use App\Domains\Device\Model\Builder\DeviceCvedixInstanceBuilder as Builder;
+use App\Domains\Device\Model\Collection\DeviceCvedixInstanceCollection as Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,6 +14,20 @@ class DeviceCveditInstance extends Model
     public const TABLE = 'device_cvedit_instance';
 
     public const ID = 'id';
+
+    protected $fillable = [
+        'uuid',
+        'instance_name',
+        'instance_source',
+        'device_id',
+        'solution_id',
+        'group_id',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     public function device(): BelongsTo
     {
@@ -34,5 +50,25 @@ class DeviceCveditInstance extends Model
             'zones' => 'array',
             'lines' => 'array',
         ];
+    }
+
+    /**
+     * @param array $models
+     *
+     * @return Collection
+     */
+    public function newCollection(array $models = []): Collection
+    {
+        return new Collection($models);
+    }
+
+    /**
+     * @param \Illuminate\Database\Query\Builder $query
+     *
+     * @return Builder
+     */
+    public function newEloquentBuilder($query): Builder
+    {
+        return new Builder($query);
     }
 }

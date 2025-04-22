@@ -24,26 +24,8 @@
                        value="{{ $enterprise_id ?? $row->enterprise_id ?? '' }}">
             @endif
 
-            <!-- select box users -->
-{{--            <div class="mt-2">--}}
-{{--                <label for="device-user" class="form-label">{{ __('device-create.user') }}</label>--}}
-{{--                <select name="user_id" id="device-user" class="form-select form-select-lg bg-white">--}}
-{{--                    <option value="">{{ __('device-create.user-select') }}</option>--}}
-{{--                    @foreach ($listUser as $user)--}}
-{{--                        <option--}}
-{{--                            value="{{ $user['id'] }}"--}}
-{{--                            {{ old('user_id', $REQUEST->input('user_id', $row->user_id ?? null)) == $user['id'] ? 'selected' : '' }}>--}}
-{{--                            {{ $user['name'] }}--}}
-{{--                        </option>--}}
-{{--                    @endforeach--}}
-{{--                </select>--}}
-{{--            </div>--}}
         </div>
         @endif
-
-{{--        @if(!auth()->user()->isRoot())--}}
-{{--            <input type="hidden" name="user_id" value="{{ auth()->user()->id }}"/>--}}
-{{--        @endif--}}
 
         @include ('domains.device.molecules.create-update')
 

@@ -15,21 +15,6 @@
                               :selected="$REQUEST->input('enterprise_id', $row->enterprise_id ?? null)">
                     </x-select>
                 @endif
-
-                <!-- select box users -->
-{{--                <div class="form-group">--}}
-{{--                    <label for="device-update-user" class="form-label">{{ __('device-create.user') }}</label>--}}
-{{--                    <select name="user_id" id="device-user" class="form-select form-select-lg bg-white"--}}
-{{--                    >--}}
-{{--                        <option value="">{{ __('device-create.user-select') }}</option>--}}
-{{--                        @foreach ($listUser as $user)--}}
-{{--                            <option--}}
-{{--                                value="{{ $user['id'] }}" {{ $REQUEST->input('user_id') == $user['id'] ? 'selected' : '' }}>--}}
-{{--                                {{ $user['name'] }}--}}
-{{--                            </option>--}}
-{{--                        @endforeach--}}
-{{--                    </select>--}}
-{{--                </div>--}}
             </div>
         @endif
 
