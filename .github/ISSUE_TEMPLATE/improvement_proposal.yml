@@ -1,0 +1,35 @@
+name: 🚀 Improvement Proposal
+description: Đề xuất cải tiến một phần hiện tại
+title: "[Improve] "
+labels: [enhancement]
+
+body:
+  - type: input
+    id: area
+    attributes:
+      label: 📍 Khu vực cần cải tiến
+      placeholder: "VD: Giao diện dashboard, tốc độ tải trang..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: ⚠️ Tình trạng hiện tại
+      placeholder: "VD: Bảng dữ liệu load chậm khi có quá nhiều dòng"
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 💡 Gợi ý cải tiến
+      placeholder: "VD: Sử dụng phân trang, lazy load để cải thiện hiệu năng"
+    validations:
+      required: true
+
+  - type: input
+    id: priority
+    attributes:
+      label: 🕒 Mức độ ưu tiên
+      placeholder: "VD: Cao, Trung bình, Thấp"
