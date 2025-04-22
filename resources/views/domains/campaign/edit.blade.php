@@ -1,3 +1,4 @@
+```blade
 @extends('layouts.in')
 
 @section('body')
@@ -27,7 +28,6 @@
                                 <label class="form-label">{{ __('campaign-index.name') }}</label>
                                 <input type="text" name="name" class="form-control"
                                     value="{{ old('name', $campaign['name']) }}" required>
-                                <div class="invalid-feedback">Please enter a campaign name.</div>
                             </div>
                         </div>
                     </div>
@@ -53,7 +53,6 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <div class="invalid-feedback">Please select an enterprise.</div>
                                 @else
                                     <input type="text" class="form-control"
                                         value="{{ auth()->user()->enterprise->name ?? 'N/A' }}" readonly>
@@ -103,10 +102,12 @@
                                             onmouseout="this.style.backgroundColor='white';">
                                             <div class="shadow-md rounded-lg overflow-hidden">
                                                 <div class="p-4 flex flex-col items-center">
-                                                    <h5 class="text-lg font-bold text-center mb-2">{{ $mediaItem->name }}</h5>
+                                                    <h5 class="text-lg font-bold text-center mb-2">{{ $mediaItem->name }}
+                                                    </h5>
                                                     @php
                                                         $type = strtolower($mediaItem->type);
-                                                        $isVideo = str_contains($type, 'video') || in_array($type, ['mp4']);
+                                                        $isVideo =
+                                                            str_contains($type, 'video') || in_array($type, ['mp4']);
                                                     @endphp
                                                     <p class="text-gray-500 mb-2">{{ $mediaItem->type }}</p>
                                                     <div class="media-preview mb-2">
@@ -134,7 +135,7 @@
                             </div>
                         </div>
                     </div>
-                  
+
                     <!-- Start Time và End Time -->
                     <div class="row justify-between">
                         <div class="col-md-6">
@@ -143,7 +144,6 @@
                                 <input type="datetime-local" name="start_time" class="form-control"
                                     value="{{ old('start_time', \Carbon\Carbon::parse($campaign['start_time'])->format('Y-m-d\TH:i')) }}"
                                     required>
-                                <div class="invalid-feedback">Please select a start time.</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -152,7 +152,6 @@
                                 <input type="datetime-local" name="end_time" class="form-control"
                                     value="{{ old('end_time', \Carbon\Carbon::parse($campaign['end_time'])->format('Y-m-d\TH:i')) }}"
                                     required>
-                                <div class="invalid-feedback">Please select an end time.</div>
                             </div>
                         </div>
                     </div>
@@ -164,7 +163,6 @@
                                 <label class="form-label">{{ __('campaign-index.reach') }}</label>
                                 <input type="number" name="reach" class="form-control"
                                     value="{{ old('reach', $campaign['reach']) }}" min="0" required>
-                                <div class="invalid-feedback">Please enter reach value.</div>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -172,7 +170,6 @@
                                 <label class="form-label">{{ __('campaign-index.impression') }}</label>
                                 <input type="number" name="impression" class="form-control"
                                     value="{{ old('impression', $campaign['impression']) }}" min="0" required>
-                                <div class="invalid-feedback">Please enter impression value.</div>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -180,7 +177,6 @@
                                 <label class="form-label">{{ __('campaign-index.distance') }}</label>
                                 <input type="number" name="distance" class="form-control"
                                     value="{{ old('distance', $campaign['distance']) }}" min="0" required>
-                                <div class="invalid-feedback">Please enter distance value.</div>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -189,7 +185,6 @@
                                 <input type="number" name="budget" class="form-control"
                                     value="{{ old('budget', $campaign['budget']) }}" step="0.01" min="0"
                                     required>
-                                <div class="invalid-feedback">Please enter budget value.</div>
                             </div>
                         </div>
                     </div>
@@ -201,7 +196,6 @@
                                 <label class="form-label">{{ __('campaign-index.cpm') }}</label>
                                 <input type="number" name="cpm" class="form-control"
                                     value="{{ old('cpm', $campaign['cpm']) }}" min="0" required>
-                                <div class="invalid-feedback">Please enter CPM value.</div>
                             </div>
                         </div>
                     </div>
@@ -220,7 +214,6 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <div class="invalid-feedback">Please select a location.</div>
                             </div>
                         </div>
                     </div>
@@ -243,8 +236,42 @@
             background-color: #f0f0f0;
             border-radius: 4px;
         }
+
         .selected-user .remove-user {
             margin-left: 10px;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ff5733;
+            /* Vibrant orange color */
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-btn:hover {
+            background-color: #e64a29;
+            /* Darker shade on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-btn span {
+            margin-left: 8px;
         }
     </style>
 @stop
@@ -262,7 +289,6 @@
                     if (!form.checkValidity()) {
                         event.preventDefault();
                         event.stopPropagation();
-                        alert('Please fill in all required fields.');
                     }
                     form.classList.add('was-validated');
                 }, false);
@@ -299,7 +325,7 @@
             const userSelect = document.getElementById('user-select');
             const selectedUsersDiv = document.getElementById('selected-users');
 
-            userSelect.addEventListener('change', function () {
+            userSelect.addEventListener('change', function() {
                 const userId = this.value;
                 const userText = this.options[this.selectedIndex].text;
 
@@ -314,7 +340,7 @@
                     `;
                     selectedUsersDiv.appendChild(userDiv);
 
-                    userDiv.querySelector('.remove-user').addEventListener('click', function () {
+                    userDiv.querySelector('.remove-user').addEventListener('click', function() {
                         userDiv.remove();
                     });
                 }
@@ -324,7 +350,7 @@
 
             // Xóa user đã chọn
             selectedUsersDiv.querySelectorAll('.remove-user').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
                     this.parentElement.remove();
                 });
             });
@@ -337,23 +363,26 @@
                     const enterpriseId = this.value;
                     if (enterpriseId) {
                         fetch(`/campaign/media-by-enterprise/${enterpriseId}`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            mediaContainer.innerHTML = '';
-                            if (!data.data || data.data.length === 0) {
-                                mediaContainer.innerHTML = '<p>No media available for this enterprise.</p>';
-                                return;
-                            }
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .content
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                mediaContainer.innerHTML = '';
+                                if (!data.data || data.data.length === 0) {
+                                    mediaContainer.innerHTML =
+                                        '<p>No media available for this enterprise.</p>';
+                                    return;
+                                }
 
-                            data.data.forEach(media => {
-                                const isVideo = media.type.toLowerCase().includes('video') || media.type === 'mp4';
-                                mediaContainer.innerHTML += `
+                                data.data.forEach(media => {
+                                    const isVideo = media.type.toLowerCase().includes(
+                                        'video') || media.type === 'mp4';
+                                    mediaContainer.innerHTML += `
                                     <div class="card mb-3 media bg-white" id="media-${media.id}"
                                         media-id="${media.id}"
                                         onmouseover="this.style.backgroundColor='#f0f0f0';"
@@ -376,39 +405,41 @@
                                             </div>
                                         </div>
                                     </div>`;
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error fetching media:', error);
+                                mediaContainer.innerHTML = '<p>Error loading media.</p>';
                             });
-                        })
-                        .catch(error => {
-                            console.error('Error fetching media:', error);
-                            mediaContainer.innerHTML = '<p>Error loading media.</p>';
-                        });
 
                         fetch(`/campaign/users-by-enterprise/${enterpriseId}`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            userSelect.innerHTML = '<option value="">Select a User</option>';
-                            if (!data.data || data.data.length === 0) {
-                                userSelect.innerHTML += '<option value="">No users available</option>';
-                                return;
-                            }
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .content
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                userSelect.innerHTML = '<option value="">Select a User</option>';
+                                if (!data.data || data.data.length === 0) {
+                                    userSelect.innerHTML +=
+                                        '<option value="">No users available</option>';
+                                    return;
+                                }
 
-                            data.data.forEach(user => {
-                                userSelect.innerHTML += `
+                                data.data.forEach(user => {
+                                    userSelect.innerHTML += `
                                     <option value="${user.id}">${user.name} (${user.email})</option>`;
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error fetching users:', error);
+                                userSelect.innerHTML = '<option value="">Error loading users</option>';
                             });
-                        })
-                        .catch(error => {
-                            console.error('Error fetching users:', error);
-                            userSelect.innerHTML = '<option value="">Error loading users</option>';
-                        });
                     } else {
-                        mediaContainer.innerHTML = '<p>Please select an enterprise.</p>';
+                        mediaContainer.innerHTML = '<p>Select an enterprise.</p>';
                         userSelect.innerHTML = '<option value="">Select a User</option>';
                     }
                 });
@@ -418,3 +449,4 @@
         });
     </script>
 @endpush
+```
