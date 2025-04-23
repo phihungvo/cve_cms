@@ -2,13 +2,13 @@
 
 namespace App\Domains\User\Enterprise\EService\Action;
 
-use App\Domains\User\Permission\Model\Permission as Model;
+use App\Domains\User\Enterprise\EService\Model\EService as Model;
 use App\Domains\CoreApp\Action\ActionAbstract as ActionAbstractCore;
 
 abstract class ActionAbstract extends ActionAbstractCore
 {
     /**
-     * @var ?\App\Domains\User\Permission\Model\Permission
+     * @var ?\App\Domains\User\Enterprise\EService\Model\EService
      */
     protected ?Model $row;
 }

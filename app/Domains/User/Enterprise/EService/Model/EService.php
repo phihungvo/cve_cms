@@ -25,13 +25,7 @@ class EService extends ModelAbstract
     protected $fillable = [
         'name',
         'alias',
-        'description',
-        'menu_route_name',
-        'menu_route_uri',
-        'is_menu',
-        'menu_name',
-        'menu_icon',
-        'parent_id',
+        'description'
     ];
 
     public function getNameAttribute(): ?string

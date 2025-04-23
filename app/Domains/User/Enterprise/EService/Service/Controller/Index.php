@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Permission\Service\Controller;
+namespace App\Domains\User\Enterprise\EService\Service\Controller;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
-use App\Domains\User\Permission\Model\Collection\Permission as Collection;
-use App\Domains\User\Permission\Model\Permission as Model;
+use App\Domains\User\Enterprise\EService\Model\Collection\EService as Collection;
+use App\Domains\User\Enterprise\EService\Model\EService as Model;
 
 class Index extends ControllerAbstract
 {
@@ -17,11 +17,11 @@ class Index extends ControllerAbstract
     {
         return [
             ...$this->dataCore(),
-            'permissions' => $this->list(),
+            'services' => $this->list(),
         ];
     }
     /**
-     * @return \App\Domains\User\Permission\Model\Collection\Permission
+     * @return \App\Domains\User\Enterprise\EService\Model\Collection\EService
      */
     public function list(): Collection
     {

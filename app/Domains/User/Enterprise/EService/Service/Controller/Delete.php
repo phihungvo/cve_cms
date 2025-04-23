@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Permission\Service\Controller;
+namespace App\Domains\User\Enterprise\EService\Service\Controller;
 
-use App\Domains\User\Permission\Model\Permission;
-use App\Domains\User\Permission\Action\ActionFactory;
+use App\Domains\User\Enterprise\EService\Model\EService;
+use App\Domains\User\Enterprise\EService\Action\ActionFactory;
 
 class Delete
 {
@@ -23,7 +23,7 @@ class Delete
         return new self($request, $auth);
     }
 
-    public function delete(Permission $permission): void
+    public function delete(EService $permission): void
     {
         $this->factory->delete($permission);
     }

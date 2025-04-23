@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Permission\Action;
+namespace App\Domains\User\Enterprise\EService\Action;
 
-use App\Domains\User\Permission\Model\Permission as Model;
+use App\Domains\User\Enterprise\EService\Model\EService as Model;
 use App\Domains\Core\Action\ActionFactoryAbstract;
 
 class ActionFactory extends ActionFactoryAbstract

@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Permission\Controller;
+namespace App\Domains\User\Enterprise\EService\Controller;
 
 use Illuminate\Http\RedirectResponse;
-use App\Domains\User\Permission\Service\Controller\Delete as DeleteService;
-use App\Domains\User\Permission\Model\Permission as Model;
+use App\Domains\User\Enterprise\EService\Service\Controller\Delete as DeleteService;
+use App\Domains\User\Enterprise\EService\Model\EService as Model;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract;
 
 class Delete extends ControllerWebAbstract

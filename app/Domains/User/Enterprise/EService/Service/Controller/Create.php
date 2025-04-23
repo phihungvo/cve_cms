@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Permission\Service\Controller;
+namespace App\Domains\User\Enterprise\EService\Service\Controller;
 
 use Illuminate\Validation\ValidationException;
 
-use App\Domains\User\Permission\Action\ActionFactory;
+use App\Domains\User\Enterprise\EService\Action\ActionFactory;
 
-use App\Domains\User\Permission\Model\Permission as Permission;
+use App\Domains\User\Enterprise\EService\Model\EService as EService;
 
 
 class Create
@@ -27,18 +27,12 @@ class Create
         return new self($request, $auth);
     }
 
-    public function create(): Permission
+    public function create(): EService
     {
         $data = $this->request->validate([
             'alias' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'menu_route_name' => 'nullable|string',
-            'menu_route_uri' => 'nullable|string',
-            'is_menu' => 'nullable|string',
-            'menu_name' => 'nullable|string',
-            'menu_icon' => 'nullable|string',
-            'parent_id' => 'nullable|string',
         ]);
 
         return $this->factory->create($data);
@@ -47,7 +41,7 @@ class Create
     public function data(): array
     {
         return [
-            'permissions' => Permission::all(),
+            'services' => EService::all(),
         ];
     }
 }

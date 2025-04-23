@@ -1,27 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Permission\Controller;
+namespace App\Domains\User\Enterprise\EService\Controller;
 
-use App\Domains\User\Permission\Controller\Index as PermissionIndex;
-use App\Domains\User\Permission\Controller\Create as PermissionCreate;
-use App\Domains\User\Permission\Controller\Update as PermissionUpdate;
-use App\Domains\User\Permission\Controller\Delete as PermissionDelete;
+use App\Domains\User\Enterprise\EService\Controller\Index as EServiceIndex;
+use App\Domains\User\Enterprise\EService\Controller\Create as EServiceCreate;
+use App\Domains\User\Enterprise\EService\Controller\Update as EServiceUpdate;
+use App\Domains\User\Enterprise\EService\Controller\Delete as EServiceDelete;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['user-auth'])->group(function () {
-    Route::get('/user/permission', PermissionIndex::class)
+    Route::get('/user/enterprise/service', EServiceIndex::class)
         // ->middleware('check.permission:read')
-        ->name('user.permission.index');
+        ->name('user.enterprise.eservice.index');
 
-    Route::any('/user/permission/create', PermissionCreate::class)
-        // ->middleware('check.permission:create')
-        ->name('user.permission.create');
+    Route::match(['get', 'post'], '/user/enterprise/service/create', EServiceCreate::class)->name('user.enterprise.eservice.create');
 
-    Route::match(['get', 'patch'], '/user/permission/{id}', PermissionUpdate::class)
-        ->name('user.permission.update');
+    // Route::match(['get', 'patch'], '/user/permission/{id}', PermissionUpdate::class)
+    //     ->name('user.permission.update');
 
-    Route::delete('/user/permission/{id}', PermissionDelete::class)
-        ->name('user.permission.delete');
+    // Route::delete('/user/permission/{id}', PermissionDelete::class)
+    // ->name('user.permission.delete');
 
 
 
