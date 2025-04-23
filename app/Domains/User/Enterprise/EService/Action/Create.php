@@ -1,0 +1,45 @@
+<?php declare(strict_types=1);
+
+namespace App\Domains\User\Permission\Action;
+
+use App\Domains\User\Permission\Model\Permission as Model;
+use Illuminate\Support\Facades\Log;
+
+class Create extends ActionAbstract
+{
+    protected array $data;
+
+    public function handle(array $data): Model
+    {
+        $this->data = $data;
+        return $this->createPermission();
+    }
+
+    protected function createPermission(): Model
+    {
+        // Xử lý giá trị is_menu
+        $isMenu = isset($this->data['is_menu']) ? $this->data['is_menu'] : false;
+        $isMenuValue = ($isMenu === true || $isMenu === 1 || $isMenu === '1') ? 1 : 0;
+
+        // Chuẩn bị mảng dữ liệu cơ bản
+        $dataToCreate = [
+            'alias' => $this->data['alias'],
+            'name' => $this->data['name'],
+            'description' => $this->data['description'],
+            'menu_route_name' => $this->data['menu_route_name'],
+            'menu_route_uri' => $this->data['menu_route_uri'],
+            'is_menu' => $isMenuValue,
+            'menu_name' => $this->data['menu_name'],
+            'menu_icon' => $this->data['menu_icon'],
+        ];
+
+        // Chỉ thêm parent_id nếu nó tồn tại và khác 0
+        if (isset($this->data['parent_id']) && $this->data['parent_id'] != 0) {
+            $dataToCreate['parent_id'] = $this->data['parent_id'];
+        }
+
+        $this->row = Model::query()->create($dataToCreate);
+
+        return $this->row;
+    }
+}
