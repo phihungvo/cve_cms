@@ -20,8 +20,8 @@ class Update extends ControllerWebAbstract
             return $this->update();
         }
 
-        $this->meta('title', __('permission-update.meta-title'));
-        return $this->page('user.permission.update', $this->data()); // Đảm bảo tên view đúng
+        $this->meta('title', __('eservice-update.meta-title'));
+        return $this->page('user.enterprise.eservice.update', $this->data()); // Đảm bảo tên view đúng
     }
 
     protected function data(): array
@@ -37,8 +37,8 @@ class Update extends ControllerWebAbstract
     {
         $service = UpdateService::new($this->request, $this->auth);
         $this->row = $service->update($this->row);
-        $this->sessionMessage('success', __('permission-update.success'));
-        return redirect()->route('user.permission.index');
+        $this->sessionMessage('success', __('eservice-update.success'));
+        return redirect()->route('user.enterprise.eservice.index');
     }
 
     protected function canBeDeleted(): bool

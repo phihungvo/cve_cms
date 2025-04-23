@@ -15,6 +15,9 @@ Route::middleware(['user-auth'])->group(function () {
 
     Route::match(['get', 'post'], '/user/enterprise/service/create', EServiceCreate::class)->name('user.enterprise.eservice.create');
 
+    Route::match(['get', 'patch'], '/user/enterprise/service/{id}', EServiceUpdate::class)->name('user.enterprise.eservice.update');
+
+
     // Route::match(['get', 'patch'], '/user/permission/{id}', PermissionUpdate::class)
     //     ->name('user.permission.update');
 

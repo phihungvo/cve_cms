@@ -2,7 +2,7 @@
 
 namespace App\Domains\User\Enterprise\EService\Service\Controller;
 
-use App\Domains\User\Enterprise\EService\Model\Permission;
+use App\Domains\User\Enterprise\EService\Model\EService;
 use App\Domains\User\Enterprise\EService\Action\ActionFactory;
 
 class Update
@@ -23,25 +23,20 @@ class Update
         return new self($request, $auth);
     }
 
-    public function update(Permission $permission): Permission
+    public function update(EService $eservice): EService
     {
         $data = $this->request->validate([
             'alias' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'menu_route' => 'nullable|string',
-            'is_menu' => 'nullable|string',
-            'menu_name' => 'nullable|string',
-            'menu_icon' => 'nullable|string',
-            'parent_id' => 'nullable|string',
         ]);
-        return $this->factory->update($permission, $data);
+        return $this->factory->update($eservice, $data);
     }
 
     public function data(): array
     {
         return [
-            'permissions' => Permission::all(),
+            'services' => EService::all(),
         ];
     }
 }
