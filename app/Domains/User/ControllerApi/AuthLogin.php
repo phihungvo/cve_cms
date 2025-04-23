@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use App\Domains\User\Model\User as UserModel;
 use App\Domains\User\Action\ActionFactory;
 use Illuminate\Support\Facades\Log;
+use App\Domains\Display\Model\Display;
 
 class AuthLogin extends Controller
 {
@@ -70,7 +71,12 @@ class AuthLogin extends Controller
         $user->load([
             'roles',
             'campaigns' => function ($query) {
-                $query->with('performance', 'media');
+                $query->with([
+                    'performance',
+                    'media' => function ($query) {
+                        $query->with('playlists'); // Load playlists liên quan đến media
+                    }
+                ]);
             },
             'devices.vehicle', // Load devices và vehicle liên quan
             'devices.displays', // Load displays liên quan đến devices
@@ -123,6 +129,8 @@ class AuthLogin extends Controller
                     'location_id' => $campaign->location_id,
                     'budget' => $campaign->budget,
                     'status' => $campaign->status,
+                    'logo_url' => $campaign->logo_url,
+
                     'performance' => $campaign->performance ? [
                         'id' => $campaign->performance->id,
                         'reach' => $campaign->performance->reach,
@@ -136,6 +144,12 @@ class AuthLogin extends Controller
                         'actual_cost' => $campaign->performance->actual_cost,
                     ] : null,
                     'media' => $campaign->media->map(function ($media) {
+
+                        $playlistIds = $media->playlists->pluck('id')->toArray();
+                        $deviceCount = Display::whereIn('playlist_id', $playlistIds)
+                            ->distinct('device_id')
+                            ->count('device_id');
+
                         return [
                             'id' => $media->id,
                             'name' => $media->name,
@@ -147,6 +161,7 @@ class AuthLogin extends Controller
                             'enterprise_id' => $media->enterprise_id,
                             'created_at' => $media->created_at->toDateTimeString(),
                             'updated_at' => $media->updated_at->toDateTimeString(),
+                            'device_count' => $deviceCount,
                         ];
                     })->all(),
                 ];

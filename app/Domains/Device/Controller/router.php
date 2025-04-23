@@ -21,6 +21,8 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::patch('/device/{id}/camera-setting', [CameraSetting::class, '__invoke'])->name('device.update.camera-setting.update');
     Route::post('/device/{id}/camera-setting/create', [CameraSetting::class, '__invoke'])->name('device.camera-setting.create');
     Route::delete('/device/{id}/camera-setting/{camera_id}', [CameraSetting::class, '__invoke'])->name('device.update.camera-setting.delete');
+
+    Route::any('/device/{id}/runtime-analytics', RuntimeAnalytics::class)->name('device.update.runtime-analytics');
 });
 
 Route::group(['middleware' => ['user-auth-manager-mode']], static function () {

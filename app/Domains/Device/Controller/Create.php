@@ -35,11 +35,16 @@ class Create extends ControllerAbstract
      */
     protected function create(): RedirectResponse
     {
-        $this->row = $this->action()->create();
+        try{
+            $this->row = $this->action()->create();
 
-        $this->sessionMessage('success', __('device-create.success'));
+            $this->sessionMessage('success', __('device-create.success'));
 
-        // return redirect()->route('device.update', $this->row->id);
-        return redirect()->route('device.index')->with('success', __('device-create.success'));
+            // return redirect()->route('device.update', $this->row->id);
+            return redirect()->route('device.index')->with('success', __('device-create.success'));
+        }catch (\Exception $e){
+            $this->sessionMessage('error', $e->getMessage());
+            return redirect()->back()->withInput();
+        }
     }
 }

@@ -19,27 +19,12 @@ class Create extends CreateUpdateAbstract
         $this->request();
     }
 
-    // /**
-    //  * @return array
-    //  */
-    // public function data(): array
-    // {
-    //     return $this->dataCreateUpdate();
-    // }
+
+    /**
+     * @return array
+     */
     public function data(): array
     {
-        $data = $this->dataCreateUpdate();
-
-        if ($this->auth->isRoot()) { // Giả sử có phương thức isRoot() trong User model
-            $data['enterprises'] = Enterprise::all()->map(fn($e) => [
-                'id' => $e->id,
-                'name' => $e->name,
-            ])->toArray();
-        } else {
-            $data['enterprise_name'] = $this->auth->enterprise->name ?? 'N/A';
-            $data['enterprise_id'] = $this->auth->enterprise->id ?? null;
-        }
-
-        return $data;
+        return $this->dataCreateUpdate();
     }
 }

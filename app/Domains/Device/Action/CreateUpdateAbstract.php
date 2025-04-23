@@ -3,8 +3,10 @@
 namespace App\Domains\Device\Action;
 
 use App\Domains\Device\Model\Device as Model;
+use App\Domains\Device\Model\DeviceType;
+use App\Domains\Vehicle\Model\Vehicle;
 use App\Domains\Vehicle\Model\Vehicle as VehicleModel;
-use App\Domains\Device\Model\Camera;
+use App\Exceptions\ValidatorException;
 
 abstract class CreateUpdateAbstract extends ActionAbstract
 {
@@ -14,7 +16,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     abstract protected function save(): void;
 
     /**
-     * @return \App\Domains\Device\Model\Device
+     * @return Model
+     * @throws ValidatorException
+     *
      */
     public function handle(): Model
     {
@@ -27,6 +31,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
 
     /**
      * @return void
+     * @throws ValidatorException
      */
     protected function data(): void
     {
@@ -39,6 +44,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         $this->dataEnterpriseId();
         $this->dataCameraSupported();
         $this->dataCameraMaximum();
+        $this->dataEnabled();
+        $this->dataEnableAi();
+
     }
 
     /**
@@ -74,41 +82,55 @@ abstract class CreateUpdateAbstract extends ActionAbstract
             $this->data['password'] = $this->row->password ?? '';
         }
     }
-    // protected function dataEnterpriseId(): void
-    // {
-    //     if ($this->auth->isRoot()) {
-    //         $this->data['enterprise_id'] = $this->request->input('enterprise_id');
-    //     } else {
-    //         $this->data['enterprise_id'] = $this->auth->enterprise_id;
-    //     }
-    // }
+
+    protected function dataUserId(): void
+    {
+        $this->data['user_id'] = $this->data['vehicle_id'] ? Vehicle::find($this->data['vehicle_id'])->user_id : null;
+    }
+
     protected function dataEnterpriseId(): void
     {
-        $this->data['enterprise_id'] = $this->request->input('enterprise_id');
+        $enterpriseId = null;
+        if ($this->auth->isRoot()) {
+            if ($this->request->input('enterprise_id')) {
+                $enterpriseId = $this->request->input('enterprise_id');
+            }
+        } else {
+            $enterpriseId = $this->auth->enterprise_id;
+        }
+
+        $this->data['enterprise_id'] = $enterpriseId;
     }
+
     protected function dataCameraSupported(): void
     {
-        $this->data['camera_supported'] = (bool) $this->request->input('camera_supported', $this->row->camera_supported ?? 0);
+        $this->data['camera_supported'] = (bool)$this->request->input('camera_supported', $this->row->camera_supported ?? 0);
     }
 
     protected function dataCameraMaximum(): void
     {
-        $this->data['camera_maximum'] = (int) $this->request->input('camera_maximum', $this->row->camera_maximum ?? 1);
+        $this->data['camera_maximum'] = (int)$this->request->input('camera_maximum', $this->row->camera_maximum ?? 1);
+        if (!$this->data['camera_supported']) {
+            $this->data['camera_maximum'] = 0;
+        }
     }
 
     /**
      * @return void
+     * @throws ValidatorException
+     *
      */
     protected function check(): void
     {
         $this->checkCode();
         $this->checkSerial();
         $this->checkVehicleId();
-        // $this->checkVehicleId();
     }
 
     /**
      * @return void
+     * @throws ValidatorException
+     *
      */
     protected function checkCode(): void
     {
@@ -130,11 +152,13 @@ abstract class CreateUpdateAbstract extends ActionAbstract
 
     /**
      * @return void
+     * @throws ValidatorException
+     *
      */
     protected function checkSerial(): void
     {
         if ($this->checkSerialExists()) {
-            $this->exceptionValidator(__('device-create.error.serial-exists'));
+            throw new ValidatorException(__('device-create.error.serial-exists', ['serial' => $this->data['serial']]));
         }
     }
 
@@ -151,6 +175,8 @@ abstract class CreateUpdateAbstract extends ActionAbstract
 
     /**
      * @return void
+     * @throws ValidatorException
+     *
      */
     protected function checkVehicleId(): void
     {
@@ -166,16 +192,63 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     {
         return VehicleModel::query()
             ->byId($this->data['vehicle_id'])
-            ->byUserId($this->data['user_id'])
             ->exists();
     }
 
     /**
      * @return void
+     * @throws ValidatorException
+     *
      */
     protected function dataDeviceTypeId(): void
     {
         $this->data['device_type_id'] = $this->request->input('device_type_id');
+        if ($this->data['device_type_id'] && ($this->checkDeviceTypeIdExists() === false)) {
+            $this->exceptionValidator(__('device-create.error.vehicle-not-found'));
+        }
     }
 
+    protected function checkDeviceTypeIdExists(): bool
+    {
+        return DeviceType::query()
+            ->where('id', $this->data['device_type_id'])
+            ->exists();
+    }
+
+    protected function dataEnabled(): void
+    {
+        if ($this->request['_action'] == 'create') {
+            if ($this->auth->isRoot()) {
+                $this->data['enabled'] = (bool)$this->request->input('enabled', false);
+            } else {
+                $this->data['enabled'] = (bool)$this->request->input('enabled', false);
+            }
+        }
+
+        if ($this->request['_action'] == 'update') {
+            if($this->auth->isRoot()) {
+                $this->data['enabled'] = (bool)$this->request->input('enabled', false);
+            } else {
+                $this->data['enabled'] = (bool)$this->request->input('enabled', $this->row->enabled ?? false);
+            }
+        }
+    }
+
+    protected function dataEnableAi(): void
+    {
+        if ($this->request['_action'] == 'create') {
+            if ($this->auth->isRoot()) {
+                $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', false);
+            } else {
+                $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', false);
+            }
+        }
+        if ($this->request['_action'] == 'update') {
+            if ($this->auth->isRoot()) {
+                $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', false);
+            } else {
+                $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', $this->row->enable_ai ?? false);
+            }
+        }
+    }
 }

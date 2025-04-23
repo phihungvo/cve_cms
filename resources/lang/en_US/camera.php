@@ -3,6 +3,7 @@
 return [
     'name' => 'Name',
     'camera-setting' => 'Camera Settings',
+    'runtime-analytics' => 'CVEDIX-RT Analytics',
     'camera-setting-meta-title' => 'Camera Settings',
     'description' => 'Description',
     'model' => 'Model',
@@ -15,6 +16,7 @@ return [
     'create' => 'Camera Create',
     'no_cameras' => 'No cameras available.',
     'not_supported' => 'Camera support is not enabled for this device.',
+    'rt-analytics-not_supported' => 'Runtime analytics is not supported for this device.',
     'update-success' => 'Camera updated successfully.',
     'create-success' => 'Camera created successfully.',
     'camera_details' => 'Camera Details',

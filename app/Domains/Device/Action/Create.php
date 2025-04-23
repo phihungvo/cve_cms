@@ -3,10 +3,8 @@
 namespace App\Domains\Device\Action;
 
 use App\Domains\Device\Model\Device as Model;
-use App\Domains\Device\Model\DeviceStatus;
 use App\Domains\Device\Model\DeviceLog;
-use App\Domains\Device\Model\DeviceType;
-use App\Domains\Device\Model\Camera;
+use App\Domains\Device\Model\DeviceStatus;
 
 class Create extends CreateUpdateAbstract
 {
@@ -15,12 +13,6 @@ class Create extends CreateUpdateAbstract
      */
     protected function save(): void
     {
-        $deviceType = DeviceType::find($this->data['device_type_id']);
-
-        $enterpriseId = $this->auth->isRoot()
-            ? $this->data['enterprise_id'] // Root chọn enterprise
-            : $this->auth->enterprise_id;  // User thường lấy enterprise_id của họ
-
         $this->row = Model::query()->create([
             'code' => $this->data['code'],
             'name' => $this->data['name'],
@@ -33,10 +25,11 @@ class Create extends CreateUpdateAbstract
             'shared_public' => $this->data['shared_public'],
             'vehicle_id' => $this->data['vehicle_id'],
             'user_id' => $this->data['user_id'],
-            'device_type_id' => $this->data['device_type_id'] ?? null,
-            'enterprise_id' => $enterpriseId,
+            'device_type_id' => $this->data['device_type_id'],
+            'enterprise_id' => $this->data['enterprise_id'],
             'camera_supported' => $this->data['camera_supported'] ?? 0,
             'camera_maximum' => $this->data['camera_maximum'] ?? 1,
+            'enable_ai' => $this->data['enable_ai'],
         ]);
 
         $deviceStatus = DeviceStatus::query()->create([
@@ -50,7 +43,7 @@ class Create extends CreateUpdateAbstract
             device: $this->row,
             deviceStatus: $deviceStatus,
             type: 'device_created',
-            description: 'New device created with serial: ' . $this->row->serial,
+            description: 'New device created with serial: '.$this->row->serial,
         );
     }
 }

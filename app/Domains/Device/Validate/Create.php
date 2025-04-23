@@ -14,19 +14,21 @@ class Create extends ValidateAbstract
     public function rules(): array
     {
         return [
+            'device_type_id' => ['bail', 'required', 'integer'],
+            'enterprise_id' => ['bail', 'nullable', 'integer'],
             'code' => ['bail', 'required', 'uuid'],
             'name' => ['bail', 'required', 'string'],
             'model' => ['bail', 'required', 'string'],
             'serial' => ['bail', 'required', 'string'],
             'type' => ['bail', 'nullable', 'string'],
             'information' => ['bail', 'nullable', 'json'],
-            'phone_number' => ['bail', 'string'],
+            'phone_number' => ['bail', 'string', 'regex:/^\+?[0-9]{10,15}$/'],
             'password' => ['bail', 'string'],
-            'user_id' => ['bail', 'integer'],
             'vehicle_id' => ['bail', 'nullable', 'integer'],
-            'enabled' => ['bail', 'boolean'],
+            'enabled' => ['bail', 'nullable', 'boolean'],
             'shared' => ['bail', 'boolean'],
             'shared_public' => ['bail', 'boolean'],
+            'enable_ai' => ['bail', 'nullable', 'boolean'],
         ];
     }
 }

@@ -58,8 +58,8 @@ class Update extends CreateUpdateAbstract
         return $this->cache(function () use ($deviceId) {
             $item = Device::query()
                 ->where('id', $deviceId)
-                ->whenUserId($this->user()?->id)
-                ->whenVehicleId($this->vehicle()?->id)
+                //->whenUserId($this->user()?->id)
+                //->whenVehicleId($this->vehicle()?->id)
                 ->withMessagesCount()
                 ->withMessagesPendingCount()
                 ->withUser()
