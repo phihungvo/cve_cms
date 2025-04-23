@@ -22,12 +22,13 @@ class Create extends ValidateAbstract
             'serial' => ['bail', 'required', 'string'],
             'type' => ['bail', 'nullable', 'string'],
             'information' => ['bail', 'nullable', 'json'],
-            'phone_number' => ['bail', 'string'],
+            'phone_number' => ['bail', 'string', 'regex:/^\+?[0-9]{10,15}$/'],
             'password' => ['bail', 'string'],
             'vehicle_id' => ['bail', 'nullable', 'integer'],
-            'enabled' => ['bail', 'boolean'],
+            'enabled' => ['bail', 'nullable', 'boolean'],
             'shared' => ['bail', 'boolean'],
             'shared_public' => ['bail', 'boolean'],
+            'enable_ai' => ['bail', 'nullable', 'boolean'],
         ];
     }
 }
