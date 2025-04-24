@@ -3,7 +3,7 @@
     'created_at' => 'Created',
     'enabled' => 'Enabled',
     'filter' => 'Filter...',
-    'meta-title' => 'Create Permisison',
+    'meta-title' => 'Update Permisison',
     'name' => 'Name',
     'alias' => 'Alias',
     'description' => 'Description',
