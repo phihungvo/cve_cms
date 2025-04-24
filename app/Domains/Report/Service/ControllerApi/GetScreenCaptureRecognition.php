@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Class GetScreenCaptureRecognition
- * 
+ *
  * Service to handle the logic for extracting screen capture reports based on provided parameters.
  * Returns reports as an array or a single object based on get_latest.
  */
@@ -61,8 +61,8 @@ class GetScreenCaptureRecognition
 
         // Handle get_latest logic
         if ($getLatest && $date) {
-            // Get the latest report for the specified date
-            $query->latest('created_at')->take(1);
+            // Get the earliest report for the specified date instead of the latest
+            $query->oldest('created_at')->take(1);
         }
 
         // Fetch reports
