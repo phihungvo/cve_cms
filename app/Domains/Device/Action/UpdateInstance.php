@@ -2,29 +2,32 @@
 
 namespace App\Domains\Device\Action;
 
-use App\Domains\Device\Model\DeviceCveditInstance;
+use App\Domains\Device\Model\DeviceCvedixrtInstance;
+use Exception;
 
 class UpdateInstance extends ActionAbstract
 {
-    protected ?DeviceCveditInstance $instance;
+    protected ?DeviceCvedixrtInstance $instance;
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function handle(): void
+    public function handle($instance): void
     {
+        $this->instance = $instance;
         $this->data();
         $this->check();
         $this->save();
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function data(): void
     {
-        $this->getInstance();
         $this->uuid();
+        $this->instanceNameData();
+        $this->inputSourceData();
     }
 
     /**
@@ -40,24 +43,11 @@ class UpdateInstance extends ActionAbstract
         $this->instance->update([
             'uuid' => $this->data['uuid'],
             'instance_name' => $this->data['instance_name'],
-            'instance_source' => $this->data['instance_source'],
             'solution_id' => $this->data['solution_id'],
             'group_id' => $this->data['group_id'],
+            'input_source' => $this->data['input_source'],
+            'description' => $this->data['description'],
         ]);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function getInstance(): void
-    {
-        $this->instance = DeviceCveditInstance::query()
-            ->where('device_id', $this->row->id)
-            ->first();
-
-        if (!$this->instance) {
-            throw new \Exception('Instance not found');
-        }
     }
 
     protected function uuid()
@@ -65,4 +55,19 @@ class UpdateInstance extends ActionAbstract
 
     }
 
+    protected function instanceNameData(): void
+    {
+        $this->data['instance_name'] = trim($this->data['instance_name']);
+    }
+
+    protected function inputSourceData(): void
+    {
+        if (isset($this->data['uri'])) {
+            $this->data['input_source'] = $this->data['uri'];
+        } else if (isset($this->data['input_source_text'])) {
+            $this->data['input_source'] = $this->data['input_source_text'];
+        } else {
+            $this->data['input_source'] = null;
+        }
+    }
 }

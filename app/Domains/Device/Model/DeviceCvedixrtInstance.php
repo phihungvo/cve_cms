@@ -7,21 +7,24 @@ use App\Domains\Device\Model\Collection\DeviceCvedixInstanceCollection as Collec
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DeviceCveditInstance extends Model
+class DeviceCvedixrtInstance extends Model
 {
-    protected $table = 'device_cvedit_instance';
+    protected $table = 'device_cvedixrt_instance';
 
-    public const TABLE = 'device_cvedit_instance';
+    public const TABLE = 'device_cvedixrt_instance';
 
     public const ID = 'id';
+
+    public const FOREIGN_KEY = 'instance_id';
 
     protected $fillable = [
         'uuid',
         'instance_name',
-        'instance_source',
+        'input_source',
         'device_id',
         'solution_id',
         'group_id',
+        'description',
     ];
 
     protected $casts = [
@@ -29,27 +32,40 @@ class DeviceCveditInstance extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function device(): BelongsTo
-    {
-        return $this->belongsTo(Device::class);
-    }
-
-    public function solution(): BelongsTo
-    {
-        return $this->belongsTo(DeviceCvedixSolution::class, 'solution_id');
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(DeviceCveditGroup::class, 'group_id');
-    }
-
+    /**
+     * @return array
+     */
     protected function casts(): array
     {
         return [
             'zones' => 'array',
             'lines' => 'array',
         ];
+    }
+
+    public function device(): BelongsTo
+    {
+        return $this->belongsTo(Device::class);
+    }
+
+    /**
+     * Một Instance thuộc về 1 Solution, quan hệ n-1
+     *
+     * @return BelongsTo
+     */
+    public function solution(): BelongsTo
+    {
+        return $this->belongsTo(DeviceCvedixrtSolution::class, DeviceCvedixrtSolution::FOREIGN_KEY);
+    }
+
+    /**
+     * Một Instance thuộc về 1 Group, quan hệ n-1
+     *
+     * @return BelongsTo
+     */
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(DeviceCvedixrtGroup::class, DeviceCvedixrtGroup::FOREIGN_KEY);
     }
 
     /**

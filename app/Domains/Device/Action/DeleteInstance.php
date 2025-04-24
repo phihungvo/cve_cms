@@ -2,11 +2,11 @@
 
 namespace App\Domains\Device\Action;
 
-use App\Domains\Device\Model\DeviceCveditInstance;
+use App\Domains\Device\Model\DeviceCvedixrtInstance;
 
 class DeleteInstance extends ActionAbstract
 {
-    protected ?DeviceCveditInstance $instance;
+    protected ?DeviceCvedixrtInstance $instance;
     public function handle()
     {
         $this->data();
@@ -26,7 +26,7 @@ class DeleteInstance extends ActionAbstract
 
     protected function getInstance()
     {
-        $this->instance = DeviceCveditInstance::query()
+        $this->instance = DeviceCvedixrtInstance::query()
             ->where('device_id', $this->row->id)
             ->first();
 

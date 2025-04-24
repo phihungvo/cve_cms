@@ -2,13 +2,15 @@
     'no' => 'No',
     'name' => 'Instance name',
     'instance-id' => 'Instance ID',
-    'source' => 'Instance source',
+    'source' => 'Input source',
     'zones' => 'Zones',
     'lines' => 'Lines',
     'solutions' => 'Solutions',
     'groups' => 'Groups',
     'update-at' => 'Last update',
-
+    'filter' => 'Filter...',
+    'filter-solutions' => '-- Select Solution --',
+    'filter-groups' => '-- Select Group --',
 
     'meta-title' => 'RT Analytics',
     'runtime-analytics' => 'CVEDIX-RT Analytics',

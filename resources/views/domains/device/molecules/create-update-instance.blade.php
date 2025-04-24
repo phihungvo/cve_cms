@@ -8,7 +8,7 @@
             <span class="text-red-500">*</span>
             <label class="form-label">UUID</label>
             <div class="input-group">
-                <input type="text" name="uuid" class="form-control" required readonly
+                <input type="text" name="uuid" class="form-control form-control-lg" required readonly
                        value="{{old('uuid', isset($instance) ? $instance->uuid : $uuid)}}" id="instance_uuid">
                 <button type="button" class="input-group-text input-group-text-lg"
                         style="padding-top: 1px; padding-bottom: 1px"
@@ -23,8 +23,8 @@
         <!-- Name -->
         <div>
             <span class="text-red-500">*</span>
-            <label class="form-label">{{__('cvedit-instance.name')}}</label>
-            <input type="text" name="instance_name" class="form-control" required
+            <label class="form-label">{{__('rt-analytics-create.name')}}</label>
+            <input type="text" name="instance_name" class="form-control form-control-lg" required
                    value="{{old('instance_name', isset($instance) ?$instance->instance_name : '')}}">
         </div>
 

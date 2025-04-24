@@ -2,13 +2,12 @@
 
 namespace App\Domains\Device\Service\Controller;
 
-use App\Domains\Device\Model\DeviceCveditGroup as InstanceGroup;
-use App\Domains\Device\Model\DeviceCvedixSolution as InstanceSolution;
+use App\Domains\Device\Model\DeviceCvedixrtGroup as InstanceGroup;
+use App\Domains\Device\Model\DeviceCvedixrtSolution as InstanceSolution;
 use Illuminate\Database\Eloquent\Collection;
 
 abstract class RTAnalyticsCreateUpdateAbstract extends ControllerAbstract
 {
-
     /**
      * @return void
      */
@@ -26,7 +25,7 @@ abstract class RTAnalyticsCreateUpdateAbstract extends ControllerAbstract
     {
         return [
             'row' => $this->row,
-//            'uuid' => ($this->input['uuid'] ?? helper()->uuid()),
+            //            'uuid' => ($this->input['uuid'] ?? helper()->uuid()),
             'solutions' => $this->solutions(),
             'groups' => $this->groups(),
         ];

@@ -3,7 +3,6 @@
 namespace App\Domains\Device\Controller;
 
 use Illuminate\Support\Facades\Route;
-use App\Domains\Device\Controller\CameraSetting;
 
 Route::group(['middleware' => ['user-auth']], static function () {
     Route::get('/device', Index::class)->name('device.index');
@@ -30,6 +29,7 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::get('/device/{id}/runtime-analytics', RTAnalyticsIndex::class)->name('device.runtime-analytics');
     Route::any('/device/{id}/runtime-analytics/create', RTAnalyticsCreate::class)->name('device.runtime-analytics.create');
     Route::any('/device/{id}/runtime-analytics/update', RTAnalyticsUpdate::class)->name('device.runtime-analytics.update');
+    Route::any('/device/{id}/runtime-analytics/input-source', RTAnalyticsInputSource::class)->name('device.runtime-analytics.input-source');
 });
 
 Route::group(['middleware' => ['user-auth-manager-mode']], static function () {
