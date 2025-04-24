@@ -6,10 +6,10 @@ class Delete extends ActionAbstract
 {
     public function handle(): void
     {
-        $this->deletePermission();
+        $this->deleteEService();
     }
 
-    protected function deletePermission(): void
+    protected function deleteEService(): void
     {
         $this->row->delete(); // Xóa Feature
     }

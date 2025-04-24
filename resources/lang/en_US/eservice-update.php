@@ -11,7 +11,12 @@
     'success' => 'Successfully',
     'update' => 'Update',
     'delete-button' => 'Delete',
-    'delete-message' => 'Deleting a permission will also delete permission.',
-    'delete-success' => 'The permission has been deleted successfully',
-    'delete-title' => 'Delete Permission',
+    'delete-message' => 'Deleting a service will also delete service.',
+    'delete-success' => 'The service has been deleted successfully',
+    'delete-title' => 'Delete service',
+    'restore-title' => 'Restore Service',
+    'restore-message' => 'Are you sure restore this service',
+    'restore-success' => 'The service has been retored',
+    'soft-delete-button' => 'Soft Delete',
+
 ];

@@ -13,6 +13,8 @@
     'created_at' => 'Created At',
     'actions' => 'Actions',
     'edit' => 'Edit',
+    'delete' => 'Delete',
+    'restore' => 'Restore',
     'unauthorized' => 'Bạn không có quyền thực hiện hành động này.',
     'no_roles' => 'Tài khoản của bạn chưa được gán vai trò nào.',
     'no_service_view' => 'Bạn không có quyền xem danh sách service.',

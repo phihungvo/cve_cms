@@ -16,7 +16,7 @@
                         @if ($can_be_deleted)
                             <a href="javascript:;" data-dismiss="modal" data-toggle="modal" data-target="#delete-modal"
                                 class="btn btn-outline-danger mr-5">
-                                {{ __('eservice-update.delete-button') }}
+                                {{ __('eservice-update.soft-delete-button') }}
                             </a>
                         @endif
 
@@ -30,10 +30,9 @@
             @includeWhen($can_be_deleted, 'molecules.delete-modal', [
                 'title' => __('eservice-update.delete-title'),
                 'message' => __('eservice-update.delete-message'),
-                // 'route' => route('user.permission.delete', $row->id),
-                'method' => 'delete',
+                'route' => route('user.enterprise.eservice.delete', $row->id),
             ])
-            </div>
-        </div>
+                                                        </div>
+                                            </div>
 
 @endsection

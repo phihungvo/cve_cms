@@ -21,12 +21,13 @@
                 <th class="w-1">{{ __('eservice-index.alias') }}</th>
                 <th class="w-1">{{ __('eservice-index.description') }}</th>
                 <th class="w-1">{{ __('eservice-index.created') }}</th>
+                <th class="w-1">{{ __('eservice-index.actions') }}</th>
             </tr>
         </thead>
 
         <tbody>
             @foreach ($services as $row)
-            @php ($link = route('user.permission.update', $row->id))
+            @php ($link = route('user.enterprise.eservice.update', $row->id))
 
             <tr>
                 <td class="w-1" data-table-sort-value="{{ $row->name }}">
@@ -40,6 +41,30 @@
                 </td>
                 <td class="w-1" data-table-sort-value="{{ $row->created_at }}">
                     <a href="{{ $link }}" class="block">@dateWithUserTimezone($row->created_at)</a>
+                </td>
+                <td onclick="event.stopPropagation();">
+                    <a href="{{ $link }}" class="btn btn-primary btn-sm">{{ __('eservice-index.edit') }}</a>
+                    @if ($row['deleted_at'])
+                        <form action="{{ route('campaign.restore', $row['id']) }}" method="POST" style="display:inline;"
+                            onsubmit="return confirm('{{ __('eservice-index.restore_confirm') }}');">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm">{{ __('eservice-index.restore') }}</button>
+                        </form>
+                        <form action="{{ route('campaign.forceDelete', $row['id']) }}" method="POST" style="display:inline;"
+                            onsubmit="return confirm('{{ __('eservice-index.force_delete_confirm') }}');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="btn btn-danger btn-sm">{{ __('eservice-index.force_delete') }}</button>
+                        </form>
+                    @else
+                        <form action="{{ route('campaign.destroy', $row['id']) }}" method="POST" style="display:inline;"
+                            onsubmit="return confirm('{{ __('eservice-index.delete_confirm') }}');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm">{{ __('eservice-index.delete') }}</button>
+                        </form>
+                    @endif
                 </td>
             </tr>
             @endforeach
