@@ -6,6 +6,8 @@ use App\Domains\User\Enterprise\EService\Controller\Index as EServiceIndex;
 use App\Domains\User\Enterprise\EService\Controller\Create as EServiceCreate;
 use App\Domains\User\Enterprise\EService\Controller\Update as EServiceUpdate;
 use App\Domains\User\Enterprise\EService\Controller\Delete as EServiceDelete;
+use App\Domains\User\Enterprise\EService\Controller\Restore as EServiceRestore;
+
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['user-auth'])->group(function () {
@@ -20,4 +22,5 @@ Route::middleware(['user-auth'])->group(function () {
 
     Route::post('/user/enterprise/service/{id}/delete', EServiceDelete::class)->name('user.enterprise.eservice.delete');
 
+    Route::post('/user/enterprise/service/{id}/restore', [EServiceRestore::class, '__invoke'])->name('user.enterprise.eservice.restore');
 });

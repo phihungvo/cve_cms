@@ -45,24 +45,28 @@
                 <td onclick="event.stopPropagation();">
                     <a href="{{ $link }}" class="btn btn-primary btn-sm">{{ __('eservice-index.edit') }}</a>
                     @if ($row['deleted_at'])
-                        <form action="{{ route('campaign.restore', $row['id']) }}" method="POST" style="display:inline;"
+                        <form action="{{ route('user.enterprise.eservice.restore', $row['id']) }}" method="POST"
+                            style="display:inline;"
                             onsubmit="return confirm('{{ __('eservice-index.restore_confirm') }}');">
                             @csrf
                             <button type="submit" class="btn btn-success btn-sm">{{ __('eservice-index.restore') }}</button>
                         </form>
-                        <form action="{{ route('campaign.forceDelete', $row['id']) }}" method="POST" style="display:inline;"
+
+                        <form action="{{ route('user.enterprise.eservice.delete', $row['id']) }}" method="POST"
+                            style="display:inline;"
                             onsubmit="return confirm('{{ __('eservice-index.force_delete_confirm') }}');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit"
-                                class="btn btn-danger btn-sm">{{ __('eservice-index.force_delete') }}</button>
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                {{  __('eservice-update.force-delete-button') }}
+                            </button>
                         </form>
                     @else
-                        <form action="{{ route('campaign.destroy', $row['id']) }}" method="POST" style="display:inline;"
-                            onsubmit="return confirm('{{ __('eservice-index.delete_confirm') }}');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">{{ __('eservice-index.delete') }}</button>
+                        <form action="{{ route('user.enterprise.eservice.delete', $row['id']) }}" method="POST"
+                            style="display:inline;" onsubmit="return confirm('{{ __('eservice-index.delete_confirm') }}');">
+
+                            <button type="submit"
+                                class="btn btn-danger btn-sm">{{ $row->deleted_at !== null ? __('eservice-update.force-delete-button') : __('eservice-update.soft-delete-button') }}</button>
                         </form>
                     @endif
                 </td>

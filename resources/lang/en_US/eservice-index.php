@@ -27,5 +27,9 @@
     'alias' => 'Alias',
     'description' => 'Description',
     'created' => 'Created',
+    'force_delete' => 'Force Delete',
+    'restore_confirm' => 'Are you sure you want to restore this service?',
+    'delete_confirm' => 'Are you sure you want to delete this service?',
+    'force_delete_confirm' => 'Are you sure you want to permanently delete this service?',
 
 ];

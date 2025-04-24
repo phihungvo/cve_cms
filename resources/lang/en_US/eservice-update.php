@@ -18,5 +18,7 @@
     'restore-message' => 'Are you sure restore this service',
     'restore-success' => 'The service has been retored',
     'soft-delete-button' => 'Soft Delete',
+    'force-delete-button' => 'Force Delete',
+    'restore-button' => 'Restore',
 
 ];
