@@ -33,11 +33,18 @@
         </select>
     </div>
 
-        <!-- Trường menu_route (luôn hiển thị) -->
+    <!-- Trường menu_route (luôn hiển thị) -->
+    
     <div class="p-2">
-        <label for="permission-menu-route" class="form-label">{{ __('permission-create.menu_route') }}</label>
-        <input type="text" name="menu_route" class="form-control form-control-lg" id="permission-menu-route"
-            value="{{ old('menu_route', $row->menu_route ?? request()->input('menu_route')) }}"
+        <label for="permission-menu-route-name" class="form-label">{{ __('permission-create.menu_route_name') }}</label>
+        <input type="text" name="menu_route_name" class="form-control form-control-lg" id="permission-menu-route-name"
+            value="{{ old('menu_route_name', $row->menu_route_name ?? request()->input('menu_route_name')) }}" {{ old('is_menu', $row->is_menu ?? 0) ? 'required' : '' }}>
+    </div>
+
+    <div class="p-2">
+        <label for="permission-menu-route-uri" class="form-label">{{ __('permission-create.menu_route_uri') }}</label>
+        <input type="text" name="menu_route_uri" class="form-control form-control-lg" id=""permission-menu-route-uri"
+            value="{{ old('menu_route_uri', $row->menu_route_uri ?? request()->input('menu_route_uri')) }}"
             {{ old('is_menu', $row->is_menu ?? 0) ? 'required' : '' }}>
     </div>
 
