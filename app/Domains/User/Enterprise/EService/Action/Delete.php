@@ -2,8 +2,16 @@
 
 namespace App\Domains\User\Enterprise\EService\Action;
 
+use App\Domains\User\Enterprise\EService\Model\EService;
+
 class Delete extends ActionAbstract
 {
+    public function setRow(EService $row): self
+    {
+        $this->row = $row;
+        return $this;
+    }
+
     public function handle(): void
     {
         $this->deleteEService();
@@ -11,6 +19,12 @@ class Delete extends ActionAbstract
 
     protected function deleteEService(): void
     {
-        $this->row->delete(); // Xóa Feature
+        if ($this->row->trashed()) {
+            // Bản ghi đã bị soft delete, tiến hành force delete
+            $this->row->forceDelete();
+        } else {
+            // Bản ghi chưa bị soft delete, tiến hành soft delete
+            $this->row->delete();
+        }
     }
 }

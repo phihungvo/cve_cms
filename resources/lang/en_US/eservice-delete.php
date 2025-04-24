@@ -9,4 +9,5 @@ return [
     'delete-success' => 'Service has been deleted successfully',
     'delete-error' => 'Failed to delete service',
     'force-delete-button' => 'Force Delete',
+    'force-delete-success' => 'Service permanently deleted successfully.',
 ];

@@ -14,16 +14,8 @@
                 <div class="box p-5 mt-5">
                     <div class="text-right">
                         @if ($row->deleted_at !== null)
-
-                            <!-- <form action="{{ route('user.enterprise.eservice.restore', $row['id']) }}" method="POST"
-                                                                                    style="display:inline;"
-                                                                                    onsubmit="return confirm('{{ __('eservice-index.restore_confirm') }}');">
-
-                                                                                    <button type="submit" class="btn btn-success ">{{ __('eservice-index.restore') }}</button>
-                                                                                </form> -->
-
                             <a href="javascript:;" data-dismiss="modal" data-toggle="modal" data-target="#restore-modal"
-                                class="btn btn-outline-danger mr-5">
+                                class="btn btn-success mr-5">
                                 {{ __('eservice-index.restore') }}
                             </a>
 
@@ -49,12 +41,12 @@
                 'route' => route('user.enterprise.eservice.delete', $row->id),
             ])
 
-                                @includeWhen(true, 'molecules.restore-modal', [
-                                    'title' => __('eservice-update.restore-title'),
-                                    'message' => __('eservice-update.restore-message'),
-                                    'route' => route('user.enterprise.eservice.restore', $row->id),
-                                ])
-                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                    @includeWhen(true, 'molecules.restore-modal', [
+                        'title' => __('eservice-update.restore-title'),
+                        'message' => __('eservice-update.restore-message'),
+                        'route' => route('user.enterprise.eservice.restore', $row->id),
+                    ])
+                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                        </div>
 
 @endsection

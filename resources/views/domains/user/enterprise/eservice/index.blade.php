@@ -55,8 +55,6 @@
                         <form action="{{ route('user.enterprise.eservice.delete', $row['id']) }}" method="POST"
                             style="display:inline;"
                             onsubmit="return confirm('{{ __('eservice-index.force_delete_confirm') }}');">
-                            @csrf
-                            @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm">
                                 {{  __('eservice-update.force-delete-button') }}
                             </button>

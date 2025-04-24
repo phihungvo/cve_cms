@@ -15,19 +15,23 @@ class Delete extends ControllerWebAbstract
 
     public function __invoke(int $id): Response|RedirectResponse
     {
-        Log::info('Controller: Starting EService deletion', ['id' => $id]);
-
         try {
-            $this->row = Model::findOrFail($id);
-            Log::info('Controller: EService found', ['id' => $this->row->id, 'deleted_at' => $this->row->deleted_at]);
+            // Tìm bản ghi, bao gồm cả bản ghi đã bị soft delete
+            $this->row = Model::withTrashed()->find($id);
+            if (!$this->row) {
+
+                $this->sessionMessage('error', __('eservice-delete.not-found'));
+                return redirect()->back();
+            }
 
             $service = DeleteService::new($this->request, $this->auth);
-            Log::info('Controller: DeleteService instantiated');
 
+            // Gọi delete, logic soft delete/force delete được xử lý trong Action
             $service->delete($this->row);
-            Log::info('Controller: EService deleted successfully');
 
-            $this->sessionMessage('success', __('eservice-update.delete-success'));
+            $messageKey = $this->row->trashed() ? 'eservice-delete.force-delete-success' : 'eservice-delete.delete-success';
+            $this->sessionMessage('success', __($messageKey));
+
             return redirect()->route('user.enterprise.eservice.index');
         } catch (\Exception $e) {
             Log::error('Controller: EService deletion failed', [
@@ -35,7 +39,7 @@ class Delete extends ControllerWebAbstract
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            $this->sessionMessage('error', __('eservice-update.delete-error'));
+            $this->sessionMessage('error', __('eservice-delete.delete-error'));
             return redirect()->back();
         }
     }
