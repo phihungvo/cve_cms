@@ -6,14 +6,17 @@
              files: [], 
              showStack: false,
              successfulUploads: 0,
-             totalFiles: 0
+             totalFiles: 0,
+             overallProgress: 0
          }"
          x-on:livewire-upload-start="uploading = true; showStack = true"
          x-on:livewire-upload-finish="uploading = false; showStack = false"
          x-on:livewire-upload-error="uploading = false; showStack = false"
-         x-on:livewire-file-progress="files[$event.detail.index].progress = $event.detail.progress"
+         x-on:livewire-upload-progress="overallProgress = $event.detail.progress"
+         x-on:livewire-file-progress="files[$event.detail.index].progress = $event.detail.progress; files[$event.detail.index].status = $event.detail.status; updateOverallProgress()"
+         x-on:livewire-file-error="files[$event.detail.index].status = $event.detail.status; files[$event.detail.index].error = $event.detail.error"
          x-on:livewire-file-success="successfulUploads += 1"
-         x-on:livewire-file-init="files = $event.detail.files; totalFiles = $event.detail.totalFiles">
+         x-on:livewire-file-init="files = $event.detail.files; totalFiles = $event.detail.totalFiles; overallProgress = 0">
 
         <input type="file" wire:model="mediaFiles" multiple accept="video/mp4" class="form-control">
         <small class="text-muted">{{ __('Multiple MP4 files allowed, max 10 files, total 1GB') }}</small>
@@ -21,31 +24,31 @@
         <!-- Per-File Progress Bars -->
         <div x-show="uploading" class="mt-4 space-y-4">
             <template x-for="(file, index) in files" :key="index">
-            <div class="relative">
-                <div class="flex items-center justify-between">
-                    <p class="text-sm font-semibold text-gray-600 truncate" x-text="file.name"></p>
-                    <span class="text-sm text-gray-500" x-text="file.status"></span>
-                </div>
-                <div class="w-full h-4 bg-slate-100 rounded-lg shadow-inner overflow-hidden">
-                    <div class="h-4 rounded-lg transition-all duration-300 ease-in-out"
-                        :class="{
-                            'bg-gray-300': file.status === 'pending',
-                            'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse': file.status === 'uploading',
-                            'bg-green-600': file.status === 'success',
-                            'bg-red-500': file.status === 'error'
-                        }"
-                        :style="{ width: `${file.progress}%` }">
+                <div class="relative">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-semibold text-gray-600 truncate" x-text="file.name"></p>
+                        <span class="text-sm text-gray-500" x-text="file.status"></span>
+                    </div>
+                    <div class="w-full h-4 bg-slate-100 rounded-lg shadow-inner overflow-hidden">
+                        <div class="h-4 rounded-lg transition-all duration-300 ease-in-out"
+                             :class="{
+                                 'bg-gray-300': file.status === 'pending',
+                                 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse': file.status === 'uploading',
+                                 'bg-green-600': file.status === 'success',
+                                 'bg-red-500': file.status === 'error'
+                             }"
+                             x-bind:style="{ width: file.progress + '%' }">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <p class="text-sm text-gray-600">
+                            <span x-text="file.progress + '%'"></span>
+                            <span x-show="file.status === 'success'" class="text-green-600 ml-2">{{ __('Uploaded') }}</span>
+                            <span x-show="file.status === 'error'" class="text-red-600 ml-2" x-text="file.error || '{{ __('Error') }}'"></span>
+                        </p>
                     </div>
                 </div>
-                <div class="flex justify-between items-center mt-1">
-                    <p class="text-sm text-gray-600">
-                        <span x-text="file.progress + '%'"></span>
-                        <span x-show="file.status === 'success'" class="text-green-600 ml-2">{{ __('Uploaded') }}</span>
-                        <span x-show="file.status === 'error'" class="text-red-600 ml-2" x-text="file.error || '{{ __('Error') }}'"></span>
-                    </p>
-                </div>
-            </div>
-        </template>
+            </template>
 
             <!-- Success Counter -->
             <div class="mt-2 text-sm text-gray-600">
@@ -71,7 +74,11 @@
                 <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
                 <div>
                     <p class="font-semibold text-gray-800">{{ __('Uploading files') }} (<span x-text="successfulUploads + '/' + totalFiles"></span>)</p>
-                    <p class="text-sm text-gray-600">{{ __('Processing...') }}</p>
+                    <p class="text-sm text-gray-600">{{ __('Overall Progress') }}: <span x-text="Math.round(overallProgress) + '%'"></span></p>
+                    <div class="w-full h-2 bg-slate-100 rounded-lg mt-1">
+                        <div class="h-2 bg-blue-500 rounded-lg transition-all duration-300"
+                             x-bind:style="{ width: overallProgress + '%' }"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,5 +142,13 @@
         Livewire.on('modal-closed', () => {
             console.log('🔳 Modal closed');
         });
+
+        // Calculate overall progress
+        window.updateOverallProgress = function () {
+            const files = this.files || [];
+            if (files.length === 0) return 0;
+            const totalProgress = files.reduce((sum, file) => sum + (file.progress || 0), 0);
+            this.overallProgress = totalProgress / files.length;
+        };
     </script>
 @endpush

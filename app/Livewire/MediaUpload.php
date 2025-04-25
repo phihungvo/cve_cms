@@ -59,7 +59,7 @@ class MediaUpload extends Component
             return [
                 'name' => $file->getClientOriginalName(),
                 'progress' => 0,
-                'status' => 'pending', // pending, uploading, success, error
+                'status' => 'pending', // pending, uploading, success,ity error
                 'error' => null,
             ];
         })->toArray();
@@ -103,7 +103,7 @@ class MediaUpload extends Component
             $mimeType = $file->getMimeType();
             $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-            // Bắt đầu upload: 0%
+            // Bắt đầu upload
             $this->dispatch('livewire-file-progress', [
                 'index' => $index,
                 'progress' => 0,
@@ -148,20 +148,22 @@ class MediaUpload extends Component
             $duration = isset($fileInfo['playtime_seconds']) ? (int) $fileInfo['playtime_seconds'] : null;
 
             try {
-                // Mô phỏng tiến trình: 50%
-                $this->dispatch('livewire-file-progress', [
-                    'index' => $index,
-                    'progress' => 50,
-                    'status' => 'uploading',
-                ]);
-                sleep(1); // Giả lập thời gian xử lý để thấy hiệu ứng
-
-                // Thực hiện upload
+                // Upload with progress tracking
                 $path = $file->storeAs(
                     auth()->user()->hasRole('root') ? '' : $this->enterpriseId,
                     $fileName,
                     'minio'
                 );
+
+                // Simulate progress updates (Livewire doesn't natively support per-file progress for multiple uploads)
+                for ($progress = 10; $progress <= 90; $progress += 10) {
+                    $this->dispatch('livewire-file-progress', [
+                        'index' => $index,
+                        'progress' => $progress,
+                        'status' => 'uploading',
+                    ]);
+                    usleep(200000); // 200ms delay to simulate progress
+                }
 
                 // Hoàn tất: 100%
                 $this->dispatch('livewire-file-progress', [
@@ -218,6 +220,13 @@ class MediaUpload extends Component
             $this->dispatch('media-upload-error', ['message' => 'Không có file nào được upload thành công!']);
             $this->resetUploadState();
         }
+    }
+
+    // Handle Livewire's native progress event
+    public function updatingMediaFiles($value, $name)
+    {
+        // This method can be used to capture progress if Livewire supports it in future updates
+        // Currently, we rely on manual progress dispatching
     }
 
     public function cancelUpload()
