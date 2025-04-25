@@ -15,14 +15,13 @@ class MediaUpload extends Component
     use WithFileUploads;
 
     public $mediaFiles = [];
-    public $uploadProgress = 0;
-    public $uploadStatus = '';
     public $enterpriseId;
     public $showModal = false;
     public $uploadedMedia = [];
     public $totalFiles = 0;
     public $currentFileIndex = 0;
     public $isUploading = false;
+    public $successfulUploads = 0;
 
     protected $rules = [
         'mediaFiles.*' => 'file|max:102400|mimes:mp4', // 100MB per file
@@ -42,15 +41,35 @@ class MediaUpload extends Component
             $this->validate();
         } catch (\Exception $e) {
             Log::error('Validation failed', ['error' => $e->getMessage()]);
-            $this->uploadStatus = 'Lỗi validate: ' . $e->getMessage();
-            $this->dispatch('media-upload-error', ['message' => $this->uploadStatus]);
+            $this->dispatch('media-upload-error', ['message' => 'Lỗi validate: ' . $e->getMessage()]);
             return;
         }
 
         $this->totalFiles = count($this->mediaFiles);
+        if ($this->totalFiles > 10) {
+            $this->dispatch('media-upload-error', ['message' => 'Tối đa 10 file được phép tải lên!']);
+            return;
+        }
+
         $this->currentFileIndex = 0;
-        $this->uploadStatus = 'Đang chuẩn bị upload...';
-        Log::info('Upload status set', ['status' => $this->uploadStatus]);
+        $this->successfulUploads = 0;
+
+        // Initialize file list for frontend
+        $files = collect($this->mediaFiles)->map(function ($file, $index) {
+            return [
+                'name' => $file->getClientOriginalName(),
+                'progress' => 0,
+                'status' => 'pending', // pending, uploading, success, error
+                'error' => null,
+            ];
+        })->toArray();
+
+        $this->dispatch('livewire-file-init', [
+            'files' => $files,
+            'totalFiles' => $this->totalFiles,
+        ]);
+
+        Log::info('Upload preparation', ['status' => 'Đang chuẩn bị upload...']);
         $this->uploadFiles();
     }
 
@@ -60,13 +79,13 @@ class MediaUpload extends Component
 
         $totalSize = collect($this->mediaFiles)->sum->getSize();
         if ($totalSize > 1073741824) { // 1GB
-            $this->uploadStatus = 'Tổng kích thước file vượt quá 1GB!';
-            $this->dispatch('media-upload-error', ['message' => $this->uploadStatus]);
+            $this->dispatch('media-upload-error', ['message' => 'Tổng kích thước file vượt quá 1GB!']);
             return;
         }
 
         $this->uploadedMedia = [];
         $this->isUploading = true;
+        $this->successfulUploads = 0;
         Log::info('Starting upload', ['total_files' => $this->totalFiles]);
 
         foreach ($this->mediaFiles as $index => $file) {
@@ -77,7 +96,6 @@ class MediaUpload extends Component
             }
 
             $this->currentFileIndex = $index;
-            $this->uploadProgress = ($index / $this->totalFiles) * 100; // Base progress
             Log::info('Processing file', ['current_file' => $index + 1, 'total_files' => $this->totalFiles]);
 
             $originalFileName = $file->getClientOriginalName();
@@ -85,16 +103,33 @@ class MediaUpload extends Component
             $mimeType = $file->getMimeType();
             $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
+            // Bắt đầu upload: 0%
+            $this->dispatch('livewire-file-progress', [
+                'index' => $index,
+                'progress' => 0,
+                'status' => 'uploading',
+            ]);
+
             if ($extension !== 'mp4') {
                 Log::warning('Invalid file extension', ['file' => $originalFileName]);
-                continue; // Skip this file, continue with others
+                $this->dispatch('livewire-file-error', [
+                    'index' => $index,
+                    'error' => 'File không phải định dạng MP4!',
+                    'status' => 'error',
+                ]);
+                continue;
             }
 
             $getID3 = new getID3();
             $fileInfo = $getID3->analyze($file->getPathname());
             if (!isset($fileInfo['fileformat']) || $fileInfo['fileformat'] !== 'mp4') {
                 Log::warning('Invalid MP4 format', ['file' => $originalFileName]);
-                continue; // Skip this file
+                $this->dispatch('livewire-file-error', [
+                    'index' => $index,
+                    'error' => 'File không phải MP4 hợp lệ!',
+                    'status' => 'error',
+                ]);
+                continue;
             }
 
             $path = auth()->user()->hasRole('root') ? $fileName : "{$this->enterpriseId}/{$fileName}";
@@ -102,20 +137,46 @@ class MediaUpload extends Component
 
             if (Storage::disk('minio')->exists($path)) {
                 Log::warning('File already exists', ['file' => $fileName]);
-                continue; // Skip this file
+                $this->dispatch('livewire-file-error', [
+                    'index' => $index,
+                    'error' => 'File đã tồn tại trên server!',
+                    'status' => 'error',
+                ]);
+                continue;
             }
 
             $duration = isset($fileInfo['playtime_seconds']) ? (int) $fileInfo['playtime_seconds'] : null;
 
             try {
+                // Mô phỏng tiến trình: 50%
+                $this->dispatch('livewire-file-progress', [
+                    'index' => $index,
+                    'progress' => 50,
+                    'status' => 'uploading',
+                ]);
+                sleep(1); // Giả lập thời gian xử lý để thấy hiệu ứng
+
+                // Thực hiện upload
                 $path = $file->storeAs(
                     auth()->user()->hasRole('root') ? '' : $this->enterpriseId,
                     $fileName,
                     'minio'
                 );
+
+                // Hoàn tất: 100%
+                $this->dispatch('livewire-file-progress', [
+                    'index' => $index,
+                    'progress' => 100,
+                    'status' => 'success',
+                ]);
             } catch (\Exception $e) {
                 Log::error('Upload failed', ['file' => $fileName, 'error' => $e->getMessage()]);
-                continue; // Skip this file
+                $this->dispatch('livewire-file-error', [
+                    'index' => $index,
+                    'error' => 'Lỗi tải lên: ' . $e->getMessage(),
+                    'status' => 'error',
+                ]);
+                continue;
             }
 
             $mediaUrl = Storage::disk('minio')->url($path);
@@ -135,23 +196,26 @@ class MediaUpload extends Component
                 $action = new CreateMediaAction();
                 $media = $action->handle($mediaData);
                 $this->uploadedMedia[] = $media;
+                $this->successfulUploads++;
+                $this->dispatch('livewire-file-success');
             } catch (\Exception $e) {
                 Log::error('Database save failed', ['file' => $fileName, 'error' => $e->getMessage()]);
-                Storage::disk('minio')->delete($path); // Clean up the uploaded file
-                continue; // Skip this file
+                Storage::disk('minio')->delete($path);
+                $this->dispatch('livewire-file-error', [
+                    'index' => $index,
+                    'error' => 'Lỗi lưu vào database: ' . $e->getMessage(),
+                    'status' => 'error',
+                ]);
+                continue;
             }
-
-            $this->uploadProgress = (($index + 1) / $this->totalFiles) * 100;
         }
 
         if ($this->isUploading && !empty($this->uploadedMedia)) {
-            $this->uploadStatus = 'Upload hoàn tất!';
             $this->showModal = true;
             $this->mediaFiles = [];
             $this->isUploading = false;
         } elseif (empty($this->uploadedMedia)) {
-            $this->uploadStatus = 'Không có file nào được upload thành công!';
-            $this->dispatch('media-upload-error', ['message' => $this->uploadStatus]);
+            $this->dispatch('media-upload-error', ['message' => 'Không có file nào được upload thành công!']);
             $this->resetUploadState();
         }
     }
@@ -173,13 +237,13 @@ class MediaUpload extends Component
 
     protected function resetUploadState()
     {
-        $this->uploadProgress = 0;
-        $this->uploadStatus = '';
         $this->mediaFiles = [];
         $this->uploadedMedia = [];
         $this->totalFiles = 0;
         $this->currentFileIndex = 0;
         $this->isUploading = false;
+        $this->successfulUploads = 0;
+        $this->dispatch('livewire-file-init', ['files' => [], 'totalFiles' => 0]);
     }
 
     protected function sanitizeFileName(string $fileName): string

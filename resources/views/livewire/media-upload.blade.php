@@ -1,35 +1,61 @@
 <div>
     <!-- File Input -->
     <div class="mb-4" 
-         x-data="{ uploading: false, progress: 0, showStack: false }"
+         x-data="{ 
+             uploading: false, 
+             files: [], 
+             showStack: false,
+             successfulUploads: 0,
+             totalFiles: 0
+         }"
          x-on:livewire-upload-start="uploading = true; showStack = true"
-         x-on:livewire-upload-finish="uploading = false; progress = 0; showStack = false"
-         x-on:livewire-upload-error="uploading = false; progress = 0; showStack = false"
-         x-on:livewire-upload-progress="progress = $event.detail.progress">
+         x-on:livewire-upload-finish="uploading = false; showStack = false"
+         x-on:livewire-upload-error="uploading = false; showStack = false"
+         x-on:livewire-file-progress="files[$event.detail.index].progress = $event.detail.progress"
+         x-on:livewire-file-success="successfulUploads += 1"
+         x-on:livewire-file-init="files = $event.detail.files; totalFiles = $event.detail.totalFiles">
 
         <input type="file" wire:model="mediaFiles" multiple accept="video/mp4" class="form-control">
         <small class="text-muted">{{ __('Multiple MP4 files allowed, max 10 files, total 1GB') }}</small>
 
-        <!-- Progress Bar -->
-        <div x-show="uploading" class="mt-2 relative">
-            <div class="w-full h-4 bg-slate-100 rounded-lg shadow-inner overflow-hidden">
-                <div class="h-4 rounded-lg transition-all duration-300 ease-in-out"
-                     :class="{
-                         'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500': progress < 100,
-                         'bg-green-500': progress >= 100
-                     }"
-                     :style="{ width: `${progress}%` }">
+        <!-- Per-File Progress Bars -->
+        <div x-show="uploading" class="mt-4 space-y-4">
+            <template x-for="(file, index) in files" :key="index">
+            <div class="relative">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-semibold text-gray-600 truncate" x-text="file.name"></p>
+                    <span class="text-sm text-gray-500" x-text="file.status"></span>
+                </div>
+                <div class="w-full h-4 bg-slate-100 rounded-lg shadow-inner overflow-hidden">
+                    <div class="h-4 rounded-lg transition-all duration-300 ease-in-out"
+                        :class="{
+                            'bg-gray-300': file.status === 'pending',
+                            'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-pulse': file.status === 'uploading',
+                            'bg-green-600': file.status === 'success',
+                            'bg-red-500': file.status === 'error'
+                        }"
+                        :style="{ width: `${file.progress}%` }">
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mt-1">
+                    <p class="text-sm text-gray-600">
+                        <span x-text="file.progress + '%'"></span>
+                        <span x-show="file.status === 'success'" class="text-green-600 ml-2">{{ __('Uploaded') }}</span>
+                        <span x-show="file.status === 'error'" class="text-red-600 ml-2" x-text="file.error || '{{ __('Error') }}'"></span>
+                    </p>
                 </div>
             </div>
-            <div class="flex justify-between items-center mt-2">
-                <p class="text-sm text-gray-600">
-                    Đang upload... ({{ $currentFileIndex + 1 }}/{{ $totalFiles }} file) - 
-                    <span x-text="progress + '%'"></span>
-                </p>
-                <button type="button" class="text-sm text-blue-500" wire:click="cancelUpload">
-                    {{ __('Cancel Upload') }}
-                </button>
+        </template>
+
+            <!-- Success Counter -->
+            <div class="mt-2 text-sm text-gray-600">
+                {{ __('Uploaded successfully') }}: <span x-text="successfulUploads + '/' + totalFiles"></span>
             </div>
+
+            <!-- Cancel Button -->
+            <button type="button" class="text-sm text-blue-500" wire:click="cancelUpload">
+                {{ __('Cancel Upload') }}
+            </button>
         </div>
 
         <!-- Stacked Popup Notification -->
@@ -44,8 +70,8 @@
             <div class="flex items-center space-x-2">
                 <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
                 <div>
-                    <p class="font-semibold text-gray-800">Đang upload file {{ $currentFileIndex + 1 }}/{{ $totalFiles }}</p>
-                    <p class="text-sm text-gray-600" x-text="`Tiến trình: ${progress}%`"></p>
+                    <p class="font-semibold text-gray-800">{{ __('Uploading files') }} (<span x-text="successfulUploads + '/' + totalFiles"></span>)</p>
+                    <p class="text-sm text-gray-600">{{ __('Processing...') }}</p>
                 </div>
             </div>
         </div>
@@ -54,9 +80,9 @@
     <!-- Modal Success -->
     @if($showModal)
         <div class="modal-overlay fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-            <div class="modal-content bg-white rounded-lg p-6 w-1/2">
+            <div class="modal-content bg-white rounded-lg p-6 p-2">
                 <h3 class="text-lg font-bold mb-4">{{ __('Upload Success') }}</h3>
-               ```html
+                <p class="mb-4">{{ __('Successfully uploaded') }}: {{ count($uploadedMedia) }}/{{ $totalFiles }}</p>
                 <div class="space-y-4">
                     @foreach($uploadedMedia as $media)
                         <div class="border border-gray-300 rounded p-4">

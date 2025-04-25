@@ -12,16 +12,16 @@
             @endif
 
             <!-- Search Form and Upload Button -->
-        <div class="sm:flex sm:space-x-4">
-            <form method="get" class="flex-grow mt-2 sm:mt-0">
-                <input type="search" name="search" class="form-control form-control-lg"
-                    placeholder="{{ __('media-index.filter') }}" data-table-search="#media-list-table"
-                    value="{{ request('search') }}" />
-            </form>
-            <div class="sm:ml-4 mt-2 sm:mt-0">
-                <livewire:media-upload />
+            <div class="sm:flex sm:space-x-4">
+                <form method="get" class="flex-grow mt-2 sm:mt-0">
+                    <input type="search" name="search" class="form-control form-control-lg"
+                        placeholder="{{ __('media-index.filter') }}" data-table-search="#media-list-table"
+                        value="{{ request('search') }}" />
+                </form>
+                <div class="sm:ml-4 mt-2 sm:mt-0">
+                    <livewire:media-upload />
+                </div>
             </div>
-        </div>
 
             <!-- Table -->
             <div class="overflow-auto scroll-visible header-sticky mt-5">
@@ -48,8 +48,8 @@
                                 <td>{{ $item['name'] ?? '-' }}</td>
                                 <td>
                                     @php
-        $type = strtolower($item['type']);
-        $isVideo = str_contains($type, 'video') || in_array($type, ['mp4']);
+                                        $type = strtolower($item['type']);
+                                        $isVideo = str_contains($type, 'video') || in_array($type, ['mp4']);
                                     @endphp
                                     @if ($isVideo)
                                         <video src="{{ $item['media_url'] }}" controls
