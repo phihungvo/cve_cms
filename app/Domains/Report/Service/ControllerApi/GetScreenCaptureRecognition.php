@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Class GetScreenCaptureRecognition
- * 
+ *
  * Service to handle the logic for extracting screen capture reports based on provided parameters.
  * Returns reports as an array or a single object based on get_latest.
  */
@@ -60,9 +60,9 @@ class GetScreenCaptureRecognition
         }
 
         // Handle get_latest logic
-        if ($getLatest && $date) {
-            // Get the latest report for the specified date
-            $query->latest('created_at')->take(1);
+        if ($getLatest) {
+            // Sử dụng orderBy để chắc chắn sắp xếp theo thứ tự giảm dần
+            $query->orderBy('created_at', 'DESC')->limit(1);
         }
 
         // Fetch reports
@@ -73,6 +73,7 @@ class GetScreenCaptureRecognition
             'media_filename',
             'view_count',
             'frame_data',
+            'created_at', // Thêm trường created_at để kiểm tra
         ]);
 
         // Initialize result
@@ -88,6 +89,7 @@ class GetScreenCaptureRecognition
                     'media_filename' => $report->media_filename,
                     'view_count' => $report->view_count,
                     'frame_data' => $report->frame_data,
+                    'created_at' => $report->created_at, // Thêm created_at vào kết quả để kiểm tra
                 ];
 
                 $result[] = $reportData;

@@ -1,5 +1,3 @@
-# Example: bug_report.md
-
 name: 🐛 Bug Report
 description: Report bugs for the dev team to check and fix
 title: "[BUG] "
@@ -8,35 +6,43 @@ labels: [bug]
 body:
   - type: markdown
     attributes:
-      value: "Báo cáo các lỗi để nhóm phát triển có thể kiểm tra và sửa chữa. Hãy cung cấp thông tin bên dưới để giúp chúng tôi hiểu rõ hơn về vấn đề bạn gặp phải."
+      value: |
+        🚨 **Báo cáo lỗi** để nhóm phát triển có thể kiểm tra và sửa chữa.  
+        Vui lòng cung cấp đầy đủ thông tin bên dưới để giúp chúng tôi xử lý hiệu quả hơn.
 
   - type: input
     id: steps
     attributes:
-      label: "Các bước để tái hiện lỗi"
-      description: "Ghi rõ từng bước dẫn tới lỗi"
-      placeholder: "1. Mở app\n2. Bấm nút XYZ..."
+      label: 🧪 Các bước để tái hiện lỗi
+      description: Ghi rõ từng bước dẫn tới lỗi
+      placeholder: |
+        1. Mở app  
+        2. Bấm nút XYZ...
     validations:
       required: true
 
   - type: textarea
     id: expected
     attributes:
-      label: "Kết quả mong đợi"
-      description: "Bạn mong đợi điều gì sẽ xảy ra?"
+      label: ✅ Kết quả mong đợi
+      description: Bạn mong đợi điều gì sẽ xảy ra?
+      placeholder: "VD: Sau khi bấm nút lưu, hệ thống phải hiện thông báo 'Lưu thành công'"
     validations:
       required: false
 
   - type: textarea
     id: actual
     attributes:
-      label: "Kết quả thực tế"
-      description: "Điều gì đã xảy ra thực tế?"
+      label: ❌ Kết quả thực tế
+      description: Điều gì đã xảy ra thực tế?
+      placeholder: "VD: Bấm nút lưu nhưng không thấy phản hồi, console báo lỗi 500"
     validations:
       required: false
 
   - type: input
     id: env
     attributes:
-      label: "Môi trường"
-      placeholder: "Ví dụ: iOS 17, Chrome 122.0.0, Ubuntu 22.04..."
+      label: 🖥️ Môi trường
+      placeholder: "VD: iOS 17, Chrome 122.0.0, Ubuntu 22.04, App version 1.2.3"
+    validations:
+      required: false

@@ -1,15 +1,15 @@
 <?php
 
 return [
-    'meta-title' => 'Create New Permission',
-    'title' => 'Create New Permission',
-    'name' => 'Permission Name',
+    'meta-title' => 'Create New Service',
+    'title' => 'Create New Service',
+    'name' => 'Service Name',
     'role' => 'Select Role',
     'select-role' => 'Select a Role',
     'description' => 'Description',
     'submit' => 'Save',
     'cancel' => 'Cancel',
-    'success' => 'Permission created successfully!',
+    'success' => 'Service created successfully!',
     'action' => 'Action',
     'select-action' => 'Select Action',
     'enterprise' => 'Enterprise',
@@ -18,11 +18,10 @@ return [
     'create' => 'Create',
 
     'alias' => 'Alias',
-    'menu_route_uri' => 'Menu Route Uri',
-    'menu_route_name' => 'Menu Route Name',
+    'menu_route' => 'Menu Action Route',
     'is_menu' => 'Show in menu side',
     'menu_name' => 'Menu Name',
     'menu_icon' => 'Menu Icon',
-    'parent_id' => 'Parent Permission',
+    'parent_id' => 'Parent Service',
     'no_parent' => 'No Parent',
 ];
