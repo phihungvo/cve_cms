@@ -17,12 +17,17 @@
     'btn-save' => 'Save',
     'btn-cancel' => 'Cancel',
     'btn-apply' => 'Apply',
+    'btn-create-solution' => '+ New Solution',
+    'btn-list-all-solution' => 'List All Solution',
+    'btn-create-group' => '+ New Group',
+    'btn-list-all-group' => 'List All Group',
     'rt-analytics-not_supported' => 'Runtime analytics is not supported for this device.',
 
     'error' => [
         'not_found' => 'Camera with ID :id not found.',
         'uuid_required' => 'The UUID field is required.',
         'uuid_invalid' => 'The UUID must be a valid UUID.',
+        'uuid_exists' => 'The UUID has already been taken.',
         'instance_name_required' => 'The Instance Name field is required.',
         'solution_id_required' => 'The Solution ID field is required.',
         'solution_id_integer' => 'The Solution ID must be an integer.',

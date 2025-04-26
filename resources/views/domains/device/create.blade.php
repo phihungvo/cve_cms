@@ -9,7 +9,7 @@
             @if (isset($enterprises))
                 <!-- Root thấy dropdown để chọn enterprise -->
                 <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
-                          id="device-create-enterprise"
+                          id="device-create-enterprise" class="cursor-pointer"
                           :label="__('device-create.enterprise')"
                           :placeholder="__('device-create.enterprise-select')"
                           :selected="$REQUEST->input('enterprise_id', $row->enterprise_id ?? null)"

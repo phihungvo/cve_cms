@@ -9,7 +9,7 @@
                 @if (isset($enterprises))
                     <!-- select enterprises -->
                     <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
-                              id="device-update-enterprise"
+                              id="device-update-enterprise" class="cursor-pointer"
                               :label="__('device-create.enterprise')"
                               :placeholder="__('device-create.enterprise-select')"
                               :selected="$REQUEST->input('enterprise_id', $row->enterprise_id ?? null)">

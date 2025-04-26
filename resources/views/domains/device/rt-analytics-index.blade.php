@@ -1,6 +1,6 @@
-@extends('domains.device.update-layout')
+@extends('domains.device.rt-analytics-layout')
 
-@section('content')
+@section('content-analytics')
     <div class="intro-y box p-5 mt-5">
         <!-- Display Success or Error Messages -->
         <h2 class="text-lg font-medium mb-5">{{ __('rt-analytics-index.all-instance-list') }}</h2>
@@ -28,14 +28,14 @@
                     <!--Select Filter Solution-->
                     <div class="sm:ml-4 mt-2 sm:mt-0">
                         <x-select name="solution_id"
-                                  :options="$solutions"
+                                  :options="$solutions" class="cursor-pointer"
                                   value="id" text="solution_name"
                                   placeholder="{{__('rt-analytics-index.filter-solutions')}}"
                                   data-change-submit></x-select>
                     </div>
                     <!--Select Filter Group-->
                     <div class="sm:ml-4 mt-2 sm:mt-0">
-                        <x-select name="group_id"
+                        <x-select name="group_id" class="cursor-pointer"
                                   :options="$groups"
                                   value="id" text="group_name"
                                   placeholder="{{__('rt-analytics-index.filter-groups')}}"
@@ -60,6 +60,7 @@
                        data-table-pagination data-table-pagination-limit="10">
                     <thead>
                     <tr>
+                        <th class="" style="display: none">{{ __('uuid') }}</th>
                         <th class="text-center">{{ __('rt-analytics-index.no') }}</th>
                         <th class="text-center">{{ __('rt-analytics-index.instance-id') }}</th>
                         <th class="text-center">{{ __('rt-analytics-index.name') }}</th>
@@ -79,6 +80,8 @@
 //                        : '-'
                         @endphp
                         <tr>
+                            <!-- UUID hidden -->
+                            <td style="display: none"><a href="{{$link}}?instanceId={{$instance->id}}" class="block">{{$instance->uuid}}</a></td>
                             <!-- No -->
                             <td><a href="{{$link}}?instanceId={{$instance->id}}" class="block">{{$index + 1}}</a></td>
                             <!-- ID -->
@@ -101,8 +104,11 @@
                             <td><a href="{{$link}}?instanceId={{$instance->id}}"
                                    class="block">{{$instance->instance_name}}</a></td>
                             <!-- Source -->
+
                             <td><a href="{{$link}}?instanceId={{$instance->id}}"
-                                   class="block">{{$instance->input_source ?? '-'}}</a></td>
+                                   style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                   title="{{$instance->input_source ?? '-'}}"
+                                   class="block text-ellipsis">{{$instance->input_source ?? '-'}}</a></td>
                             <!-- Zones -->
                             <td><a href="{{$link}}?instanceId={{$instance->id}}"
                                    class="block">{{$instance->instance_zones ?? '-'}}</a></td>
@@ -128,7 +134,7 @@
             </div>
         @endif
     </div>
-@stop
+@endsection
 
 @push('scripts')
   <script>

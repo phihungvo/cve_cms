@@ -2,8 +2,8 @@
 
 namespace App\Domains\Device\Service\Controller;
 
-use App\Domains\Device\Model\DeviceCvedixrtGroup as InstanceGroup;
-use App\Domains\Device\Model\DeviceCvedixrtSolution as InstanceSolution;
+use App\Domains\Group\Model\DeviceCvedixrtGroup;
+use App\Domains\Solution\Model\DeviceCvedixrtSolution;
 use Illuminate\Database\Eloquent\Collection;
 
 abstract class RTAnalyticsCreateUpdateAbstract extends ControllerAbstract
@@ -36,7 +36,7 @@ abstract class RTAnalyticsCreateUpdateAbstract extends ControllerAbstract
      */
     protected function solutions(): Collection
     {
-        return InstanceSolution::query()
+        return DeviceCvedixrtSolution::query()
             ->get();
     }
 
@@ -45,7 +45,7 @@ abstract class RTAnalyticsCreateUpdateAbstract extends ControllerAbstract
      */
     protected function groups(): Collection
     {
-        return InstanceGroup::query()
+        return DeviceCvedixrtGroup::query()
             ->get();
     }
 }

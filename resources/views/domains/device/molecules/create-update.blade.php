@@ -32,6 +32,7 @@
     <!-- input device_type_id -->
     <div class="p-2">
         <x-select name="device_type_id" :options="$device_types" value="id" text="name" id="device-create-type"
+                  class="cursor-pointer"
                   :label="__('device-create.device_type')" :placeholder="__('device-create.device_type-select')"
                   :selected="old('device_type_id', isset($row) ? $row->device_type_id : null)" required></x-select>
     </div>
@@ -55,6 +56,7 @@
     <!-- input bookmark_id/vehicle_id -->
     <div class="p-2">
         <x-select name="vehicle_id" :options="$vehicles" value="id" text="name" id="device-create-vehicle"
+                  class="cursor-pointer"
                   :label="__('device-create.vehicle')" :placeholder="__('device-create.vehicle-select')"
                   :selected="old('vehicle_id', isset($row) ? $row->vehicle_id : null)"
         ></x-select>

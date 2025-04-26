@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace App\Domains\Device\Model;
+namespace App\Domains\Solution\Model;
 
-use App\Domains\Device\Model\Builder\DeviceCvedixGroupBuilder as Builder;
-use App\Domains\Device\Model\Collection\DeviceCvedixGroupCollection;
-use App\Domains\Device\Model\Collection\DeviceCvedixGroupCollection as Collection;
-use Illuminate\Database\Eloquent\Model;
+use App\Domains\CoreApp\Model\ModelAbstract;
+use App\Domains\Solution\Model\Builder\DeviceCvedixSolutionBuilder as Builder;
+use App\Domains\Solution\Model\Collection\DeviceCvedixSolutionCollection as Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -18,18 +17,18 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-class DeviceCvedixrtGroup extends Model
+class DeviceCvedixrtSolution extends ModelAbstract
 {
-    protected $table = 'device_cvedixrt_group';
+    protected $table = 'device_cvedixrt_solution';
 
-    public const TABLE = 'device_cvedixrt_group';
+    public const TABLE = 'device_cvedixrt_solution';
 
     public const ID = 'id';
 
-    public const FOREIGN_KEY = 'group_id';
+    public const FOREIGN_KEY = 'solution_id';
 
     protected $fillable = [
-        'group_name',
+        'solution_name',
         'description',
     ];
 
@@ -37,7 +36,6 @@ class DeviceCvedixrtGroup extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
 
     /**
      * Một Group có nhiều Solution, quan hệ 1-n
@@ -49,7 +47,6 @@ class DeviceCvedixrtGroup extends Model
         return $this->hasMany(DeviceCvedixrtInstance::class, self::FOREIGN_KEY);
     }
 
-
     /**
      * @param array $models
      *
@@ -57,7 +54,7 @@ class DeviceCvedixrtGroup extends Model
      */
     public function newCollection(array $models = []): Collection
     {
-        return new DeviceCvedixGroupCollection($models);
+        return new Collection($models);
     }
 
     /**
@@ -69,5 +66,4 @@ class DeviceCvedixrtGroup extends Model
     {
         return new Builder($query);
     }
-
 }

@@ -37,7 +37,7 @@
                         <div>
                             <span class="text-red-500">*</span>
                             <label for="input-source-select" class="form-label">{{ __('rt-analytics-input-source.input-source-type') }}</label>
-                            <select class="form-control form-control-lg" id="input-source-select">
+                            <select class="form-control form-control-lg cursor-pointer" id="input-source-select">
                                 <option value="existing_camera" {{$selectSourceType == 'selectExistingCamera' ? 'selected' : ''}}>
                                     {{ __('rt-analytics-input-source.select-existing-camera') }}
                                 </option>

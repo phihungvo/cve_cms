@@ -1,13 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Device\Model;
+use App\Domains\CoreApp\Model\ModelAbstract;
 
 use App\Domains\Device\Model\Builder\DeviceCvedixInstanceBuilder as Builder;
 use App\Domains\Device\Model\Collection\DeviceCvedixInstanceCollection as Collection;
-use Illuminate\Database\Eloquent\Model;
+use App\Domains\Group\Model\DeviceCvedixrtGroup;
+use App\Domains\Solution\Model\DeviceCvedixrtSolution;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DeviceCvedixrtInstance extends Model
+class DeviceCvedixrtInstance extends ModelAbstract
 {
     protected $table = 'device_cvedixrt_instance';
 

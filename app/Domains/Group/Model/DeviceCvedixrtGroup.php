@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Domains\Device\Model;
+namespace App\Domains\Group\Model;
 
-use App\Domains\Device\Model\Builder\DeviceCvedixSolutionBuilder as Builder;
-use App\Domains\Device\Model\Collection\DeviceCvedixSolutionCollection as Collection;
-use Illuminate\Database\Eloquent\Model;
+use App\Domains\CoreApp\Model\ModelAbstract;
+use App\Domains\Device\Model\DeviceCvedixrtInstance;
+use App\Domains\Group\Model\Builder\DeviceCvedixGroupBuilder as Builder;
+use App\Domains\Group\Model\Collection\DeviceCvedixGroupCollection as Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -17,18 +18,18 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-class DeviceCvedixrtSolution extends Model
+class DeviceCvedixrtGroup extends ModelAbstract
 {
-    protected $table = 'device_cvedixrt_solution';
+    protected $table = 'device_cvedixrt_group';
 
-    public const TABLE = 'device_cvedixrt_solution';
+    public const TABLE = 'device_cvedixrt_group';
 
     public const ID = 'id';
 
-    public const FOREIGN_KEY = 'solution_id';
+    public const FOREIGN_KEY = 'group_id';
 
     protected $fillable = [
-        'solution_name',
+        'group_name',
         'description',
     ];
 
@@ -36,6 +37,7 @@ class DeviceCvedixrtSolution extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
 
     /**
      * Một Group có nhiều Solution, quan hệ 1-n
@@ -46,6 +48,7 @@ class DeviceCvedixrtSolution extends Model
     {
         return $this->hasMany(DeviceCvedixrtInstance::class, self::FOREIGN_KEY);
     }
+
 
     /**
      * @param array $models
@@ -66,4 +69,5 @@ class DeviceCvedixrtSolution extends Model
     {
         return new Builder($query);
     }
+
 }
