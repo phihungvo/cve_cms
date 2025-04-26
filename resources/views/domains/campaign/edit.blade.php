@@ -236,13 +236,24 @@
         .selected-user .remove-user,
         .selected-media .remove-media {
             margin-top: 8px;
+            background-color: #0066cc;
+            /* Màu xanh dương đậm */
+            border-color: #0066cc;
+        }
+
+        .selected-user .remove-user:hover,
+        .selected-media .remove-media:hover {
+            background-color: #0052a3;
+            /* Màu xanh dương đậm hơn khi hover */
+            border-color: #0052a3;
         }
 
         .upload-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background-color: #ff5733;
+            background-color: #0066cc;
+            /* Màu xanh dương đậm */
             color: white;
             font-size: 1.2rem;
             font-weight: bold;
@@ -255,7 +266,8 @@
         }
 
         .upload-btn:hover {
-            background-color: #e64a29;
+            background-color: #0052a3;
+            /* Màu xanh dương đậm hơn khi hover */
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
@@ -412,10 +424,11 @@
 
             @if ($isRoot)
                 const enterpriseSelect = document.querySelector('select[name="enterprise_id"]');
-                if (enterpriseSelect && mediaSelect && selectedMediaDiv) {
+                if (enterpriseSelect && mediaSelect && selectedMediaDiv && userSelect) {
                     enterpriseSelect.addEventListener('change', function() {
                         const enterpriseId = this.value;
                         if (enterpriseId) {
+                            // Tải danh sách media
                             fetch(`/campaign/media-by-enterprise/${enterpriseId}`, {
                                     headers: {
                                         'Accept': 'application/json',
@@ -424,7 +437,14 @@
                                             'meta[name="csrf-token"]').content
                                     }
                                 })
-                                .then(response => response.json())
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            `Media API error: ${response.status} ${response.statusText}`
+                                            );
+                                    }
+                                    return response.json();
+                                })
                                 .then(data => {
                                     mediaSelect.innerHTML = '<option value="">Select a Media</option>';
                                     selectedMediaDiv.innerHTML = '';
@@ -496,6 +516,7 @@
                                         '<option value="">Error loading media</option>';
                                 });
 
+                            // Tải danh sách users
                             fetch(`/campaign/users-by-enterprise/${enterpriseId}`, {
                                     headers: {
                                         'Accept': 'application/json',
@@ -504,7 +525,14 @@
                                             'meta[name="csrf-token"]').content
                                     }
                                 })
-                                .then(response => response.json())
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            `Users API error: ${response.status} ${response.statusText}`
+                                            );
+                                    }
+                                    return response.json();
+                                })
                                 .then(data => {
                                     userSelect.innerHTML = '<option value="">Select a User</option>';
                                     if (!data.data || data.data.length === 0) {
@@ -520,8 +548,8 @@
                                 })
                                 .catch(error => {
                                     console.error('Error fetching users:', error);
-                                    userSelect.innerHTML =
-                                        '<option value="">Error loading users</option>';
+                                    userSelect.innerHTML = '<option value="">Error loading users: ' +
+                                        error.message + '</option>';
                                 });
                         } else {
                             mediaSelect.innerHTML = '<option value="">Select a Media</option>';
