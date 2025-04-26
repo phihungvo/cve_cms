@@ -90,7 +90,7 @@
                     <div class="form-group mb-3">
                         <label class="form-label">{{ __('campaign-index.media') }}</label>
                         <div id="upload-form-container"></div>
-                        <select id="media-select" class="form-control">
+                        <select id="media-select" class="form-control" multiple>
                             <option value="">Select a Media</option>
                             @foreach ($media as $mediaItem)
                                 <option value="{{ $mediaItem->id }}" data-name="{{ $mediaItem->name }}"
@@ -236,24 +236,24 @@
         .selected-user .remove-user,
         .selected-media .remove-media {
             margin-top: 8px;
-            background-color: #0066cc;
-            /* Màu xanh dương đậm */
-            border-color: #0066cc;
+            background-color: #1F2A44;
+            /* Màu xanh dương đậm từ hình */
+            border-color: #1F2A44;
         }
 
         .selected-user .remove-user:hover,
         .selected-media .remove-media:hover {
-            background-color: #0052a3;
+            background-color: #2E3B5A;
             /* Màu xanh dương đậm hơn khi hover */
-            border-color: #0052a3;
+            border-color: #2E3B5A;
         }
 
         .upload-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background-color: #0066cc;
-            /* Màu xanh dương đậm */
+            background-color: #1F2A44;
+            /* Màu xanh dương đậm từ hình */
             color: white;
             font-size: 1.2rem;
             font-weight: bold;
@@ -266,7 +266,7 @@
         }
 
         .upload-btn:hover {
-            background-color: #0052a3;
+            background-color: #2E3B5A;
             /* Màu xanh dương đậm hơn khi hover */
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
@@ -279,6 +279,12 @@
 
         .upload-btn span {
             margin-left: 8px;
+        }
+
+        /* Tăng chiều cao cho select multiple để hiển thị nhiều tùy chọn */
+        #media-select {
+            height: 150px;
+            /* Chiều cao cố định để hiển thị nhiều mục */
         }
     </style>
 @stop
@@ -368,50 +374,59 @@
                 });
             }
 
-            // Logic chọn media
+            // Logic chọn media (hỗ trợ chọn nhiều)
             const mediaSelect = document.getElementById('media-select');
             const selectedMediaDiv = document.getElementById('selected-media');
 
             if (mediaSelect && selectedMediaDiv) {
                 mediaSelect.addEventListener('change', function() {
-                    const mediaId = this.value;
-                    const selectedOption = this.options[this.selectedIndex];
-                    const mediaName = selectedOption.dataset.name;
-                    const mediaType = selectedOption.dataset.type;
-                    const mediaUrl = selectedOption.dataset.url;
-                    const isVideo = mediaType && (mediaType.toLowerCase().includes('video') || mediaType ===
-                        'mp4');
+                    const selectedOptions = Array.from(this
+                    .selectedOptions); // Lấy tất cả các tùy chọn được chọn
 
-                    if (mediaId && !selectedMediaDiv.querySelector(`[data-id="${mediaId}"]`)) {
-                        const mediaDiv = document.createElement('div');
-                        mediaDiv.className = 'card mb-3 media bg-white selected-media';
-                        mediaDiv.dataset.id = mediaId;
-                        mediaDiv.setAttribute('onmouseover', "this.style.backgroundColor='#f0f0f0';");
-                        mediaDiv.setAttribute('onmouseout', "this.style.backgroundColor='white';");
-                        mediaDiv.innerHTML = `
-                            <div class="shadow-md rounded-lg overflow-hidden">
-                                <div class="p-4 flex flex-col items-center">
-                                    <h5 class="text-lg font-bold text-center mb-2">${mediaName || 'Unnamed Media'}</h5>
-                                    <p class="text-gray-500 mb-2">${mediaType || 'Unknown'}</p>
-                                    <div class="media-preview mb-2">
-                                        ${isVideo ?
-                                            `<video src="${mediaUrl}" controls style="max-width: 150px; max-height: 150px;"></video>` :
-                                            `<a href="${mediaUrl}" target="_blank">View File</a>`}
+                    selectedOptions.forEach(option => {
+                        const mediaId = option.value;
+                        const mediaName = option.dataset.name;
+                        const mediaType = option.dataset.type;
+                        const mediaUrl = option.dataset.url;
+                        const isVideo = mediaType && (mediaType.toLowerCase().includes('video') ||
+                            mediaType === 'mp4');
+
+                        // Chỉ thêm media nếu chưa có trong selected-media
+                        if (mediaId && !selectedMediaDiv.querySelector(`[data-id="${mediaId}"]`)) {
+                            const mediaDiv = document.createElement('div');
+                            mediaDiv.className = 'card mb-3 media bg-white selected-media';
+                            mediaDiv.dataset.id = mediaId;
+                            mediaDiv.setAttribute('onmouseover',
+                                "this.style.backgroundColor='#f0f0f0';");
+                            mediaDiv.setAttribute('onmouseout',
+                                "this.style.backgroundColor='white';");
+                            mediaDiv.innerHTML = `
+                                <div class="shadow-md rounded-lg overflow-hidden">
+                                    <div class="p-4 flex flex-col items-center">
+                                        <h5 class="text-lg font-bold text-center mb-2">${mediaName || 'Unnamed Media'}</h5>
+                                        <p class="text-gray-500 mb-2">${mediaType || 'Unknown'}</p>
+                                        <div class="media-preview mb-2">
+                                            ${isVideo ?
+                                                `<video src="${mediaUrl}" controls style="max-width: 150px; max-height: 150px;"></video>` :
+                                                `<a href="${mediaUrl}" target="_blank">View File</a>`}
+                                        </div>
+                                        <button type="button" class="btn btn-danger btn-sm remove-media">X</button>
+                                        <input type="hidden" name="media_ids[]" value="${mediaId}">
                                     </div>
-                                    <button type="button" class="btn btn-danger btn-sm remove-media">X</button>
-                                    <input type="hidden" name="media_ids[]" value="${mediaId}">
                                 </div>
-                            </div>
-                        `;
-                        selectedMediaDiv.appendChild(mediaDiv);
+                            `;
+                            selectedMediaDiv.appendChild(mediaDiv);
 
-                        // Gắn sự kiện xóa cho nút X
-                        mediaDiv.querySelector('.remove-media').addEventListener('click', function() {
-                            mediaDiv.remove();
-                        });
-                    }
+                            // Gắn sự kiện xóa cho nút X
+                            mediaDiv.querySelector('.remove-media').addEventListener('click',
+                                function() {
+                                    mediaDiv.remove();
+                                });
+                        }
+                    });
 
-                    this.value = ''; // Reset select về mặc định
+                    // Reset lựa chọn trong dropdown
+                    this.selectedIndex = -1; // Bỏ chọn tất cả
                 });
 
                 // Gắn sự kiện xóa cho các media đã chọn ban đầu
