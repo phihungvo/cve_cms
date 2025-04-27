@@ -13,9 +13,9 @@ $allPermission = $userPermission['all'] ?? [];
 
 @section('body')
 
-@php use Illuminate\Support\Facades\Log; @endphp
-
 <form method="get">
+    @php use Illuminate\Support\Facades\Log; @endphp
+
     <div class="sm:flex sm:space-x-4">
         <div class="flex-grow mt-2 sm:mt-0">
             <input type="search" class="form-control form-control-lg" placeholder="{{ __('device-index.filter') }}"
@@ -25,20 +25,21 @@ $allPermission = $userPermission['all'] ?? [];
         @if(isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::ROOT->value]) || isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::OWNER->value]))
             @if ($users_multiple)
                 <div class="flex-grow mt-2 lg:mt-0">
-                    <x-select name="user_id" :options="$users" value="id" text="name" placeholder="{{ __('device-index.select_user') }}"
-                        data-change-submit></x-select>
+                    <x-select name="user_id" :options="$users" class="cursor-pointer" value="id" text="name"
+                              placeholder="{{ __('device-index.select_user') }}" data-change-submit>
+                    </x-select>
                 </div>
             @endif
         @endif
 
         <div class="flex-grow mt-2 lg:mt-0">
-            <x-select name="vehicle_id" :options="$vehicles" value="id" text="name"
+            <x-select name="vehicle_id" :options="$vehicles" value="id" text="name" class="cursor-pointer"
                 placeholder="{{ __('device-index.select_vehicle') }}" data-change-submit></x-select>
         </div>
 
         @if(isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::ROOT->value]))
             <div class="flex-grow mt-2 lg:mt-0">
-                <x-select name="device_type" :options="$device_type" value="name" text="name"
+                <x-select name="device_type" :options="$device_type" value="name" text="name" class="cursor-pointer"
                     placeholder="{{ __('device-index.select_device_type') }}" data-change-submit></x-select>
             </div>
         @endif

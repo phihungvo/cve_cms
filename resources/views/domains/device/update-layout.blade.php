@@ -1,36 +1,50 @@
 @extends ('layouts.in')
 
 @section ('body')
-
 <div class="box flex items-center px-5">
+    <div class="flex flex-col">
+        {{--    main nav --}}
     <div class="nav nav-tabs flex overflow-auto whitespace-nowrap" role="tablist">
-        <a href="{{ route('device.update', $row->id) }}" class="p-4 {{ ($ROUTE === 'device.update') ? 'active' : '' }}"
-            role="tab">{{ $row->name }}</a>
-        <a href="{{ route('device.update.device-status', $row->id) }}"
+        <!-- Device-->
+        <a href="{{ route('device.update', $row->id ?? $device->id) }}" class="p-4 {{ ($ROUTE === 'device.update') ? 'active' : '' }}"
+            role="tab">{{ $row->name ?? $device->name}}</a>
+        <!-- Device Status-->
+        <a href="{{ route('device.update.device-status', $row->id ?? $device->id) }}"
             class="p-4 {{ ($ROUTE === 'device.update.device-status') ? 'active' : '' }}"
             role="tab">{{ __('device-update.device-status') }}</a>
-        <a href="{{ route('device.update.device-log', $row->id) }}"
+        <!-- Device Log-->
+        <a href="{{ route('device.update.device-log', $row->id ?? $device->id) }}"
             class="p-4 {{ ($ROUTE === 'device.update.device-log') ? 'active' : '' }}"
             role="tab">{{ __('device-update.device-log') }}</a>
-
-        <a href="{{ route('device.update.device-message', $row->id) }}"
+        <!-- Message-->
+        <a href="{{ route('device.update.device-message', $row->id ?? $device->id) }}"
             class="p-4 {{ ($ROUTE === 'device.update.device-message') ? 'active' : '' }}"
             role="tab">{{ __('device-update.messages') }}</a>
-
-        <a href="{{ route('device.update.camera-setting', $row) }}"
+        <!-- Transfer-->
+        @if ($AUTH->managerMode())
+            <a href="{{ route('device.update.transfer', $row->id ?? $device->id) }}"
+               class="p-4 {{ ($ROUTE === 'device.update.transfer') ? 'active' : '' }}"
+               role="tab">{{ __('device-update.transfer') }}</a>
+        @endif
+        <!-- Camera Settings-->
+        <a href="{{ route('device.update.camera-setting', $row ?? $device->id) }}"
             class="p-4 {{ ($ROUTE === 'device.update.camera-setting') ? 'active' : '' }}"
             role="tab">{{ __('camera.camera-setting') }}</a>
+        <!-- CVEDIX-RT-Analytics-->
+        <a href="{{ route('device.runtime-analytics', $row->id ?? $device->id) }}"
+           class="p-4
+           {{ (Illuminate\Support\Str::is('device.runtime-analytics*', $ROUTE)) ? 'active' : '' }}
+           {{ (Illuminate\Support\Str::is('group.*', $ROUTE)) ? 'active' : '' }}
+           {{ (Illuminate\Support\Str::is('solution.*', $ROUTE)) ? 'active' : '' }}
 
-        @if ($AUTH->managerMode())
-            <a href="{{ route('device.update.transfer', $row->id) }}"
-                class="p-4 {{ ($ROUTE === 'device.update.transfer') ? 'active' : '' }}"
-                role="tab">{{ __('device-update.transfer') }}</a>
-        @endif
 
-        <a href="{{ route('device.update.runtime-analytics', $row->id) }}"
-           class="p-4 {{ ($ROUTE === 'device.update.runtime-analytics') ? 'active' : '' }}"
-           role="tab">{{ __('camera.runtime-analytics') }}</a>
+           "
+           role="tab">{{ __('rt-analytics-index.runtime-analytics') }}</a>
     </div>
+        {{--     nav-inner --}}
+        @yield('nav-inner')
+    </div>
+
 </div>
 
 <div class="tab-content">

@@ -1,0 +1,45 @@
+<?php return [
+    'meta-title-create' => 'RT-Analytics>Create Instance',
+    'meta-title-update' => 'RT-Analytics>Update Instance',
+    'create-instance' => 'Create Instance',
+    'update-instance' => 'Update Instance',
+    'uuid' => 'UUID',
+    'name' => 'Instance Name',
+    'source' => 'Instance Source',
+    'solution' => 'Instance Solution',
+    'create-success' => 'Create Instance Success',
+
+
+    'solution-select' => '-- Select Solution --',
+    'group' => 'Instance Group',
+    'group-select' => '-- Select Group --',
+    'btn-next' => 'Next',
+    'btn-save' => 'Save',
+    'btn-cancel' => 'Cancel',
+    'btn-apply' => 'Apply',
+    'btn-create-solution' => '+ New Solution',
+    'btn-list-all-solution' => 'List All Solution',
+    'btn-create-group' => '+ New Group',
+    'btn-list-all-group' => 'List All Group',
+    'rt-analytics-not_supported' => 'Runtime analytics is not supported for this device.',
+
+    'error' => [
+        'not_found' => 'Camera with ID :id not found.',
+        'uuid_required' => 'The UUID field is required.',
+        'uuid_invalid' => 'The UUID must be a valid UUID.',
+        'uuid_exists' => 'The UUID has already been taken.',
+        'instance_name_required' => 'The Instance Name field is required.',
+        'solution_id_required' => 'The Solution ID field is required.',
+        'solution_id_integer' => 'The Solution ID must be an integer.',
+        'group_id_required' => 'The Group ID field is required.',
+        'group_id_integer' => 'The Group ID must be an integer.',
+    ],
+    // Delete modal messages
+    'delete-modal' => [
+        'title' => 'Delete Instance',
+        'message' => 'Are you sure you want to delete the instance "? This action cannot be undone.',
+        'cancel' => 'Cancel',
+        'delete' => 'Delete',
+    ],
+    'delete' => 'Delete',
+];
