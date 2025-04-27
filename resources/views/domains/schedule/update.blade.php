@@ -138,7 +138,6 @@
                                             @else
                                                 <span>schedule published</span>
                                             @endif
-                                            <span>display id: {{$device->displays->first()->id}}</span>
                                         </div>
                                     @endif
 

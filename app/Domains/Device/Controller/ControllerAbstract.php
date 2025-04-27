@@ -5,6 +5,7 @@ namespace App\Domains\Device\Controller;
 use App\Domains\Alarm\Model\Alarm as AlarmModel;
 use App\Domains\AlarmNotification\Model\AlarmNotification as AlarmNotificationModel;
 use App\Domains\Device\Model\Device as Model;
+use App\Domains\Device\Model\DeviceCvedixrtInstance;
 use App\Domains\DeviceMessage\Model\DeviceMessage as DeviceMessageModel;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract;
 use App\Exceptions\NotFoundException;
@@ -32,10 +33,16 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     protected ?DeviceMessageModel $message;
 
     /**
+     * @var ?DeviceCvedixrtInstance
+     */
+    protected ?DeviceCvedixrtInstance $deviceCvedixrtInstance;
+
+    /**
      * @param int $id
      *
-     * @return Model
      * @throws NotFoundException
+     *
+     * @return Model
      */
     protected function row(int $id): Model
     {
@@ -80,6 +87,21 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     {
         return $this->message = DeviceMessageModel::query()
             ->byId($device_message_id)
+            ->byDeviceId($this->row->id)
+            ->firstOr(fn () => $this->exceptionNotFound(__('device.error.not-found')));
+    }
+
+    /**
+     * @param int $instanceId
+     *
+     * @throws NotFoundException
+     *
+     * @return DeviceCvedixrtInstance
+     */
+    protected function deviceCvedixrtInstance(int $instanceId): DeviceCvedixrtInstance
+    {
+        return $this->deviceCvedixrtInstance = DeviceCvedixrtInstance::query()
+            ->byId($instanceId)
             ->byDeviceId($this->row->id)
             ->firstOr(fn () => $this->exceptionNotFound(__('device.error.not-found')));
     }

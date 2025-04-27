@@ -6,17 +6,21 @@ use App\Domains\Device\Model\Device as Model;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 
-class RuntimeAnalytics extends ControllerAbstract
+class RTAnalyticsCreate extends RTAnalyticsCreateUpdateAbstract
 {
 
     public function __construct(protected Request $request, protected Authenticatable $auth, protected Model $row)
     {
+        $this->request();
     }
 
     public function data(): array
     {
-        return [
-          'row' => $this->row,
+        // lấy data chung + data riêng
+        return $this->dataCreateUpdate() + [
+                'uuid' => ($this->input['uuid'] ?? helper()->uuid()),
         ];
     }
+
+
 }

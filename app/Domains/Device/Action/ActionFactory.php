@@ -3,18 +3,21 @@
 namespace App\Domains\Device\Action;
 
 use App\Domains\Device\Model\Device as Model;
+use App\Domains\Device\Model\DeviceCvedixrtInstance;
 use App\Domains\DeviceMessage\Model\DeviceMessage as DeviceMessageModel;
 use App\Domains\Core\Action\ActionFactoryAbstract;
 
 class ActionFactory extends ActionFactoryAbstract
 {
     /**
-     * @var ?\App\Domains\Device\Model\Device
+     * @var ?Model
      */
     protected ?Model $row;
 
+    protected ?DeviceCvedixrtInstance $instance;
+
     /**
-     * @return \App\Domains\Device\Model\Device
+     * @return Model
      */
     public function create(): Model
     {
@@ -30,7 +33,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\Device\Model\Device
+     * @return Model
      */
     public function update(): Model
     {
@@ -38,7 +41,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\Device\Model\Device
+     * @return Model
      */
     public function updateBoolean(): Model
     {
@@ -54,7 +57,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\Device\Model\Device
+     * @return Model
      */
     public function updateTransfer(): Model
     {
@@ -83,5 +86,21 @@ class ActionFactory extends ActionFactoryAbstract
     public function deleteCamera(): void
     {
         $this->actionHandle(DeleteCamera::class);
+    }
+
+    public function createInstance(): void
+    {
+        $this->actionHandle(CreateInstance::class, $this->validate()->createInstance());
+    }
+
+    public function updateInstance(DeviceCvedixrtInstance $instance):void
+    {
+        $this->instance = $instance;
+        $this->actionHandle(UpdateInstance::class, $this->validate()->updateInstance(), $instance);
+    }
+
+    public function deleteInstance(): void
+    {
+        $this->actionHandle(DeleteInstance::class);
     }
 }
