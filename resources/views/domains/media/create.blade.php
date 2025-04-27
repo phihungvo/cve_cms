@@ -90,8 +90,14 @@
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('progress-text');
 
+            if (!uploadForm || !progressContainer || !progressBar || !progressText) {
+                console.error('Form or progress elements not found');
+                return;
+            }
+
             uploadForm.addEventListener('submit', function (event) {
                 event.preventDefault();
+                console.log('Form submitted, preparing AJAX request');
 
                 // Show progress bar
                 progressContainer.classList.remove('hidden');
@@ -114,24 +120,27 @@
                 // Completion event
                 xhr.addEventListener('load', function () {
                     progressContainer.classList.add('hidden');
-                    progressText.textContent = 'Processing...'; // Show processing message
+                    progressText.textContent = 'Processing...';
+                    console.log('Request completed with status:', xhr.status);
+                    console.log('Response:', xhr.responseText);
                     if (xhr.status === 200) {
                         try {
                             const response = JSON.parse(xhr.responseText);
                             if (response.success) {
+                                console.log('Upload successful, redirecting...');
                                 window.location.href = "{{ route('fpp.media.index') }}";
                             } else {
-                                showError(response.message || 'Upload failed');
+                                showError(`Error ${xhr.status}: ${response.message || 'Upload failed'}`);
                             }
                         } catch (e) {
-                            showError('Invalid response format');
+                            showError(`Error ${xhr.status}: Invalid response format`);
                         }
                     } else {
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            showError(response.message || 'Upload failed');
+                            showError(`Error ${xhr.status}: ${response.message || 'Upload failed'}`);
                         } catch (e) {
-                            showError('Upload failed');
+                            showError(`Error ${xhr.status}: Upload failed`);
                         }
                     }
                 });
@@ -139,21 +148,25 @@
                 // Error event
                 xhr.addEventListener('error', function () {
                     progressContainer.classList.add('hidden');
-                    showError('Upload failed');
+                    console.error('Network error occurred');
+                    showError('Upload failed: Network error');
                 });
 
                 // Send request
+                console.log('Sending request to:', uploadForm.action);
                 xhr.open('POST', uploadForm.action, true);
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('meta[name="csrf-token"]').content);
                 xhr.send(formData);
             });
 
             function showError(message) {
+                console.error('Error displayed:', message);
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'alert alert-danger mb-4';
                 errorDiv.textContent = 'Error: ' + message;
                 uploadForm.parentElement.insertBefore(errorDiv, uploadForm);
-                setTimeout(() => errorDiv.remove(), 5000); // Auto-remove after 5 seconds
+                setTimeout(() => errorDiv.remove(), 5000);
             }
         });
     </script>

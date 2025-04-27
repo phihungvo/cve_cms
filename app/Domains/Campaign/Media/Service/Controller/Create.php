@@ -44,6 +44,11 @@ class Create
 
     public function create()
     {
+        Log::info('Received create media request', [
+            'method' => $this->request->method(),
+            'url' => $this->request->url(),
+            'headers' => $this->request->headers->all(),
+        ]);
         try {
             $campaigns = Campaign::all()->pluck('id')->toArray();
 
