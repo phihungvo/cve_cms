@@ -32,5 +32,7 @@ return [
         'title' => 'Delete Schedule',
         'message' => 'Are you sure you want to permanently delete the schedule ":name"? This action cannot be undone.',
     ],
-
+    'error' => [
+        'not-found' => 'Schedule not found',
+    ],
 ];

@@ -89,14 +89,18 @@
                 @if(count($devices) !== 0)
                     <!-- Push Message Button -->
                     <div>
-                        <a class="btn btn-success" href="javascript:void(0)" onclick="pushMessage({{ $schedule->id }})">Push
+                        <a class="btn btn-success mr-2" href="javascript:void(0)"
+                           onclick="pushMessage({{ $schedule->id }})">Push
                             Message</a>
+                        <!-- Preview Message Button -->
+                        <button class="btn btn-outline-secondary" type="button"
+                                onclick="previewMessage({{ $schedule->id }})">Preview Message
+                        </button>
                     </div>
                 @else
                     <div class="placeholder"></div>
                 @endif
-                    <button type="button" onclick="showToast()">showToast</button>
-                    <div>
+                <div>
                     <button type="submit" class="btn btn-primary">
                         {{ __('Update Schedule') }}
                     </button>
@@ -134,21 +138,26 @@
                                             @endphp
 
                                             @if($playlistPublished == 0 && $schedulePublished == 0)
-                                                <a href="javascript:pushPlaylistToDevice({{ $device->id }});" class="btn btn-danger mr-1">
+                                                <a href="javascript:pushPlaylistToDevice({{ $device->id }},'{{$device->name}}');"
+                                                   class="btn btn-danger mr-1">
                                                     {{ __('schedule-update.push-playlish-button')}}
                                                 </a>
                                             @elseif($playlistPublished == 1 && $schedulePublished == 0)
-                                                <a href="javascript:pushPlaylistToDevice({{ $device->id }});" class="btn btn-primary mr-1">
+                                                <a href="javascript:pushPlaylistToDevice({{ $device->id }});"
+                                                   class="btn btn-primary mr-1">
                                                     {{ __('schedule-update.push-playlish-button') }}
                                                 </a>
-                                                <a href="javascript:pushScheduleToDevice({{ $device->id }});" class="btn btn-danger">
+                                                <a href="javascript:pushScheduleToDevice({{ $device->id }}, '{{$schedule->name}}');"
+                                                   class="btn btn-danger">
                                                     {{ __('schedule-update.push-schedule-button') }}
                                                 </a>
                                             @elseif($playlistPublished == 1 && $schedulePublished == 1)
-                                                <a href="javascript:pushPlaylistToDevice({{ $device->id }});" class="btn btn-primary mr-1">
+                                                <a href="javascript:pushPlaylistToDevice({{ $device->id }},'{{$device->name}}');"
+                                                   class="btn btn-primary mr-1">
                                                     {{ __('schedule-update.push-playlish-button') }}
                                                 </a>
-                                                <a href="javascript:pushScheduleToDevice({{ $device->id }});" class="btn btn-primary">
+                                                <a href="javascript:pushScheduleToDevice({{ $device->id }}, '{{$schedule->name}}');"
+                                                   class="btn btn-primary">
                                                     {{ __('schedule-update.push-schedule-button') }}
                                                 </a>
                                             @endif
@@ -164,88 +173,216 @@
         @endif
     </form>
 @endsection
+
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.43.0/min/vs/loader.js"></script>
+
     <script>
+        /**
+         * Push message to all devices
+         *
+         * @param scheduleId
+         */
         function pushMessage(scheduleId) {
-            fetch("{{ route('schedule.push-message') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    schedule_id: scheduleId
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status == 'success') {
-                        alert(data.data || 'Message pushed successfully');
-                    }
-                    if (data.status == 'error') {
-                        alert(data.message || 'Failed to push message');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to push message');
-                });
+            Swal.fire({
+                title: '{{__("schedule-update.push-message.title")}}',
+                text: '{{__("schedule-update.push-message.text")}}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#91C714',
+                cancelButtonColor: '#888',
+                confirmButtonText: '{{__("schedule-update.push-message.confirm-button")}}',
+                cancelButtonText: '{{__("schedule-update.push-message.cancel-button")}}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sendApiRequest(
+                        "{{ route('schedule.push-message') }}",
+                        'POST',
+                        { schedule_id: scheduleId },
+                        (data) => {
+                            showAlert('success', 'Push Message Successfully', null, data.data);
+                        },
+                        (errorMessage) => {
+                            showAlert('error', 'Error', errorMessage || 'Failed to push message.');
+                        }
+                    );
+                }
+            });
         }
 
-        function pushPlaylistToDevice(deviceId) {
-            alert('push message to device ' + deviceId);
-            fetch("{{route('fpp.playlist.push-message-to-devices')}}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    playlist_id: {{$schedule->playlist->id}},
-                    device_ids: [deviceId],
-                    _action: 'pushMessageToDevices',
-                })
-            }).then(response => response.json())
-                .then(data => {
-                    if (data.status == 'success') {
-                        alert(data.data || 'Playlist pushed successfully');
-                        return;
-                    }
-                    if (data.status == 'error') {
-                        alert(data.message || 'Failed to push playlist');
-                        return;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to push playlist to device');
-                })
+        /**
+         * Push playlist to device
+         *
+         * @param deviceId
+         * @param deviceName
+         */
+        function pushPlaylistToDevice(deviceId, deviceName) {
+            Swal.fire({
+                title: '{{__("playlist-update.push-playlist-to-device.title")}}',
+                text: `{{__("playlist-update.push-playlist-to-device.text")}} ${deviceName}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#142E71',
+                cancelButtonColor: '#888',
+                confirmButtonText: '{{__("playlist-update.push-playlist-to-device.confirm-button")}}',
+                cancelButtonText: '{{__("playlist-update.push-playlist-to-device.cancel-button")}}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sendApiRequest(
+                        "{{route('fpp.playlist.push-message-to-devices')}}",
+                        'POST',
+                        {
+                            playlist_id: {{$schedule->playlist->id}},
+                            device_ids: [deviceId],
+                            _action: 'pushMessageToDevices',
+                        },
+                        (data) => {
+                            showAlert('success', 'Push Message Successfully', null, data.data);
+                        },
+                        (errorMessage) => {
+                            showAlert('error', 'Error', errorMessage || 'Failed to push playlist to device.');
+                        }
+                    );
+                }
+            });
         }
 
-        function pushScheduleToDevice(deviceId) {
-            fetch("{{route('schedule.push-message-to-devices')}}", {
-                method: 'POST',
+        /**
+         * Push schedule to device
+         *
+         * @param deviceId
+         */
+        function pushScheduleToDevice(deviceId, deviceName) {
+            Swal.fire({
+                title: '{{__("schedule-update.push-schedule-to-device.title")}}',
+                text: `{{__("schedule-update.push-schedule-to-device.text")}} \"${deviceName}\"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#142E71',
+                cancelButtonColor: '#888',
+                confirmButtonText: '{{__("schedule-update.push-schedule-to-device.confirm-button")}}',
+                cancelButtonText: '{{__("schedule-update.push-schedule-to-device.cancel-button")}}',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sendApiRequest(
+                        "{{route('schedule.push-message-to-devices')}}",
+                        'POST',
+                        {
+                            schedule_id: {{ $schedule->id }},
+                            device_ids: [deviceId]
+                        },
+                        (data) => {
+                            showAlert('success', 'Push Schedule Successfully', null, data.data);
+                        },
+                        (errorMessage) => {
+                            showAlert('error', 'Error', errorMessage || 'Failed to push schedule');
+                        }
+                    );
+                }
+            });
+        }
+
+        /**
+         * Preview message before pushing to device
+         *
+         * @param scheduleId
+         */
+       function previewMessage(scheduleId) {
+           sendApiRequest(
+               "{{route('schedule.preview-message')}}",
+               "POST",
+               { schedule_id: scheduleId },
+               (data) => {
+                   showAlert(
+                       'success',
+                       "Preview Message",
+                       null,
+                       data.data
+                   );
+               },
+               (errorMessage) => {
+                   showAlert(
+                       'error',
+                       "Error",
+                       errorMessage || 'Failed to preview message'
+                   );
+               }
+           );
+       }
+
+        /// Hàm để syntax highlight JSON (cho đẹp như IDE)
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|\d+)/g, function (match) {
+                let cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return `<span class="${cls}">${match}</span>`;
+            });
+        }
+
+        /// Hàm tiện ích để hiển thị thông báo SweetAlert
+        function showAlert(type, title, text, data = null) {
+            const swalWithBoostrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: type === 'success' ? 'btn btn-primary px-4' : 'btn btn-danger px-4',
+                },
+                buttonsStyling: false,
+            });
+
+            swalWithBoostrapButtons.fire({
+                icon: type,
+                title: title,
+                text: text,
+                html: data
+                    ? `<pre style="
+                text-align: left;
+                font-family: 'Fira Code', monospace;
+                background: #f5f5f5;
+                border-radius: 8px;
+                overflow-x: auto;
+                white-space: pre;
+                margin: 0;
+                padding: 0;">
+<code style="display: block; padding: 10px;">${syntaxHighlight(JSON.stringify(data, null, 2))}</code></pre>`
+                    : null,
+                showCloseButton: true,
+                confirmButtonText: 'Ok',
+                width: '60%',
+            });
+        }
+
+        /// Hàm tiện ích để gửi request API
+        function sendApiRequest(url, method, body, onSuccess, onError) {
+            fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
-                body: JSON.stringify({
-                    schedule_id: {{ $schedule->id }},
-                    device_ids: [deviceId]
-                })
+                body: JSON.stringify(body),
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status == 'success') {
-                        alert(data.data || 'Schedule pushed successfully');
-                    }
-                    if (data.status == 'error') {
-                        alert(data.message || 'Failed to push schedule');
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.status === 'success') {
+                        onSuccess(data);
+                    } else {
+                        onError(data.message || 'An error occurred.');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to push schedule');
+                .catch((error) => {
+                    console.error(error);
+                    onError(error.message || 'An error occurred.');
                 });
         }
     </script>

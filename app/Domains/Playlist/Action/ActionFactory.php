@@ -51,12 +51,12 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(RestoreAction::class);
     }
 
-    public function pushMessage(): string|false
+    public function pushMessage(): array
     {
         return $this->actionHandle(PushMessageAction::class);
     }
 
-    public function pushMessageToDevices(): string|false
+    public function pushMessageToDevices(): array
     {
         return $this->actionHandle(PushMessageToDevicesAction::class);
     }

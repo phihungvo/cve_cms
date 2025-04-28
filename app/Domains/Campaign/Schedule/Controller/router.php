@@ -15,5 +15,8 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::delete('/fpp/schedule/delete', [Index::class, 'destroy'])->name('schedule.delete');
 
     Route::post('/fpp/schedule/push-message', PushMessage::class)->name('schedule.push-message');
-    Route::post('/fpp/schedule/push-message-to-devices', PushMessageToDevices::class)->name('schedule.push-message-to-devices');
+    Route::post('/fpp/schedule/push-message-to-devices', PushMessageToDevices::class)
+        ->name('schedule.push-message-to-devices');
+    Route::post('/fpp/schedule/preview-message', PreviewMessage::class)
+        ->name('schedule.preview-message');
 });

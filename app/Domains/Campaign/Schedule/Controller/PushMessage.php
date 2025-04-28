@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Campaign\Schedule\Controller;
 
@@ -12,14 +12,22 @@ class PushMessage extends ControllerAbstract
 {
     public function __invoke(Request $request)
     {
-
-        return $this->pushMessage($request);
+        try {
+            $scheduleId = (int)$this->request->input('schedule_id');
+            $this->row($scheduleId);
+            return $this->pushMessage($request);
+        }catch (Exception $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ],$e->getCode());
+        }
 
     }
 
     protected function pushMessage(Request $request): JsonResponse
     {
-        $service = ControllerService::new($request, $this->auth, app(MqttService::class));
+        $service = ControllerService::new($request, $this->auth, $this->row, app(MqttService::class));
 
         try {
             $message = $service->pushMessage();

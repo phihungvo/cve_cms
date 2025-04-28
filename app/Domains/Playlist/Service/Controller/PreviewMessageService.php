@@ -1,53 +1,43 @@
 <?php
 
-namespace App\Domains\Playlist\Action;
+namespace App\Domains\Playlist\Service\Controller;
 
-use App\Domains\Playlist\Model\PlaylistModel;
-use App\Services\Mqtt\MqttService;
+use App\Domains\Playlist\Model\PlaylistModel as Model;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\Request;
 
-abstract class PushMessageAbstract extends ActionAbstract
+class PreviewMessageService extends ControllerAbstract
 {
-    protected ?PlaylistModel $playlist;
+    protected ?Model $row;
 
-    protected MqttService $mqttService;
-
-    public function handle(): array
+    public function __construct(Request $request, Authenticatable $auth, Model $row)
     {
-        $this->playlist = $this->getPlaylist();
-        $this->mqttService = app(MqttService::class);
-
-        return $this->pushMessage();
+        $this->row = $row;
     }
 
-    abstract protected function pushMessage(): array;
-
-    protected function getPlaylist()
-    {
-        $playlistId = $this->request->get(PlaylistModel::FOREIGN);
-
-        return PlaylistModel::with('medias', 'displays')
-            ->find($playlistId);
-
-    }
-
-    protected function data(): array
+    public function data(): mixed
     {
         return [
-            'display_id' => 'dummy display_id',
+            'display_id' => $this->displayId(),
             'name' => $this->name(),
             'video' => $this->video(),
             'src' => $this->src(),
         ];
     }
 
+    protected function displayId(): array
+    {
+        return $this->row->devices->pluck('serial')->toArray();
+    }
+
     protected function name(): string
     {
-        return $this->playlist->name ?? '';
+        return $this->row->name ?? '';
     }
 
     protected function video(): array
     {
-        return $this->playlist->medias()->get()->map(function ($media) {
+        return $this->row->medias()->get()->map(function ($media) {
             $path = parse_url($media->media_url, PHP_URL_PATH);
 
             return urldecode(basename($path)); // giữ nguyên tiếng Việt có dấu
@@ -56,7 +46,7 @@ abstract class PushMessageAbstract extends ActionAbstract
 
     protected function src(): array
     {
-        return $this->playlist->medias()->get()->map(function ($media) {
+        return $this->row->medias()->get()->map(function ($media) {
             $patternBucket = '/https?:\/\/[^\/]+\/([^\/]+)/u';
             $patternObject = '/https?:\/\/[^\/]+\/[^\/]+\/(.+)/u';
 

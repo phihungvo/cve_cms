@@ -13,6 +13,10 @@ Route::group([], static function () {
     Route::any('/fpp/playlist/{id}', UpdateController::class)->name('fpp.playlist.update');
 
     // Tạo route nhận request push message
-    Route::post('/fpp/playlist/push-message-all-devices', PushMessageController::class)->name('fpp.playlist.push-message');
-    Route::post('/fpp/playlist/push-message-to-devices', PushMessageToDevicesController::class)->name('fpp.playlist.push-message-to-devices');
+    Route::post('/fpp/playlist/push-message-all-devices', PushMessageController::class)
+        ->name('fpp.playlist.push-message');
+    Route::post('/fpp/playlist/push-message-to-devices', PushMessageToDevicesController::class)
+        ->name('fpp.playlist.push-message-to-devices');
+    Route::post('/fpp/playlist/preview-message', PreviewMessageController::class)
+        ->name('playlist.preview-message');
 });
