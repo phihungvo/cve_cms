@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -170,16 +171,15 @@ class PlaylistModel extends ModelAbstract
     /**
      * Một playlists có nhiều schedule thông qua `schedule_detail`
      *
-     * @return BelongsToMany
+     * @return HasOne
      */
-    public function schedules(): BelongsToMany
+    public function schedules(): HasOne
     {
-        return $this->belongsToMany(
+        return $this->hasOne(
             Schedule::class,
-            'schedule_detail',
-            self::FOREIGN,
-            Schedule::FOREIGN
-        )->withTimestamps();
+        self::FOREIGN,
+            self::PRIMARY
+        );
     }
 
     /**
@@ -209,7 +209,7 @@ class PlaylistModel extends ModelAbstract
      */
     public function devices(): belongsToMany
     {
-        return $this->belongsToMany(Device::class, 'display', self::FOREIGN, 'device_id');
+        return $this->belongsToMany(Device::class, Display::TABLE, self::FOREIGN, Device::FOREIGN);
     }
 
     /**
