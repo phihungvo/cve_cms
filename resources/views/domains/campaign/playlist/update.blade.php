@@ -1,7 +1,7 @@
 @extends('domains.campaign.playlist.update-layout')
 
 @section('content')
-
+    {{--    @dd(get_defined_vars())--}}
     <form method="post">
         <input type="hidden" name="_action" value="update"/>
         @include('domains.campaign.playlist.molecules.create-update')
@@ -76,17 +76,38 @@
                                     </div>
                                 </div>
                                 <p class="text-gray-500 mt-1 mb-2">{{ $device['model'] }}</p>
+                                @php
+                                    $playlistPublished = $device->displays->first()->playlist_published ?? 0;
+                                    $schedulePublished = $device->displays->first()->schedule_published ?? 0;
+                                @endphp
                                 @if($selected)
-                                    <div class="flex justify-between items-center">
-                                        <!-- btn Push Playlist -->
-                                        <a href="javascript:pushPlaylistToDevice({{$device->id}});"
-                                           class="btn btn-primary">{{__('playlist-update.push-playlist-button')}}</a>
-                                        @if($device->displays->first()->playlist_published == 0)
-                                            <span>playlist not published</span>
-                                        @else
-                                            <span>playlist published</span>
+                                    <div class="flex justify-start items-center">
+                                        @if($playlistPublished == 0 && $schedulePublished == 0)
+                                            <a href="javascript:pushPlaylistToDevice({{ $device->id }});"
+                                               class="btn btn-danger mr-1">
+                                                {{ __('schedule-update.push-playlish-button')}}
+                                            </a>
+                                        @elseif($playlistPublished == 1 && $schedulePublished == 0)
+                                            <a href="javascript:pushPlaylistToDevice({{ $device->id }});"
+                                               class="btn btn-primary mr-1">
+                                            {{ __('schedule-update.push-playlish-button') }}
+                                            </a>
+                                            <a href="javascript:void(0);"
+                                               class="btn {{$row->schedules ? 'btn-danger' : 'btn-secondary cursor-default'}}"
+                                               onclick="{{ $row->schedules ? 'pushScheduleToDevice(' . $device->id . ')' : '' }}">
+                                                {{ __('schedule-update.push-schedule-button') }}
+                                            </a>
+                                        @elseif($playlistPublished == 1 && $schedulePublished == 1)
+                                            <a href="javascript:pushPlaylistToDevice({{ $device->id }});"
+                                               class="btn btn-primary mr-1">
+                                                {{ __('schedule-update.push-playlish-button') }}
+                                            </a>
+                                            <a href="javascript:void(0);"
+                                               class="btn {{$row->schedules ? 'btn-primary' : 'btn-secondary cursor-default'}}"
+                                               onclick="{{ $row->schedules ? 'pushScheduleToDevice(' . $device->id . ')' : '' }}">
+                                                {{ __('schedule-update.push-schedule-button') }}
+                                            </a>
                                         @endif
-                                        <span>display id - {{$device->displays->first()->id ??''}}</span>
                                     </div>
                                 @endif
                             </div>
@@ -110,7 +131,8 @@
         'action' => 'restore'
     ])
 
-@stop
+@endsection
+
 @push('scripts')
     <script>
         function pushMessage(playlistId) {
@@ -168,6 +190,33 @@
                     console.error('Error:', error);
                     alert('Failed to push playlist to device');
                 })
+        }
+
+        function pushScheduleToDevice(deviceId) {
+            fetch("{{route('schedule.push-message-to-devices')}}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    schedule_id: {{ $row->schedules->id ?? 0 }},
+                    device_ids: [deviceId]
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status == 'success') {
+                        alert(data.data || 'Schedule pushed successfully');
+                    }
+                    if (data.status == 'error') {
+                        alert(data.message || 'Failed to push schedule');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to push schedule');
+                });
         }
     </script>
 @endpush
