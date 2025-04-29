@@ -35,7 +35,6 @@ class Create
     {
 
         $user = Auth::user();
-        // Todo: Sang coi lại logic check user ở đây có hợp lý hay không???
         if (!$user) {
             Log::warning('No authenticated user found in CheckPermission middleware');
 
