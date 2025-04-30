@@ -57,7 +57,7 @@ class Create
                 'media_files' => 'required|array|max:10',
                 'media_files.*' => 'file|max:102400|mimes:mp4',
                 'campaign_id' => 'nullable|integer|in:' . implode(',', $campaigns),
-                'enterprise_id' => $this->auth->hasRole('root') ? 'nullable|integer|exists:enterprises,id' : 'required|integer|exists:enterprises,id',
+                'enterprise_id' => $this->auth->hasRole('root') ? 'nullable|integer|exists:enterprise,id' : 'required|integer|exists:enterprise,id',
             ]);
 
             $files = $this->request->file('media_files');
