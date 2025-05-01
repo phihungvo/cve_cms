@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'meta-title' => 'Create New Service',
+    'title' => 'Create New Service',
+    'name' => 'Service Name',
+    'role' => 'Select Role',
+    'select-role' => 'Select a Role',
+    'description' => 'Description',
+    'submit' => 'Save',
+    'cancel' => 'Cancel',
+    'success' => 'Service created successfully!',
+    'action' => 'Action',
+    'select-action' => 'Select Action',
+    'enterprise' => 'Enterprise',
+    'select-enterprise' => 'Select Enterprise',
+    'save' => 'Save',
+    'create' => 'Create',
+
+    'alias' => 'Alias',
+    'menu_route' => 'Menu Action Route',
+    'is_menu' => 'Show in menu side',
+    'menu_name' => 'Menu Name',
+    'menu_icon' => 'Menu Icon',
+    'parent_id' => 'Parent Service',
+    'no_parent' => 'No Parent',
+];

@@ -18,7 +18,8 @@ return [
     'create' => 'Create',
 
     'alias' => 'Alias',
-    'menu_route' => 'Menu Action Route',
+    'menu_route_uri' => 'Menu Route Uri',
+    'menu_route_name' => 'Menu Route Name',
     'is_menu' => 'Show in menu side',
     'menu_name' => 'Menu Name',
     'menu_icon' => 'Menu Icon',

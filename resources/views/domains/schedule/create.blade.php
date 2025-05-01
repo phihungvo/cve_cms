@@ -131,7 +131,6 @@
                                     <!-- btn Push Playlist -->
                                     <a href="javascript:pushPlaylistToDevice({{$device->id}});"
                                        class="btn btn-primary">{{__('playlist-update.push-playlist-button')}}</a>
-                                    <span>display id - {{$device->displays->first()->id ??'N/A'}}</span>
                                 </div>
                             </div>
                         </div>

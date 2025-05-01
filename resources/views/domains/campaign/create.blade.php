@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.in')
 
 @section('body')
@@ -22,7 +21,7 @@
                     <!-- Name -->
                     <div class="row">
                         <div class="col-md-12">
-                            <div class=" form-group mb-3">
+                            <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.name') }}</label>
                                 <input type="text" name="name" class="form-control" value="{{ old('name') }}"
                                     required>
@@ -86,42 +85,55 @@
 
                     <!-- Media -->
                     <div class="form-group mb-3">
-                        <label class="form-label mb-0">{{ __('campaign-index.media') }}</label>
+                        <label class="form-label">{{ __('campaign-index.media') }}</label>
                         <div id="upload-form-container"></div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-                            id="media-container">
+                        <select id="media-select" class="form-control" multiple>
+                            <option value="">Select a Media</option>
                             @foreach ($media as $mediaItem)
-                                <div class="card mb-3 media bg-white" id="media-{{ $mediaItem->id }}"
-                                    media-id="{{ $mediaItem->id }}" onmouseover="this.style.backgroundColor='#f0f0f0';"
-                                    onmouseout="this.style.backgroundColor='white';">
-                                    <div class="shadow-md rounded-lg overflow-hidden">
-                                        <div class="p-4 flex flex-col items-center">
-                                            <h5 class="text-lg font-bold text-center mb-2">{{ $mediaItem->name }}</h5>
-                                            @php
-                                                $type = strtolower($mediaItem->type);
-                                                $isVideo = str_contains($type, 'video') || in_array($type, ['mp4']);
-                                            @endphp
-                                            <p class="text-gray-500 mb-2">{{ $mediaItem->type }}</p>
-                                            <div class="media-preview mb-2">
-                                                @if ($isVideo)
-                                                    <video src="{{ $mediaItem->media_url }}" controls
-                                                        style="max-width: 150px; max-height: 150px;"></video>
-                                                @else
-                                                    <a href="{{ $mediaItem->media_url }}"
-                                                        target="_blank">{{ __('View File') }}</a>
-                                                @endif
-                                            </div>
-                                            <div class="mt-2">
-                                                <label for="media-{{ $mediaItem->id }}"
-                                                    class="form-check-label">{{ __('Select Media') }}</label>
-                                                <input type="checkbox" name="media_ids[]" value="{{ $mediaItem->id }}"
-                                                    class="form-check-switch" id="media-{{ $mediaItem->id }}"
-                                                    {{ in_array($mediaItem->id, old('media_ids', [])) ? 'checked' : '' }}>
+                                <option value="{{ $mediaItem->id }}" data-name="{{ $mediaItem->name }}"
+                                    data-type="{{ $mediaItem->type }}" data-url="{{ $mediaItem->media_url }}">
+                                    {{ $mediaItem->name }} ({{ $mediaItem->type }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <div id="selected-media"
+                            class="mt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            @if (old('media_ids'))
+                                @foreach (old('media_ids') as $mediaId)
+                                    @php
+                                        $mediaItem = $media->find($mediaId);
+                                    @endphp
+                                    @if ($mediaItem)
+                                        @php
+                                            $type = strtolower($mediaItem->type);
+                                            $isVideo = str_contains($type, 'video') || in_array($type, ['mp4']);
+                                        @endphp
+                                        <div class="card mb-3 media bg-white selected-media" data-id="{{ $mediaItem->id }}"
+                                            onmouseover="this.style.backgroundColor='#f0f0f0';"
+                                            onmouseout="this.style.backgroundColor='white';">
+                                            <div class="shadow-md rounded-lg overflow-hidden">
+                                                <div class="p-4 flex flex-col items-center">
+                                                    <h5 class="text-lg font-bold text-center mb-2">{{ $mediaItem->name }}
+                                                    </h5>
+                                                    <p class="text-gray-500 mb-2">{{ $mediaItem->type }}</p>
+                                                    <div class="media-preview mb-2">
+                                                        @if ($isVideo)
+                                                            <video src="{{ $mediaItem->media_url }}" controls
+                                                                style="max-width: 150px; max-height: 150px;"></video>
+                                                        @else
+                                                            <a href="{{ $mediaItem->media_url }}"
+                                                                target="_blank">{{ __('View File') }}</a>
+                                                        @endif
+                                                    </div>
+                                                    <button type="button"
+                                                        class="btn btn-danger btn-sm remove-media">X</button>
+                                                    <input type="hidden" name="media_ids[]" value="{{ $mediaItem->id }}">
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            @endforeach
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
                     </div>
 
@@ -216,25 +228,33 @@
     </div>
 
     <style>
-        .selected-user {
-            display: flex;
-            align-items: center;
+        .selected-user,
+        .selected-media {
             margin: 5px 0;
-            padding: 5px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
         }
 
-        .selected-user .remove-user {
+        .selected-user .remove-user,
+        .selected-media .remove-media {
             margin-left: 10px;
+            margin-top: 8px;
+            background-color: #1F2A44;
+            /* Màu xanh dương đậm */
+            border-color: #1F2A44;
+        }
+
+        .selected-user .remove-user:hover,
+        .selected-media .remove-media:hover {
+            background-color: #2E3B5A;
+            /* Màu xanh dương đậm hơn khi hover */
+            border-color: #2E3B5A;
         }
 
         .upload-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background-color: #ff5733;
-            /* Vibrant orange color */
+            background-color: #1F2A44;
+            /* Màu xanh dương đậm */
             color: white;
             font-size: 1.2rem;
             font-weight: bold;
@@ -247,8 +267,8 @@
         }
 
         .upload-btn:hover {
-            background-color: #e64a29;
-            /* Darker shade on hover */
+            background-color: #2E3B5A;
+            /* Màu xanh dương đậm hơn khi hover */
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
@@ -261,6 +281,12 @@
         .upload-btn span {
             margin-left: 8px;
         }
+
+        /* Tăng chiều cao cho select multiple để hiển thị nhiều tùy chọn */
+        #media-select {
+            height: 150px;
+            /* Chiều cao cố định để hiển thị nhiều mục */
+        }
     </style>
 @stop
 
@@ -269,7 +295,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             const uploadFormContainer = document.getElementById('upload-form-container');
             const uploadForm = document.getElementById('upload-form');
-            uploadFormContainer.appendChild(uploadForm);
+            if (uploadFormContainer && uploadForm) {
+                uploadFormContainer.appendChild(uploadForm);
+            }
 
             var forms = document.querySelectorAll('.needs-validation');
             Array.prototype.slice.call(forms).forEach(function(form) {
@@ -297,8 +325,10 @@
                 }
             }
 
-            budgetInput.addEventListener('input', calculateCPM);
-            reachInput.addEventListener('input', calculateCPM);
+            if (budgetInput && reachInput) {
+                budgetInput.addEventListener('input', calculateCPM);
+                reachInput.addEventListener('input', calculateCPM);
+            }
 
             const fileInput = document.getElementById('media-files');
             if (fileInput) {
@@ -313,127 +343,195 @@
             const userSelect = document.getElementById('user-select');
             const selectedUsersDiv = document.getElementById('selected-users');
 
-            userSelect.addEventListener('change', function() {
-                const userId = this.value;
-                const userText = this.options[this.selectedIndex].text;
+            if (userSelect && selectedUsersDiv) {
+                userSelect.addEventListener('change', function() {
+                    const userId = this.value;
+                    const userText = this.options[this.selectedIndex].text;
 
-                if (userId && !selectedUsersDiv.querySelector(`[data-id="${userId}"]`)) {
-                    const userDiv = document.createElement('div');
-                    userDiv.className = 'selected-user';
-                    userDiv.dataset.id = userId;
-                    userDiv.innerHTML = `
-                        ${userText}
-                        <button type="button" class="btn btn-danger btn-sm remove-user">X</button>
-                        <input type="hidden" name="user_ids[]" value="${userId}">
-                    `;
-                    selectedUsersDiv.appendChild(userDiv);
+                    if (userId && !selectedUsersDiv.querySelector(`[data-id="${userId}"]`)) {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'selected-user';
+                        userDiv.dataset.id = userId;
+                        userDiv.innerHTML = `
+                            ${userText}
+                            <button type="button" class="btn btn-danger btn-sm remove-user">X</button>
+                            <input type="hidden" name="user_ids[]" value="${userId}">
+                        `;
+                        selectedUsersDiv.appendChild(userDiv);
 
-                    userDiv.querySelector('.remove-user').addEventListener('click', function() {
-                        userDiv.remove();
-                    });
-                }
+                        userDiv.querySelector('.remove-user').addEventListener('click', function() {
+                            userDiv.remove();
+                        });
+                    }
 
-                this.value = ''; // Reset select về mặc định
-            });
-
-            // Xóa user đã chọn
-            selectedUsersDiv.querySelectorAll('.remove-user').forEach(button => {
-                button.addEventListener('click', function() {
-                    this.parentElement.remove();
+                    this.value = ''; // Reset select về mặc định
                 });
-            });
+
+                // Xóa user đã chọn
+                selectedUsersDiv.querySelectorAll('.remove-user').forEach(button => {
+                    button.addEventListener('click', function() {
+                        this.parentElement.remove();
+                    });
+                });
+            }
+
+            // Logic chọn media (hỗ trợ chọn nhiều)
+            const mediaSelect = document.getElementById('media-select');
+            const selectedMediaDiv = document.getElementById('selected-media');
+
+            if (mediaSelect && selectedMediaDiv) {
+                mediaSelect.addEventListener('change', function() {
+                    const selectedOptions = Array.from(this
+                    .selectedOptions); // Lấy tất cả các tùy chọn được chọn
+
+                    selectedOptions.forEach(option => {
+                        const mediaId = option.value;
+                        const mediaName = option.dataset.name;
+                        const mediaType = option.dataset.type;
+                        const mediaUrl = option.dataset.url;
+                        const isVideo = mediaType && (mediaType.toLowerCase().includes('video') ||
+                            mediaType === 'mp4');
+
+                        // Chỉ thêm media nếu chưa có trong selected-media
+                        if (mediaId && !selectedMediaDiv.querySelector(`[data-id="${mediaId}"]`)) {
+                            const mediaDiv = document.createElement('div');
+                            mediaDiv.className = 'card mb-3 media bg-white selected-media';
+                            mediaDiv.dataset.id = mediaId;
+                            mediaDiv.setAttribute('onmouseover',
+                                "this.style.backgroundColor='#f0f0f0';");
+                            mediaDiv.setAttribute('onmouseout',
+                                "this.style.backgroundColor='white';");
+                            mediaDiv.innerHTML = `
+                                <div class="shadow-md rounded-lg overflow-hidden">
+                                    <div class="p-4 flex flex-col items-center">
+                                        <h5 class="text-lg font-bold text-center mb-2">${mediaName || 'Unnamed Media'}</h5>
+                                        <p class="text-gray-500 mb-2">${mediaType || 'Unknown'}</p>
+                                        <div class="media-preview mb-2">
+                                            ${isVideo ?
+                                                `<video src="${mediaUrl}" controls style="max-width: 150px; max-height: 150px;"></video>` :
+                                                `<a href="${mediaUrl}" target="_blank">View File</a>`}
+                                        </div>
+                                        <button type="button" class="btn btn-danger btn-sm remove-media">X</button>
+                                        <input type="hidden" name="media_ids[]" value="${mediaId}">
+                                    </div>
+                                </div>
+                            `;
+                            selectedMediaDiv.appendChild(mediaDiv);
+
+                            // Gắn sự kiện xóa cho nút X
+                            mediaDiv.querySelector('.remove-media').addEventListener('click',
+                                function() {
+                                    mediaDiv.remove();
+                                });
+                        }
+                    });
+
+                    // Reset lựa chọn trong dropdown
+                    this.selectedIndex = -1; // Bỏ chọn tất cả
+                });
+
+                // Gắn sự kiện xóa cho các media đã chọn ban đầu
+                selectedMediaDiv.querySelectorAll('.remove-media').forEach(button => {
+                    button.addEventListener('click', function() {
+                        this.closest('.selected-media').remove();
+                    });
+                });
+            }
 
             @if ($isRoot)
                 const enterpriseSelect = document.querySelector('select[name="enterprise_id"]');
-                const mediaContainer = document.querySelector('#media-container');
+                if (enterpriseSelect && mediaSelect && selectedMediaDiv && userSelect) {
+                    enterpriseSelect.addEventListener('change', function() {
+                        const enterpriseId = this.value;
+                        if (enterpriseId) {
+                            // Tải danh sách media
+                            fetch(`/campaign/media-by-enterprise/${enterpriseId}`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            `Media API error: ${response.status} ${response.statusText}`
+                                            );
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    mediaSelect.innerHTML = '<option value="">Select a Media</option>';
+                                    selectedMediaDiv.innerHTML = ''; // Xóa các media đã chọn trước đó
+                                    if (!data.data || data.data.length === 0) {
+                                        mediaSelect.innerHTML +=
+                                            '<option value="">No media available</option>';
+                                        return;
+                                    }
 
-                enterpriseSelect.addEventListener('change', function() {
-                    const enterpriseId = this.value;
-                    if (enterpriseId) {
-                        fetch(`/campaign/media-by-enterprise/${enterpriseId}`, {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        .content
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                mediaContainer.innerHTML = '';
-                                if (!data.data || data.data.length === 0) {
-                                    mediaContainer.innerHTML =
-                                        '<p>No media available for this enterprise.</p>';
-                                    return;
-                                }
-
-                                data.data.forEach(media => {
-                                    const isVideo = media.type.toLowerCase().includes(
-                                        'video') || media.type === 'mp4';
-                                    mediaContainer.innerHTML += `
-                                    <div class="card mb-3 media bg-white" id="media-${media.id}"
-                                        media-id="${media.id}"
-                                        onmouseover="this.style.backgroundColor='#f0f0f0';"
-                                        onmouseout="this.style.backgroundColor='white';">
-                                        <div class="shadow-md rounded-lg overflow-hidden">
-                                            <div class="p-4 flex flex-col items-center">
-                                                <h5 class="text-lg font-bold text-center mb-2">${media.name}</h5>
-                                                <p class="text-gray-500 mb-2">${media.type}</p>
-                                                <div class="media-preview mb-2">
-                                                    ${isVideo ?
-                                                        `<video src="${media.media_url}" controls style="max-width: 150px; max-height: 150px;"></video>` :
-                                                        `<a href="${media.media_url}" target="_blank">View File</a>`}
-                                                </div>
-                                                <div class="mt-2">
-                                                    <label for="media-${media.id}" class="form-check-label">Select Media</label>
-                                                    <input type="checkbox" name="media_ids[]" value="${media.id}"
-                                                        class="form-check-switch" id="media-${media.id}">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>`;
+                                    data.data.forEach(media => {
+                                        mediaSelect.innerHTML += `
+                                            <option value="${media.id}"
+                                                data-name="${media.name}"
+                                                data-type="${media.type}"
+                                                data-url="${media.media_url}">
+                                                ${media.name} (${media.type})
+                                            </option>`;
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching media:', error);
+                                    mediaSelect.innerHTML =
+                                        '<option value="">Error loading media</option>';
                                 });
-                            })
-                            .catch(error => {
-                                console.error('Error fetching media:', error);
-                                mediaContainer.innerHTML = '<p>Error loading media.</p>';
-                            });
 
-                        fetch(`/campaign/users-by-enterprise/${enterpriseId}`, {
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        .content
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                userSelect.innerHTML = '<option value="">Select a User</option>';
-                                if (!data.data || data.data.length === 0) {
-                                    userSelect.innerHTML +=
-                                        '<option value="">No users available</option>';
-                                    return;
-                                }
+                            // Tải danh sách users
+                            fetch(`/campaign/users-by-enterprise/${enterpriseId}`, {
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            `Users API error: ${response.status} ${response.statusText}`
+                                            );
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    userSelect.innerHTML = '<option value="">Select a User</option>';
+                                    if (!data.data || data.data.length === 0) {
+                                        userSelect.innerHTML +=
+                                            '<option value="">No users available</option>';
+                                        return;
+                                    }
 
-                                data.data.forEach(user => {
-                                    userSelect.innerHTML += `
-                                    <option value="${user.id}">${user.name} (${user.email})</option>`;
+                                    data.data.forEach(user => {
+                                        userSelect.innerHTML += `
+                                            <option value="${user.id}">${user.name} (${user.email})</option>`;
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching users:', error);
+                                    userSelect.innerHTML = '<option value="">Error loading users: ' +
+                                        error.message + '</option>';
                                 });
-                            })
-                            .catch(error => {
-                                console.error('Error fetching users:', error);
-                                userSelect.innerHTML = '<option value="">Error loading users</option>';
-                            });
-                    } else {
-                        mediaContainer.innerHTML = '<p>Select an enterprise.</p>';
-                        userSelect.innerHTML = '<option value="">Select a User</option>';
-                    }
-                });
+                        } else {
+                            mediaSelect.innerHTML = '<option value="">Select a Media</option>';
+                            selectedMediaDiv.innerHTML = '';
+                            userSelect.innerHTML = '<option value="">Select a User</option>';
+                        }
+                    });
 
-                enterpriseSelect.dispatchEvent(new Event('change'));
+                    // Kích hoạt sự kiện change ngay khi tải trang
+                    enterpriseSelect.dispatchEvent(new Event('change'));
+                }
             @endif
         });
     </script>
 @endpush
-```
