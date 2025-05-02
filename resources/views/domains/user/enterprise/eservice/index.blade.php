@@ -1,12 +1,18 @@
-@extends('layouts.in')
+@extends ('domains.user.enterprise.eservice.tab-layout')
 
-@section('body')
+@section ('content')
+
 
 <form method="get">
     <div class="sm:flex sm:space-x-4">
         <div class="flex-grow mt-2 sm:mt-0">
             <input type="search" class="form-control form-control-lg" placeholder="{{ __('eservice-index.filter') }}"
                 data-table-search="#role-list-table" />
+        </div>
+
+        <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
+            <a href="{{ route('user.enterprise.eservice.create') }}"
+                class="btn form-control-lg whitespace-nowrap">{{ __('eservice-index.create') }}</a>
         </div>
     </div>
 </form>
@@ -74,4 +80,4 @@
     </table>
 </div>
 
-@endsection
+@stop

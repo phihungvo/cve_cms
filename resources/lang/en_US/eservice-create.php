@@ -16,7 +16,7 @@ return [
     'select-enterprise' => 'Select Enterprise',
     'save' => 'Save',
     'create' => 'Create',
-
+    'back' => 'Back',
     'alias' => 'Alias',
     'menu_route' => 'Menu Action Route',
     'is_menu' => 'Show in menu side',

@@ -31,5 +31,7 @@
     'restore_confirm' => 'Are you sure you want to restore this service?',
     'delete_confirm' => 'Are you sure you want to delete this service?',
     'force_delete_confirm' => 'Are you sure you want to permanently delete this service?',
-
+    'tab-name-service' => 'Service',
+    'tab-name-license' => 'License',
+    'tab-name-billing' => 'Billing',
 ];
