@@ -9,8 +9,7 @@
             <a href="{{ route('user.enterprise.eservice.index') }}"
                 class="p-4 {{ ($ROUTE === 'user.enterprise.eservice.index') ? 'active' : '' }}">{{ __('eservice-index.tab-name-service') }}</a>
             <!-- Device Status-->
-            <a role="tab" href="{{ route('user.enterprise.license.index') }}"
-                class="p-4 {{ ($ROUTE === 'user.enterprise.license.index') ? 'active' : '' }}">{{ __('eservice-index.tab-name-license') }}</a>
+            <a href="#" class="p-4" role="tab">{{ __('eservice-index.tab-name-license') }}</a>
             <!-- Device Log-->
             <a href="#" class="p-4" role="tab">{{ __('eservice-index.tab-name-billing') }}</a>
         </div>
