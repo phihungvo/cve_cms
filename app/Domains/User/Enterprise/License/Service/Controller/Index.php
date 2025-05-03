@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Domains\User\Enterprise\License\Model\Collection\License as Collection;
 use App\Domains\User\Enterprise\License\Model\License as Model;
+use App\Domains\User\Enterprise\Model\Enterprise;
+use App\Domains\User\Enterprise\EService\Model\EService;
+
 
 class Index extends ControllerAbstract
 {
@@ -20,7 +23,7 @@ class Index extends ControllerAbstract
         // Log::info('IndexController: Fetching data');
         $data = [
             ...$this->dataCore(),
-            'services' => $this->list(),
+            'licenses' => $this->list(),
         ];
         // Log::info('IndexController: Data prepared', ['services_count' => $data['services']->count()]);
         return $data;
@@ -32,11 +35,23 @@ class Index extends ControllerAbstract
     public function list(): Collection
     {
         // Log::info('IndexController: Fetching License list with trashed records');
-        $services = Model::query()->withTrashed()->get();
+        $licenses = Model::query()->withTrashed()->get();
+
+        // Process each item to include enterprise_name
+        $licenses = $licenses->map(function ($license) {
+            $enterprise = Enterprise::find($license->enterprise_id);
+            $service = EService::find($license->service_id);
+
+            $license->enterprise_name = $enterprise ? $enterprise->name : null;
+            $license->service_name = $service ? $service->name : null;
+
+            return $license;
+        });
+
         // Log::info('IndexController: License list fetched', [
         //     'total' => $services->count(),
         //     'trashed' => $services->filter(fn($service) => $service->trashed())->count()
         // ]);
-        return new Collection($services->all());
+        return new Collection($licenses->all());
     }
 }

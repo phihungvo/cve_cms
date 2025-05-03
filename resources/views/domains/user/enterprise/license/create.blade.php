@@ -13,14 +13,14 @@
                 <div class="flex justify-between">
                     <div>
                         <button type="button" onclick="window.history.back()" class="btn btn-outline-danger">
-                            {{ __('eservice-create.back') }}
+                            {{ __('license-create.back') }}
                         </button>
 
                     </div>
 
                     <div>
                         <button type="submit" class="btn btn-primary">
-                            {{ __('eservice-create.create') }}
+                            {{ __('license-create.create') }}
                         </button>
                     </div>
                 </div>

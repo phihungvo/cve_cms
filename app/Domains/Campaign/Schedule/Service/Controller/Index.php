@@ -1,107 +1,51 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace App\Domains\Campaign\Schedule\Service\Controller;
+namespace App\Domains\User\Enterprise\License\Service\Controller;
 
-use App\Domains\Display\Model\Display;
-use App\Domains\Playlist\Model\PlaylistModel;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
-use App\Domains\Campaign\Schedule\Model\Schedule;
-use App\Domains\User\Enterprise\Model\Enterprise;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use LaravelIdea\Helper\App\Domains\User\Enterprise\Model\_IH_Enterprise_C;
+use App\Domains\User\Enterprise\License\Model\Collection\License as Collection;
+use App\Domains\User\Enterprise\License\Model\License as Model;
+use App\Domains\User\Enterprise\Model\Enterprise;
 
-class Index
+class Index extends ControllerAbstract
 {
-    protected $request;
-
-    protected $auth;
-
-    public function __construct($request, $auth)
+    public function __construct(protected Request $request, protected Authenticatable $auth)
     {
-        $this->request = $request;
-        $this->auth = $auth;
-    }
-
-    public static function new($request, $auth): self
-    {
-        return new self($request, $auth);
+        // Log::info('IndexController: Initialized', ['user_id' => $auth->id ?? null]);
     }
 
     public function data(): array
     {
-
-        return [
-            'schedules' => $this->getSchedules(),
-            'enterprises' => $this->enterprises(),
+        // Log::info('IndexController: Fetching data');
+        $data = [
+            ...$this->dataCore(),
+            'services' => $this->list(),
         ];
+        // Log::info('IndexController: Data prepared', ['services_count' => $data['services']->count()]);
+        return $data;
     }
 
-    protected function getSchedules()
+    /**
+     * @return \App\Domains\User\Enterprise\License\Model\Collection\License
+     */
+    public function list(): Collection
     {
-        $query = Schedule::query()
-            ->byEnterprise()  // Thêm scope byEnterprise để lọc theo enterprise_id
-            ->withTrashed()
-            ->with([PlaylistModel::TABLE])
-            ->when($this->request->input('enterprise_id'), function ($query) {
-                $query->where('enterprise_id', $this->request->input('enterprise_id'));
-            });
-        if ($search = $this->request->get('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->whereHas(PlaylistModel::TABLE, function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%"); // Thêm tìm kiếm theo description của playlist
-                })
-                    ->orWhereHas(Schedule::TABLE, function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('description', 'like', "%{$search}%");
-                    });
-            });
-        }
+        // Log::info('IndexController: Fetching License list with trashed records');
+        $services = Model::query()->withTrashed()->get();
 
-        $user = Auth::user();
-        if (!$user) {
-            Log::warning('No authenticated user found in CheckPermission middleware');
+        // Process each item to include enterprise_name
+        $services = $services->map(function ($service) {
+            $enterprise = Enterprise::find($service->enterprise_id);
+            $service->enterprise_name = $enterprise ? $enterprise->name : null;
+            return $service;
+        });
 
-            return redirect()->guest('user/auth');
-        }
-
-        $userId = $user->id;
-        $userPermission = session('userPermission_'.$userId, []);
-        $allPermissions = $userPermission['all'] ?? [];
-        if (isset($allPermissions['root'])) {
-            // Lấy danh sách schedules
-            $schedules = $query->orderBy('created_at', 'asc')->get();
-
-            // Xử lý từng item để thêm enterprise_name
-            $schedules->each(function ($schedule) {
-                if (!is_null($schedule->enterprise_id)) {
-                    $enterprise = Enterprise::where('id', $schedule->enterprise_id)->first();
-                    if ($enterprise) {
-                        $schedule->enterprise_name = $enterprise->name;
-                    }
-                    $schedule->published_display_count = $schedule->displays()->where(Display::SCHEDULE_PUBLISHED, '!=', 0)->count();
-
-                }
-            });
-            //
-            //            return $schedules->map(function ($schedule) {
-            //                //  $schedule->display_count = $schedule->displays()->count();
-            //                $schedule->published_display_count = $schedule->displays()->where(Display::SCHEDULE_PUBLISHED, '!=', 0)->count();
-
-            return $schedules;
-            //            });
-        } else {
-            return $query->orderBy('created_at', 'asc')->get();
-        }
-
-    }
-
-    protected function enterprises(): Collection|_IH_Enterprise_C|array
-    {
-        return Enterprise::query()
-            ->whereHas('Schedules')
-            ->get();
+        // Log::info('IndexController: License list fetched', [
+        //     'total' => $services->count(),
+        //     'trashed' => $services->filter(fn($service) => $service->trashed())->count()
+        // ]);
+        return new Collection($services->all());
     }
 }

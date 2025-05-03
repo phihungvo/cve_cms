@@ -12,6 +12,14 @@
     'license_key' => 'License Key',
     'license_type' => 'License Type',
     'license_status' => 'License Status',
-
+    'enterprise' => 'Enterprise',
+    'service' => 'Service',
+    'max_user' => 'Max Users',
+    'max_device' => 'Max Devices',
+    'start_date' => 'Start Date',
+    'end_date' => 'End Date',
+    'create' => 'Create',
+    'back' => 'Back',
+    'success' => "Create license successfully"
 
 ];

@@ -6,13 +6,13 @@
 <form method="get">
     <div class="sm:flex sm:space-x-4">
         <div class="flex-grow mt-2 sm:mt-0">
-            <input type="search" class="form-control form-control-lg" placeholder="{{ __('eservice-index.filter') }}"
+            <input type="search" class="form-control form-control-lg" placeholder="{{ __('license-index.filter') }}"
                 data-table-search="#role-list-table" />
         </div>
 
         <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
             <a href="{{ route('user.enterprise.eservice.create') }}"
-                class="btn form-control-lg whitespace-nowrap">{{ __('eservice-index.create') }}</a>
+                class="btn form-control-lg whitespace-nowrap">{{ __('license-index.create') }}</a>
         </div>
     </div>
 </form>
@@ -23,30 +23,50 @@
         data-table-pagination data-table-pagination-limit="10">
         <thead>
             <tr>
-                <th class="w-1">{{ __('eservice-index.name') }}</th>
-                <th class="w-1">{{ __('eservice-index.alias') }}</th>
-                <th class="w-1">{{ __('eservice-index.description') }}</th>
-                <th class="w-1">{{ __('eservice-index.created') }}</th>
-                <th class="w-1">{{ __('eservice-index.actions') }}</th>
+                <th class="w-1">{{ __('license-index.enterprise_name') }}</th>
+                <th class="w-1">{{ __('license-index.service_name') }}</th>
+                <th class="w-1">{{ __('license-index.type') }}</th>
+                <th class="w-1">{{ __('license-index.status') }}</th>
+                <th class="w-1">{{ __('license-index.max_user') }}</th>
+                <th class="w-1">{{ __('license-index.max_device') }}</th>
+                <th class="w-1">{{ __('license-index.start_date') }}</th>
+                <th class="w-1">{{ __('license-index.end_date') }}</th>
+                <th class="w-1">{{ __('license-index.actions') }}</th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach ($services as $row)
+            @foreach ($licenses as $row)
             @php ($link = route('user.enterprise.eservice.update', $row->id))
 
             <tr>
-                <td class="w-1" data-table-sort-value="{{ $row->name }}">
-                    <a href="{{ $link }}" class="block">{{ $row->name }}</a>
+                <td class="w-1" data-table-sort-value="{{ $row->enterprise_name }}">
+                    <a href="{{ $link }}" class="block">{{ $row->enterprise_name }}</a>
                 </td>
-                <td class="w-1" data-table-sort-value="{{ $row->alias }}">
-                    <a href="{{ $link }}" class="block">{{ $row->alias }}</a>
+                <td class="w-1" data-table-sort-value="{{ $row->service_name }}">
+                    <a href="{{ $link }}" class="block">{{ $row->service_name }}</a>
                 </td>
-                <td class="w-1" data-table-sort-value="{{ $row->description }}">
-                    <a href="{{ $link }}" class="block">{{ $row->description }}</a>
+                <td class="w-1" data-table-sort-value="{{ $row->license_type }}">
+                    <a href="{{ $link }}" class="block">{{ $row->license_type }}</a>
                 </td>
-                <td class="w-1" data-table-sort-value="{{ $row->created_at }}">
-                    <a href="{{ $link }}" class="block">@dateWithUserTimezone($row->created_at)</a>
+                <td class="w-1" data-table-sort-value="{{ $row->status }}">
+                    <a href="{{ $link }}" class="block">{{ $row->status }}</a>
+
+                <td class="w-1" data-table-sort-value="{{ $row->max_users }}">
+                    <a href="{{ $link }}" class="block">{{ $row->max_users }}</a>
+                </td>
+
+                <td class="w-1" data-table-sort-value="{{ $row->max_devices }}">
+                    <a href="{{ $link }}" class="block">{{ $row->max_devices }}</a>
+                </td>
+
+
+                <td class="w-1" data-table-sort-value="{{ $row->start_date }}">
+                    <a href="{{ $link }}" class="block">@dateWithUserTimezone($row->start_date)</a>
+                </td>
+
+                <td class="w-1" data-table-sort-value="{{ $row->end_date }}">
+                    <a href="{{ $link }}" class="block">@dateWithUserTimezone($row->end_date)</a>
                 </td>
                 <td onclick="event.stopPropagation();">
                     <a href="{{ $link }}" class="btn btn-primary btn-sm">{{ __('eservice-index.edit') }}</a>

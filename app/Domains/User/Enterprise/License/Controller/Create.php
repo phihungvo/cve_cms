@@ -31,10 +31,10 @@ class Create extends ControllerWebAbstract
         $service = CreateLicense::new($this->request, $this->auth);
         try {
             $service->create();
-            $this->sessionMessage('success', __('eservice-create.success'));
+            $this->sessionMessage('success', __('license-create.success'));
             return redirect()->route('user.enterprise.license.index', $this->data());
         } catch (ValidationException $e) {
-            $this->sessionMessage('error', $e->errors()['message'][0] ?? 'An error occurred while creating the eservice.');
+            $this->sessionMessage('error', $e->errors()['message'][0] ?? 'An error occurred while creating the license.');
             return redirect()->back()->withInput()->withErrors($e->errors());
         }
     }
