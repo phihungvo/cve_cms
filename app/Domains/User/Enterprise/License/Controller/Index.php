@@ -10,19 +10,19 @@ class Index extends ControllerAbstract
 {
     public function __invoke(): Response|JsonResponse
     {
-        $service = new ControllerLicense($this->request, $this->auth);
+        $license = new ControllerLicense($this->request, $this->auth);
 
         if ($this->request->wantsJson()) {
-            return $this->responseJson($service);
+            return $this->responseJson($license);
         }
 
         $this->meta('title', __('eservice-index.meta-title'));
 
-        return $this->page('user.enterprise.license.index', $service->data());
+        return $this->page('user.enterprise.license.index', $license->data());
     }
 
-    protected function responseJson(ControllerLicense $service): JsonResponse
+    protected function responseJson(ControllerLicense $license): JsonResponse
     {
-        return $this->json($this->factory()->fractal('simple', $service->list()));
+        return $this->json($this->factory()->fractal('simple', $license->list()));
     }
 }

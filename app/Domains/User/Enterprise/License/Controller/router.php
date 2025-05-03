@@ -18,10 +18,10 @@ Route::middleware(['user-auth'])->group(function () {
 
     Route::match(['get', 'post'], '/user/enterprise/license/create', LicenseCreate::class)->name('user.enterprise.license.create');
 
-    // Route::match(['get', 'patch'], '/user/enterprise/service/{id}', LicenseUpdate::class)->name('user.enterprise.license.update');
+    Route::match(['get', 'patch'], '/user/enterprise/license/{id}', LicenseUpdate::class)->name('user.enterprise.license.update');
 
 
-    // Route::post('/user/enterprise/service/{id}/delete', LicenseDelete::class)->name('user.enterprise.license.delete');
+    Route::post('/user/enterprise/license/{id}/delete', LicenseDelete::class)->name('user.enterprise.license.delete');
 
-    // Route::post('/user/enterprise/service/{id}/restore', [LicenseRestore::class, '__invoke'])->name('user.enterprise.license.restore');
+    Route::post('/user/enterprise/license/{id}/restore', [LicenseRestore::class, '__invoke'])->name('user.enterprise.license.restore');
 });

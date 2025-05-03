@@ -37,7 +37,7 @@
 
         <tbody>
             @foreach ($licenses as $row)
-            @php ($link = route('user.enterprise.eservice.update', $row->id))
+            @php ($link = route('user.enterprise.license.update', $row->id))
 
             <tr>
                 <td class="w-1" data-table-sort-value="{{ $row->enterprise_name }}">

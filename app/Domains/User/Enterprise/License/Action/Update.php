@@ -21,10 +21,15 @@ class Update extends ActionAbstract
 
         // Chuẩn bị mảng dữ liệu cơ bản
         $dataToUpdate = [
-            'alias' => $this->data['alias'],
-            'name' => $this->data['name'],
-            'description' => $this->data['description'],
-
+            'service_id' => $this->data['service_id'],
+            'enterprise_id' => $this->data['enterprise_id'],
+            'license_type' => $this->data['license_type'],
+            'max_users' => $this->data['max_users'],
+            'max_devices' => $this->data['max_devices'],
+            'start_date' => $this->data['start_date'],
+            'end_date' => $this->data['end_date'],
+            'status' => $this->data['status'],
+            'license_key' => $this->data['license_key'],
         ];
 
         $this->row->update($dataToUpdate);

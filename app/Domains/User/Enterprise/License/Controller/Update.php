@@ -19,33 +19,28 @@ class Update extends ControllerWebAbstract
 
         try {
             $this->row = Model::withTrashed()->findOrFail($id);
-            Log::info('UpdateController: EService found', [
-                'id' => $this->row->id,
-                'deleted_at' => $this->row->deleted_at
-            ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::error('UpdateController: EService not found', ['id' => $id]);
-            $this->sessionMessage('error', __('eservice-update.not-found'));
-            return redirect()->route('user.enterprise.eservice.index');
+            Log::error('UpdateController: License not found', ['id' => $id]);
+            $this->sessionMessage('error', __('license-update.not-found'));
+            return redirect()->route('user.enterprise.license.index');
         }
 
         if ($this->request->isMethod('patch')) {
             return $this->update();
         }
 
-        $this->meta('title', __('eservice-update.meta-title'));
-        return $this->page('user.enterprise.eservice.update', $this->data());
+        $this->meta('title', __('license-update.meta-title'));
+        return $this->page('user.enterprise.license.update', $this->data());
     }
 
     protected function data(): array
     {
-        Log::info('UpdateController: Preparing data', ['id' => $this->row->id]);
         $data = array_merge(
             ['row' => $this->row],
             ['can_be_deleted' => $this->canBeDeleted()],
             UpdateLicense::new($this->request, $this->auth)->data(),
         );
-        Log::info('UpdateController: Data prepared', ['can_be_deleted' => $data['can_be_deleted']]);
+
         return $data;
     }
 
@@ -55,16 +50,16 @@ class Update extends ControllerWebAbstract
         try {
             $service = UpdateLicense::new($this->request, $this->auth);
             $this->row = $service->update($this->row);
-            Log::info('UpdateController: EService updated', ['id' => $this->row->id]);
-            $this->sessionMessage('success', __('eservice-update.success'));
-            return redirect()->route('user.enterprise.eservice.index');
+
+            $this->sessionMessage('success', __('license-update.success'));
+            return redirect()->route('user.enterprise.license.index');
         } catch (\Exception $e) {
             Log::error('UpdateController: Update failed', [
                 'id' => $this->row->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            $this->sessionMessage('error', __('eservice-update.error'));
+            $this->sessionMessage('error', __('license-update.error'));
             return redirect()->back();
         }
     }
