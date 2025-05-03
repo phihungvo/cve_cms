@@ -9,8 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Model\GroupModel as Model;
 
-class IndexService extends ControllerAbstract{
-
+class IndexService extends ControllerAbstract
+{
     public function __construct(protected Request $request, Authenticatable $auth)
     {
         $this->filters();
@@ -33,7 +33,7 @@ class IndexService extends ControllerAbstract{
         return GroupModel::query()
             ->roleRoot()
             ->roleOwner()
-            ->when($this->request->input('enterprise_id'), function($query){
+            ->when($this->request->input('enterprise_id'), function ($query) {
                 $query->where(Enterprise::FOREIGN, $this->request->input('enterprise_id'));
             })
             ->getEnterpriseName()

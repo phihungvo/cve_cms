@@ -4,9 +4,26 @@
 
 <form method="get">
     <div class="sm:flex sm:space-x-4">
+        <!-- input search -->
         <div class="flex-grow mt-2 sm:mt-0">
             <input type="search" class="form-control form-control-lg" placeholder="{{ __('user-index.filter') }}"
                 data-table-search="#user-list-table" />
+        </div>
+
+        <!-- select enterprise filter -->
+        @if(auth()->user()->isRoleRoot())
+            <div class="sm:ml-4 mt-2 sm:mt-0">
+                <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
+                          placeholder="{{__('-- select Enterprise --')}}" data-change-submit></x-select>
+            </div>
+        @endif
+
+        <!-- select groups filter -->
+        <div class="sm:ml-4 mt-2 sm:mt-0">
+            <div class="sm:ml-4 mt-2 sm:mt-0">
+                <x-select name="group_id" :options="$groups" value="id" text="name"
+                          placeholder="{{__('-- select Group --')}}" data-change-submit></x-select>
+            </div>
         </div>
 
         <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">

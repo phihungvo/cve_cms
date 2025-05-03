@@ -5,7 +5,7 @@ namespace App\Domains\Playlist\Controller;
 use App\Domains\CamCloud\Controller\Index;
 use Illuminate\Support\Facades\Route;
 
-Route::group([], static function () {
+Route::group(['middleware' => ['user-auth']], static function () {
     Route::get('/fpp/playlist', IndexController::class)->name('fpp.playlist.index');
 
     Route::any('/fpp/playlist/create', CreateController::class)->name('fpp.playlist.create');

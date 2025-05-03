@@ -5,6 +5,7 @@ namespace App\Domains\UserGroup\Controller;
 use App\Domains\UserGroup\Service\Controller\UpdateService;
 use App\Exceptions\NotFoundException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
 
 class UpdateController extends ControllerAbstract
 {
@@ -29,28 +30,20 @@ class UpdateController extends ControllerAbstract
 
     protected function actions()
     {
-        if ($this->actionPost('update')) {
-            return $this->actionPost('update');
-        } elseif ($this->actionPost('delete')) {
-            return $this->actionPost('delete');
-        } elseif ($this->actionPost('forceDelete')) {
-            return $this->actionPost('forceDelete');
-        } elseif ($this->actionPost('restore')) {
-            return $this->actionPost('restore');
+        $strategies = [
+            'update' => fn () => $this->update(),
+            'delete' => fn () => $this->delete(),
+            'forceDelete' => fn () => $this->forceDelete(),
+            'restore' => fn () => $this->restore(),
+        ];
+
+        foreach ($strategies as $action => $callback) {
+            if ($this->actionPost($action)) {
+                return $callback();
+            }
         }
 
-        //        $strategies = [
-        //            'update' => fn() => $this->actionPost('update'),
-        //            'delete' => fn() => $this->actionPost('delete'),
-        //            'forceDelete' => fn() => $this->actionPost('forceDelete'),
-        //            'restore' => fn() => $this->actionPost('restore'),
-        //        ];
-        //
-        //        foreach ($strategies as $action => $callback) {
-        //            if ($this->actionPost($action)) {
-        //                return $callback();
-        //            }
-        //        }
+        return false;
     }
 
     protected function data()
@@ -58,7 +51,8 @@ class UpdateController extends ControllerAbstract
         return UpdateService::new($this->request, $this->auth, $this->row)->data();
     }
 
-    public function update(){
+    public function update(): RedirectResponse
+    {
         try {
             $this->row = $this->action()->update();
 
@@ -73,7 +67,7 @@ class UpdateController extends ControllerAbstract
             $this->sessionMessage('error', __('user-group.update.error'));
 
             // Log the unexpected exception
-            logger()->error('Unexpected error in UserGroup update: ' . $e->getMessage(), [
+            logger()->error('Unexpected error in UserGroup update: '.$e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -82,21 +76,27 @@ class UpdateController extends ControllerAbstract
         }
     }
 
-    public function delete(){
+    public function delete(): RedirectResponse
+    {
         $this->action()->delete();
         $this->sessionMessage('success', __('user-group.update.delete.success'));
+
         return redirect()->route('group.index');
     }
 
-    public function forceDelete(){
+    public function forceDelete(): RedirectResponse
+    {
         $this->action()->forceDelete();
         $this->sessionMessage('success', __('user-group.update.force-delete.success'));
+
         return redirect()->route('group.index');
     }
 
-    public function restore(){
+    public function restore(): RedirectResponse
+    {
         $this->action()->restore();
         $this->sessionMessage('success', __('user-group.update.restore.success'));
+
         return redirect()->route('group.index');
     }
 }

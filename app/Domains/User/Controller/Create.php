@@ -2,6 +2,7 @@
 
 namespace App\Domains\User\Controller;
 
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use App\Domains\User\Service\Controller\Create as ControllerService;
@@ -9,11 +10,11 @@ use App\Domains\User\Service\Controller\Create as ControllerService;
 class Create extends ControllerAbstract
 {
     /**
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function __invoke(): Response|RedirectResponse
     {
-        logger()->info('==========> Request data: ' . json_encode($this->request->all()));
+        logger()->info('==========> Request data: '.json_encode($this->request->all()));
         if ($response = $this->actionPost('create')) {
             return $response;
         }
@@ -32,14 +33,20 @@ class Create extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function create(): RedirectResponse
     {
-        $this->row = $this->action()->create();
+        try {
+            $this->row = $this->action()->create();
 
-        $this->sessionMessage('success', __('user-create.success'));
+            $this->sessionMessage('success', __('user-create.success'));
 
-        return redirect()->route('user.update', $this->row->id);
+            return redirect()->route('user.update', $this->row->id);
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('user.create', $this->row->id)->withInput();
+        }
     }
 }

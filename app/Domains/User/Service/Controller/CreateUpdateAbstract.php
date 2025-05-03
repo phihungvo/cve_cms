@@ -7,8 +7,10 @@ use App\Domains\Language\Model\Collection\Language as LanguageCollection;
 use App\Domains\Timezone\Model\Timezone as TimezoneModel;
 use App\Domains\Timezone\Model\Collection\Timezone as TimezoneCollection;
 use App\Domains\User\Role\Enum\RoleEnum;
-use \App\Domains\User\Role\Model\Collection\Role as RoleCollection;
+use App\Domains\User\Role\Model\Collection\Role as RoleCollection;
 use App\Domains\User\Role\Model\Role as RoleModel;
+use App\Domains\UserGroup\Model\GroupModel;
+use Illuminate\Support\Collection;
 
 abstract class CreateUpdateAbstract extends ControllerAbstract
 {
@@ -29,6 +31,7 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
             'languages' => $this->languages(),
             'timezones' => $this->timezones(),
             'user_roles' => $this->roles(),
+            'groups' => $this->groups(),
             'preferences_units_distance' => $this->preferencesUnitsDistance(),
             'preferences_units_volume' => $this->preferencesUnitsVolume(),
             'preferences_units_money' => $this->preferencesUnitsMoney(),
@@ -135,5 +138,18 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
             '.' => __('user-create.preferences-units-thousand-dot'),
             ',' => __('user-create.preferences-units-thousand-comma'),
         ];
+    }
+
+    /**
+     * Lấy ra tất cả các group
+     *
+     * @return Collection
+     */
+    protected function groups(): Collection
+    {
+        return GroupModel::query()
+            ->whereBySystem()
+            ->whereByEnterprise()
+            ->get();
     }
 }

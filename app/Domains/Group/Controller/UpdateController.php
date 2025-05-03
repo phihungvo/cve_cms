@@ -17,6 +17,7 @@ class UpdateController extends ControllerAbstract
 
         } catch (NotFoundException $e) {
             $this->sessionMessage('error', $e->getMessage());
+
             return redirect()->route('group.index');
         }
 
@@ -45,9 +46,11 @@ class UpdateController extends ControllerAbstract
         try {
             $this->action()->update();
             $this->sessionMessage('success', __('group-update.success'));
-            return redirect()->route('group.index',['deviceId' => $this->device->id]);
+
+            return redirect()->route('group.index', ['deviceId' => $this->device->id]);
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
+
             return redirect()->back()->withInput();
         }
     }
@@ -57,10 +60,10 @@ class UpdateController extends ControllerAbstract
         try {
             $this->action()->delete();
             $this->sessionMessage('success', __('group-update.delete-success'));
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
-        }finally {
-            return redirect()->route('group.index',['deviceId' => $this->device->id]);
+        } finally {
+            return redirect()->route('group.index', ['deviceId' => $this->device->id]);
         }
 
     }

@@ -1,12 +1,8 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Domains\User\Controller;
-// use App\Domains\User\Controller\PermissionController;
 
 use Illuminate\Support\Facades\Route;
-// use App\Domains\User\Model\User;
 
 
 Route::group(['middleware' => ['user.auth.redirect']], static function () {

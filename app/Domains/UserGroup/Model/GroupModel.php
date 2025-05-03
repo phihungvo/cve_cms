@@ -12,18 +12,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Model\Builder\GroupBuilder as Builder;
 use Model\Collection\GroupCollection as Collection;
 
-
-class GroupModel extends ModelAbstract {
+class GroupModel extends ModelAbstract
+{
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'group';
+    public $table = 'group';
 
-    protected const TABLE = 'group';
+    public const TABLE = 'group';
 
-    protected const PRIMARY_KEY = 'id';
+    public const PRIMARY_KEY = 'id';
 
-    protected const FOREIGN_KEY = 'group_id';
+    public const FOREIGN_KEY = 'group_id';
 
     protected $fillable = [
         'name',
@@ -31,14 +31,12 @@ class GroupModel extends ModelAbstract {
         'enterprise_id',
     ];
 
-
     // khai báo quan hệ n-1 với enterprise
     // 1 group chỉ thuộc về 1 enterprise
     public function enterprise(): BelongsTo
     {
         return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN, Enterprise::PRIMARY);
     }
-
 
     /**
      * @param array $models
