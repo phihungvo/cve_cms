@@ -14,8 +14,6 @@ services:
         container_name: platform-app
         restart: unless-stopped
         depends_on:
-            platform-mysql:
-                condition: service_healthy
             platform-redis:
                 condition: service_healthy
         volumes:
