@@ -9,11 +9,6 @@ services:
             test: redis-cli ping
             interval: 5s
             retries: 15
-        deploy:
-            resources:
-                limits:
-                    memory: 10g
-        command: redis-server --maxmemory 10gb --maxmemory-policy volatile-lru
 
     platform-app:
         container_name: platform-app
