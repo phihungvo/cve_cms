@@ -34,4 +34,9 @@
     'tab-name-service' => 'Service',
     'tab-name-license' => 'License',
     'tab-name-billing' => 'Billing',
+    'enterprise_name' => 'Enterprise',
+    'pricing_model' => 'Pricing Model',
+    'billing_cycle' => 'Billing Cycle',
+    'max_unit' => 'Max Unit',
+    'price_per_unit' => 'Price Per Unit',
 ];

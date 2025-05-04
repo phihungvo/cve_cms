@@ -24,4 +24,11 @@ return [
     'menu_icon' => 'Menu Icon',
     'parent_id' => 'Parent Service',
     'no_parent' => 'No Parent',
+    'fixed' => 'Fixed',
+    'per_unit' => 'Per Unit',
+    'pricing_model' => 'Pricing Model',
+    'price_per_unit' => 'Price Per Unit',
+    'billing_cycle' => 'Billing Cycle',
+    'max_unit' => 'Max Unit',
+    'note' => 'Note'
 ];

@@ -6,7 +6,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Domains\User\Enterprise\EService\Model\Collection\EService as Collection;
-use App\Domains\User\Enterprise\EService\Model\EService as Model;
+use App\Domains\User\Enterprise\EService\Model\EService;
+use App\Domains\User\Enterprise\Model\Enterprise;
 
 class Index extends ControllerAbstract
 {
@@ -32,7 +33,14 @@ class Index extends ControllerAbstract
     public function list(): Collection
     {
         // Log::info('IndexController: Fetching EService list with trashed records');
-        $services = Model::query()->withTrashed()->get();
+        $services = EService::query()->withTrashed()->get();
+
+        $services = $services->map(function ($service) {
+            $enterprise = Enterprise::find($service->enterprise_id);
+            $service->enterprise_name = $enterprise ? $enterprise->name : null;
+            return $service;
+        });
+
         // Log::info('IndexController: EService list fetched', [
         //     'total' => $services->count(),
         //     'trashed' => $services->filter(fn($service) => $service->trashed())->count()
