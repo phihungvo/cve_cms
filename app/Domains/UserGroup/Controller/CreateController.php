@@ -11,7 +11,7 @@ class CreateController extends ControllerAbstract
 {
     public function __invoke()
     {
-        if($response = $this->actionPost('create')) {
+        if ($response = $this->actionPost('create')) {
             return $response;
         }
 
@@ -34,14 +34,14 @@ class CreateController extends ControllerAbstract
 
             return redirect()->route('group.index');
         } catch (RuntimeException $e) {
-            $this->sessionMessage('error', $e->getMessage() ?: __('user-group-create.error'));
+            $this->sessionMessage('error', $e->getMessage());
 
             return redirect()->back()->withInput();
         } catch (Throwable $e) {
-            $this->sessionMessage('error', __('group-create.error'));
+            $this->sessionMessage('error', $e->getMessage());
 
             // Log the unexpected exception
-            logger()->error('Unexpected error in UserGroup creation: ' . $e->getMessage(), [
+            logger()->error('Unexpected error in UserGroup creation: '.$e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);

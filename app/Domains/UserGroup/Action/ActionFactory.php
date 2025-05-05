@@ -9,7 +9,7 @@ class ActionFactory extends ActionFactoryAbstract
 {
     protected ?Model $row;
 
-    public function create():Model
+    public function create(): Model
     {
         return $this->actionHandle(CreateAction::class, $this->validate()->create());
     }

@@ -13,13 +13,13 @@
         @if(auth()->user()->isRoleRoot())
             <div class="sm:ml-4 mt-2 sm:mt-0">
                 <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
-                          placeholder="{{__('-- Select Enterprise --')}}" data-change-submit></x-select>
+                          placeholder="{{__('user-group-index.select-enterprise')}}" data-change-submit></x-select>
             </div>
         @endif
 
         <!-- Btn Create -->
         <div class="sm:ml-4 mt-2 sm:mt-0">
-            <a href="{{route('group.create')}}" class="btn form-control-lg bg-white">{{__('Create')}}</a>
+            <a href="{{route('group.create')}}" class="btn form-control-lg bg-white">{{__('user-group-index.btn-create')}}</a>
         </div>
     </form>
 
@@ -32,12 +32,12 @@
         >
             <thead>
             <tr>
-                <th class="w-1">{{__('No.')}}</th>
-                <th class="text-left w-1">{{__('Name')}}</th>
-                <th class="text-left w-1">{{__('Description')}}</th>
-                <th class="text-left w-1">{{__('Enterprise')}}</th>
-                <th class="text-left w-1">{{__('Created At')}}</th>
-                <th class="text-left w-1">{{__('Updated At')}}</th>
+                <th class="w-1">{{__('user-group-index.no')}}</th>
+                <th class="text-left w-1">{{__('user-group-index.name')}}</th>
+                <th class="text-left w-1">{{__('user-group-index.description')}}</th>
+                <th class="text-left w-1">{{__('user-group-index.enterprise')}}</th>
+                <th class="text-left w-1">{{__('user-group-index.created-at')}}</th>
+                <th class="text-left w-1">{{__('user-group-index.updated-at')}}</th>
             </tr>
             </thead>
 

@@ -19,7 +19,7 @@ class CreateAction extends CreatUpdateActionAbstract
      *
      * @return void
      */
-    protected function save(): void
+    protected function save(): Model
     {
         try {
             $this->row = Model::query()->create([
@@ -27,14 +27,32 @@ class CreateAction extends CreatUpdateActionAbstract
                 'description' => $this->data['description'],
                 'enterprise_id' => $this->data['enterprise_id'] ?? null,
             ]);
+
+            return $this->row;
         } catch (PDOException|QueryException $e) {
-            throw new RuntimeException('Lỗi kết nối hoặc truy vấn database: '.$e->getMessage(), 0, $e);
+            throw new RuntimeException(
+                __('user-group-create.error.database', ['message' => $e->getMessage()]),
+                0,
+                $e
+            );
         } catch (ModelNotFoundException $e) {
-            throw new RuntimeException('Không tìm thấy dữ liệu: '.$e->getMessage(), 0, $e);
+            throw new RuntimeException(
+                __('user-group-create.error.not-found', ['message' => $e->getMessage()]),
+                0,
+                $e
+            );
         } catch (ValidationException $e) {
-            throw new RuntimeException('Dữ liệu không hợp lệ: '.$e->getMessage(), 0, $e);
+            throw new RuntimeException(
+                __('user-group-create.validation-error', ['message' => $e->getMessage()]),
+                0,
+                $e
+            );
         } catch (Throwable $e) {
-            throw new RuntimeException('Lỗi không xác định khi tạo user group: '.$e->getMessage(), 0, $e);
+            throw new RuntimeException(
+                __('user-group-create.unknown-error', ['message' => $e->getMessage()]),
+                0,
+                $e
+            );
         }
     }
 }

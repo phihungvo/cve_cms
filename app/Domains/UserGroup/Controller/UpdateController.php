@@ -4,6 +4,7 @@ namespace App\Domains\UserGroup\Controller;
 
 use App\Domains\UserGroup\Service\Controller\UpdateService;
 use App\Exceptions\NotFoundException;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 
@@ -23,7 +24,7 @@ class UpdateController extends ControllerAbstract
             return $response;
         }
 
-        $this->meta('title', __('user-group.update.title'));
+        $this->meta('title', __('user-group-update.meta-title'));
 
         return $this->page('user-group.update', $this->data());
     }
@@ -56,18 +57,18 @@ class UpdateController extends ControllerAbstract
         try {
             $this->row = $this->action()->update();
 
-            $this->sessionMessage('success', __('user-group.update.success'));
+            $this->sessionMessage('success', __('user-group-update.update.success'));
 
             return redirect()->route('group.index');
         } catch (ModelNotFoundException $e) {
             $this->sessionMessage('error', $e->getMessage());
 
             return redirect()->back()->withInput();
-        } catch (\Exception $e) {
-            $this->sessionMessage('error', __('user-group.update.error'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
 
             // Log the unexpected exception
-            logger()->error('Unexpected error in UserGroup update: '.$e->getMessage(), [
+            logger()->error($e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -78,25 +79,61 @@ class UpdateController extends ControllerAbstract
 
     public function delete(): RedirectResponse
     {
-        $this->action()->delete();
-        $this->sessionMessage('success', __('user-group.update.delete.success'));
+        try {
+            $this->action()->delete();
+            $this->sessionMessage('success', __('user-group-update.delete.success'));
 
-        return redirect()->route('group.index');
+            return redirect()->route('group.index');
+        } catch (Exception $e) {
+            $this->sessionMessage('error', __('user-group-update.delete.error'));
+
+            // Log the unexpected exception
+            logger()->error('Unexpected error in UserGroup delete: '.$e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect(route('group.index'));
+        }
     }
 
     public function forceDelete(): RedirectResponse
     {
-        $this->action()->forceDelete();
-        $this->sessionMessage('success', __('user-group.update.force-delete.success'));
+        try {
+            $this->action()->forceDelete();
+            $this->sessionMessage('success', __('user-group-update.force-delete.success'));
 
-        return redirect()->route('group.index');
+            return redirect()->route('group.index');
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            // Log the unexpected exception
+            logger()->error('Unexpected error in UserGroup force delete: '.$e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect(route('group.index'));
+        }
     }
 
     public function restore(): RedirectResponse
     {
-        $this->action()->restore();
-        $this->sessionMessage('success', __('user-group.update.restore.success'));
+        try {
+            $this->action()->restore();
+            $this->sessionMessage('success', __('user-group-update.restore.success'));
 
-        return redirect()->route('group.index');
+            return redirect()->route('group.index');
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            // Log the unexpected exception
+            logger()->error('Unexpected error in UserGroup restore: '.$e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect(route('group.index'));
+        }
     }
 }

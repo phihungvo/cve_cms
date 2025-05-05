@@ -9,11 +9,12 @@ use PDOException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException;
 
-class RestoreAction extends ActionAbstract {
+class RestoreAction extends ActionAbstract
+{
     /**
      * @throws Exception
      */
-    public function handle():void
+    public function handle(): void
     {
         $this->restore();
     }
@@ -23,22 +24,46 @@ class RestoreAction extends ActionAbstract {
      *
      * @throws Exception
      */
-    protected function restore():void
+    protected function restore(): void
     {
         try {
             $this->row->restore();
         } catch (ModelNotFoundException $e) {
-            throw new Exception('User group not found or already deleted permanently: ' . $e->getMessage(), 0, $e);
+            throw new Exception(
+                __('user-group-update.restore.error.model-not-found'),
+                0,
+                $e
+            );
         } catch (QueryException $e) {
-            throw new Exception('Database error while restoring user group: ' . $e->getMessage(), 0, $e);
+            throw new Exception(
+                __('user-group-update.restore.error.query-error'),
+                0,
+                $e
+            );
         } catch (PDOException $e) {
-            throw new Exception('Database connection error during restore: ' . $e->getMessage(), 0, $e);
+            throw new Exception(
+                __('user-group-update.restore.error.connection-error'),
+                0,
+                $e
+            );
         } catch (AuthorizationException $e) {
-            throw new Exception('Not authorized to restore this user group: ' . $e->getMessage(), 0, $e);
+            throw new Exception(
+                __('user-group-update.restore.error.not-authorized'),
+                0,
+                $e
+            );
         } catch (ValidationException $e) {
-            throw new Exception('Validation failed during user group restore: ' . $e->getMessage(), 0, $e);
+            throw new Exception(
+                __('user-group-update.restore.error.validation-failed'),
+                0,
+                $e
+            );
         } catch (Exception $e) {
-            throw new Exception('Unexpected error during user group restore: ' . $e->getMessage(), 0, $e);
+            throw new Exception(
+                __('user-group-update.restore.error.unexpected-error'),
+                0,
+                $e
+            );
         }
     }
 }

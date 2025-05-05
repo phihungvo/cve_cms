@@ -26,11 +26,11 @@ class ForceDeleteAction extends ActionAbstract
         try {
             $this->row->forceDelete();
         } catch (ModelNotFoundException $e) {
-            throw new Exception('Force delete failed: Model not found');
+            throw new Exception(__('user-group-update.force-delete.error.model-not-found'));
         } catch (QueryException $e) {
-            throw new Exception('Force delete failed: Database query error');
+            throw new Exception(__('user-group-update.force-delete.error.query-error'));
         } catch (Exception $e) {
-            throw new Exception('Force delete failed: Unexpected error');
+            throw new Exception(__('user-group-update.force-delete.error.unexpected-error'));
         }
     }
 }
