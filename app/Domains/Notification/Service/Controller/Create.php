@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Domains\Notification\Service\Controller;
 
 use App\Domains\Notification\Action\Create as CreateAction;
+use App\Domains\User\Enterprise\Model\Enterprise;
 use App\Domains\User\Role\Model\Role;
-use Illuminate\Support\Facades\Log;
+use App\Domains\User\Model\User;
 
 class Create
 {
@@ -24,53 +25,40 @@ class Create
         return new self($request, $auth);
     }
 
-    public function create(): void
+    public function create(): array
     {
-        $enterpriseId = $this->auth->enterprise_id ?? null;
+        // Lấy danh sách enterprise và roles
+        $enterprises = $this->auth->isRoot()
+            ? Enterprise::all()->pluck('id')->toArray()
+            : [$this->auth->enterprise_id];
+        $roles = Role::all()->pluck('name')->toArray();
+        $users = $this->auth->isRoot()
+            ? User::all()->pluck('id')->toArray()
+            : User::where('enterprise_id', $this->auth->enterprise_id)->pluck('id')->toArray();
 
-        // Xác thực dữ liệu
+        // Validate dữ liệu
         $data = $this->request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'notification_type' => 'required|in:system,enterprise',
-            'target_group' => 'nullable|string',
+            'enterprise_id' => 'nullable|integer|in:' . implode(',', $enterprises),
+            'target_group' => 'nullable|in:' . implode(',', $roles),
+            'user_ids' => 'nullable|array',
+            'user_ids.*' => 'integer|in:' . implode(',', $users),
         ]);
 
-        // Kiểm tra quyền tạo thông báo
-        if ($data['notification_type'] === 'system' && !$this->auth->hasRole('root')) {
-            throw new \Exception(__('notification-create.unauthorized-system'));
+        // Nếu là owner, bắt buộc phải có enterprise_id
+        if ($this->auth->isOwner() && empty($data['enterprise_id'])) {
+            throw new \Exception(__('notification-create.owner-requires-enterprise'));
         }
 
-        if ($data['notification_type'] === 'enterprise' && !$enterpriseId && !$this->auth->hasRole('root')) {
-            throw new \Exception(__('notification-create.no-enterprise'));
+        // Kiểm tra quyền root hoặc owner
+        if (!$this->auth->isRoot() && !$this->auth->isOwner()) {
+            throw new \Exception(__('notification-create.no-permission'));
         }
-
-        // Nếu không phải root, gán enterprise_id của user
-        if (!$this->auth->hasRole('root')) {
-            $data['enterprise_id'] = $enterpriseId;
-        } else {
-            $data['enterprise_id'] = $data['notification_type'] === 'enterprise' ? $enterpriseId : null;
-        }
-
-        Log::info('Validated notification data: ', $data);
 
         // Gọi action để tạo thông báo
         $action = new CreateAction();
-        $action->handle($data, $this->auth);
-    }
-
-    // Lấy danh sách vai trò để hiển thị trong form
-    public function data(): array
-    {
-        $enterpriseId = $this->auth->enterprise_id ?? null;
-        $roles = Role::where('enterprise_id', $enterpriseId)
-            ->orWhereNull('enterprise_id')
-            ->pluck('name')
-            ->toArray();
-
-        return [
-            'roles' => $roles,
-            'is_root' => $this->auth->hasRole('root'),
-        ];
+        return $action->handle($data, $this->auth);
     }
 }

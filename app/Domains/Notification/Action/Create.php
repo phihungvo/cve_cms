@@ -7,37 +7,38 @@ namespace App\Domains\Notification\Action;
 use App\Domains\Notification\Model\Notification;
 use App\Domains\Notification\Model\UserNotification;
 use App\Domains\User\Model\User;
+use App\Domains\User\Enterprise\Model\Enterprise;
 use App\Domains\User\Role\Model\Role;
+use App\Domains\CoreApp\Action\ActionAbstract;
 use Illuminate\Support\Facades\Log;
 
 class Create extends ActionAbstract
 {
     protected array $data;
+    protected $auth;
 
-    public function handle(array $data, User $auth): Notification
+    public function handle(array $data, $auth): array
     {
         $this->data = $data;
         $this->auth = $auth;
+
         return $this->createNotification();
     }
 
-    protected function createNotification(): Notification
+    protected function createNotification(): array
     {
         Log::info('Processing notification creation with data: ', $this->data);
 
         try {
-            // Kiểm tra dữ liệu hợp lệ
-            if (empty($this->data['title']) || empty($this->data['content'])) {
-                throw new \Exception(__('notification-create.invalid-data'));
+            // Kiểm tra quyền root hoặc owner
+            if (!$this->auth->isRoot() && !$this->auth->isOwner()) {
+                throw new \Exception(__('notification-create.no-permission'));
             }
 
-            // Kiểm tra target_group (nếu có) có hợp lệ không
-            if (!empty($this->data['target_group'])) {
-                $roleExists = Role::where('name', $this->data['target_group'])
-                    ->where('enterprise_id', $this->data['enterprise_id'] ?? null)
-                    ->exists();
-                if (!$roleExists) {
-                    throw new \Exception(__('notification-create.invalid-target-group'));
+            // Nếu là owner, giới hạn enterprise_id
+            if ($this->auth->isOwner()) {
+                if ($this->data['enterprise_id'] !== $this->auth->enterprise_id) {
+                    throw new \Exception(__('notification-create.owner-enterprise-mismatch'));
                 }
             }
 
@@ -46,50 +47,57 @@ class Create extends ActionAbstract
                 'title' => $this->data['title'],
                 'content' => $this->data['content'],
                 'notification_type' => $this->data['notification_type'],
-                'enterprise_id' => $this->data['enterprise_id'],
+                'enterprise_id' => $this->data['enterprise_id'] ?? null,
                 'sender_id' => $this->auth->id,
                 'target_group' => $this->data['target_group'] ?? null,
+                'created_at' => now(),
             ]);
 
             if (!$notification) {
-                Log::error('Failed to create notification: ', $this->data);
                 throw new \Exception(__('notification-create.failed'));
             }
 
-            // Gán thông báo cho người nhận (dựa trên target_group hoặc tất cả user trong enterprise)
+            // Gửi thông báo đến người dùng phù hợp
             $this->assignNotificationToUsers($notification);
 
             Log::info('Notification created successfully: ', $notification->toArray());
-            return $notification;
 
+            return [
+                'success' => true,
+                'message' => __('notification-create.success'),
+                'notification' => $notification,
+            ];
         } catch (\Exception $e) {
             Log::error('Error creating notification: ', ['error' => $e->getMessage()]);
-            throw $e;
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
         }
     }
 
     protected function assignNotificationToUsers(Notification $notification): void
     {
-        $enterpriseId = $notification->enterprise_id;
-        $targetGroup = $notification->target_group;
+        $usersQuery = User::query();
 
-        // Nếu là thông báo hệ thống và không có target_group, gán cho tất cả user
-        if ($notification->notification_type === 'system' && !$targetGroup) {
-            $users = User::all();
-        } elseif ($targetGroup) {
-            // Gán cho user có vai trò khớp với target_group
-            $users = User::whereHas('roles', function ($query) use ($targetGroup, $enterpriseId) {
-                $query->where('name', $targetGroup);
-                if ($enterpriseId) {
-                    $query->where('enterprise_id', $enterpriseId);
-                }
-            })->get();
+        // Nếu có user_ids được chỉ định, ưu tiên gửi đến các user này
+        if (!empty($this->data['user_ids'])) {
+            $usersQuery->whereIn('id', $this->data['user_ids']);
         } else {
-            // Gán cho tất cả user trong enterprise
-            $users = User::where('enterprise_id', $enterpriseId)->get();
+            // Nếu không có user_ids, gửi theo enterprise_id và target_group
+            if ($notification->notification_type === 'enterprise' && $notification->enterprise_id) {
+                $usersQuery->where('enterprise_id', $notification->enterprise_id);
+            }
+
+            if ($notification->target_group) {
+                $usersQuery->whereHas('roles', function ($q) use ($notification) {
+                    $q->where('name', $notification->target_group);
+                });
+            }
         }
 
-        // Tạo bản ghi trong user_notification
+        $users = $usersQuery->get();
+
         foreach ($users as $user) {
             UserNotification::create([
                 'user_id' => $user->id,
