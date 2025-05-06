@@ -42,14 +42,15 @@
         'success' => 'User group deleted successfully.',
         'error' => [
             'in-use' => 'Cannot delete this user group because it is still in use.',
-            'query-error' => 'Database query error occurred during deletion: :message',
-            'connection-error' => 'Database connection error occurred during deletion: :message',
-            'unexpected-error' => 'Unexpected error occurred during deletion: :message',
+            'query' => 'Database query error occurred during deletion.',
+            'connection' => 'Database connection error occurred during deletion.',
+            'unexpected' => 'Failed to delete user group: :message',
         ],
     ],
     'force-delete' => [
         'success' => 'User group permanently deleted successfully.',
         'error' => [
+            'in-use' => 'Cannot delete this user group because it is still in use.',
             'model-not-found' => 'Force delete failed: Model not found.',
             'query-error' => 'Force delete failed: Database query error.',
             'unexpected-error' => 'Force delete failed: Unexpected error.',

@@ -25,16 +25,23 @@ class DeleteAction extends ActionAbstract
     protected function delete(): void
     {
         try {
+            // Kiểm tra xem Group có đang được sử dụng trong bảng UserGroup hay không
+            if ($this->row->userGroups()->exists()) {
+                throw new Exception(__('user-group-update.delete.error.in-use'));
+            }
             $this->row->delete();
         } catch (QueryException $e) {
+            // Typically occurs with foreign key constraint violations
             if (str_contains($e->getMessage(), 'foreign key constraint fails')) {
                 throw new Exception(__('user-group-update.delete.error.in-use'), 0, $e);
             }
-            throw new Exception(__('user-group-update.delete.error.query-error', ['message' => $e->getMessage()]), 0, $e);
+            throw new Exception(__('user-group-update.delete.error.query'), 0, $e);
         } catch (PDOException $e) {
-            throw new Exception(__('user-group-update.delete.error.connection-error', ['message' => $e->getMessage()]), 0, $e);
+            // Database connection issues
+            throw new Exception(__('user-group-update.delete.error.connection'), 0, $e);
         } catch (Throwable $e) {
-            throw new Exception(__('user-group-update.delete.error.unexpected-error', ['message' => $e->getMessage()]), 0, $e);
+            // Generic exception handler with added context
+            throw new Exception(__('user-group-update.delete.error.unexpected', ['message' => $e->getMessage()]), 0, $e);
         }
     }
 }

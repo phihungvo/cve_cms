@@ -19,7 +19,7 @@
 
         <!-- Btn Create -->
         <div class="sm:ml-4 mt-2 sm:mt-0">
-            <a href="{{route('user-group.create')}}" class="btn form-control-lg bg-white">{{__('user-group-index.btn-create')}}</a>
+            <a href="{{route('user_group.create')}}" class="btn form-control-lg bg-white">{{__('user-group-index.btn-create')}}</a>
         </div>
     </form>
 
@@ -44,7 +44,7 @@
             <tbody>
             @foreach($list as $index => $row)
                 @php
-                    $link = route('user-group.update', $row->id);
+                    $link = route('user_group.update', $row->id);
                 $createdAt = isset($row->created_at)
                     ? Carbon::parse($row->created_at)->setTimezone('Asia/Ho_Chi_Minh')->format('H:i, d/m/Y') : '';
                 $updatedAt = isset($row->updated_at)
