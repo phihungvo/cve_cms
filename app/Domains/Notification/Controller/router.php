@@ -12,4 +12,6 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::delete('/notification/delete', [Index::class, 'destroy'])->name('notification.delete');
     Route::post('/notification/{id}/restore', [Index::class, 'restore'])->name('notification.restore');
     Route::delete('/notification/{id}/force-delete', [Index::class, 'forceDelete'])->name('notification.force-delete');
+
+    Route::get('/notification/users-by-enterprise', UserByEnterpriseController::class)->name('notification.users-by-enterprise');
 });

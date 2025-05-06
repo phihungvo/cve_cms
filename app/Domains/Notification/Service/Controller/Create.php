@@ -32,16 +32,17 @@ class Create
             ? Enterprise::all()->pluck('id')->toArray()
             : [$this->auth->enterprise_id];
         $roles = Role::all()->pluck('name')->toArray();
-        $users = $this->auth->isRoot()
-            ? User::all()->pluck('id')->toArray()
-            : User::where('enterprise_id', $this->auth->enterprise_id)->pluck('id')->toArray();
+
+        // Lấy danh sách user dựa trên enterprise_id từ request
+        $enterpriseId = $this->request->input('enterprise_id', $this->auth->enterprise_id);
+        $users = User::where('enterprise_id', $enterpriseId)->pluck('id')->toArray();
 
         // Validate dữ liệu
         $data = $this->request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'notification_type' => 'required|in:system,enterprise',
-            'enterprise_id' => 'nullable|integer|in:' . implode(',', $enterprises),
+            'enterprise_id' => [$this->auth->isOwner() ? 'required' : 'nullable', 'integer', 'in:' . implode(',', $enterprises)],
             'target_group' => 'nullable|in:' . implode(',', $roles),
             'user_ids' => 'nullable|array',
             'user_ids.*' => 'integer|in:' . implode(',', $users),

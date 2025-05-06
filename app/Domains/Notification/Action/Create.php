@@ -96,6 +96,11 @@ class Create extends ActionAbstract
             }
         }
 
+        // Nếu là owner, giới hạn user trong enterprise của họ
+        if ($this->auth->isOwner()) {
+            $usersQuery->where('enterprise_id', $this->auth->enterprise_id);
+        }
+
         $users = $usersQuery->get();
 
         foreach ($users as $user) {

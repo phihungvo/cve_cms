@@ -11,6 +11,7 @@
             <div class="alert alert-danger mb-4 p-4">{{ session('error') }}</div>
         @endif
 
+
         <h2 class="text-lg font-medium mb-4">{{ __('notification-create.title') }}</h2>
 
         <form method="POST" action="{{ route('notification.create') }}" class="form">
@@ -51,7 +52,7 @@
             <!-- Doanh nghiệp -->
             <div class="mb-4">
                 <label for="enterprise_id" class="form-label">{{ __('notification-create.enterprise-label') }}</label>
-                <select name="enterprise_id" id="enterprise_id" class="form-control form-control-lg" {{ auth()->user()->isOwner() ? 'disabled' : '' }} required>
+                <select name="enterprise_id" id="enterprise_id" class="form-control form-control-lg" required {{ auth()->user()->isOwner() ? 'disabled' : '' }}>
                     @if(auth()->user()->isRoot())
                         <option value="">{{ __('notification-create.enterprise-none') }}</option>
                         @foreach(\App\Domains\User\Enterprise\Model\Enterprise::all() as $enterprise)
@@ -60,12 +61,15 @@
                             </option>
                         @endforeach
                     @else
-                        <option value="{{ auth()->user()->enterprise_id }}">
+                        <option value="{{ auth()->user()->enterprise_id }}" selected>
                             {{ \App\Domains\User\Enterprise\Model\Enterprise::find(auth()->user()->enterprise_id)?->name }}
                         </option>
                     @endif
                 </select>
 
+                @if(auth()->user()->isOwner())
+                    <input type="hidden" name="enterprise_id" value="{{ auth()->user()->enterprise_id }}">
+                @endif
             </div>
 
             <!-- Nhóm mục tiêu -->
@@ -85,12 +89,8 @@
             <!-- Người dùng cụ thể -->
             <div class="mb-4">
                 <label for="user_ids" class="form-label">{{ __('notification-create.user-ids-label') }}</label>
-                <select name="user_ids[]" id="user_ids" multiple class="form-control form-control-lg">
-                    @foreach(auth()->user()->isRoot() ? \App\Domains\User\Model\User::all() : \App\Domains\User\Model\User::where('enterprise_id', auth()->user()->enterprise_id)->get() as $user)
-                        <option value="{{ $user->id }}" {{ in_array($user->id, old('user_ids', [])) ? 'selected' : '' }}>
-                            {{ $user->name }} ({{ $user->email }})
-                        </option>
-                    @endforeach
+                <select name="user_ids[]" id="user_ids" multiple class="form-control form-control-lg select2">
+                    <!-- Danh sách user sẽ được tải động qua AJAX -->
                 </select>
 
             </div>
@@ -105,3 +105,63 @@
         </form>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function () {
+            // Khởi tạo Select2 cho user_ids
+            $('#user_ids').select2({
+                placeholder: "{{ __('notification-create.user-ids-placeholder') }}",
+                allowClear: true
+            });
+
+            // Hàm tải danh sách user theo enterprise_id
+            function loadUsers(enterpriseId) {
+                $.ajax({
+                    url: '{{ route("notification.users-by-enterprise") }}',
+                    type: 'GET',
+                    data: { enterprise_id: enterpriseId },
+                    success: function (response) {
+                        $('#user_ids').empty(); // Xóa danh sách hiện tại
+                        if (response.users.length > 0) {
+                            $.each(response.users, function (index, user) {
+                                $('#user_ids').append(
+                                    $('<option>', {
+                                        value: user.id,
+                                        text: user.name + ' (' + user.email + ')'
+                                    })
+                                );
+                            });
+                        } else {
+                            $('#user_ids').append(
+                                $('<option>', {
+                                    value: '',
+                                    text: 'Không có người dùng nào'
+                                })
+                            );
+                        }
+                        $('#user_ids').trigger('change'); // Cập nhật Select2
+                    },
+                    error: function () {
+                        alert('Không thể tải danh sách người dùng.');
+                    }
+                });
+            }
+
+            // Khi enterprise_id thay đổi
+            $('#enterprise_id').on('change', function () {
+                var enterpriseId = $(this).val();
+                if (enterpriseId) {
+                    loadUsers(enterpriseId);
+                } else {
+                    $('#user_ids').empty().trigger('change'); // Xóa danh sách user nếu không chọn enterprise
+                }
+            });
+
+            // Tải danh sách user ban đầu (nếu enterprise_id đã được chọn)
+            @if(old('enterprise_id') || auth()->user()->isOwner())
+                loadUsers({{ old('enterprise_id', auth()->user()->isOwner() ? auth()->user()->enterprise_id : 'null') }});
+            @endif
+            });
+    </script>
+@endpush
