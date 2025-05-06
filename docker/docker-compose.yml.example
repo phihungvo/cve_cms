@@ -24,6 +24,7 @@ services:
         image: redis:7.0
         container_name: platform-redis
         restart: unless-stopped
+        command: redis-server --maxmemory 15gb --maxmemory-policy volatile-lru
         networks:
             - platform-network
         healthcheck:
