@@ -21,6 +21,16 @@
         ],
     ],
 
+    'error' => [
+        'not-found' => 'User group not found.',
+        'name-required' => 'The name field is required.',
+        'name-string' => 'The name must be a string.',
+        'name-max' => 'The name may not be greater than 100 characters.',
+        'description-string' => 'The description must be a string.',
+        'description-max' => 'The description may not be greater than 255 characters.',
+        'enterprise-id-integer' => 'The enterprise ID must be an integer.',
+        'enterprise-id-exists' => 'The selected enterprise ID is invalid.',
+    ],
     'update' => [
         'success' => 'User group updated successfully.',
         'error' => 'An error occurred while updating the user group: :message',
@@ -30,7 +40,12 @@
     ],
     'delete' => [
         'success' => 'User group deleted successfully.',
-        'error' => 'An error occurred while deleting the user group. Please try again later.',
+        'error' => [
+            'in-use' => 'Cannot delete this user group because it is still in use.',
+            'query-error' => 'Database query error occurred during deletion: :message',
+            'connection-error' => 'Database connection error occurred during deletion: :message',
+            'unexpected-error' => 'Unexpected error occurred during deletion: :message',
+        ],
     ],
     'force-delete' => [
         'success' => 'User group permanently deleted successfully.',

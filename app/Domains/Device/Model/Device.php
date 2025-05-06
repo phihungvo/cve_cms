@@ -3,6 +3,7 @@
 namespace App\Domains\Device\Model;
 
 use App\Domains\Campaign\Schedule\Model\Schedule;
+use App\Domains\DeviceGroup\Model\DeviceGroupModel;
 use App\Domains\Display\Model\Display;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,7 +20,6 @@ use App\Domains\Trip\Model\Trip as TripModel;
 use App\Domains\User\Model\User as UserModel;
 use App\Domains\Vehicle\Model\Vehicle as VehicleModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
-use App\Domains\Device\Model\Camera;
 
 /**
  * @property int $device_type_id
@@ -42,7 +42,6 @@ use App\Domains\Device\Model\Camera;
 class Device extends ModelAbstract
 {
     use HasFactory;
-
 
     /**
      * @var string
@@ -108,7 +107,7 @@ class Device extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function positions(): HasMany
     {
@@ -126,7 +125,7 @@ class Device extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function messages(): HasMany
     {
@@ -161,7 +160,7 @@ class Device extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function trips(): HasMany
     {
@@ -217,10 +216,23 @@ class Device extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function cameras(): HasMany
     {
         return $this->hasMany(Camera::class, 'device_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function deviceGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            DeviceGroupModel::class,
+            'device_group_map',
+            'device_id',
+            'device_group_id'
+        );
     }
 }

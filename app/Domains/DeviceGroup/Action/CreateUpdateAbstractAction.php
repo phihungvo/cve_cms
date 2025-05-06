@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\UserGroup\Action;
+namespace App\Domains\DeviceGroup\Action;
 
-use App\Domains\UserGroup\Model\GroupModel as Model;
+use App\Domains\DeviceGroup\Model\DeviceGroupModel as Model;
 
-abstract class CreatUpdateActionAbstract extends ActionAbstract
+abstract class CreateUpdateAbstractAction extends ActionAbstract
 {
-    abstract protected function save();
+    abstract protected function save(): Model;
 
     public function handle(): Model
     {
@@ -22,6 +22,12 @@ abstract class CreatUpdateActionAbstract extends ActionAbstract
         $this->dataName();
         $this->dataDescription();
         $this->dataEnterpriseId();
+    }
+
+    protected function check(): void
+    {
+        # logic check name and description neu can
+
     }
 
     protected function dataName(): void
@@ -41,10 +47,5 @@ abstract class CreatUpdateActionAbstract extends ActionAbstract
         } else {
             $this->data['enterprise_id'] = auth()->user()->enterprise_id;
         }
-    }
-
-    protected function check()
-    {
-        # logic check name and description neu can
     }
 }

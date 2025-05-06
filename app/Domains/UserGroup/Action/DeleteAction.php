@@ -27,17 +27,14 @@ class DeleteAction extends ActionAbstract
         try {
             $this->row->delete();
         } catch (QueryException $e) {
-            // Typically occurs with foreign key constraint violations
             if (str_contains($e->getMessage(), 'foreign key constraint fails')) {
-                throw new Exception('Cannot delete this user group because it is still in use.', 0, $e);
+                throw new Exception(__('user-group-update.delete.error.in-use'), 0, $e);
             }
-            throw new Exception('Database query error occurred during deletion.', 0, $e);
+            throw new Exception(__('user-group-update.delete.error.query-error', ['message' => $e->getMessage()]), 0, $e);
         } catch (PDOException $e) {
-            // Database connection issues
-            throw new Exception('Database connection error occurred during deletion.', 0, $e);
+            throw new Exception(__('user-group-update.delete.error.connection-error', ['message' => $e->getMessage()]), 0, $e);
         } catch (Throwable $e) {
-            // Generic exception handler with added context
-            throw new Exception('Failed to delete user group: '.$e->getMessage(), 0, $e);
+            throw new Exception(__('user-group-update.delete.error.unexpected-error', ['message' => $e->getMessage()]), 0, $e);
         }
     }
 }

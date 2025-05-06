@@ -12,6 +12,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Model\Builder\GroupBuilder as Builder;
 use Model\Collection\GroupCollection as Collection;
 
+/**
+ * @property string $name
+ * @property string|null $description
+ * @property int|null $enterprise_id
+ */
 class GroupModel extends ModelAbstract
 {
     use HasFactory;

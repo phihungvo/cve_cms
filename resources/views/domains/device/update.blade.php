@@ -6,6 +6,7 @@
         @if(auth()->user()->isRoleRoot())
             <div class="box p-5 mt-5">
                 {{--                    Kiểm tra role root--}}
+{{--                @dd(get_defined_vars())--}}
                 @if (isset($enterprises))
                     <!-- select enterprises -->
                     <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
