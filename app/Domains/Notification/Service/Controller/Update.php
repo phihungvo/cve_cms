@@ -53,23 +53,10 @@ class Update
             'target_group' => 'nullable|string',
         ]);
 
-        // Kiểm tra quyền chỉnh sửa
-        if ($this->notification->sender_id !== $this->auth->id && !$this->auth->hasRole('root')) {
-            throw new \Exception(__('notification-update.unauthorized'));
-        }
-
-        if ($data['notification_type'] === 'system' && !$this->auth->hasRole('root')) {
-            throw new \Exception(__('notification-update.unauthorized-system'));
-        }
-
-        if ($data['notification_type'] === 'enterprise' && !$this->notification->enterprise_id && !$this->auth->hasRole('root')) {
-            throw new \Exception(__('notification-update.no-enterprise'));
-        }
-
         Log::info('Validated notification update data: ', $data);
 
         // Gọi action để cập nhật thông báo
         $action = new UpdateAction();
-        return $action->handle($this->notification, $data);
+        return $action->handle($this->notification, $data, $this->auth);
     }
 }

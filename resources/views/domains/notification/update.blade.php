@@ -23,9 +23,7 @@
                 <input type="text" name="title" id="title" class="form-control form-control-lg" required
                     placeholder="{{ __('notification-update.title-placeholder') }}"
                     value="{{ old('title', $notification->title) }}">
-                @error('title')
-                    <div class="text-danger mt-2">{{ $message }}</div>
-                @enderror
+         
             </div>
 
             <!-- Nội dung -->
@@ -33,9 +31,7 @@
                 <label for="content" class="form-label">{{ __('notification-update.content-label') }}</label>
                 <textarea name="content" id="content" class="form-control form-control-lg" required
                     placeholder="{{ __('notification-update.content-placeholder') }}">{{ old('content', $notification->content) }}</textarea>
-                @error('content')
-                    <div class="text-danger mt-2">{{ $message }}</div>
-                @enderror
+             
             </div>
 
             <!-- Loại thông báo -->
@@ -51,9 +47,7 @@
                         {{ __('notification-update.type-enterprise') }}
                     </option>
                 </select>
-                @error('notification_type')
-                    <div class="text-danger mt-2">{{ $message }}</div>
-                @enderror
+           
             </div>
 
             <!-- Nhóm mục tiêu -->
@@ -67,9 +61,7 @@
                         </option>
                     @endforeach
                 </select>
-                @error('target_group')
-                    <div class="text-danger mt-2">{{ $message }}</div>
-                @enderror
+               
             </div>
 
             <!-- Nút submit -->

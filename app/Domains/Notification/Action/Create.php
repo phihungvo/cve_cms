@@ -10,14 +10,16 @@ use App\Domains\User\Model\User;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use App\Domains\User\Role\Model\Role;
 use App\Domains\CoreApp\Action\ActionAbstract;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Log;
 
 class Create extends ActionAbstract
 {
     protected array $data;
-    protected $auth;
+    protected ?Authenticatable $auth;
+    protected ?Notification $row;
 
-    public function handle(array $data, $auth): array
+    public function handle(array $data, ?Authenticatable $auth): array
     {
         $this->data = $data;
         $this->auth = $auth;
@@ -30,42 +32,33 @@ class Create extends ActionAbstract
         Log::info('Processing notification creation with data: ', $this->data);
 
         try {
-            // Kiểm tra quyền root hoặc owner
-            if (!$this->auth->isRoot() && !$this->auth->isOwner()) {
-                throw new \Exception(__('notification-create.no-permission'));
-            }
-
-            // Nếu là owner, giới hạn enterprise_id
-            if ($this->auth->isOwner()) {
-                if ($this->data['enterprise_id'] !== $this->auth->enterprise_id) {
-                    throw new \Exception(__('notification-create.owner-enterprise-mismatch'));
-                }
-            }
+            // Kiểm tra quyền
+            $this->checkAuthorization();
 
             // Tạo thông báo
-            $notification = Notification::create([
+            $this->row = Notification::create([
                 'title' => $this->data['title'],
                 'content' => $this->data['content'],
                 'notification_type' => $this->data['notification_type'],
                 'enterprise_id' => $this->data['enterprise_id'] ?? null,
-                'sender_id' => $this->auth->id,
+                'sender_id' => $this->auth ? $this->auth->getAuthIdentifier() : null,
                 'target_group' => $this->data['target_group'] ?? null,
                 'created_at' => now(),
             ]);
 
-            if (!$notification) {
+            if (!$this->row) {
                 throw new \Exception(__('notification-create.failed'));
             }
 
             // Gửi thông báo đến người dùng phù hợp
-            $this->assignNotificationToUsers($notification);
+            $this->assignNotificationToUsers($this->row);
 
-            Log::info('Notification created successfully: ', $notification->toArray());
+            Log::info('Notification created successfully: ', $this->row->toArray());
 
             return [
                 'success' => true,
                 'message' => __('notification-create.success'),
-                'notification' => $notification,
+                'notification' => $this->row,
             ];
         } catch (\Exception $e) {
             Log::error('Error creating notification: ', ['error' => $e->getMessage()]);
@@ -73,6 +66,29 @@ class Create extends ActionAbstract
                 'success' => false,
                 'message' => $e->getMessage(),
             ];
+        }
+    }
+
+    /**
+     * Kiểm tra quyền root hoặc owner
+     *
+     * @throws \Exception
+     */
+    protected function checkAuthorization(): void
+    {
+        if (!$this->auth instanceof User) {
+            throw new \Exception(__('notification-create.no-permission'));
+        }
+
+        $user = $this->auth; // Gán vào biến tạm với kiểu User
+        if (!$user->isRoot() && !$user->isOwner()) {
+            throw new \Exception(__('notification-create.no-permission'));
+        }
+
+        if ($user->isOwner()) {
+            if ($this->data['enterprise_id'] !== $user->enterprise_id) {
+                throw new \Exception(__('notification-create.owner-enterprise-mismatch'));
+            }
         }
     }
 
@@ -97,18 +113,26 @@ class Create extends ActionAbstract
         }
 
         // Nếu là owner, giới hạn user trong enterprise của họ
-        if ($this->auth->isOwner()) {
-            $usersQuery->where('enterprise_id', $this->auth->enterprise_id);
+        if ($this->auth instanceof User) {
+            $user = $this->auth; // Gán vào biến tạm với kiểu User
+            if ($user->isOwner()) {
+                $usersQuery->where('enterprise_id', $user->enterprise_id);
+            }
         }
 
         $users = $usersQuery->get();
 
         foreach ($users as $user) {
-            UserNotification::create([
-                'user_id' => $user->id,
-                'notification_id' => $notification->id,
-                'read_at' => null,
-            ]);
+            $this->createUserNotification($user, $notification);
         }
+    }
+
+    protected function createUserNotification(User $user, Notification $notification): void
+    {
+        UserNotification::create([
+            'user_id' => $user->id,
+            'notification_id' => $notification->id,
+            'read_at' => null,
+        ]);
     }
 }
