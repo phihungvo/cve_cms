@@ -24,6 +24,10 @@ class ForceDeleteAction extends ActionAbstract
     protected function forceDelete(): void
     {
         try {
+            // Kiểm tra xem Group có đang được sử dụng trong bảng UserGroup hay không
+            if ($this->row->userGroups()->exists()) {
+                throw new Exception(__('user-group-update.force-delete.error.in-use'));
+            }
             $this->row->forceDelete();
         } catch (ModelNotFoundException $e) {
             throw new Exception(__('user-group-update.force-delete.error.model-not-found'));

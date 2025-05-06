@@ -34,7 +34,7 @@
                     <button type="submit" class="btn btn-primary">{{__('user-group-update.btn-save')}}</button>
                 @endif
                 <!-- btn cancel -->
-                <a class="btn btn-secondary ml-2" href="{{route('group.index')}}">{{__('user-group-update.btn-cancel')}}</a>
+                <a class="btn btn-secondary ml-2" href="{{route('user_group.index')}}">{{__('user-group-update.btn-cancel')}}</a>
             </div>
         </div>
     </form>

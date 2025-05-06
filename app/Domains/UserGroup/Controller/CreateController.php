@@ -32,7 +32,7 @@ class CreateController extends ControllerAbstract
 
             $this->sessionMessage('success', __('user-group-create.success'));
 
-            return redirect()->route('group.index');
+            return redirect()->route('user_group.index');
         } catch (RuntimeException $e) {
             $this->sessionMessage('error', $e->getMessage());
 

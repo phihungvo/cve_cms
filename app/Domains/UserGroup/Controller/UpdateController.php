@@ -17,7 +17,7 @@ class UpdateController extends ControllerAbstract
         } catch (NotFoundException $e) {
             $this->sessionMessage('error', $e->getMessage());
 
-            return redirect()->route('group.index');
+            return redirect()->route('user_group.index');
         }
 
         if ($response = $this->actions()) {
@@ -59,7 +59,7 @@ class UpdateController extends ControllerAbstract
 
             $this->sessionMessage('success', __('user-group-update.update.success'));
 
-            return redirect()->route('group.index');
+            return redirect()->route('user_group.index');
         } catch (ModelNotFoundException $e) {
             $this->sessionMessage('error', $e->getMessage());
 
@@ -83,9 +83,9 @@ class UpdateController extends ControllerAbstract
             $this->action()->delete();
             $this->sessionMessage('success', __('user-group-update.delete.success'));
 
-            return redirect()->route('group.index');
+            return redirect()->route('user_group.index');
         } catch (Exception $e) {
-            $this->sessionMessage('error', __('user-group-update.delete.error'));
+            $this->sessionMessage('error', $e->getMessage());
 
             // Log the unexpected exception
             logger()->error('Unexpected error in UserGroup delete: '.$e->getMessage(), [
@@ -93,7 +93,7 @@ class UpdateController extends ControllerAbstract
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect(route('group.index'));
+            return redirect(route('user_group.index'));
         }
     }
 
@@ -103,7 +103,7 @@ class UpdateController extends ControllerAbstract
             $this->action()->forceDelete();
             $this->sessionMessage('success', __('user-group-update.force-delete.success'));
 
-            return redirect()->route('group.index');
+            return redirect()->route('user_group.index');
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
@@ -113,7 +113,7 @@ class UpdateController extends ControllerAbstract
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect(route('group.index'));
+            return redirect(route('user_group.index'));
         }
     }
 
@@ -123,7 +123,7 @@ class UpdateController extends ControllerAbstract
             $this->action()->restore();
             $this->sessionMessage('success', __('user-group-update.restore.success'));
 
-            return redirect()->route('group.index');
+            return redirect()->route('user_group.index');
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
@@ -133,7 +133,7 @@ class UpdateController extends ControllerAbstract
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect(route('group.index'));
+            return redirect(route('user_group.index'));
         }
     }
 }

@@ -8,6 +8,7 @@ use App\Domains\UserGroup\Model\Builder\GroupBuilder;
 use App\Domains\UserGroup\Model\Collection\GroupCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Model\Builder\GroupBuilder as Builder;
 use Model\Collection\GroupCollection as Collection;
@@ -36,6 +37,11 @@ class GroupModel extends ModelAbstract
     public function enterprise(): BelongsTo
     {
         return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN, Enterprise::PRIMARY);
+    }
+
+    public function userGroups(): HasMany
+    {
+        return $this->hasMany(UserGroupModel::class, 'group_id', self::PRIMARY_KEY);
     }
 
     /**
