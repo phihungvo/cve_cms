@@ -20,7 +20,7 @@ class Delete extends ControllerWebAbstract
             $this->row = Model::withTrashed()->find($id);
             if (!$this->row) {
 
-                $this->sessionMessage('error', __('eservice-delete.not-found'));
+                $this->sessionMessage('error', __('license-delete.not-found'));
                 return redirect()->back();
             }
 
@@ -29,17 +29,17 @@ class Delete extends ControllerWebAbstract
             // Gọi delete, logic soft delete/force delete được xử lý trong Action
             $service->delete($this->row);
 
-            $messageKey = $this->row->trashed() ? 'eservice-delete.force-delete-success' : 'eservice-delete.delete-success';
+            $messageKey = $this->row->trashed() ? 'license-delete.force-delete-success' : 'license-delete.delete-success';
             $this->sessionMessage('success', __($messageKey));
 
-            return redirect()->route('user.enterprise.eservice.index');
+            return redirect()->route('user.enterprise.license.index');
         } catch (\Exception $e) {
-            Log::error('Controller: EService deletion failed', [
+            Log::error('Controller: license deletion failed', [
                 'id' => $id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            $this->sessionMessage('error', __('eservice-delete.delete-error'));
+            $this->sessionMessage('error', __('license-delete.delete-error'));
             return redirect()->back();
         }
     }

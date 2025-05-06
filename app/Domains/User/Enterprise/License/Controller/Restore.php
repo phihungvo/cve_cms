@@ -35,9 +35,9 @@ class Restore extends ControllerAbstract
             // Khôi phục bằng cách đặt deleted_at về null
             $eservice->restore();
 
-            $this->sessionMessage('success', __('eservice-update.restore-success'));
+            $this->sessionMessage('success', __('license-update.restore-success'));
 
-            return redirect()->route('eservice.index');
+            return redirect()->route('license.index');
         } catch (\Exception $e) {
             return $this->redirectBackWithError('Có lỗi xảy ra khi khôi phục dịch vụ: ' . $e->getMessage());
         }

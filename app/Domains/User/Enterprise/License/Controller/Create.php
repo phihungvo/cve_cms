@@ -17,7 +17,7 @@ class Create extends ControllerWebAbstract
             return $this->create();
         }
 
-        $this->meta('title', __('eservice-create.meta-title'));
+        $this->meta('title', __('license-create.meta-title'));
         return $this->page('user.enterprise.license.create', $this->data());
     }
 
