@@ -27,14 +27,18 @@ class Create
 
     public function create(): array
     {
-        // Lấy danh sách enterprise và roles
+        // Lấy danh sách enterprise
         $enterprises = $this->auth->isRoot()
             ? Enterprise::all()->pluck('id')->toArray()
             : [$this->auth->enterprise_id];
-        $roles = Role::all()->pluck('name')->toArray();
 
-        // Lấy danh sách user dựa trên enterprise_id từ request
+        // Lấy enterprise_id từ request (hoặc enterprise_id của owner)
         $enterpriseId = $this->request->input('enterprise_id', $this->auth->enterprise_id);
+
+        // Lấy danh sách role dựa trên enterprise_id
+        $roles = Role::where('enterprise_id', $enterpriseId)->pluck('name')->toArray();
+
+        // Lấy danh sách user dựa trên enterprise_id
         $users = User::where('enterprise_id', $enterpriseId)->pluck('id')->toArray();
 
         // Validate dữ liệu

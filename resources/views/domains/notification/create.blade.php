@@ -11,7 +11,6 @@
             <div class="alert alert-danger mb-4 p-4">{{ session('error') }}</div>
         @endif
 
-
         <h2 class="text-lg font-medium mb-4">{{ __('notification-create.title') }}</h2>
 
         <form method="POST" action="{{ route('notification.create') }}" class="form">
@@ -75,13 +74,9 @@
             <!-- Nhóm mục tiêu -->
             <div class="mb-4">
                 <label for="target_group" class="form-label">{{ __('notification-create.target-group-label') }}</label>
-                <select name="target_group" id="target_group" class="form-control form-control-lg">
+                <select name="target_group" id="target_group" class="form-control form-control-lg select2">
                     <option value="">{{ __('notification-create.target-group-all') }}</option>
-                    @foreach(\App\Domains\User\Role\Model\Role::all() as $role)
-                        <option value="{{ $role->name }}" {{ old('target_group') === $role->name ? 'selected' : '' }}>
-                            {{ $role->name }}
-                        </option>
-                    @endforeach
+                    <!-- Danh sách role sẽ được tải động qua AJAX -->
                 </select>
 
             </div>
@@ -109,14 +104,24 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
-            // Khởi tạo Select2 cho user_ids
+            // Khởi tạo Select2 cho user_ids và target_group
             $('#user_ids').select2({
                 placeholder: "{{ __('notification-create.user-ids-placeholder') }}",
                 allowClear: true
             });
 
+            $('#target_group').select2({
+                placeholder: "{{ __('notification-create.target-group-all') }}",
+                allowClear: true
+            });
+
             // Hàm tải danh sách user theo enterprise_id
             function loadUsers(enterpriseId) {
+                if (!enterpriseId) {
+                    $('#user_ids').empty().trigger('change');
+                    return;
+                }
+
                 $.ajax({
                     url: '{{ route("notification.users-by-enterprise") }}',
                     type: 'GET',
@@ -148,19 +153,59 @@
                 });
             }
 
+            // Hàm tải danh sách role theo enterprise_id
+            function loadRoles(enterpriseId) {
+                if (!enterpriseId) {
+                    $('#target_group').empty().append(
+                        $('<option>', {
+                            value: '',
+                            text: '{{ __('notification-create.target-group-all') }}'
+                        })
+                    ).trigger('change');
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route("notification.roles-by-enterprise") }}',
+                    type: 'GET',
+                    data: { enterprise_id: enterpriseId },
+                    success: function (response) {
+                        $('#target_group').empty().append(
+                            $('<option>', {
+                                value: '',
+                                text: '{{ __('notification-create.target-group-all') }}'
+                            })
+                        ); // Xóa danh sách hiện tại và thêm tùy chọn mặc định
+                        if (response.roles.length > 0) {
+                            $.each(response.roles, function (index, role) {
+                                $('#target_group').append(
+                                    $('<option>', {
+                                        value: role.name,
+                                        text: role.name
+                                    })
+                                );
+                            });
+                        }
+                        $('#target_group').trigger('change'); // Cập nhật Select2
+                    },
+                    error: function () {
+                        alert('Không thể tải danh sách vai trò.');
+                    }
+                });
+            }
+
             // Khi enterprise_id thay đổi
             $('#enterprise_id').on('change', function () {
                 var enterpriseId = $(this).val();
-                if (enterpriseId) {
-                    loadUsers(enterpriseId);
-                } else {
-                    $('#user_ids').empty().trigger('change'); // Xóa danh sách user nếu không chọn enterprise
-                }
+                loadUsers(enterpriseId);
+                loadRoles(enterpriseId);
             });
 
-            // Tải danh sách user ban đầu (nếu enterprise_id đã được chọn)
+            // Tải danh sách user và role ban đầu (nếu enterprise_id đã được chọn)
             @if(old('enterprise_id') || auth()->user()->isOwner())
-                loadUsers({{ old('enterprise_id', auth()->user()->isOwner() ? auth()->user()->enterprise_id : 'null') }});
+                var initialEnterpriseId = {{ old('enterprise_id', auth()->user()->isOwner() ? auth()->user()->enterprise_id : 'null') }};
+                loadUsers(initialEnterpriseId);
+                loadRoles(initialEnterpriseId);
             @endif
             });
     </script>
