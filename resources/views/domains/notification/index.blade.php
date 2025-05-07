@@ -98,7 +98,7 @@ $allPermission = $userPermission['all'] ?? [];
                                         {{ __('notification-update.title') }}
                                     </a>
                                 @endif
-                                @if(auth()->check() && !$item['read_at'] && !auth()->user()->isRoot())
+                                @if(auth()->check() && !$item['read_at'] && !auth()->user()->isRoot() && !(auth()->user()->isOwner() && auth()->user()->id === $item['sender_id']))
                                     <form action="{{ route('notification.read', $item['id']) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('PATCH')
