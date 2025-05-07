@@ -1,14 +1,14 @@
 <?php
 
 return [
-    'title' => 'Xóa thông báo',
-    'message' => 'Bạn có chắc chắn muốn xóa thông báo "<span>:name</span>" không?',
-    'delete-success' => 'Xóa thông báo thành công!',
-    'delete-error' => 'Không thể xóa thông báo.',
-    'delete-error-not-found' => 'Không tìm thấy thông báo.',
-    'no-permission' => 'Bạn không có quyền thực hiện hành động này.',
-    'restore-success' => 'Khôi phục thông báo thành công!',
-    'restore-error' => 'Không thể khôi phục thông báo.',
-    'force-delete-success' => 'Xóa vĩnh viễn thông báo thành công!',
-    'force-delete-error' => 'Không thể xóa vĩnh viễn thông báo.',
+    'title' => 'Delete Notification',
+    'message' => 'Are you sure you want to delete the notification: :name?',
+    'delete-success' => 'Notification deleted successfully.',
+    'delete-error' => 'Failed to delete notification.',
+    'delete-error-not-found' => 'Notification not found.',
+    'force-delete-success' => 'Notification permanently deleted successfully.',
+    'force-delete-error' => 'Failed to permanently delete notification.',
+    'restore-success' => 'Notification restored successfully.',
+    'restore-error' => 'Failed to restore notification.',
+    'no-permission' => 'You do not have permission to perform this action.',
 ];
