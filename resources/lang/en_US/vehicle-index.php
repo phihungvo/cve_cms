@@ -11,4 +11,7 @@
     'plate' => 'License plate',
     'timezone' => 'Time zone',
     'user' => 'User',
+    'select-user' => '-- select User --',
+    'select-enterprise' => '-- select Enterprise --',
+    'select-group' => '-- select Group --',
 ];

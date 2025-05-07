@@ -18,6 +18,8 @@ class Create extends ValidateAbstract
             'enabled' => ['bail', 'boolean'],
             'timezone_id' => ['bail', 'required', 'integer'],
             'user_id' => ['bail', 'integer'],
+            'vehicle_groups' => ['bail', 'nullable', 'array'],
+            'vehicle_group.*' => ['bail', 'integer'],
         ];
     }
 }
