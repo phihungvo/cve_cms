@@ -75,7 +75,7 @@ $allPermission = $userPermission['all'] ?? [];
                             </td>
                             <td>{{ $item['notification_type'] === 'system' ? __('System') : __('Enterprise') }}</td>
                             <td>{{ $item['enterprise_id'] ? \App\Domains\User\Enterprise\Model\Enterprise::find($item['enterprise_id'])?->name : 'N/A' }}</td>
-                            <td>{{ $item['target_group'] ?? 'All' }}</td>
+                            <td>{{ $item['target_group'] === 'all' ? 'All' : ($item['target_group'] ?? '-') }}</td>
                             <td>{{ $item['sender_name'] ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::createFromTimestamp($item['created_at'])->format('Y-m-d H:i:s') }}</td>
                             <td>
@@ -180,7 +180,7 @@ $allPermission = $userPermission['all'] ?? [];
                         const notificationId = this.dataset.id;
                         const title = this.dataset.title;
 
-                        deleteModalTitle.textContent = action === 'force-delete' ? '{{ __('notification-delete.title') }}' : '{{ __('notification-delete.title') }}';
+                        deleteModalTitle.textContent = action === 'force-delete' ? '{{ __('notification-force-delete.title') }}' : '{{ __('notification-delete.title') }}';
                         document.getElementById('delete-notification-name').textContent = title;
 
                         if (deleteModalIcon) {

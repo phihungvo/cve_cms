@@ -13,7 +13,7 @@
 
         <h2 class="text-lg font-medium mb-4">{{ __('notification-create.title') }}</h2>
 
-        <form method="POST" action="{{ route('notification.create') }}" class="form">
+        <form method="POST" action="{{ route('notification.create') }}" class="form" id="notificationForm">
             @csrf
 
             <!-- Tiêu đề -->
@@ -51,7 +51,7 @@
             <!-- Doanh nghiệp -->
             <div class="mb-4">
                 <label for="enterprise_id" class="form-label">{{ __('notification-create.enterprise-label') }}</label>
-                <select name="enterprise_id" id="enterprise_id" class="form-control form-control-lg" required {{ auth()->user()->isOwner() ? 'disabled' : '' }}>
+                <select name="enterprise_id" id="enterprise_id" class="form-control form-control-lg" {{ auth()->user()->isOwner() ? 'disabled' : '' }}>
                     @if(auth()->user()->isRoot())
                         <option value="">{{ __('notification-create.enterprise-none') }}</option>
                         @foreach(\App\Domains\User\Enterprise\Model\Enterprise::all() as $enterprise)
@@ -75,7 +75,8 @@
             <div class="mb-4">
                 <label for="target_group" class="form-label">{{ __('notification-create.target-group-label') }}</label>
                 <select name="target_group" id="target_group" class="form-control form-control-lg select2">
-                    <option value="">{{ __('notification-create.target-group-all') }}</option>
+                    <option value="">{{ __('notification-create.target-group-none') }}</option>
+                    <option value="all">{{ __('notification-create.target-group-all') }}</option>
                     <!-- Danh sách role sẽ được tải động qua AJAX -->
                 </select>
 
@@ -85,6 +86,7 @@
             <div class="mb-4">
                 <label for="user_ids" class="form-label">{{ __('notification-create.user-ids-label') }}</label>
                 <select name="user_ids[]" id="user_ids" multiple class="form-control form-control-lg select2">
+                    <option value="">{{ __('notification-create.user-ids-none') }}</option>
                     <!-- Danh sách user sẽ được tải động qua AJAX -->
                 </select>
 
@@ -106,19 +108,24 @@
         $(document).ready(function () {
             // Khởi tạo Select2 cho user_ids và target_group
             $('#user_ids').select2({
-                placeholder: "{{ __('notification-create.user-ids-placeholder') }}",
+                placeholder: "{{ __('notification-create.user-ids-none') }}",
                 allowClear: true
             });
 
             $('#target_group').select2({
-                placeholder: "{{ __('notification-create.target-group-all') }}",
+                placeholder: "{{ __('notification-create.target-group-none') }}",
                 allowClear: true
             });
 
             // Hàm tải danh sách user theo enterprise_id
             function loadUsers(enterpriseId) {
                 if (!enterpriseId) {
-                    $('#user_ids').empty().trigger('change');
+                    $('#user_ids').empty().append(
+                        $('<option>', {
+                            value: '',
+                            text: '{{ __('notification-create.user-ids-none') }}'
+                        })
+                    ).trigger('change');
                     return;
                 }
 
@@ -127,7 +134,12 @@
                     type: 'GET',
                     data: { enterprise_id: enterpriseId },
                     success: function (response) {
-                        $('#user_ids').empty(); // Xóa danh sách hiện tại
+                        $('#user_ids').empty().append(
+                            $('<option>', {
+                                value: '',
+                                text: '{{ __('notification-create.user-ids-none') }}'
+                            })
+                        ); // Thêm tùy chọn mặc định
                         if (response.users.length > 0) {
                             $.each(response.users, function (index, user) {
                                 $('#user_ids').append(
@@ -159,7 +171,7 @@
                     $('#target_group').empty().append(
                         $('<option>', {
                             value: '',
-                            text: '{{ __('notification-create.target-group-all') }}'
+                            text: '{{ __('notification-create.target-group-none') }}'
                         })
                     ).trigger('change');
                     return;
@@ -173,9 +185,14 @@
                         $('#target_group').empty().append(
                             $('<option>', {
                                 value: '',
+                                text: '{{ __('notification-create.target-group-none') }}'
+                            })
+                        ).append(
+                            $('<option>', {
+                                value: 'all',
                                 text: '{{ __('notification-create.target-group-all') }}'
                             })
-                        ); // Xóa danh sách hiện tại và thêm tùy chọn mặc định
+                        ); // Thêm tùy chọn mặc định và "All"
                         if (response.roles.length > 0) {
                             $.each(response.roles, function (index, role) {
                                 $('#target_group').append(
@@ -207,6 +224,6 @@
                 loadUsers(initialEnterpriseId);
                 loadRoles(initialEnterpriseId);
             @endif
-            });
+                });
     </script>
 @endpush

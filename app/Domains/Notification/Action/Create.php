@@ -86,7 +86,7 @@ class Create extends ActionAbstract
         }
 
         if ($user->isOwner()) {
-            if ($this->data['enterprise_id'] !== $user->enterprise_id) {
+            if ($this->data['enterprise_id'] !== $user->enterprise_id && !is_null($this->data['enterprise_id'])) {
                 throw new \Exception(__('notification-create.owner-enterprise-mismatch'));
             }
         }
@@ -96,27 +96,83 @@ class Create extends ActionAbstract
     {
         $usersQuery = User::query();
 
-        // Nếu có user_ids được chỉ định, ưu tiên gửi đến các user này
-        if (!empty($this->data['user_ids'])) {
-            $usersQuery->whereIn('id', $this->data['user_ids']);
-        } else {
-            // Nếu không có user_ids, gửi theo enterprise_id và target_group
-            if ($notification->notification_type === 'enterprise' && $notification->enterprise_id) {
-                $usersQuery->where('enterprise_id', $notification->enterprise_id);
-            }
-
-            if ($notification->target_group) {
-                $usersQuery->whereHas('roles', function ($q) use ($notification) {
-                    $q->where('name', $notification->target_group);
+        // TH1: Người tạo là Root
+        if ($this->auth->isRoot()) {
+            // Nếu không chọn enterprise_id (system notification), hoặc enterprise_id là null
+            if (is_null($notification->enterprise_id)) {
+                // Gửi đến tất cả user thông thường (không phải Root)
+                $usersQuery->whereDoesntHave('roles', function ($q) {
+                    $q->where('name', 'root');
                 });
+            } else {
+                // Nếu có chọn enterprise_id
+                $usersQuery->where('enterprise_id', $notification->enterprise_id);
+
+                // Trường hợp target_group và user_ids
+                if ($notification->target_group === 'all' && empty($this->data['user_ids'])) {
+                    // Gửi đến tất cả user thuộc enterprise
+                    // Không cần thêm điều kiện vì đã giới hạn bởi enterprise_id
+                } elseif (is_null($notification->target_group) || $notification->target_group === 'None') {
+                    // Nếu target_group là null hoặc "None", gửi đến user_ids đã chọn
+                    if (!empty($this->data['user_ids'])) {
+                        $usersQuery->whereIn('id', $this->data['user_ids']);
+                    }
+                } elseif (empty($this->data['user_ids'])) {
+                    // Nếu user_ids trống, gửi đến target_group đã chọn
+                    if ($notification->target_group !== 'all') {
+                        $usersQuery->whereHas('roles', function ($q) use ($notification) {
+                            $q->where('name', $notification->target_group);
+                        });
+                    }
+                } else {
+                    // Nếu cả target_group và user_ids đều được chọn
+                    $usersQuery->where(function ($q) use ($notification) {
+                        if ($notification->target_group !== 'all') {
+                            $q->whereHas('roles', function ($subQ) use ($notification) {
+                                $subQ->where('name', $notification->target_group);
+                            });
+                        }
+                        $q->orWhereIn('id', $this->data['user_ids']);
+                    });
+                }
             }
         }
 
-        // Nếu là owner, giới hạn user trong enterprise của họ
-        if ($this->auth instanceof User) {
-            $user = $this->auth; // Gán vào biến tạm với kiểu User
-            if ($user->isOwner()) {
-                $usersQuery->where('enterprise_id', $user->enterprise_id);
+        // TH2: Người tạo là Owner
+        if ($this->auth->isOwner()) {
+            $usersQuery->where('enterprise_id', $notification->enterprise_id);
+
+            // Owner không gửi đến user là Root hoặc Owner
+            $usersQuery->whereDoesntHave('roles', function ($q) {
+                $q->whereIn('name', ['root', 'owner']);
+            });
+
+            // Trường hợp target_group và user_ids
+            if ($notification->target_group === 'all' && empty($this->data['user_ids'])) {
+                // Gửi đến tất cả user thông thường thuộc enterprise
+                // Đã được giới hạn bởi whereDoesntHave và enterprise_id
+            } elseif (is_null($notification->target_group) || $notification->target_group === 'None') {
+                // Nếu target_group là null hoặc "None", gửi đến user_ids đã chọn
+                if (!empty($this->data['user_ids'])) {
+                    $usersQuery->whereIn('id', $this->data['user_ids']);
+                }
+            } elseif (empty($this->data['user_ids'])) {
+                // Nếu user_ids trống, gửi đến target_group đã chọn
+                if ($notification->target_group !== 'all') {
+                    $usersQuery->whereHas('roles', function ($q) use ($notification) {
+                        $q->where('name', $notification->target_group);
+                    });
+                }
+            } else {
+                // Nếu cả target_group và user_ids đều được chọn
+                $usersQuery->where(function ($q) use ($notification) {
+                    if ($notification->target_group !== 'all') {
+                        $q->whereHas('roles', function ($subQ) use ($notification) {
+                            $subQ->where('name', $notification->target_group);
+                        });
+                    }
+                    $q->orWhereIn('id', $this->data['user_ids']);
+                });
             }
         }
 

@@ -36,24 +36,34 @@ class Create
         $enterpriseId = $this->request->input('enterprise_id', $this->auth->enterprise_id);
 
         // Lấy danh sách role dựa trên enterprise_id
-        $roles = Role::where('enterprise_id', $enterpriseId)->pluck('name')->toArray();
+        $roles = $enterpriseId ? Role::where('enterprise_id', $enterpriseId)->pluck('name')->toArray() : [];
 
         // Lấy danh sách user dựa trên enterprise_id
-        $users = User::where('enterprise_id', $enterpriseId)->pluck('id')->toArray();
+        $users = $enterpriseId ? User::where('enterprise_id', $enterpriseId)->pluck('id')->toArray() : [];
+
+        // Thêm giá trị 'all' vào danh sách roles nếu có enterprise_id
+        if ($enterpriseId) {
+            $roles[] = 'all';
+        }
 
         // Validate dữ liệu
         $data = $this->request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'notification_type' => 'required|in:system,enterprise',
-            'enterprise_id' => [$this->auth->isOwner() ? 'required' : 'nullable', 'integer', 'in:' . implode(',', $enterprises)],
+            'enterprise_id' => ['nullable', 'integer', 'in:' . implode(',', $enterprises)],
             'target_group' => 'nullable|in:' . implode(',', $roles),
             'user_ids' => 'nullable|array',
             'user_ids.*' => 'integer|in:' . implode(',', $users),
         ]);
 
+        // Xử lý enterprise_id để tránh lỗi SQL khi chọn "None"
+        if ($this->auth->isRoot() && empty($data['enterprise_id'])) {
+            $data['enterprise_id'] = null;
+        }
+
         // Nếu là owner, bắt buộc phải có enterprise_id
-        if ($this->auth->isOwner() && empty($data['enterprise_id'])) {
+        if ($this->auth->isOwner() && is_null($data['enterprise_id'])) {
             throw new \Exception(__('notification-create.owner-requires-enterprise'));
         }
 

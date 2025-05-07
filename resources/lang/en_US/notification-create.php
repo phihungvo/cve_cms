@@ -24,4 +24,8 @@ return [
     'no-permission' => 'You do not have permission to create notifications.',
     'owner-enterprise-mismatch' => 'You can only create notifications for your enterprise.',
     'owner-requires-enterprise' => 'Enterprise ID is required for owners.',
+    'target-group-select' => 'Select Target Group',
+    'user-ids-none' => 'None',
+    'target-group-required' => 'Target group is required when enterprise is selected.',
+    'target-group-none' => 'None',
 ];
