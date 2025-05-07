@@ -38,10 +38,18 @@
         </div>
         <div class="mb-4">
             <strong>{{ __('Read Status') }}:</strong>
-            @if($notification['read_at'])
-                <span class="text-success">{{ __('Read') }} ({{ $notification['read_at'] }})</span>
+            @if(auth()->check() && (auth()->user()->isRoot() || auth()->user()->id === $notification['sender_id']))
+                @if($notification['total_count'] > 0 && $notification['read_count'] === $notification['total_count'])
+                    <span class="text-success">{{ __('Read') }}</span>
+                @else
+                    <span class="text-danger">{{ __('Unread') }}</span>
+                @endif
             @else
-                <span class="text-danger">{{ __('Unread') }}</span>
+                @if($notification['read_at'])
+                    <span class="text-success">{{ __('Read') }} ({{ $notification['read_at'] }})</span>
+                @else
+                    <span class="text-danger">{{ __('Unread') }}</span>
+                @endif
             @endif
         </div>
         @if(auth()->check() && (auth()->user()->isRoot() || auth()->user()->id === $notification['sender_id']))

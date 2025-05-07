@@ -30,6 +30,11 @@ class Index extends ControllerAbstract
     public function destroy(): RedirectResponse
     {
         $notificationId = $this->request->input('notification_id');
+        if (!is_numeric($notificationId)) {
+            $this->sessionMessage('error', __('notification-delete.invalid-id'));
+            return redirect()->route('notification.index');
+        }
+        $notificationId = (int) $notificationId; // Ép kiểu thành int
         $action = new Delete();
         $result = $action->handle($notificationId, $this->auth);
 
@@ -39,7 +44,7 @@ class Index extends ControllerAbstract
     public function restore($id): RedirectResponse
     {
         $action = new Delete();
-        $result = $action->restore($id, $this->auth);
+        $result = $action->restore((int) $id, $this->auth);
 
         return $this->redirectResult($result, 'notification.index');
     }
@@ -47,7 +52,7 @@ class Index extends ControllerAbstract
     public function forceDelete($id): RedirectResponse
     {
         $action = new Delete();
-        $result = $action->forceDelete($id, $this->auth);
+        $result = $action->forceDelete((int) $id, $this->auth);
 
         return $this->redirectResult($result, 'notification.index');
     }
@@ -92,7 +97,7 @@ class Index extends ControllerAbstract
     {
         try {
             $user = $this->auth;
-            $notification = Notification::query()
+            $notification = Notification::withTrashed() // Hiển thị cả thông báo đã soft delete cho Root
                 ->with([
                     'sender',
                     'enterprise',
@@ -150,6 +155,7 @@ class Index extends ControllerAbstract
                 'read_at' => $userNotification ? $userNotification->read_at?->format('Y-m-d H:i:s') : null,
                 'read_count' => $readUsers,
                 'total_count' => $totalUsers,
+                'deleted_at' => $notification->deleted_at ? $notification->deleted_at->format('Y-m-d H:i:s') : null,
             ];
 
             $this->meta('title', __('notification-show.title'));

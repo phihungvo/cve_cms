@@ -37,16 +37,18 @@ class Index
         $enterpriseId = $user->enterprise_id ?? null;
         $userRoles = $user->roles->pluck('name')->toArray();
 
-        $query = Notification::query()
-            ->with([
-                'sender',
-                'userNotifications',
-                'userNotifications.user'
-            ]);
+        $query = Notification::query();
+        if ($user->hasRole('root') || $user->isOwner()) {
+            $query->withTrashed(); // Root và Owner thấy cả thông báo đã soft delete
+        }
 
-        if ($user->hasRole('root')) {
-            // Root thấy tất cả thông báo
-        } else {
+        $query->with([
+            'sender',
+            'userNotifications',
+            'userNotifications.user'
+        ]);
+
+        if (!$user->hasRole('root') && !$user->isOwner()) {
             $query->where(function ($q) use ($enterpriseId, $user, $userRoles) {
                 $q->where('notification_type', 'system')
                     ->where(function ($subQ) use ($userRoles) {
@@ -110,6 +112,7 @@ class Index
                 'read_at' => $effectiveReadAt,
                 'read_count' => $readUsers,
                 'total_count' => $totalUsers,
+                'deleted_at' => $notification->deleted_at ? $notification->deleted_at->format('Y-m-d H:i:s') : null,
             ];
         })->all();
     }

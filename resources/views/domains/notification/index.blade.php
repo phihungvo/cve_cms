@@ -62,7 +62,7 @@ $allPermission = $userPermission['all'] ?? [];
                     @forelse($notifications as $key => $item)
                         <tr>
                             <td class="w-1">
-                                @if(auth()->check() && (auth()->user()->isRoot() || (auth()->user()->isOwner() && ($item['enterprise_id'] === auth()->user()->enterprise_id || auth()->user()->id === $item['sender_id']))))
+                                @if(auth()->check() && (auth()->user()->isRoot() || (auth()->user()->isOwner() && $item['enterprise_id'] === auth()->user()->enterprise_id)))
                                     <a href="{{ route('notification.update', $item['id']) }}"
                                        class="block">{{ $key + 1 }}</a>
                                 @else
@@ -71,7 +71,7 @@ $allPermission = $userPermission['all'] ?? [];
                             </td>
                             <td title="{{ $item['title'] ?? '-' }}">{{ \Illuminate\Support\Str::limit($item['title'] ?? '-', 50, '...') }}</td>
                             <td data-toggle="tooltip" data-placement="top" title="{{ $item['content'] ?? '-' }}">
-                                {{ \Illuminate\Support\Str::limit($item['content'] ?? '-', 50, '...') }}
+                                {{ \Illuminate\Support\Str::limit($item['content'] ?? '-', 50, '...') }}</td>
                             </td>
                             <td>{{ $item['notification_type'] === 'system' ? __('System') : __('Enterprise') }}</td>
                             <td>{{ $item['enterprise_id'] ? \App\Domains\User\Enterprise\Model\Enterprise::find($item['enterprise_id'])?->name : 'N/A' }}</td>
@@ -93,7 +93,7 @@ $allPermission = $userPermission['all'] ?? [];
                                 <a href="{{ route('notification.show', $item['id']) }}" class="btn btn-info form-control-lg whitespace-nowrap">
                                     {{ __('View Details') }}
                                 </a>
-                                @if(auth()->check() && (auth()->user()->isRoot() || (auth()->user()->isOwner() && ($item['enterprise_id'] === auth()->user()->enterprise_id || auth()->user()->id === $item['sender_id']))))
+                                @if(auth()->check() && (auth()->user()->isRoot() || (auth()->user()->isOwner() && $item['enterprise_id'] === auth()->user()->enterprise_id)))
                                     <a href="{{ route('notification.update', $item['id']) }}" class="btn btn-primary form-control-lg whitespace-nowrap">
                                         {{ __('notification-update.title') }}
                                     </a>
@@ -104,6 +104,39 @@ $allPermission = $userPermission['all'] ?? [];
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-success form-control-lg whitespace-nowrap mark-as-read" data-id="{{ $item['id'] }}">
                                             {{ __('Mark as Read') }}
+                                        </button>
+                                    </form>
+                                @endif
+                                @if(auth()->check() && !$item['deleted_at'] && (auth()->user()->isRoot() || (auth()->user()->isOwner() && $item['enterprise_id'] === auth()->user()->enterprise_id)))
+                                    <form action="{{ route('notification.delete') }}" method="POST" style="display:inline;" class="delete-form" data-id="{{ $item['id'] }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="notification_id" value="{{ $item['id'] }}">
+                                        <button type="submit" class="btn btn-danger form-control-lg whitespace-nowrap delete-btn">
+                                            {{ __('Delete') }}
+                                        </button>
+                                    </form>
+                                @endif
+                                @if(auth()->check() && auth()->user()->isRoot() && $item['deleted_at'])
+                                    <form action="{{ route('notification.restore', $item['id']) }}" method="POST" style="display:inline;" class="restore-form" data-id="{{ $item['id'] }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning form-control-lg whitespace-nowrap restore-btn">
+                                            {{ __('Restore') }}
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('notification.force-delete', $item['id']) }}" method="POST" style="display:inline;" class="force-delete-form" data-id="{{ $item['id'] }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-dark form-control-lg whitespace-nowrap force-delete-btn">
+                                            {{ __('Force Delete') }}
+                                        </button>
+                                    </form>
+                                @endif
+                                @if(auth()->check() && auth()->user()->isOwner() && $item['deleted_at'] && $item['enterprise_id'] === auth()->user()->enterprise_id)
+                                    <form action="{{ route('notification.restore', $item['id']) }}" method="POST" style="display:inline;" class="restore-form" data-id="{{ $item['id'] }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning form-control-lg whitespace-nowrap restore-btn">
+                                            {{ __('Restore') }}
                                         </button>
                                     </form>
                                 @endif
@@ -135,6 +168,15 @@ $allPermission = $userPermission['all'] ?? [];
                 input.name = 'notification_id';
                 input.id = 'delete-notification-id';
                 form.appendChild(input);
+
+                // Xử lý xác nhận trước khi xóa
+                document.querySelectorAll('.delete-form, .force-delete-form, .restore-form').forEach(form => {
+                    form.addEventListener('submit', function (e) {
+                        if (!confirm('Are you sure you want to perform this action?')) {
+                            e.preventDefault();
+                        }
+                    });
+                });
             });
         </script>
     </div>
