@@ -45,33 +45,32 @@ class Index
                 }
             ]);
 
-        // Quyền truy cập
         if ($user->hasRole('root')) {
             // Root thấy tất cả thông báo
         } else {
-            // Người dùng chỉ thấy thông báo liên quan
             $query->where(function ($q) use ($enterpriseId, $user, $userRoles) {
-                // Thông báo hệ thống (gửi đến tất cả hoặc nhóm vai trò của user)
                 $q->where('notification_type', 'system')
                     ->where(function ($subQ) use ($userRoles) {
                         $subQ->whereNull('target_group')
                             ->orWhereIn('target_group', $userRoles);
                     })
                     ->orWhere(function ($subQ) use ($enterpriseId, $user, $userRoles) {
-                        // Thông báo doanh nghiệp (thuộc enterprise của user)
                         $subQ->where('notification_type', 'enterprise')
                             ->where('enterprise_id', $enterpriseId)
                             ->where(function ($innerQ) use ($user, $userRoles) {
-                            $innerQ->whereIn('target_group', $userRoles)
-                                ->orWhereHas('userNotifications', function ($q) use ($user) {
-                                    $q->where('user_id', $user->id);
-                                });
-                        });
+                                $innerQ->whereIn('target_group', $userRoles)
+                                    ->orWhereHas('userNotifications', function ($q) use ($user) {
+                                        $q->where('user_id', $user->id);
+                                    });
+                            });
+                    })
+                    // Thêm điều kiện cho thông báo từ root gửi trực tiếp
+                    ->orWhereHas('userNotifications', function ($q) use ($user) {
+                        $q->where('user_id', $user->id);
                     });
             });
         }
 
-        // Tìm kiếm nếu có
         if ($search = $this->request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
@@ -79,13 +78,9 @@ class Index
             });
         }
 
-        // Sắp xếp theo created_at (mới nhất trước)
         $query->orderBy('created_at', 'desc');
-
-        // Lấy dữ liệu
         $notifications = $query->get();
 
-        // Chuyển đổi dữ liệu thành mảng
         return $notifications->map(function ($notification) use ($user) {
             $userNotification = $notification->userNotifications->firstWhere('user_id', $user->id);
             return [

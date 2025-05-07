@@ -1,7 +1,7 @@
 @php
 try {
-    $userId = \Illuminate\Support\Facades\Auth::id(); // Lấy ID của user hiện tại
-    $userPermission = session('userPermission_' . $userId, []); // Lấy từ session, mặc định là mảng rỗng nếu không có
+    $userId = \Illuminate\Support\Facades\Auth::id();
+    $userPermission = session('userPermission_' . $userId, []);
 } catch (\Exception $e) {
     $userPermission = [];
 }
@@ -31,7 +31,7 @@ $allPermission = $userPermission['all'] ?? [];
                            data-table-search="#notification-list-table" value="{{ request('search') }}" />
                 </div>
                 @if(auth()->check() && (auth()->user()->isRoot() || auth()->user()->isOwner()))
-                    <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
+                    <div class="sm: maglia-4 mt-2 sm:mt-0 bg-white">
                         <a href="{{ route('notification.create') }}" class="btn btn-primary form-control-lg whitespace-nowrap">
                             {{ __('notification-create.title') }}
                         </a>
@@ -86,10 +86,22 @@ $allPermission = $userPermission['all'] ?? [];
                                 @endif
                             </td>
                             <td>
+                                <a href="{{ route('notification.show', $item['id']) }}" class="btn btn-info form-control-lg whitespace-nowrap">
+                                    {{ __('View Details') }}
+                                </a>
                                 @if(auth()->check() && (auth()->user()->isRoot() || (auth()->user()->isOwner() && ($item['enterprise_id'] === auth()->user()->enterprise_id || auth()->user()->id === $item['sender_id']))))
                                     <a href="{{ route('notification.update', $item['id']) }}" class="btn btn-primary form-control-lg whitespace-nowrap">
                                         {{ __('notification-update.title') }}
                                     </a>
+                                @endif
+                                @if(auth()->check() && !$item['read_at'])
+                                    <form action="{{ route('notification.read', $item['id']) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-success form-control-lg whitespace-nowrap mark-as-read" data-id="{{ $item['id'] }}">
+                                            {{ __('Mark as Read') }}
+                                        </button>
+                                    </form>
                                 @endif
                             </td>
                         </tr>
@@ -121,13 +133,42 @@ $allPermission = $userPermission['all'] ?? [];
                 form.appendChild(input);
             });
         </script>
+    </div>
 @endsection
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Khởi tạo tooltip của Bootstrap
             $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.mark-as-read').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const notificationId = this.dataset.id;
+                    fetch(`/notification/${notificationId}/read`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error.message);
+                    });
+                });
+            });
         });
     </script>
 @endpush
