@@ -17,7 +17,7 @@ return [
     'View Details' => 'View Details',
     'Back to List' => 'Back to List',
     'No notifications found' => 'No notifications found.',
-
+    'read-stats' => 'Users Read',
     'title' => 'Notification List',
     'filter' => 'Search notifications...',
     'All' => 'All',

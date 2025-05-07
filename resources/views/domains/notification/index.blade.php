@@ -79,10 +79,14 @@ $allPermission = $userPermission['all'] ?? [];
                             <td>{{ $item['sender_name'] ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::createFromTimestamp($item['created_at'])->format('Y-m-d H:i:s') }}</td>
                             <td>
-                                @if($item['read_at'])
+                                @if($item['read_at'] || ($item['total_count'] > 0 && $item['read_count'] === $item['total_count']))
                                     <span class="text-success">{{ __('Read') }}</span>
                                 @else
                                     <span class="text-danger">{{ __('Unread') }}</span>
+                                @endif
+                                @if(auth()->check() && (auth()->user()->isRoot() || auth()->user()->id === $item['sender_id']))
+                                    <br>
+                                    <span>{{ $item['read_count'] }}/{{ $item['total_count'] }} {{ __('notification-index.read-stats') }}</span>
                                 @endif
                             </td>
                             <td>
@@ -94,7 +98,7 @@ $allPermission = $userPermission['all'] ?? [];
                                         {{ __('notification-update.title') }}
                                     </a>
                                 @endif
-                                @if(auth()->check() && !$item['read_at'])
+                                @if(auth()->check() && !$item['read_at'] && !auth()->user()->isRoot())
                                     <form action="{{ route('notification.read', $item['id']) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('PATCH')

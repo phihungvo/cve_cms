@@ -40,9 +40,8 @@ class Index
         $query = Notification::query()
             ->with([
                 'sender',
-                'userNotifications' => function ($q) use ($user) {
-                    $q->where('user_id', $user->id);
-                }
+                'userNotifications',
+                'userNotifications.user'
             ]);
 
         if ($user->hasRole('root')) {
@@ -64,7 +63,6 @@ class Index
                                     });
                             });
                     })
-                    // Thêm điều kiện cho thông báo từ root gửi trực tiếp
                     ->orWhereHas('userNotifications', function ($q) use ($user) {
                         $q->where('user_id', $user->id);
                     });
@@ -83,6 +81,22 @@ class Index
 
         return $notifications->map(function ($notification) use ($user) {
             $userNotification = $notification->userNotifications->firstWhere('user_id', $user->id);
+
+            // Lấy danh sách user không phải Root
+            $nonRootUsers = $notification->userNotifications->filter(function ($userNotification) {
+                return !$userNotification->user || !$userNotification->user->hasRole('root');
+            });
+
+            // Đếm số lượng user không phải Root đã đọc và tổng số user không phải Root nhận thông báo
+            $totalUsers = $nonRootUsers->count();
+            $readUsers = $nonRootUsers->whereNotNull('read_at')->count();
+
+            // Cập nhật trạng thái read_at hiệu quả
+            $effectiveReadAt = $userNotification ? $userNotification->read_at?->timestamp : null;
+            if ($totalUsers > 0 && $readUsers === $totalUsers) {
+                $effectiveReadAt = now()->timestamp; // Đặt trạng thái là đã đọc nếu tất cả user không phải Root đã đọc
+            }
+
             return [
                 'id' => $notification->id,
                 'title' => $notification->title,
@@ -93,7 +107,9 @@ class Index
                 'sender_name' => $notification->sender ? $notification->sender->name : null,
                 'target_group' => $notification->target_group,
                 'created_at' => $notification->created_at->timestamp,
-                'read_at' => $userNotification ? $userNotification->read_at?->timestamp : null,
+                'read_at' => $effectiveReadAt,
+                'read_count' => $readUsers,
+                'total_count' => $totalUsers,
             ];
         })->all();
     }

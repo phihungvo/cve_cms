@@ -55,7 +55,15 @@ class Index extends ControllerAbstract
     public function markAsRead($id): RedirectResponse
     {
         try {
-            $userId = $this->auth->id;
+            $user = $this->auth;
+
+            // Root không được phép đánh dấu đã đọc
+            if ($user->hasRole('root')) {
+                $this->sessionMessage('error', __('notification-read.no-permission-root'));
+                return redirect()->route('notification.index');
+            }
+
+            $userId = $user->id;
             $userNotification = UserNotification::where('notification_id', $id)
                 ->where('user_id', $userId)
                 ->first();
@@ -88,9 +96,8 @@ class Index extends ControllerAbstract
                 ->with([
                     'sender',
                     'enterprise',
-                    'userNotifications' => function ($q) use ($user) {
-                        $q->where('user_id', $user->id);
-                    }
+                    'userNotifications',
+                    'userNotifications.user'
                 ])
                 ->where('id', $id)
                 ->first();
@@ -114,11 +121,20 @@ class Index extends ControllerAbstract
                 return redirect()->route('notification.index');
             }
 
-            // Tự động đánh dấu là đã đọc nếu chưa đọc
-            $userNotification = $notification->userNotifications->first();
-            if ($userNotification && !$userNotification->read_at) {
+            // Tự động đánh dấu đã đọc nếu chưa đọc và không phải Root
+            $userNotification = $notification->userNotifications->firstWhere('user_id', $user->id);
+            if ($userNotification && !$userNotification->read_at && !$user->hasRole('root')) {
                 $userNotification->update(['read_at' => now()]);
             }
+
+            // Lấy danh sách user không phải Root
+            $nonRootUsers = $notification->userNotifications->filter(function ($userNotification) {
+                return !$userNotification->user || !$userNotification->user->hasRole('root');
+            });
+
+            // Đếm số lượng user không phải Root đã đọc và tổng số user không phải Root nhận thông báo
+            $totalUsers = $nonRootUsers->count();
+            $readUsers = $nonRootUsers->whereNotNull('read_at')->count();
 
             $data = [
                 'id' => $notification->id,
@@ -132,6 +148,8 @@ class Index extends ControllerAbstract
                 'target_group' => $notification->target_group ?? 'All',
                 'created_at' => $notification->created_at->format('Y-m-d H:i:s'),
                 'read_at' => $userNotification ? $userNotification->read_at?->format('Y-m-d H:i:s') : null,
+                'read_count' => $readUsers,
+                'total_count' => $totalUsers,
             ];
 
             $this->meta('title', __('notification-show.title'));

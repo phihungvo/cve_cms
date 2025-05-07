@@ -44,6 +44,12 @@
                 <span class="text-danger">{{ __('Unread') }}</span>
             @endif
         </div>
+        @if(auth()->check() && (auth()->user()->isRoot() || auth()->user()->id === $notification['sender_id']))
+            <div class="mb-4">
+                <strong>{{ __('notification-show.read-stats') }}:</strong>
+                {{ $notification['read_count'] }}/{{ $notification['total_count'] }}
+            </div>
+        @endif
 
         <div class="mt-6">
             <a href="{{ route('notification.index') }}" class="btn btn-secondary mr-2">

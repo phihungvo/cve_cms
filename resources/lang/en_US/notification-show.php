@@ -6,4 +6,6 @@ return [
     'not-found' => 'Notification not found.',
     'no-permission' => 'You do not have permission to view this notification.',
     'failed' => 'Failed to load notification details.',
+    'read-stats' => 'Users Read',
+
 ];
