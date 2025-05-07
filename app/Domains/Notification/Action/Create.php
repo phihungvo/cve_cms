@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 class Create extends ActionAbstract
 {
     protected array $data;
-    protected ?Authenticatable $auth;
+    protected ?Authenticatable $auth; // Giữ kiểu theo lớp cha
     protected ?Notification $row;
 
     public function handle(array $data, ?Authenticatable $auth): array
@@ -80,13 +80,13 @@ class Create extends ActionAbstract
             throw new \Exception(__('notification-create.no-permission'));
         }
 
-        $user = $this->auth; // Gán vào biến tạm với kiểu User
+        $user = $this->auth; // Ép kiểu thành User
         if (!$user->isRoot() && !$user->isOwner()) {
             throw new \Exception(__('notification-create.no-permission'));
         }
 
         if ($user->isOwner()) {
-            if ($this->data['enterprise_id'] !== $user->enterprise_id && !is_null($this->data['enterprise_id'])) {
+            if ($this->data['enterprise_id'] !== $user->enterprise_id) {
                 throw new \Exception(__('notification-create.owner-enterprise-mismatch'));
             }
         }
@@ -96,8 +96,15 @@ class Create extends ActionAbstract
     {
         $usersQuery = User::query();
 
+        // Ép kiểu $this->auth thành User
+        if (!$this->auth instanceof User) {
+            return; // Không làm gì nếu $this->auth không phải User
+        }
+
+        $user = $this->auth;
+
         // TH1: Người tạo là Root
-        if ($this->auth->isRoot()) {
+        if ($user->isRoot()) {
             // Nếu không chọn enterprise_id (system notification), hoặc enterprise_id là null
             if (is_null($notification->enterprise_id)) {
                 // Gửi đến tất cả user thông thường (không phải Root)
@@ -139,7 +146,7 @@ class Create extends ActionAbstract
         }
 
         // TH2: Người tạo là Owner
-        if ($this->auth->isOwner()) {
+        if ($user->isOwner()) {
             $usersQuery->where('enterprise_id', $notification->enterprise_id);
 
             // Owner không gửi đến user là Root hoặc Owner

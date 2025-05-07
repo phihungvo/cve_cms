@@ -14,13 +14,13 @@ class Create
     protected $request;
     protected $auth;
 
-    public function __construct($request, $auth)
+    public function __construct($request, ?User $auth) // Cập nhật kiểu thành ?User
     {
         $this->request = $request;
         $this->auth = $auth;
     }
 
-    public static function new($request, $auth): self
+    public static function new($request, ?User $auth): self // Cập nhật kiểu thành ?User
     {
         return new self($request, $auth);
     }
@@ -32,8 +32,8 @@ class Create
             ? Enterprise::all()->pluck('id')->toArray()
             : [$this->auth->enterprise_id];
 
-        // Lấy enterprise_id từ request (hoặc enterprise_id của owner)
-        $enterpriseId = $this->request->input('enterprise_id', $this->auth->enterprise_id);
+        // Lấy enterprise_id từ request, nếu không có thì mặc định là enterprise_id của owner
+        $enterpriseId = $this->request->input('enterprise_id', $this->auth->isOwner() ? $this->auth->enterprise_id : null);
 
         // Lấy danh sách role dựa trên enterprise_id
         $roles = $enterpriseId ? Role::where('enterprise_id', $enterpriseId)->pluck('name')->toArray() : [];
@@ -62,9 +62,9 @@ class Create
             $data['enterprise_id'] = null;
         }
 
-        // Nếu là owner, bắt buộc phải có enterprise_id
-        if ($this->auth->isOwner() && is_null($data['enterprise_id'])) {
-            throw new \Exception(__('notification-create.owner-requires-enterprise'));
+        // Đảm bảo enterprise_id được gán cho Owner
+        if ($this->auth->isOwner()) {
+            $data['enterprise_id'] = $this->auth->enterprise_id;
         }
 
         // Kiểm tra quyền root hoặc owner

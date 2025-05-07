@@ -48,27 +48,14 @@ class Index
             'userNotifications.user'
         ]);
 
-        if (!$user->hasRole('root') && !$user->isOwner()) {
-            $query->where(function ($q) use ($enterpriseId, $user, $userRoles) {
-                $q->where('notification_type', 'system')
-                    ->where(function ($subQ) use ($userRoles) {
-                        $subQ->whereNull('target_group')
-                            ->orWhereIn('target_group', $userRoles);
-                    })
-                    ->orWhere(function ($subQ) use ($enterpriseId, $user, $userRoles) {
-                        $subQ->where('notification_type', 'enterprise')
-                            ->where('enterprise_id', $enterpriseId)
-                            ->where(function ($innerQ) use ($user, $userRoles) {
-                                $innerQ->whereIn('target_group', $userRoles)
-                                    ->orWhereHas('userNotifications', function ($q) use ($user) {
-                                        $q->where('user_id', $user->id);
-                                    });
-                            });
-                    })
-                    ->orWhereHas('userNotifications', function ($q) use ($user) {
-                        $q->where('user_id', $user->id);
-                    });
-            });
+        if (!$user->hasRole('root')) {
+            // Owner và user thường chỉ thấy thông báo của enterprise của họ
+            if ($user->isOwner() || !$user->isOwner()) {
+                $query->where(function ($q) use ($enterpriseId) {
+                    $q->whereNull('enterprise_id')
+                        ->orWhere('enterprise_id', $enterpriseId);
+                });
+            }
         }
 
         if ($search = $this->request->get('search')) {
