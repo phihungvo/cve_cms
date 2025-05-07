@@ -108,37 +108,30 @@ $allPermission = $userPermission['all'] ?? [];
                                     </form>
                                 @endif
                                 @if(auth()->check() && !$item['deleted_at'] && (auth()->user()->isRoot() || (auth()->user()->isOwner() && $item['enterprise_id'] === auth()->user()->enterprise_id)))
-                                    <form action="{{ route('notification.delete') }}" method="POST" style="display:inline;" class="delete-form" data-id="{{ $item['id'] }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input type="hidden" name="notification_id" value="{{ $item['id'] }}">
-                                        <button type="submit" class="btn btn-danger form-control-lg whitespace-nowrap delete-btn">
-                                            {{ __('Delete') }}
-                                        </button>
-                                    </form>
+                                    <a href="javascript:;" data-toggle="modal" data-target="#delete-modal"
+                                       data-action="delete" data-id="{{ $item['id'] }}" data-title="{{ addslashes($item['title'] ?? '-') }}"
+                                       class="btn btn-danger form-control-lg whitespace-nowrap delete-btn">
+                                        {{ __('Delete') }}
+                                    </a>
                                 @endif
                                 @if(auth()->check() && auth()->user()->isRoot() && $item['deleted_at'])
-                                    <form action="{{ route('notification.restore', $item['id']) }}" method="POST" style="display:inline;" class="restore-form" data-id="{{ $item['id'] }}">
-                                        @csrf
-                                        <button type="submit" class="btn btn-warning form-control-lg whitespace-nowrap restore-btn">
-                                            {{ __('Restore') }}
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('notification.force-delete', $item['id']) }}" method="POST" style="display:inline;" class="force-delete-form" data-id="{{ $item['id'] }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-dark form-control-lg whitespace-nowrap force-delete-btn">
-                                            {{ __('Force Delete') }}
-                                        </button>
-                                    </form>
+                                    <a href="javascript:;" data-toggle="modal" data-target="#restore-modal"
+                                       data-id="{{ $item['id'] }}" data-title="{{ addslashes($item['title'] ?? '-') }}"
+                                       class="btn btn-success form-control-lg whitespace-nowrap restore-btn">
+                                        {{ __('Restore') }}
+                                    </a>
+                                    <a href="javascript:;" data-toggle="modal" data-target="#delete-modal"
+                                       data-action="force-delete" data-id="{{ $item['id'] }}" data-title="{{ addslashes($item['title'] ?? '-') }}"
+                                       class="btn btn-danger form-control-lg whitespace-nowrap force-delete-btn">
+                                        {{ __('Force Delete') }}
+                                    </a>
                                 @endif
                                 @if(auth()->check() && auth()->user()->isOwner() && $item['deleted_at'] && $item['enterprise_id'] === auth()->user()->enterprise_id)
-                                    <form action="{{ route('notification.restore', $item['id']) }}" method="POST" style="display:inline;" class="restore-form" data-id="{{ $item['id'] }}">
-                                        @csrf
-                                        <button type="submit" class="btn btn-warning form-control-lg whitespace-nowrap restore-btn">
-                                            {{ __('Restore') }}
-                                        </button>
-                                    </form>
+                                    <a href="javascript:;" data-toggle="modal" data-target="#restore-modal"
+                                       data-id="{{ $item['id'] }}" data-title="{{ addslashes($item['title'] ?? '-') }}"
+                                       class="btn btn-success form-control-lg whitespace-nowrap restore-btn">
+                                        {{ __('Restore') }}
+                                    </a>
                                 @endif
                             </td>
                         </tr>
@@ -159,22 +152,77 @@ $allPermission = $userPermission['all'] ?? [];
             'message' => __('notification-delete.message', ['name' => '<span id="delete-notification-name"></span>']),
         ])
 
-        <!-- Form ẩn để lưu notification ID -->
+        <!-- Restore Modal -->
+        @include('molecules.restore-modal', [
+            'route' => route('notification.restore', 0),
+            'title' => __('notification-restore.title'),
+            'message' => __('notification-restore.message', ['name' => '<span id="restore-notification-name"></span>']),
+        ])
+
+        <!-- JavaScript để xử lý modal -->
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                const form = document.querySelector('#delete-modal form');
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'notification_id';
-                input.id = 'delete-notification-id';
-                form.appendChild(input);
+                // Xử lý Delete và Force Delete modal
+                const deleteModal = document.querySelector('#delete-modal');
+                const deleteModalForm = deleteModal.querySelector('form');
+                const deleteModalTitle = deleteModal.querySelector('.text-3xl');
+                const deleteModalIcon = deleteModal.querySelector('[data-icon]');
+                const deleteModalButton = deleteModal.querySelector('.btn:not([data-dismiss="modal"])');
+                const deleteNotificationIdInput = document.createElement('input');
+                deleteNotificationIdInput.type = 'hidden';
+                deleteNotificationIdInput.name = 'notification_id';
+                deleteNotificationIdInput.id = 'delete-notification-id';
+                deleteModalForm.appendChild(deleteNotificationIdInput);
 
-                // Xử lý xác nhận trước khi xóa
-                document.querySelectorAll('.delete-form, .force-delete-form, .restore-form').forEach(form => {
-                    form.addEventListener('submit', function (e) {
-                        if (!confirm('Are you sure you want to perform this action?')) {
-                            e.preventDefault();
+                document.querySelectorAll('.delete-btn, .force-delete-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const action = this.dataset.action;
+                        const notificationId = this.dataset.id;
+                        const title = this.dataset.title;
+
+                        deleteModalTitle.textContent = action === 'force-delete' ? '{{ __('notification-delete.title') }}' : '{{ __('notification-delete.title') }}';
+                        document.getElementById('delete-notification-name').textContent = title;
+
+                        if (deleteModalIcon) {
+                            deleteModalIcon.remove();
                         }
+                        const iconContainer = deleteModalTitle.parentElement.querySelector('.p-5.text-center');
+                        const newIcon = document.createElement('div');
+                        newIcon.setAttribute('data-icon', 'true');
+                        newIcon.className = 'w-16 h-16 text-theme-24 mx-auto mt-3';
+                        newIcon.innerHTML = '@icon("x-circle", "w-16 h-16 text-theme-24")';
+                        iconContainer.insertBefore(newIcon, deleteModalTitle);
+
+                        deleteModalForm.action = action === 'force-delete' ? '{{ route('notification.force-delete', ':id') }}'.replace(':id', notificationId) : '{{ route('notification.delete') }}';
+                        deleteNotificationIdInput.value = notificationId;
+
+                        deleteModalForm.querySelector('input[name="_method"]').value = 'DELETE';
+                        deleteModalButton.textContent = '{{ __('Delete') }}';
+                        deleteModalButton.classList.remove('btn-success');
+                        deleteModalButton.classList.add('btn-danger');
+                    });
+                });
+
+                // Xử lý Restore modal
+                const restoreModal = document.querySelector('#restore-modal');
+                const restoreModalForm = restoreModal.querySelector('form');
+                const restoreModalTitle = restoreModal.querySelector('.text-3xl');
+                const restoreNotificationIdInput = document.createElement('input');
+                restoreNotificationIdInput.type = 'hidden';
+                restoreNotificationIdInput.name = 'notification_id';
+                restoreNotificationIdInput.id = 'restore-notification-id';
+                restoreModalForm.appendChild(restoreNotificationIdInput);
+
+                document.querySelectorAll('.restore-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const notificationId = this.dataset.id;
+                        const title = this.dataset.title;
+
+                        restoreModalTitle.textContent = '{{ __('notification-restore.title') }}';
+                        document.getElementById('restore-notification-name').textContent = title;
+
+                        restoreModalForm.action = '{{ route('notification.restore', ':id') }}'.replace(':id', notificationId);
+                        restoreNotificationIdInput.value = notificationId;
                     });
                 });
             });

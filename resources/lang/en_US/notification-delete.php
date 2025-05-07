@@ -2,7 +2,7 @@
 
 return [
     'title' => 'Delete Notification',
-    'message' => 'Are you sure you want to delete the notification: :name?',
+    'message' => 'Are you sure you want to delete the notification?',
     'delete-success' => 'Notification deleted successfully.',
     'delete-error' => 'Failed to delete notification.',
     'delete-error-not-found' => 'Notification not found.',

@@ -3,6 +3,8 @@
 return [
     'STT' => 'No.',
     'Title' => 'Title',
+    'meta-title' => 'Notification List',
+    'meta-description' => 'Notification',
     'Content' => 'Content',
     'Type' => 'Type',
     'Enterprise' => 'Enterprise',
