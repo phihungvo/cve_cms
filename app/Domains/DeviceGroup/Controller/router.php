@@ -4,7 +4,7 @@ namespace App\Domains\DeviceGroup\Controller;
 
 use Illuminate\Support\Facades\Route;
 
-Route::group([], static function () {
+Route::group(['middleware' => ['user-auth']], static function () {
     Route::get('/device/group', IndexController::class)->name('device_group.index');
 
     Route::any('/device/group/create', CreateController::class)->name('device_group.create');
