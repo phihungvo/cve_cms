@@ -124,17 +124,15 @@ class UpdateController extends ControllerAbstract
     protected function restore(): RedirectResponse
     {
         try {
-           $this->action()->restore();
+            $this->action()->restore();
 
-           $this->sessionMessage('success', __('vehicle-group-update.restore.success'));
+            $this->sessionMessage('success', __('vehicle-group-update.restore.success'));
 
-           return redirect()->route('vehicle_group.index');
+            return redirect()->route('vehicle_group.index');
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
             return redirect()->route('vehicle_group.index');
         }
     }
-
-
 }

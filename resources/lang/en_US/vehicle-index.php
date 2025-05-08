@@ -14,4 +14,6 @@
     'select-user' => '-- select User --',
     'select-enterprise' => '-- select Enterprise --',
     'select-group' => '-- select Group --',
+    'list-bookmark' => 'List Bookmark',
+    'bookmark-group' => 'Bookmark Group',
 ];

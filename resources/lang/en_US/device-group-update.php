@@ -62,7 +62,11 @@
         'error' => [
             'model-not-found' => 'Restore failed: Model not found.',
             'query-error' => 'Restore failed: Database query error.',
+            'connection-error' => 'Restore failed: Database connection error.',
+            'not-authorized' => 'Restore failed: You are not authorized to perform this action.',
+            'validation-failed' => 'Restore failed: Validation error occurred.',
             'unexpected-error' => 'Restore failed: Unexpected error.',
         ],
     ],
 ];
+

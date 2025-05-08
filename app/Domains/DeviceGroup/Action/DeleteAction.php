@@ -12,6 +12,7 @@ class DeleteAction extends ActionAbstract
      */
     public function handle(): void
     {
+        $this->check();
         $this->delete();
     }
 
@@ -25,9 +26,6 @@ class DeleteAction extends ActionAbstract
     protected function delete(): void
     {
         try {
-            if ($this->row->deviceGroupMaps()->exists()) {
-                throw new Exception(__('device-group-update.delete.error.in-use'));
-            }
             $this->row->delete();
         } catch (QueryException $e) {
             if (str_contains($e->getMessage(), 'foreign key constraint fails')) {
@@ -54,6 +52,16 @@ class DeleteAction extends ActionAbstract
                 0,
                 $e
             );
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function check(): void
+    {
+        if ($this->row->deviceGroupMaps()->exists()) {
+            throw new Exception(__('device-group-update.delete.error.in-use'));
         }
     }
 }

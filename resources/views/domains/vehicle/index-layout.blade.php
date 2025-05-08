@@ -8,19 +8,19 @@
             {{--    main nav --}}
             <div class="px-5 nav nav-tabs flex overflow-auto whitespace-nowrap"
                  role="tablist">
-                <!--List Vehicle-->
+                <!--List Bookmark-->
                 <a href="{{ route('vehicle.index') }}"
                    class="p-4
                 {{ ($ROUTE === 'vehicle.index') ? 'active' : '' }}
                 {{ (Str::is('vehicle*', $ROUTE) && !Str::is('vehicle_group*', $ROUTE)) ? 'active' : '' }}"
-                   role="tab">List Vehicle</a>
+                   role="tab">{{__('vehicle-index.list-bookmark')}}</a>
 
-                <!-- Vehicle Groups-->
+                <!-- Bookmark Groups-->
                 <a href="{{ route('vehicle_group.index') }}"
                    class="p-4
                {{ (Str::is('vehicle_group*', $ROUTE)) ? 'active' : '' }}
                "
-                   role="tab">{{ __('Vehicle Groups') }}</a>
+                   role="tab">{{ __('vehicle-index.bookmark-group') }}</a>
             </div>
             {{--     nav-inner --}}
             @yield('nav-inner')

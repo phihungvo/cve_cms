@@ -14,6 +14,7 @@ class ForceDeleteAction extends ActionAbstract
      */
     public function handle(): void
     {
+        $this->check();
         $this->forceDelete();
     }
 
@@ -27,9 +28,6 @@ class ForceDeleteAction extends ActionAbstract
     protected function forceDelete(): void
     {
         try {
-            if ($this->row->deviceGroupMaps()->exists()) {
-                throw new Exception(__('device-group-update.force-delete.error.in-use'));
-            }
             $this->row->forceDelete();
         } catch (ModelNotFoundException $e) {
             throw new Exception(
@@ -49,6 +47,16 @@ class ForceDeleteAction extends ActionAbstract
                 0,
                 $e
             );
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function check(): void
+    {
+        if ($this->row->deviceGroupMaps()->exists()) {
+            throw new Exception(__('device-group-update.force-delete.error.in-use'));
         }
     }
 }

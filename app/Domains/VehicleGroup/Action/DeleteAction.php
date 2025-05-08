@@ -15,6 +15,7 @@ class DeleteAction extends ActionAbstract
      */
     public function handle(): void
     {
+        $this->check();
         $this->delete();
     }
 
@@ -26,9 +27,6 @@ class DeleteAction extends ActionAbstract
     protected function delete(): void
     {
         try {
-            if ($this->row->vehicleGroupsMaps()->exists()) {
-                throw new Exception(__('vehicle-group-update.delete.error.in-use'));
-            }
             $this->row->delete();
         } catch (AuthorizationException $e) {
             // Lỗi phân quyền: xảy ra khi người dùng không có quyền xóa bản ghi này
@@ -46,6 +44,16 @@ class DeleteAction extends ActionAbstract
         } catch (Throwable $e) {
             // Lỗi không xác định: bắt tất cả các ngoại lệ khác không được xử lý cụ thể ở trên
             throw new Exception(__('vehicle-group-delete.error.unexpected', ['message' => $e->getMessage()]), 0, $e);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function check(): void
+    {
+        if ($this->row->vehicleGroupsMaps()->exists()) {
+            throw new Exception(__('vehicle-group-update.delete.error.in-use'));
         }
     }
 }

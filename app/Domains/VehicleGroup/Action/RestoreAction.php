@@ -12,6 +12,9 @@ use Throwable;
 
 class RestoreAction extends ActionAbstract
 {
+    /**
+     * @throws Exception
+     */
     public function handle(): void
     {
         $this->restore();
