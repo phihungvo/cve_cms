@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Redis;
 class CleanUpdateCityJobs extends Command
 {
     protected $signature = 'position:clean-update-city-jobs';
-    protected $description = 'Remove UpdateCity jobs from the queue while preserving other jobs';
+    protected $description = 'Remove UpdateCity jobs from the queue while preserving other jobs.';
 
     public function handle()
     {
