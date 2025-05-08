@@ -54,7 +54,23 @@ services:
             - platform-network
         tty: true
 
+    platform-worker:
+        container_name: platform-worker
+        image: platform-app
+        restart: unless-stopped
+        command: php artisan queue:work --queue=platform --tries=3 --timeout=120
+        depends_on:
+            platform-mysql:
+                condition: service_healthy
+            platform-redis:
+                condition: service_healthy
+        volumes:
+            - ./../storage:/app/storage
+        networks:
+            - platform-network
+        deploy:
+            replicas: 5 # Chạy 5 container worker
 networks:
-  platform-network:
-    name: platform-network
-    driver: bridge
+    platform-network:
+        name: platform-network
+        driver: bridge
