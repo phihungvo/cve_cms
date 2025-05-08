@@ -233,10 +233,10 @@ class Create extends ActionAbstract
             return true;
         }
 
-        return ((string)$this->previous->speed !== (string)$this->data['speed'])
-            || ((string)$this->previous->latitude !== (string)$this->data['latitude'])
-            || ((string)$this->previous->longitude !== (string)$this->data['longitude'])
-            || ((string)$this->previous->direction !== (string)$this->data['direction']);
+        return ((string) $this->previous->speed !== (string) $this->data['speed'])
+            || ((string) $this->previous->latitude !== (string) $this->data['latitude'])
+            || ((string) $this->previous->longitude !== (string) $this->data['longitude'])
+            || ((string) $this->previous->direction !== (string) $this->data['direction']);
     }
 
     /**
@@ -358,6 +358,24 @@ class Create extends ActionAbstract
      */
     protected function jobCity(): void
     {
-        UpdateCityJob::dispatch($this->row->id);
+        if ($this->shouldUpdateCity()) {
+            UpdateCityJob::dispatch($this->row->id);
+        }
+    }
+
+    protected function shouldUpdateCity(): bool
+    {
+        if (empty($this->previous)) {
+            return true;
+        }
+
+        $distance = helper()->coordinatesDistance(
+            $this->previous->latitude,
+            $this->previous->longitude,
+            $this->row->latitude,
+            $this->row->longitude
+        );
+
+        return $distance > 1000; // Chỉ gửi nếu di chuyển hơn 1km
     }
 }
