@@ -43,12 +43,28 @@ class Index extends ControllerAbstract
 
     public function restore($id): RedirectResponse
     {
-        $action = new Delete();
-        $result = $action->restore((int) $id, $this->auth);
+        try {
+            $user = $this->auth;
 
-        return $this->redirectResult($result, 'notification.index');
+            if (!$user->hasRole('root') && !$user->isOwner()) {
+                $this->sessionMessage('error', __('notification-restore.no-permission-owner'));
+                return redirect()->route('notification.index');
+            }
+
+            $action = new Delete();
+            $result = $action->restore((int) $id, $this->auth);
+
+            return $this->redirectResult($result, 'notification.index');
+        } catch (\Exception $e) {
+            Log::error('Restore notification failed', [
+                'notification_id' => $id,
+                'error' => $e->getMessage(),
+                'stack' => $e->getTraceAsString(),
+            ]);
+            $this->sessionMessage('error', __('notification-restore.failed') . ': ' . $e->getMessage());
+            return redirect()->route('notification.index');
+        }
     }
-
     public function forceDelete($id): RedirectResponse
     {
         $action = new Delete();

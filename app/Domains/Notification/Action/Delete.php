@@ -63,6 +63,14 @@ class Delete
     public function forceDelete(int $notificationId, User $user): array
     {
         try {
+            if ($notificationId <= 0) {
+                Log::error('Invalid notification ID provided for force delete', ['notificationId' => $notificationId, 'user_id' => $user->id]);
+                return [
+                    'success' => false,
+                    'message' => __('notification-delete.invalid-id'),
+                ];
+            }
+
             if (!$user->hasRole('root') && !$user->isOwner()) {
                 return [
                     'success' => false,
@@ -72,7 +80,6 @@ class Delete
 
             $notification = Notification::withTrashed()->findOrFail($notificationId);
 
-            // Kiểm tra nếu bản ghi đã soft delete
             if (!$notification->trashed()) {
                 return [
                     'success' => false,
@@ -80,7 +87,6 @@ class Delete
                 ];
             }
 
-            // Nếu là Owner, kiểm tra Enterprise
             if ($user->isOwner() && $notification->enterprise_id && $notification->enterprise_id !== $user->enterprise_id) {
                 return [
                     'success' => false,
@@ -88,20 +94,22 @@ class Delete
                 ];
             }
 
-            // Xóa các bản ghi liên quan trong user_notifications trước
             UserNotification::where('notification_id', $notificationId)->delete();
-
-            // Xóa vĩnh viễn bản ghi trong notifications
             $notification->forceDelete();
 
-            Log::info('Notification force deleted successfully: ', ['id' => $notificationId]);
+            Log::info('Notification force deleted successfully: ', ['id' => $notificationId, 'user_id' => $user->id]);
 
             return [
                 'success' => true,
                 'message' => __('notification-delete.force-delete-success'),
             ];
         } catch (Exception $e) {
-            Log::error('Error force deleting notification: ', ['error' => $e->getMessage(), 'notificationId' => $notificationId, 'trace' => $e->getTraceAsString()]);
+            Log::error('Error force deleting notification: ', [
+                'error' => $e->getMessage(),
+                'notificationId' => $notificationId,
+                'user_id' => $user->id,
+                'request_ip' => request()->ip(),
+            ]);
             return [
                 'success' => false,
                 'message' => __('notification-delete.force-delete-error'),
@@ -114,6 +122,14 @@ class Delete
     public function restore(int $notificationId, User $user): array
     {
         try {
+            if ($notificationId <= 0) {
+                Log::error('Invalid notification ID provided for restore', ['notificationId' => $notificationId, 'user_id' => $user->id]);
+                return [
+                    'success' => false,
+                    'message' => __('notification-delete.invalid-id'),
+                ];
+            }
+
             if (!$user->hasRole('root') && !$user->isOwner()) {
                 return [
                     'success' => false,
@@ -123,7 +139,13 @@ class Delete
 
             $notification = Notification::withTrashed()->findOrFail($notificationId);
 
-            // Nếu là Owner, kiểm tra Enterprise
+            if (!$notification->trashed()) {
+                return [
+                    'success' => false,
+                    'message' => __('notification-delete.not-soft-deleted'),
+                ];
+            }
+
             if ($user->isOwner() && $notification->enterprise_id && $notification->enterprise_id !== $user->enterprise_id) {
                 return [
                     'success' => false,
@@ -133,14 +155,19 @@ class Delete
 
             $notification->restore();
 
-            Log::info('Notification restored successfully: ', ['id' => $notificationId]);
+            Log::info('Notification restored successfully: ', ['id' => $notificationId, 'user_id' => $user->id]);
 
             return [
                 'success' => true,
                 'message' => __('notification-delete.restore-success'),
             ];
         } catch (Exception $e) {
-            Log::error('Error restoring notification: ', ['error' => $e->getMessage(), 'notificationId' => $notificationId]);
+            Log::error('Error restoring notification: ', [
+                'error' => $e->getMessage(),
+                'notificationId' => $notificationId,
+                'user_id' => $user->id,
+                'request_ip' => request()->ip(),
+            ]);
             return [
                 'success' => false,
                 'message' => __('notification-delete.restore-error'),

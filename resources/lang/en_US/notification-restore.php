@@ -10,5 +10,8 @@ return [
     'restore-error' => 'Failed to restore notification.',
     'no-permission-enterprise' => 'You do not have permission to restore this notification for the specified enterprise.',
     'message' => 'Are you sure you want to restore the notification?',
+    'no-permission-owner' => 'You do not have permission to restore this notification.',
+    'no-permission-root' => 'Root users cannot restore notifications.',
+
 
 ];

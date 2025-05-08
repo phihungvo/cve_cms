@@ -31,7 +31,7 @@ class Notification extends ModelAbstract
         'target_group',
         'created_at',
     ];
-
+    protected $dates = ['deleted_at'];
     protected $casts = [
         'notification_type' => 'string',
         'created_at' => 'datetime',
