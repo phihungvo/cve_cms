@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domains\Campaign\Media\Controller;
 
 use App\Domains\Campaign\Media\Controller\Index as Index;
-use App\Domains\Campaign\Media\Controller\Create as Create;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['user-auth']], static function () {
@@ -16,5 +15,3 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::delete('/fpp/media/delete', [Index::class, 'destroy'])->name('fpp.media.delete');
     Route::put('/fpp/media/rename', [Index::class, 'rename'])->name('fpp.media.rename');
 });
-
-
