@@ -156,7 +156,7 @@
                         </div>
                     </div>
 
-                    <!-- Reach, Impression, Distance, Budget -->
+                    <!-- Reach, Impression, Distance, No Device, Budget -->
                     <div class="row justify-between">
                         <div class="col-md-3">
                             <div class="form-group mb-3">
@@ -180,6 +180,17 @@
                             </div>
                         </div>
                         <div class="col-md-3">
+                            <div class="form-group mb-3">
+                                <label class="form-label">{{ __('campaign-index.no_device') }}</label>
+                                <input type="number" name="no_device" class="form-control"
+                                    value="{{ old('no_device', $campaign['no_device']) }}" min="0" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Budget -->
+                    <div class="row justify-between">
+                        <div class="col-md-12">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.budget') }}</label>
                                 <input type="number" name="budget" class="form-control"
@@ -237,14 +248,12 @@
         .selected-media .remove-media {
             margin-top: 8px;
             background-color: #1F2A44;
-            /* Màu xanh dương đậm từ hình */
             border-color: #1F2A44;
         }
 
         .selected-user .remove-user:hover,
         .selected-media .remove-media:hover {
             background-color: #2E3B5A;
-            /* Màu xanh dương đậm hơn khi hover */
             border-color: #2E3B5A;
         }
 
@@ -253,7 +262,6 @@
             align-items: center;
             justify-content: center;
             background-color: #1F2A44;
-            /* Màu xanh dương đậm từ hình */
             color: white;
             font-size: 1.2rem;
             font-weight: bold;
@@ -267,7 +275,6 @@
 
         .upload-btn:hover {
             background-color: #2E3B5A;
-            /* Màu xanh dương đậm hơn khi hover */
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
@@ -281,10 +288,8 @@
             margin-left: 8px;
         }
 
-        /* Tăng chiều cao cho select multiple để hiển thị nhiều tùy chọn */
         #media-select {
             height: 150px;
-            /* Chiều cao cố định để hiển thị nhiều mục */
         }
     </style>
 @stop
@@ -363,10 +368,9 @@
                         });
                     }
 
-                    this.value = ''; // Reset select về mặc định
+                    this.value = '';
                 });
 
-                // Xóa user đã chọn
                 selectedUsersDiv.querySelectorAll('.remove-user').forEach(button => {
                     button.addEventListener('click', function() {
                         this.parentElement.remove();
@@ -380,8 +384,7 @@
 
             if (mediaSelect && selectedMediaDiv) {
                 mediaSelect.addEventListener('change', function() {
-                    const selectedOptions = Array.from(this
-                    .selectedOptions); // Lấy tất cả các tùy chọn được chọn
+                    const selectedOptions = Array.from(this.selectedOptions);
 
                     selectedOptions.forEach(option => {
                         const mediaId = option.value;
@@ -391,7 +394,6 @@
                         const isVideo = mediaType && (mediaType.toLowerCase().includes('video') ||
                             mediaType === 'mp4');
 
-                        // Chỉ thêm media nếu chưa có trong selected-media
                         if (mediaId && !selectedMediaDiv.querySelector(`[data-id="${mediaId}"]`)) {
                             const mediaDiv = document.createElement('div');
                             mediaDiv.className = 'card mb-3 media bg-white selected-media';
@@ -417,7 +419,6 @@
                             `;
                             selectedMediaDiv.appendChild(mediaDiv);
 
-                            // Gắn sự kiện xóa cho nút X
                             mediaDiv.querySelector('.remove-media').addEventListener('click',
                                 function() {
                                     mediaDiv.remove();
@@ -425,11 +426,9 @@
                         }
                     });
 
-                    // Reset lựa chọn trong dropdown
-                    this.selectedIndex = -1; // Bỏ chọn tất cả
+                    this.selectedIndex = -1;
                 });
 
-                // Gắn sự kiện xóa cho các media đã chọn ban đầu
                 selectedMediaDiv.querySelectorAll('.remove-media').forEach(button => {
                     button.addEventListener('click', function() {
                         this.closest('.selected-media').remove();
@@ -443,7 +442,6 @@
                     enterpriseSelect.addEventListener('change', function() {
                         const enterpriseId = this.value;
                         if (enterpriseId) {
-                            // Tải danh sách media
                             fetch(`/campaign/media-by-enterprise/${enterpriseId}`, {
                                     headers: {
                                         'Accept': 'application/json',
@@ -456,7 +454,7 @@
                                     if (!response.ok) {
                                         throw new Error(
                                             `Media API error: ${response.status} ${response.statusText}`
-                                            );
+                                        );
                                     }
                                     return response.json();
                                 })
@@ -479,7 +477,6 @@
                                             </option>`;
                                     });
 
-                                    // Khôi phục media đã chọn của chiến dịch
                                     @if (!empty($campaign['media_ids']))
                                         const campaignMediaIds = @json($campaign['media_ids']);
                                         campaignMediaIds.forEach(mediaId => {
@@ -531,7 +528,6 @@
                                         '<option value="">Error loading media</option>';
                                 });
 
-                            // Tải danh sách users
                             fetch(`/campaign/users-by-enterprise/${enterpriseId}`, {
                                     headers: {
                                         'Accept': 'application/json',
@@ -544,7 +540,7 @@
                                     if (!response.ok) {
                                         throw new Error(
                                             `Users API error: ${response.status} ${response.statusText}`
-                                            );
+                                        );
                                     }
                                     return response.json();
                                 })
@@ -573,7 +569,6 @@
                         }
                     });
 
-                    // Kích hoạt sự kiện change ngay khi tải trang
                     enterpriseSelect.dispatchEvent(new Event('change'));
                 }
             @endif
