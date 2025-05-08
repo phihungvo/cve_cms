@@ -30,7 +30,7 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
         return $this->dataCore() + [
             'languages' => $this->languages(),
             'timezones' => $this->timezones(),
-            'user_roles' => $this->roles(),
+            'roles' => $this->roles(),
             'groups' => $this->groups(),
             'preferences_units_distance' => $this->preferencesUnitsDistance(),
             'preferences_units_volume' => $this->preferencesUnitsVolume(),

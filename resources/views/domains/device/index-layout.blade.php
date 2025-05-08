@@ -1,3 +1,5 @@
+@php use Illuminate\Support\Str; @endphp
+
 @extends ('layouts.in')
 
 @section ('body')
@@ -6,9 +8,11 @@
         <div class="nav nav-tabs flex overflow-auto whitespace-nowrap" role="tablist">
             <!--List Device-->
             <a href="{{ route('device.index') }}"
-            class="p-4 {{ ($ROUTE === 'device.index') ? 'active' : '' }}"
+            class="p-4
+            {{ ($ROUTE === 'device.index') ? 'active' : '' }}
+            {{Str::is('device*', $ROUTE) && !Str::is('device_group*', $ROUTE) ? 'active' : ''}}
+            "
             role="tab">List Device</a>
-
 
             <!-- Device Groups-->
             <a href="{{ route('device_group.index') }}"

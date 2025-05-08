@@ -41,7 +41,6 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         $this->dataLanguageId();
         $this->dataTimezoneId();
         $this->dataRoleIds();
-        $this->dataRole();
         $this->dataGroup();
     }
 
@@ -178,7 +177,17 @@ abstract class CreateUpdateAbstract extends ActionAbstract
 
     protected function dataRoleIds(): void
     {
-        $this->data['roles'] = $this->request->get('roles') ?? [];
+        if ($this->auth->enterprise_id == $this->row->enterprise_id) {
+            # co quyen sua
+            if ($this->request->input('roles')) {
+                $this->data['roles'] = $this->request->input('roles');
+            } else {
+                $this->data['roles'] = [];
+            }
+        } else {
+            # khong co quyen sua
+            $this->data['roles'] = null;
+        }
     }
 
     /**
@@ -320,11 +329,6 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         } else {
             $this->data['api_key_full'] = $this->row?->api_key_full;
         }
-    }
-
-    protected function dataRole(): void
-    {
-        $this->data['roles'] ??= [];
     }
 
     protected function dataGroup(): void

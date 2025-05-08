@@ -1,4 +1,3 @@
-{{--@dd(get_defined_vars())--}}
 <div class="box p-5 mt-5">
     <div class="p-2">
         <label for="user-name" class="form-label">{{ __('user-create.name') }}</label>
@@ -125,13 +124,13 @@
             </div>
         </div>
         <div class="flex-1 p-2">
-{{--             @dd($assignedGroups->get())--}}
             <h3 class="text-lg font-bold ml-2">Role</h3>
-        @foreach($user_roles as $item)
+        @foreach($roles as $item)
                 <div class="p-2">
                     <div class="form-check">
                         <input type="checkbox" name="roles[]" value="{{$item->id}}" class="form-check-switch"
-                               id="user-role-{{$item->id}}"
+                                   id="user-role-{{$item->id}}"
+                            {{isset($row) && auth()->user()->enterprise_id == $row->enterprise_id ? '' : 'disabled' }}
                             {{ isset($assignedRoles) && in_array($item->id, $assignedRoles->pluck('id')->toArray()) ? 'checked' : '' }}
                             {{$REQUEST->input('roles') && in_array($item->id, $REQUEST->input('roles')) ? 'checked' : '' }}>
                         <label for="user-role-{{$item->id}}" class="form-check-label">{{$item->name}}</label>
