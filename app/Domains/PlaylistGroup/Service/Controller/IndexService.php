@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\DeviceGroup\Service\Controller;
+namespace App\Domains\PlaylistGroup\Service\Controller;
 
-use App\Domains\DeviceGroup\Model\DeviceGroupModel as Model;
+use App\Domains\PlaylistGroup\Model\PlaylistGroupModel as Model;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
