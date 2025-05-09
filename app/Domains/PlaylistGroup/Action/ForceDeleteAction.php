@@ -13,6 +13,7 @@ class ForceDeleteAction extends ActionAbstract
      */
     public function handle(): void
     {
+        $this->check();
         $this->forceDelete();
     }
 
@@ -31,6 +32,16 @@ class ForceDeleteAction extends ActionAbstract
             throw new Exception(__('playlist-group-force-delete.error.query-error'));
         } catch (Exception $e) {
             throw new Exception(__('playlist-group-force-delete.error.unexpected-error'));
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function check(): void
+    {
+        if ($this->row->playlistGroupMaps()->exists()) {
+            throw new Exception(__('play-list-group-delete.error.in-use'));
         }
     }
 }

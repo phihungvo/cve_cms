@@ -1,7 +1,8 @@
 @php use Illuminate\Support\Carbon; @endphp
-@extends('layouts.in')
 
-@section('body')
+@extends('domains.campaign.playlist.index-layout')
+
+@section('content')
     <!-- Search Form -->
     <form method="GET" class="sm:flex sm:space-x-4">
         <div class="flex-grow mt-2 sm:mt-0 sm:space-x-4">

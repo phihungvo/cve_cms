@@ -75,7 +75,7 @@ class PlaylistGroupModel extends ModelAbstract
         return new PlaylistGroupBuilder($query);
     }
 
-    public function enterprises(): BelongsTo
+    public function enterprise(): BelongsTo
     {
         return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN, self::PRIMARY);
     }

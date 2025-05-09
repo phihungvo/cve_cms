@@ -31,10 +31,11 @@ class IndexService extends ControllerAbstract
     protected function list(): Collection
     {
         return Model::query()
+            ->with(['enterprise'])
             ->roleRoot()
             ->roleOwner()
             ->when($this->request->input('enterprise_id'), function ($query) {
-                $query->where('enterprise_id', $this->request->input('enterprise_id'));
+                return $query->where('enterprise_id', $this->request->input('enterprise_id'));
             })
             ->get();
     }

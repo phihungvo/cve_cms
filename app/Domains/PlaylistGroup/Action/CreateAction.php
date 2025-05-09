@@ -22,10 +22,7 @@ class CreateAction extends CreateUpdateAbstractAction
     protected function save(): Model
     {
         try {
-            $this->row = Model::query()->create([
-                // TODO: Replace with actual fields
-
-            ]);
+            $this->row = Model::query()->create($this->data);
 
             return $this->row;
         } catch (AuthorizationException $e) {
@@ -59,4 +56,3 @@ class CreateAction extends CreateUpdateAbstractAction
         }
     }
 }
-

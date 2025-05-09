@@ -28,8 +28,7 @@ class UpdateAction extends CreateUpdateAbstractAction
     {
         try {
             $this->row->update([
-                // TODO: Replace with actual fields
-
+                $this->row->update($this->data),
             ]);
 
             return $this->row;

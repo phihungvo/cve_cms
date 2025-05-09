@@ -1,6 +1,6 @@
+@extends('domains.campaign.playlist.index-layout')
 
-@extends('layouts.in')
-@section('body')
+@section('content')
     <form method="post">
         <input type="hidden" name="_action" value="create" />
 {{--        <input type="hidden" name="">--}}

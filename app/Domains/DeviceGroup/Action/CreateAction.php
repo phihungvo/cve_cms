@@ -15,7 +15,7 @@ class CreateAction extends CreateUpdateAbstractAction
     /**
      * Create DeviceGroup
      *
-     * @return void
+     * @return Model
      *
      * @override
      */

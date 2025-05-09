@@ -1,6 +1,8 @@
-@extends('layouts.in')
+@php use Illuminate\Support\Carbon; @endphp
 
-@section('body')
+@extends('domains.campaign.playlist.index-layout')
+
+@section('content')
     <form method="post">
         <input type="hidden" name="_action" value="create" />
 

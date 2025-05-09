@@ -1,7 +1,7 @@
 @php use Carbon\Carbon; @endphp
-@extends('layouts.in')
+@extends('domains.campaign.playlist.index-layout')
 
-@section('body')
+@section('content')
 {{--    @dd($list) displays_count --}}
     <form method="get">
         <div class="sm:flex sm:space-x-4">
