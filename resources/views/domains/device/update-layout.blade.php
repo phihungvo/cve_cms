@@ -1,6 +1,5 @@
-@extends ('layouts.in')
-
-@section ('body')
+@extends ('domains.device.index-layout')
+@section('content')
 <div class="box flex items-center px-5">
     <div class="flex flex-col">
         {{--    main nav --}}
@@ -49,7 +48,7 @@
 
 <div class="tab-content">
     <div class="tab-pane active" role="tabpanel">
-        @yield('content')
+        @yield('content_inner')
     </div>
 </div>
 

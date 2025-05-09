@@ -1,6 +1,6 @@
 @extends ('domains.device.update-layout')
 
-@section ('content')
+@section ('content_inner')
 
 <form method="post">
     <input type="hidden" name="_action" value="updateTransfer" />
