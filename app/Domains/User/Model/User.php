@@ -207,13 +207,12 @@ class User extends ModelAbstract implements Authenticatable
     /**
      * Kiểm tra nếu user có vai trò cụ thể
      *
-     * @param string $roleName
-     *
+     * @param string $alias
      * @return bool
      */
-    public function hasRole(string $roleName): bool
+    public function hasRole(string $alias): bool
     {
-        return $this->roles->contains('name', $roleName);
+        return $this->roles->contains('alias', $alias);
     }
 
     public function hasRoleFeatureAccess(string $featureName): bool
@@ -229,6 +228,34 @@ class User extends ModelAbstract implements Authenticatable
     public function enterprise(): BelongsTo
     {
         return $this->belongsTo(EnterpriseModel::class, EnterpriseModel::FOREIGN);
+    }
+
+    /**
+     * Get all unique permissions of the user via their roles.
+     *
+     * @return \Illuminate\Support\Collection<int, array{id: int, name: string, alias: string}>
+     */
+    public function getRolePermissionsAttribute(): \Illuminate\Support\Collection
+    {
+        return $this->roles
+            ->flatMap->permissions
+            ->unique('id')
+            ->map(function ($permission) {
+                return $permission->only(['id', 'name', 'alias']);
+            })
+            ->values();
+    }
+
+    /**
+     * Check if the user has a specific permission by alias.
+     *
+     * @param string $alias
+     *
+     * @return bool
+     */
+    public function hasPermission(string $alias): bool
+    {
+        return $this->getRolePermissionsAttribute()->contains('alias', $alias);
     }
 
     /**
