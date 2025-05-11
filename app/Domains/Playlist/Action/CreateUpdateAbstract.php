@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Playlist\Action;
 
@@ -21,13 +21,13 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     {
         $this->dataName();
         $this->dataDescription();
+        $this->dataMedias();
+        $this->dataPlaylistGroups();
     }
 
     private function check(): void
     {
-        // TODO: implement logic checkName and checkDescription
-        //        $this->checkName();
-        //        $this->checkDescription();
+
     }
 
     private function dataName(): void
@@ -38,5 +38,25 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     private function dataDescription(): void
     {
         $this->data['description'] = trim($this->data['description']);
+    }
+
+    protected function dataPlaylistGroups(): void
+    {
+        $this->data['playlist_groups'] ??= [];
+    }
+
+    protected function dataMedias(): void
+    {
+        $medias = $this->data['medias'] ?? [];
+        $formattedMedias = [];
+        foreach ($medias as $media) {
+            if (!empty($media['id']) && isset($media['position'])) {
+                $formattedMedias[] = [
+                    'id' => (int) $media['id'],
+                    'position' => (int) $media['position'],
+                ];
+            }
+        }
+        $this->data['medias'] = $formattedMedias;
     }
 }

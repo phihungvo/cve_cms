@@ -4,11 +4,11 @@ namespace App\Domains\DeviceGroup\Action;
 
 use App\Domains\DeviceGroup\Model\DeviceGroupModel as Model;
 use Illuminate\Database\QueryException;
-use ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PDOException;
 use RuntimeException;
 use Throwable;
-use ValidationException;
 
 class UpdateAction extends CreateUpdateAbstractAction
 {
@@ -51,3 +51,4 @@ class UpdateAction extends CreateUpdateAbstractAction
         }
     }
 }
+

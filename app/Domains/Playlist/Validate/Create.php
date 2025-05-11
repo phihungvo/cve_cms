@@ -17,6 +17,8 @@ class Create extends ValidateAbstract
             'medias.*.position' => ['required', 'integer', 'min:1'],
             'enterprise_id' => ['required', 'integer', 'exists:enterprise,id'],
             'deviceIds' => ['array', 'nullable'], // Danh sách thiết bị là mảng
+            'playlist_groups' => ['bail', 'nullable', 'array'],
+            'playlist_group.*' => ['bail', 'integer'],
         ];
     }
 }
