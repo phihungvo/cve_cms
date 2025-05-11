@@ -24,6 +24,9 @@ services:
         image: redis:7.0
         container_name: platform-redis
         restart: unless-stopped
+        volumes:
+            - ./../storage/docker/redis:/data # Thêm volume để lưu dữ liệu Redis
+        command: redis-server --appendonly yes # Đảm bảo Redis chạy liên tục
         networks:
             - platform-network
         healthcheck:
@@ -55,8 +58,6 @@ services:
         tty: true
 
     platform-worker:
-        container_name: platform-worker
-        image: platform-app
         restart: unless-stopped
         command: php artisan queue:work --queue=platform --tries=3 --timeout=120
         depends_on:
@@ -66,10 +67,13 @@ services:
                 condition: service_healthy
         volumes:
             - ./../storage:/app/storage
+        build:
+            context: ..
+            dockerfile: ./docker/Dockerfile
         networks:
             - platform-network
         deploy:
-            replicas: 5 # Chạy 5 container worker
+            replicas: 5 # Bắt đầu với 5 worker
 networks:
     platform-network:
         name: platform-network
