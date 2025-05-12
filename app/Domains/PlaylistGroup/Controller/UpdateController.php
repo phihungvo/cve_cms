@@ -28,7 +28,7 @@ class UpdateController extends ControllerAbstract
             return $response;
         }
 
-        $this->meta('title', __('vehicle-group-update.meta-title'));
+        $this->meta('title', __('playlist-group-update.meta-title'));
 
         return $this->page('playlist-group.update', $this->data());
     }
@@ -72,7 +72,7 @@ class UpdateController extends ControllerAbstract
         try {
             $this->action()->update();
 
-            $this->sessionMessage('success', __('playlist-group-update.success'));
+            $this->sessionMessage('success', __('playlist-group-update.update.success'));
 
             return redirect()->route('playlist_group.index');
         } catch (Exception $e) {
@@ -124,17 +124,15 @@ class UpdateController extends ControllerAbstract
     protected function restore(): RedirectResponse
     {
         try {
-           $this->action()->restore();
+            $this->action()->restore();
 
-           $this->sessionMessage('success', __('playlist-group-update.restore.success'));
+            $this->sessionMessage('success', __('playlist-group-update.restore.success'));
 
-           return redirect()->route('playlist_group.index');
+            return redirect()->route('playlist_group.index');
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
             return redirect()->route('playlist_group.index');
         }
     }
-
-
 }

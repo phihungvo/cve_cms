@@ -21,6 +21,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     {
         $this->dataName();
         $this->dataDescription();
+        $this->dataEntepriseId();
         $this->dataMedias();
         $this->dataPlaylistGroups();
     }
@@ -58,5 +59,10 @@ abstract class CreateUpdateAbstract extends ActionAbstract
             }
         }
         $this->data['medias'] = $formattedMedias;
+    }
+
+    protected function dataEntepriseId()
+    {
+        $this->data['enterprise_id'] = $this->request->input('enterprise_id', auth()->user()->enterprise_id);
     }
 }

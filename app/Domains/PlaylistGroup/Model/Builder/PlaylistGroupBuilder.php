@@ -41,4 +41,28 @@ class PlaylistGroupBuilder extends BuilderAbstract
 
         return $this;
     }
+
+    public function whereByEnterprise(): self
+    {
+        if (auth()->user()->enterprise_id === null) {
+            return $this;
+        }
+
+        return $this->where(Enterprise::FOREIGN, auth()->user()->enterprise_id);
+    }
+
+    public function filterByEnterpriseId(?int $enterpriseId): self
+    {
+        if ($enterpriseId) {
+            return $this->where(Enterprise::FOREIGN, $enterpriseId);
+        }
+
+        return $this;
+    }
+
+    public function listSimple(): self
+    {
+        return $this->select('id', 'name')
+            ->orderBy('name');
+    }
 }

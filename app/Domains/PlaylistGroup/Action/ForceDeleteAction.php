@@ -27,11 +27,11 @@ class ForceDeleteAction extends ActionAbstract
         try {
             $this->row->forceDelete();
         } catch (ModelNotFoundException $e) {
-            throw new Exception(__('playlist-group-force-delete.error.model-not-found'));
+            throw new Exception(__('playlist-group-update.force-delete.error.model-not-found'));
         } catch (QueryException $e) {
-            throw new Exception(__('playlist-group-force-delete.error.query-error'));
+            throw new Exception(__('playlist-group-update.force-delete.error.query-error'));
         } catch (Exception $e) {
-            throw new Exception(__('playlist-group-force-delete.error.unexpected-error'));
+            throw new Exception(__('playlist-group-update.force-delete.error.unexpected-error'));
         }
     }
 
@@ -41,7 +41,7 @@ class ForceDeleteAction extends ActionAbstract
     protected function check(): void
     {
         if ($this->row->playlistGroupMaps()->exists()) {
-            throw new Exception(__('play-list-group-delete.error.in-use'));
+            throw new Exception(__('playlist-group-update.force-delete.error.in-use'));
         }
     }
 }

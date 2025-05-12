@@ -15,7 +15,7 @@ class Create extends ValidateAbstract
             // Mỗi phần tử phải là ID hợp lệ trong bảng media hoặc null
             'medias.*.id' => ['nullable', 'integer', 'exists:media,id'],
             'medias.*.position' => ['required', 'integer', 'min:1'],
-            'enterprise_id' => ['required', 'integer', 'exists:enterprise,id'],
+            'enterprise_id' => ['nullable', 'integer', 'exists:enterprise,id'],
             'deviceIds' => ['array', 'nullable'], // Danh sách thiết bị là mảng
             'playlist_groups' => ['bail', 'nullable', 'array'],
             'playlist_group.*' => ['bail', 'integer'],

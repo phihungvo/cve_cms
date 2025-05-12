@@ -42,10 +42,6 @@ abstract class CreateUpdateAbstractAction extends ActionAbstract
 
     protected function dataEnterpriseId(): void
     {
-        if (auth()->user()->enterprise_id == null) {
-            $this->data['enterprise_id'] ??= null;
-        } else {
-            $this->data['enterprise_id'] = auth()->user()->enterprise_id;
-        }
+        $this->data['enterprise_id'] ??= auth()->check() ? auth()->user()->enterprise_id : null;
     }
 }
