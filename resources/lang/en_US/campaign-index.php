@@ -38,5 +38,6 @@
     'completed' => 'Completed',
     'all_enterprises' => 'All Enterprises',
     'users' => 'User',
+    'no_device' => 'Device', // Added no_device
 
 ];
