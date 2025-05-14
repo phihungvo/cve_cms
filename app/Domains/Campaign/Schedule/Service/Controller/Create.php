@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Domains\Campaign\Schedule\Service\Controller;
 
@@ -7,6 +6,7 @@ use App\Domains\Campaign\Schedule\Action\Create as CreateAction;
 use App\Domains\Campaign\Schedule\Model\Schedule;
 use App\Domains\Device\Model\Device;
 use App\Domains\Playlist\Model\PlaylistModel;
+use App\Domains\ScheduleGroup\Model\ScheduleGroupModel;
 use App\Domains\User\Model\User;
 use Illuminate\Database\Eloquent\Collection;
 use App\Domains\User\Enterprise\Model\Enterprise;
@@ -45,18 +45,20 @@ class Create
         $userPermission = session('userPermission_'.$userId, []);
         $allPermissions = $userPermission['all'] ?? [];
         if (isset($allPermissions['root'])) {
-            $enterprises = Enterprise::pluck('name', 'id')->toArray();
+            $enterprises = Enterprise::query()->get();
 
             return [
                 'playlistOptions' => $this->playlists(),
                 'enterpriseOptions' => $enterprises,
                 'devices' => $this->getDevices(),
+                'scheduleGroups' => $this->scheduleGroups(),
             ];
         }
 
         return [
             'playlistOptions' => $this->playlists(),
             'devices' => $this->getDevices(),
+            'scheduleGroups' => $this->scheduleGroups(),
         ];
     }
 
@@ -97,6 +99,7 @@ class Create
 
         $data['repeat'] = isset($data['repeat']) && (bool)$data['repeat'];
         $data['active'] = !isset($data['active']) || (bool)$data['active']; // Mặc định active là true nếu không có giá trị
+        $data['schedule_groups'] = $this->request->input('schedule_groups', []);
 
         $action = new CreateAction();
 
@@ -106,6 +109,9 @@ class Create
     protected function playlists(): array
     {
         return PlaylistModel::byEnterprise()
+            ->when($this->request->input('enterprise_id'), function ($query, $enterpriseId) {
+                $query->where('enterprise_id', $enterpriseId);
+            })
             ->whereNotIn('id', Schedule::pluck('playlist_id')->toArray())
             ->pluck('name', 'id')
             ->toArray();
@@ -139,5 +145,24 @@ class Create
                     ->where('display.playlist_id', $playlistId);
             })
             ->get();
+    }
+
+    protected function scheduleGroups(): Collection
+    {
+        if ($this->auth->enterprise_id == null) {
+            // role root
+            if ($this->request->input('enterprise_id')) {
+                return ScheduleGroupModel::query()
+                    ->where('enterprise_id', $this->request->input('enterprise_id'))
+                    ->get();
+            } else {
+                return Collection::make([]);
+            }
+        } else {
+            // role owner
+            return ScheduleGroupModel::query()
+                ->where('enterprise_id', $this->auth->enterprise_id)
+                ->get();
+        }
     }
 }

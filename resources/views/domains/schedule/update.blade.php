@@ -1,8 +1,6 @@
-@extends('layouts.in')
+@extends('domains.schedule.index-layout')
 
-@section('title', __('schedule-update.title'))
-
-@section('body')
+@section('content')
     <div class="flex justify-between">
         <h2 class="box p-3 text-lg font-medium mb-5">{{ __('Update Schedule') }}</h2>
     </div>
@@ -82,6 +80,26 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="box p-5 mt-5">
+            <!--       input Schedule Group-->
+            <h3 class="text-lg font-bold mt-2">Schedule Group</h3>
+            @if( isset( $scheduleGroups) && $scheduleGroups->count() <= 0)
+                <p>No groups available</p>
+            @endif
+            @foreach($scheduleGroups as $item)
+                <div class="p-2">
+                    <div class="form-check">
+                        <input type="checkbox" name="schedule_groups[]" value="{{$item->id}}" class="form-check-switch"
+                               id="schedule-group-{{$item->id}}"
+                            {{ isset($assignedScheduleGroups) && in_array($item->id, $assignedScheduleGroups->pluck('schedule_group_id')->toArray()) ? 'checked' : '' }}
+                            {{ $REQUEST->input('schedule_groups') ? 'checked' : '' }}
+                        >
+                        <label for="schedule-group-{{$item->id}}" class="form-check-label">{{$item->name}}</label>
+                    </div>
+                </div>
+            @endforeach
         </div>
 
         <div class="box p-5 mt-5 ">

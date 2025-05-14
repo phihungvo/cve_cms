@@ -5,6 +5,7 @@ namespace App\Domains\Campaign\Schedule\Service\Controller;
 
 use App\Domains\Display\Model\Display;
 use App\Domains\Playlist\Model\PlaylistModel;
+use App\Domains\ScheduleGroup\Model\ScheduleGroupModel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use App\Domains\Campaign\Schedule\Model\Schedule;
@@ -33,19 +34,26 @@ class Index
     {
 
         return [
-            'schedules' => $this->getSchedules(),
+            'schedules' => $this->getSchedules(), // list()
             'enterprises' => $this->enterprises(),
+            'scheduleGroups' => $this->scheduleGroups(),
         ];
     }
 
-    protected function getSchedules()
+    protected function getSchedules(): Collection
     {
+        // schedule_group_id
         $query = Schedule::query()
             ->byEnterprise()  // Thêm scope byEnterprise để lọc theo enterprise_id
             ->withTrashed()
             ->with([PlaylistModel::TABLE])
             ->when($this->request->input('enterprise_id'), function ($query) {
                 $query->where('enterprise_id', $this->request->input('enterprise_id'));
+            })
+            ->when($this->request->input('schedule_group_id'), function ($query) {
+                $query->whereHas('scheduleGroups', function ($q) {
+                    $q->where('schedule_group_id', $this->request->input('schedule_group_id'));
+                });
             });
         if ($search = $this->request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -85,13 +93,8 @@ class Index
 
                 }
             });
-            //
-            //            return $schedules->map(function ($schedule) {
-            //                //  $schedule->display_count = $schedule->displays()->count();
-            //                $schedule->published_display_count = $schedule->displays()->where(Display::SCHEDULE_PUBLISHED, '!=', 0)->count();
 
             return $schedules;
-            //            });
         } else {
             return $query->orderBy('created_at', 'asc')->get();
         }
@@ -102,6 +105,15 @@ class Index
     {
         return Enterprise::query()
             ->whereHas('Schedules')
+            ->get();
+    }
+
+    protected function scheduleGroups(): Collection
+    {
+        return ScheduleGroupModel::query()
+            ->whenEnterprise((int) $this->request->input('enterprise_id'))
+            ->roleRoot()
+            ->roleOwner()
             ->get();
     }
 }

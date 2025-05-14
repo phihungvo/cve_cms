@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\VehicleGroup\Controller;
+namespace App\Domains\ScheduleGroup\Controller;
 
 use Exception;
-use App\Domains\VehicleGroup\Service\Controller\CreateService as ControllerService;
+use App\Domains\ScheduleGroup\Service\Controller\CreateService as ControllerService;
 use Illuminate\Http\RedirectResponse;
 
 class CreateController extends ControllerAbstract
@@ -14,9 +14,9 @@ class CreateController extends ControllerAbstract
             return $response;
         }
 
-        $this->meta('title', __('vehicle-group-create.meta-title'));
+        $this->meta('title', __('schedule-group-create.meta-title'));
 
-        return $this->page('vehicle-group.create', $this->data());
+        return $this->page('schedule_group.create', $this->data());
     }
 
     /**
@@ -33,15 +33,15 @@ class CreateController extends ControllerAbstract
     protected function create(): RedirectResponse
     {
         try {
-            $this->row = $this->action('VehicleGroup')->create();
+            $this->row = $this->action()->create();
 
-            $this->sessionMessage('success', __('vehicle-group-create.success'));
+            $this->sessionMessage('success', __('schedule-group-create.success'));
 
-            return redirect()->route('vehicle_group.index');
+            return redirect()->route('schedule_group.index');
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
-            return redirect()->route('vehicle_group.create')->withInput();
+            return redirect()->route('schedule-group.create')->withInput();
         }
     }
 }
