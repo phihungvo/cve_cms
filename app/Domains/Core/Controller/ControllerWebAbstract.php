@@ -66,7 +66,7 @@ abstract class ControllerWebAbstract extends ControllerAbstract
      * @param array $data = []
      * @param ?int $status = null
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     protected function page(string $page, array $data = [], ?int $status = null): Response
     {
@@ -75,7 +75,7 @@ abstract class ControllerWebAbstract extends ControllerAbstract
 
     /**
      * @param array $data = []
-     * @param ?\App\Domains\Core\Model\ModelAbstract $row = null
+     * @param ?ModelAbstract $row = null
      *
      * @return void
      */
@@ -85,7 +85,7 @@ abstract class ControllerWebAbstract extends ControllerAbstract
     }
 
     /**
-     * @param ?\App\Domains\Core\Model\ModelAbstract $row
+     * @param ?ModelAbstract $row
      *
      * @return array
      */

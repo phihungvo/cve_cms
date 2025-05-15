@@ -12,7 +12,6 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     protected function row(int $id): Model
     {
         return $this->row = Model::query()
-            // TODO: define func byId in ModelAbstract
             ->byId($id)
             ->withTrashed()
             ->firstOr(fn () => $this->exceptionNotFound(__('playlist-group-update.error.not-found')));

@@ -6,11 +6,14 @@ namespace App\Domains\Campaign\Schedule\Model;
 
 use App\Domains\Campaign\Schedule\Model\Builder\ScheduleBuilder;
 use App\Domains\Campaign\Schedule\Model\Collection\ScheduleCollection;
-use App\Domains\CoreApp\Model\ModelAbstract; // Import ModelAbstract
+use App\Domains\CoreApp\Model\ModelAbstract;
+// Import ModelAbstract
 use App\Domains\Device\Model\Device;
 use App\Domains\Device\Model\Device as DeviceModel;
 use App\Domains\Display\Model\Display;
 use App\Domains\Playlist\Model\PlaylistModel;
+use App\Domains\ScheduleGroup\Model\ScheduleGroupMap;
+use App\Domains\ScheduleGroup\Model\ScheduleGroupModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -103,6 +106,21 @@ class Schedule extends ModelAbstract // Kế thừa từ ModelAbstract thay vì 
     public function scopeByEnterprise(ScheduleBuilder|\Illuminate\Database\Eloquent\Builder $query): ScheduleBuilder
     {
         return $query->where('enterprise_id', auth()->user()->enterprise_id);
+    }
+
+    /**
+     * Khai báo quan hệ với ScheduleGroupModel thông qua bảng trung gian ScheduleGroupMap
+     *
+     * @return BelongsToMany
+     */
+    public function scheduleGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ScheduleGroupModel::class,
+            ScheduleGroupMap::TABLE,
+            self::FOREIGN,
+            ScheduleGroupModel::FOREIGN,
+        );
     }
 
     /**

@@ -37,6 +37,9 @@ class Update
 
         $updated = $this->row->update($dataToUpdate);
 
+        // Đồng bộ schedule_groups
+        $this->row->scheduleGroups()->sync($this->data['schedule_groups'] ?? []);
+
         if ($updated) {
             Log::info('Schedule updated successfully: ', $this->row->fresh()->toArray());
         } else {

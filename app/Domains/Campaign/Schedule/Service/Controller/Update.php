@@ -7,6 +7,8 @@ use App\Domains\Campaign\Schedule\Action\Update as UpdateAction;
 use App\Domains\Campaign\Schedule\Model\Schedule;
 use App\Domains\Device\Model\Device;
 use App\Domains\Playlist\Model\PlaylistModel;
+use App\Domains\ScheduleGroup\Model\ScheduleGroupMap;
+use App\Domains\ScheduleGroup\Model\ScheduleGroupModel;
 use App\Domains\User\Model\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -39,6 +41,8 @@ class Update
             'schedule' => $this->schedule->load('enterprise'),
             'playlistOptions' => $playlists,
             'devices' => $this->devices(),
+            'scheduleGroups' => $this->scheduleGroups(),
+            'assignedScheduleGroups' => $this->assignedScheduleGroups(),
         ];
 
     }
@@ -77,9 +81,36 @@ class Update
 
         $data['repeat'] = isset($data['repeat']) && (bool)$data['repeat'];
         $data['active'] = isset($data['active']) ? (bool)$data['active'] : $this->schedule->active; // Giữ giá trị hiện tại nếu không có dữ liệu mới
+        $data['schedule_groups'] = $this->request->input('schedule_groups', []);
 
         $action = new UpdateAction();
 
         return $action->handle($this->schedule, $data);
+    }
+
+    protected function scheduleGroups(): Collection
+    {
+        if ($this->auth->enterprise_id == null) {
+            // role root
+            if ($this->schedule->enterprise_id) {
+                return ScheduleGroupModel::query()
+                    ->where('enterprise_id', $this->schedule->enterprise_id)
+                    ->get();
+            } else {
+                return Collection::make([]);
+            }
+        } else {
+            // role owner
+            return ScheduleGroupModel::query()
+                ->where('enterprise_id', $this->auth->enterprise_id)
+                ->get();
+        }
+    }
+
+    protected function assignedScheduleGroups(): Collection
+    {
+        return ScheduleGroupMap::query()
+            ->where('schedule_id', $this->schedule->id)
+            ->get();
     }
 }
