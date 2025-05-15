@@ -15,9 +15,7 @@ class CreateAction extends CreatUpdateActionAbstract
     /**
      * Lưu thông tin user group vào database
      *
-     * @throws RuntimeException Khi xảy ra bất kỳ lỗi nào trong quá trình xử lý
-     *
-     * @return void
+     * @return Model
      */
     protected function save(): Model
     {

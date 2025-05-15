@@ -30,18 +30,16 @@ class Index
         $user = \Illuminate\Support\Facades\Auth::user();
         $campaigns = $this->list();
 
-        // Lọc theo vai trò nếu cần
         $filteredCampaigns = $campaigns->filter(function ($campaign) use ($user) {
             if ($user->isRoleRoot()) {
-                return true; // Root thấy tất cả
+                return true;
             }
             if ($user->isOwner()) {
-                return true; // Owner thấy các campaign đã lọc bởi scopeByEnterprise
+                return true;
             }
             return false;
         });
 
-        // Chuẩn bị dữ liệu enterprises cho root
         $enterprises = $user->isRoleRoot() ? Enterprise::all() : collect();
 
         return [
@@ -56,12 +54,10 @@ class Index
         $query = Model::query();
         $user = \Illuminate\Support\Facades\Auth::user();
 
-        // Nếu không phải root, áp dụng scope byEnterprise
         if (!$user->isRoleRoot()) {
             $query->byEnterprise();
         }
 
-        // Nếu là root và có enterprise_id từ request, lọc theo enterprise
         if ($user->isRoleRoot() && $this->request->filled('enterprise_id')) {
             $query->where('enterprise_id', $this->request->get('enterprise_id'));
         }
@@ -110,7 +106,7 @@ class Index
         return [
             'id' => $campaign->id,
             'name' => $campaign->name,
-            'enterprise_name' => $campaign->enterprise_name ?? 'N/A', // Lấy từ join
+            'enterprise_name' => $campaign->enterprise_name ?? 'N/A',
             'media_names' => $campaign->media->pluck('name')->implode(', ') ?: 'N/A',
             'user_names' => $campaign->users->pluck('name')->implode(', ') ?: 'N/A',
             'start_time' => $campaign->start_time->toDateTimeString(),
@@ -130,6 +126,7 @@ class Index
                 'actual' => $campaign->performance ? $campaign->performance->actual_distance : 0,
                 'target' => $campaign->performance ? $campaign->performance->distance : 0,
             ],
+            'no_device' => $campaign->performance ? $campaign->performance->no_device : 0, // Added no_device
             'cpm' => [
                 'actual' => $actualCpm,
                 'target' => $campaign->performance ? $campaign->performance->cpm : 0,

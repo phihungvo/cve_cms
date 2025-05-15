@@ -68,11 +68,15 @@ class UpdateController extends ControllerAbstract
      */
     protected function update(): RedirectResponse
     {
-        $this->action()->update();
 
-        $this->sessionMessage('success', __('playlist-update.success'));
-
-        return redirect()->route('fpp.playlist.update', $this->row->id);
+        try {
+            $this->action()->update();
+            $this->sessionMessage('success', __('playlist-update.success'));
+            return redirect()->route('fpp.playlist.update', $this->row->id);
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+            return redirect()->route('fpp.playlist.index');
+        }
     }
 
     /**
@@ -80,26 +84,44 @@ class UpdateController extends ControllerAbstract
      */
     protected function delete(): RedirectResponse
     {
-        $this->action()->delete();
-
-        $this->sessionMessage('success', __('playlist-update.delete-success'));
+        try {
+            $this->action()->delete();
+            $this->sessionMessage('success', __('playlist-update.delete-success'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+        }
 
         return redirect()->route('fpp.playlist.index');
     }
 
+    /**
+     * @return RedirectResponse
+     */
     protected function forceDelete(): RedirectResponse
     {
-        $this->action()->forceDelete();
-        $this->sessionMessage('success', __('playlist-update.delete-success'));
+        try {
+            $this->action()->forceDelete();
+            $this->sessionMessage('success', __('playlist-update.delete-success'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+        }
 
         return redirect()->route('fpp.playlist.index');
     }
 
+    /**
+     * @return RedirectResponse
+     */
     protected function restore(): RedirectResponse
     {
-        $this->action()->restore();
-        $this->sessionMessage('success', __('playlist-update.restore-success'));
+        try {
+            $this->action()->restore();
+            $this->sessionMessage('success', __('playlist-update.restore-success'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+        }
 
         return redirect()->route('fpp.playlist.index');
     }
 }
+
