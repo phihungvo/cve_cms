@@ -16,7 +16,7 @@ class CreateController extends ControllerAbstract
 
         $this->meta('title', __('schedule-group-create.meta-title'));
 
-        return $this->page('schedule_group.create', $this->data());
+        return $this->page('schedule-group.create', $this->data());
     }
 
     /**
@@ -41,7 +41,7 @@ class CreateController extends ControllerAbstract
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
-            return redirect()->route('schedule-group.create')->withInput();
+            return redirect()->route('schedule_group.create')->withInput();
         }
     }
 }

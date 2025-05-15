@@ -2,6 +2,7 @@
 
 namespace App\Domains\ScheduleGroup\Service\Controller;
 
+use App\Domains\User\Enterprise\Model\Enterprise;
 use App\Domains\ScheduleGroup\Model\ScheduleGroupModel as Model;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,12 +17,12 @@ class IndexService extends ControllerAbstract
 
     protected function filters(): void
     {
-        // Add filter logic here
     }
 
     public function data(): array
     {
         return [
+            'enterprises' => $this->enterprises(),
             'list' => $this->list(),
         ];
     }
@@ -29,7 +30,19 @@ class IndexService extends ControllerAbstract
     protected function list(): Collection
     {
         return Model::query()
-            // TODO: Add filter conditions here
+            ->roleRoot()
+            ->roleOwner()
+            ->when($this->request->input('enterprise_id'), function ($query) {
+                $query->where('enterprise_id', $this->request->input('enterprise_id'));
+            })
             ->get();
+    }
+
+    protected function enterprises()
+    {
+        return $this->cache(
+            fn () => Enterprise::query()
+                ->get()
+        );
     }
 }

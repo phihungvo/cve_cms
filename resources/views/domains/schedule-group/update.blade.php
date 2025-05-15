@@ -1,4 +1,4 @@
-@extends('domains.schedule.index-layout')
+@extends ('domains.schedule.index-layout')
 
 @section('content')
     <form method="POST">
@@ -14,31 +14,31 @@
             <div class="flex justify-end items-center">
                 @if($isDeleted)
                     <a href="javascript:;" data-toggle="modal" data-target="#delete-modal"
-                       class="btn btn-outline-danger mr-2">{{ __('Delete') }}</a>
+                       class="btn btn-outline-danger mr-2">{{ __('schedule-group-update.btn-delete') }}</a>
                 @else
                     <a href="javascript:;" data-toggle="modal" data-target="#delete-modal"
-                       class="btn btn-danger mr-2">{{ __('Force Delete') }}</a>
+                       class="btn btn-danger mr-2">{{ __('schedule-group-update.btn-force-delete') }}</a>
                     <a href="javascript:;" data-toggle="modal" data-target="#restore-modal"
-                       class="btn btn-outline-success mr-2">{{ __('Restore') }}</a>
+                       class="btn btn-outline-success mr-2">{{ __('schedule-group-update.btn-restore') }}</a>
                 @endif
 
                 @if($isDeleted)
-                    <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ __('schedule-group-update.btn-save') }}</button>
                 @endif
-                <a class="btn btn-secondary ml-2" href="{{ route('schedule_group.index') }}">{{ __('Cancel') }}</a>
+                <a class="btn btn-secondary ml-2" href="{{ route('schedule_group.index') }}">{{ __('schedule-group-update.btn-cancel') }}</a>
             </div>
         </div>
     </form>
 
     @include('molecules.delete-modal', [
-        'title' => $isDeleted ? __('Delete') : __('Force Delete'),
-        'message' => $isDeleted ? __('Are you sure you want to delete this item?') : __('Are you sure you want to force delete this item?'),
+        'title' => $isDeleted ? __('schedule-group-update.modal.delete.title') : __('schedule-group-update.modal.force-delete.title'),
+        'message' => $isDeleted ? __('schedule-group-update.modal.delete.message') : __('schedule-group-update.modal.force-delete.message'),
         'action' => $isDeleted ? 'delete' : 'forceDelete'
     ])
 
     @include('molecules.restore-modal', [
-        'title' => __('Restore ScheduleGroup'),
-        'message' => __('Are you sure you want to restore this item?'),
+        'title' => __('schedule-group-update.modal.restore.title'),
+        'message' => __('schedule-group-update.modal.restore.message'),
         'action' => 'restore'
     ])
 @endsection

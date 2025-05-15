@@ -13,7 +13,8 @@ class ScheduleGroupMap extends ModelAbstract
 
     public const PRIMARY = 'id';
 
-    public const FOREIGN = 'schedule_group_map_id';
+//    public const FOREIGN = 'schedule_group_map_id';
+    public const FOREIGN = 'schedule_group_id';
 
     protected $fillable = [
         'schedule_id',

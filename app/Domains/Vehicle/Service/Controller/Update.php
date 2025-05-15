@@ -2,8 +2,8 @@
 
 namespace App\Domains\Vehicle\Service\Controller;
 
-use App\Domains\VehicleGroup\Model\VehicleGroupMap;
-use App\Domains\VehicleGroup\Model\VehicleGroupModel;
+use App\Domains\VehicleGroup\Model\ScheduleGroupMap;
+use App\Domains\VehicleGroup\Model\ScheduleGroupModel;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -48,23 +48,23 @@ class Update extends CreateUpdateAbstract
         if ($this->auth->enterprise_id == null) {
             // role root
             if ($this->request->input('enterprise_id')) {
-                return VehicleGroupModel::query()
+                return ScheduleGroupModel::query()
                     ->where('enterprise_id', $this->request->input('enterprise_id'))
                     ->get();
             } else {
-                return VehicleGroupModel::query()->get();
+                return ScheduleGroupModel::query()->get();
             }
 
         } else {
             // role owner
-            return VehicleGroupModel::query()
+            return ScheduleGroupModel::query()
                 ->where('enterprise_id', $this->auth->enterprise->id)->get();
         }
     }
 
     protected function assignedBookmarkGroups(): Collection
     {
-        return VehicleGroupMap::query()
+        return ScheduleGroupMap::query()
             ->where('vehicle_id', $this->row->id)
             ->get();
     }

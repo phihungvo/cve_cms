@@ -6,7 +6,7 @@ use App\Domains\ScheduleGroup\Model\ScheduleGroupModel as Model;
 
 abstract class CreateUpdateAbstractAction extends ActionAbstract
 {
-    abstract protected function save():Model;
+    abstract protected function save(): Model;
 
     public function handle(): Model
     {
@@ -19,12 +19,31 @@ abstract class CreateUpdateAbstractAction extends ActionAbstract
 
     protected function data(): void
     {
-       // TODO: implement logic data
+        $this->dataName();
+        $this->dataDescription();
+        $this->dataEnterpriseId();
     }
 
     protected function check(): void
     {
-        // TODO: implement logic here
+    }
 
+    protected function dataName(): void
+    {
+        $this->data['name'] = trim($this->data['name']);
+    }
+
+    protected function dataDescription(): void
+    {
+        $this->data['description'] = trim($this->data['description']);
+    }
+
+    protected function dataEnterpriseId(): void
+    {
+        if (auth()->user()->enterprise_id == null) {
+            $this->data['enterprise_id'] ??= null;
+        } else {
+            $this->data['enterprise_id'] = auth()->user()->enterprise_id;
+        }
     }
 }

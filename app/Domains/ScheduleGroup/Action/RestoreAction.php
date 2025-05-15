@@ -12,6 +12,9 @@ use Throwable;
 
 class RestoreAction extends ActionAbstract
 {
+    /**
+     * @throws Exception
+     */
     public function handle(): void
     {
         $this->restore();
@@ -28,37 +31,37 @@ class RestoreAction extends ActionAbstract
             $this->row->restore();
         } catch (ModelNotFoundException $e) {
             throw new Exception(
-                __('schedule_group-restore.error.model-not-found'),
+                __('schedule-group-update.restore.error.model-not-found'),
                 0,
                 $e
             );
         } catch (QueryException $e) {
             throw new Exception(
-                __('schedule_group-restore.error.query-error'),
+                __('schedule-group-update.restore.error.query-error'),
                 0,
                 $e
             );
         } catch (PDOException $e) {
             throw new Exception(
-                __('schedule_group-restore.error.connection-error'),
+                __('schedule-group-update.restore.error.connection-error'),
                 0,
                 $e
             );
         } catch (AuthorizationException $e) {
             throw new Exception(
-                __('schedule_group-restore.error.not-authorized'),
+                __('schedule-group-update.restore.error.not-authorized'),
                 0,
                 $e
             );
         } catch (ValidationException $e) {
             throw new Exception(
-                __('schedule_group-restore.error.validation-failed'),
+                __('schedule-group-update.restore.error.validation-failed'),
                 0,
                 $e
             );
         } catch (Throwable $e) {
             throw new Exception(
-                __('schedule_group-restore.error.unexpected-error'),
+                __('schedule-group-update.restore.error.unexpected-error'),
                 0,
                 $e
             );
