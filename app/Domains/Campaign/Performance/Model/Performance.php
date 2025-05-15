@@ -29,6 +29,7 @@ class Performance extends ModelAbstract
         'cpm',
         'actual_cpm',
         'actual_cost',
+        'no_device', // Added no_device to fillable
     ];
 
     protected $casts = [
@@ -40,7 +41,8 @@ class Performance extends ModelAbstract
         'actual_distance' => 'integer',
         'cpm' => 'integer',
         'actual_cpm' => 'integer',
-        'actual_cost' => 'decimal:2', // Thêm cast cho actual_cost
+        'actual_cost' => 'decimal:2',
+        'no_device' => 'integer', // Added cast for no_device
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
