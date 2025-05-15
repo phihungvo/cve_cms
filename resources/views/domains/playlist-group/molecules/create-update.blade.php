@@ -7,8 +7,8 @@
                       text="name" id="playlist-group-create-enterprise"
                       placeholder="{{__('playlist-group-create.select-enterprise')}}"
                       :label="__('playlist-group-create.enterprise')"
-                      :readonly="$ROUTE == 'playlist_group.update'"
-                      :disabled="$ROUTE == 'playlist_group.update'">
+                      :readonly="old('enterprise_id', $REQUEST->input('enterprise_id')) && $ROUTE == 'playlist_group.update'"
+                      :disabled="old('enterprise_id', $REQUEST->input('enterprise_id')) && $ROUTE == 'playlist_group.update'">
             </x-select>
         </div>
     @endif
