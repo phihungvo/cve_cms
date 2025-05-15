@@ -19,12 +19,22 @@ abstract class CreateUpdateAbstractAction extends ActionAbstract
 
     protected function data(): void
     {
-       // TODO: implement logic data
+        $this->dataName();
+        $this->dataDescription();
     }
 
     protected function check(): void
     {
-        // TODO: implement logic here
 
+    }
+
+    private function dataName(): void
+    {
+        $this->data['name'] = trim($this->data['name']);
+    }
+
+    private function dataDescription(): void
+    {
+        $this->data['description'] = trim($this->data['description']);
     }
 }

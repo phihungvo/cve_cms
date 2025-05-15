@@ -29,7 +29,6 @@ class IndexService extends ControllerAbstract
     protected function list(): Collection
     {
         return Model::query()
-            // TODO: Add filter conditions here
             ->get();
     }
 }

@@ -49,7 +49,7 @@ class UpdateController extends ControllerAbstract
     {
         $strategies = [
             'update' => fn () => $this->update(),
-            
+            'delete' => fn () => $this->delete(),
         ];
 
         foreach ($strategies as $action => $callback) {
@@ -79,5 +79,20 @@ class UpdateController extends ControllerAbstract
         }
     }
 
-    
+    protected function delete(): RedirectResponse
+    {
+        try {
+            $this->action()->delete();
+
+            $this->sessionMessage('success', __('cvedixrt-solution-update.delete.success'));
+
+            return redirect()->route('cvedixrt_solution.index');
+        }catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('cvedixrt_solution.index');
+        }
+    }
+
+
 }
