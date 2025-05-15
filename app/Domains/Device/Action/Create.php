@@ -38,6 +38,9 @@ class Create extends CreateUpdateAbstract
             // 'error' => $this->data['error'] ?? null,
         ]);
 
+       // Đồng bộ các nhóm thiết bị (device_group)
+        $this->row->deviceGroups()->sync($this->data['device_groups']);
+
         // Log the creation of the device
         DeviceLog::logEvent(
             device: $this->row,

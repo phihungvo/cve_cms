@@ -34,10 +34,10 @@ abstract class CreatUpdateActionAbstract extends ActionAbstract
         $this->data['description'] = trim($this->data['description']);
     }
 
-    protected function dataEnterpriseId():void
+    protected function dataEnterpriseId(): void
     {
-        if(auth()->user()->enterprise_id == null){
-            $this->data['enterprise_id'] = $this->data['enterprise_id'] ?? null;
+        if (auth()->user()->enterprise_id == null) {
+            $this->data['enterprise_id'] ??= null;
         } else {
             $this->data['enterprise_id'] = auth()->user()->enterprise_id;
         }
@@ -47,5 +47,4 @@ abstract class CreatUpdateActionAbstract extends ActionAbstract
     {
         # logic check name and description neu can
     }
-
 }

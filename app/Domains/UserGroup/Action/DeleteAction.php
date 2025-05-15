@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Database\QueryException;
 use PDOException;
 use Throwable;
-use Illuminate\Support\Facades\Lang;
 
 class DeleteAction extends ActionAbstract
 {
