@@ -1,0 +1,47 @@
+<?php declare(strict_types=1);
+
+namespace App\Domains\CvedixrtSolution\Controller;
+
+use Exception;
+use App\Domains\CvedixrtSolution\Service\Controller\CreateService as ControllerService;
+use Illuminate\Http\RedirectResponse;
+
+class CreateController extends ControllerAbstract
+{
+    public function __invoke()
+    {
+        if ($response = $this->actionPost('create')) {
+            return $response;
+        }
+
+        $this->meta('title', __('cvedixrt-solution-create.meta-title'));
+
+        return $this->page('cvedixrt_solution.create', $this->data());
+    }
+
+    /**
+     * @return array
+     */
+    protected function data(): array
+    {
+        return ControllerService::new($this->request, $this->auth)->data();
+    }
+
+    /**
+     * @return RedirectResponse
+     */
+    protected function create(): RedirectResponse
+    {
+        try {
+            $this->row = $this->action()->create();
+
+            $this->sessionMessage('success', __('cvedixrt-solution-create.success'));
+
+            return redirect()->route('cvedixrt_solution.index');
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('cvedixrt-solution.create')->withInput();
+        }
+    }
+}
