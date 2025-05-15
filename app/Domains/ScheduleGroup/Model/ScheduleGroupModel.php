@@ -77,7 +77,7 @@ class ScheduleGroupModel extends ModelAbstract
 
     public function scheduleGroupsMap(): HasMany
     {
-        return $this->hasMany(ScheduleGroupMap::class, ScheduleGroupMap::FOREIGN, self::PRIMARY);
+        return $this->hasMany(ScheduleGroupMap::class, ScheduleGroupModel::FOREIGN, self::PRIMARY);
     }
 
     public function enterprise(): BelongsTo

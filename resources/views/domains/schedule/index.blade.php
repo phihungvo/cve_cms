@@ -11,11 +11,9 @@
 
 @extends ('domains.schedule.index-layout')
 
-@extends('layouts.in')
+@extends ('domains.schedule.index-layout')
 
-@section('title', __('schedule-index.title'))
-
-@section('body')
+@section('content')
     <div class="intro-y box p-5">
         @if(session('success'))
             <div class="alert alert-success mb-4 p-4">
