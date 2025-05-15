@@ -8,8 +8,8 @@
 
         <div class="box p-5 mt-5">
             <div class="text-right">
-                <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
-                <a class="btn btn-secondary ml-2" href="{{ route('cvedixrt_solution.index') }}">{{ __('Cancel') }}</a>
+                <button type="submit" class="btn btn-primary">{{ __('cvedixrt-solution-create.btn-save') }}</button>
+                <a class="btn btn-secondary ml-2" href="{{ route('cvedixrt_solution.index') }}">{{ __('cvedixrt-solution-create.btn-cancel') }}</a>
             </div>
         </div>
     </form>

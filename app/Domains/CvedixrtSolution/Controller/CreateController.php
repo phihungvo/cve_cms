@@ -16,7 +16,7 @@ class CreateController extends ControllerAbstract
 
         $this->meta('title', __('cvedixrt-solution-create.meta-title'));
 
-        return $this->page('cvedixrt_solution.create', $this->data());
+        return $this->page('cvedixrt-solution.create', $this->data());
     }
 
     /**
@@ -41,7 +41,7 @@ class CreateController extends ControllerAbstract
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
-            return redirect()->route('cvedixrt-solution.create')->withInput();
+            return redirect()->route('cvedixrt_solution.create')->withInput();
         }
     }
 }

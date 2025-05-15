@@ -11,7 +11,7 @@ use App\Domains\CvedixrtSolution\Model\Collection\CvedixrtSolutionCollection;
 class CvedixrtSolutionModel extends ModelAbstract
 {
     use HasFactory;
-    
+
 
     /**
      * @const string
@@ -36,15 +36,14 @@ class CvedixrtSolutionModel extends ModelAbstract
     public $timestamps = true;
 
     protected $fillable = [
-        // TODO: Add your fillable fields here
+        'name',
+        'description',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    
 
     /**
      * Create a custom collection instance.
