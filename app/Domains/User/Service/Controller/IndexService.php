@@ -38,7 +38,9 @@ class IndexService extends ControllerAbstract
                 $query->where('enterprise_id', $this->request->input('enterprise_id'));
             })
             ->when($this->request->input('group_id'), function ($query) {
-                $query->where('id', $this->request->input('group_id'));
+                $query->whereHas('groups', function ($q) {
+                    $q->where('group_id', $this->request->input('group_id'));
+                });
             })
             ->get();
     }

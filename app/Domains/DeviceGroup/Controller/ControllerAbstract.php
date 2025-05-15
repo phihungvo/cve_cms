@@ -12,8 +12,8 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     protected function row(int $id): Model
     {
         return $this->row = Model::query()
-            ->byId($id)->withTrashed()
-            //->roleRoot()
+            ->byId($id)
+            ->withTrashed()
             ->firstOr(fn () => $this->exceptionNotFound(__('device-group-update.error.not-found')));
     }
 }

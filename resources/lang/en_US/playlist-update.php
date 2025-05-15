@@ -16,8 +16,22 @@
     'force-delete-title' => 'Force Delete Playlist',
     'force-delete-message' => 'Are you sure you want to force delete this playlist? This action cannot be undone.',
     'force-delete-success' => 'The playlist has been permanently deleted.',
+    'force-delete' => [
+        'error' => [
+            'model-not-found' => 'The playlist could not be found.',
+            'query-error' => 'A query error occurred while deleting the playlist: :message',
+            'unexpected-error' => 'An unexpected error occurred while deleting the playlist: :message',
+        ],
+    ],
     'error' => [
         'not-found' => 'Playlist not found',
+        'database' => 'A database error occurred: :message',
+        'validation-error' => 'Validation failed: :message',
+        'unknown-error' => 'An unknown error occurred: :message',
+        'query-error' => 'A query error occurred: :message',
+        'database-error' => 'A database error occurred: :message',
+        'connection-error' => 'A connection error occurred: :message',
+        'unexpected-error' => 'An unexpected error occurred: :message',
     ],
     'aler' => [
         'confirm-button' => 'OK',
@@ -39,6 +53,6 @@
     ],
     'preview-message' => [
         'title' => 'Preview Message',
-        'error-message' => 'Failed to preview messagee'
+        'error-message' => 'Failed to preview messagee',
     ],
 ];

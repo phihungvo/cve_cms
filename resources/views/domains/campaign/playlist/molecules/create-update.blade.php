@@ -1,7 +1,8 @@
+<!-- Enterprise -->
 <div class="box p-5 mt-5" {{auth()->user()->isRoleRoot() ? '' : 'style=display:none'}}>
     @if(auth()->user()->isRoleRoot())
         <!-- Enterprise -->
-       <div class="p-2" >
+        <div class="p-2">
             <label for="enterprise_select" class="form-label">{{ __('playlist-create.enterprise') }}</label>
             <div class="input-group">
                 <select name="enterprise_id" id="enterprise-select"
@@ -15,32 +16,38 @@
                     @endforeach
                 </select>
             </div>
-       </div>
-       @endif
+        </div>
+    @endif
     @if(isset($isUpdate))
-                <input type="hidden" name="enterprise_id" value="{{ $REQUEST->input('enterprise_id') }}">
+        <input type="hidden" name="enterprise_id" value="{{ $REQUEST->input('enterprise_id') }}">
     @endif
 </div>
+<!-- Name and Description -->
 <div class="box p-5 mt-5">
-        <!-- name -->
-        <div class="p-2">
-            <label for="playlist-name" class="form-label">{{ __('playlist-create.name') }}</label>
-            <div class="input-group">
-                <input type="text" name="name" id="playlist-name" class="form-control form-control-lg"
-                       value="{{ old('name', $REQUEST->input('name') ?? '') }}" required>
-            </div>
+    <!-- name -->
+    <div class="p-2">
+        <label for="playlist-name" class="form-label">{{ __('playlist-create.name') }}</label>
+        <div class="input-group">
+            <input type="text" name="name" id="playlist-name" class="form-control form-control-lg"
+                   value="{{ old('name', $REQUEST->input('name') ?? '') }}" required>
         </div>
+    </div>
 
-        <!-- description -->
-        <div class="p-2">
-            <label for="playlist-description" class="form-label">{{ __('playlist-create.description') }}</label>
-            <div class="input-group">
-                <input type="text" name="description" id="playlist-description" class="form-control form-control-lg"
-                       value="{{ old('description', $REQUEST->input('description') ?? '') }}">
-            </div>
+    <!-- description -->
+    <div class="p-2">
+        <label for="playlist-description" class="form-label">{{ __('playlist-create.description') }}</label>
+        <div class="input-group">
+            <input type="text" name="description" id="playlist-description" class="form-control form-control-lg"
+                   value="{{ old('description', $REQUEST->input('description') ?? '') }}">
         </div>
-        </div>
-
+    </div>
+</div>
+<!-- Show Playlist Group -->
+<div class="box p-5 mt-5">
+    <p class="font-bold mb-4">Playlist Group</p>
+    <div id="playlist-container"></div>
+</div>
+<!-- Show Devices -->
 <div class="box p-5 mt-5">
     <p class="font-bold mb-4">Select medias</p>
     <div class="grid grid-cols-1 gap-4">
@@ -85,12 +92,52 @@
         </div>
     </div>
 </div>
-
 @push('scripts')
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const mediaContainer = document.getElementById("media-container");
+            const playlistContainer = document.getElementById("playlist-container");
+            const enterpriseSelect = document.getElementById('enterprise-select');
+
             let selectedMedias = [];
+            let assignedPlaylistGroups = [
+                @if(isset($assignedPlaylistGroups))
+                    @foreach ($assignedPlaylistGroups as $assignedPlaylistGroup)
+                    {
+                        playlist_id: "{{ $assignedPlaylistGroup->playlist_id }}",
+                        playlist_group_id: "{{ $assignedPlaylistGroup->playlist_group_id }}"
+                    },
+                    @endforeach
+                @endif
+            ];
+
+
+            console.log(assignedPlaylistGroups)
+
+            // Danh sách media từ server
+            let medias = [
+                    @foreach ($medias as $media)
+                {
+                    id: "{{ $media->id }}",
+                    name: "{{ $media->name }}",
+                    duration: "{{ $media->duration }}",
+                    media_url: "{{ $media->media_url }}",
+                    type: "{{ $media->type }}",
+                    enterprise_id: "{{ $media->enterprise_id }}",
+                },
+                @endforeach
+            ];
+
+            // Lấy danh sách playlistGroup từ server
+            let playlistGroups = [
+                    @foreach ($playlistGroups as $playlistGroup)
+                {
+                    id: "{{ $playlistGroup->id }}",
+                    name: "{{ $playlistGroup->name }}",
+                    enterpriseId: "{{ $playlistGroup->enterprise_id }}",
+                },
+                @endforeach
+            ];
 
             // Tạo select box
             function createSelectBox(position, isDefault = false) {
@@ -127,13 +174,14 @@ ${!isDefault ? '<button type="button" class="btn btn-danger btn-remove" style="p
 
             // Cập nhật các tùy chọn của select
             function updateSelectOptions() {
+                const enterpriseId = enterpriseSelect ? enterpriseSelect.value : "{{ auth()->user()->enterprise_id }}";
                 document.querySelectorAll(".media-select").forEach(select => {
                     const currentValue = select.value;
                     const isDefault = select.closest(".media-select-group").classList.contains("default-select");
                     let optionsHtml = '<option value="">{{__('playlist-create.select-media')}}</option>';
 
                     if (isDefault) {
-                        medias.filter(media => media.enterprise_id == document.getElementById('enterprise-select').value)
+                        medias.filter(media => media.enterprise_id == enterpriseId)
                             .forEach(media => {
                                 if (!selectedMedias.includes(media.id)) {
                                     optionsHtml += `<option value="${media.id}"
@@ -295,22 +343,40 @@ ${!isDefault ? '<button type="button" class="btn btn-danger btn-remove" style="p
                 }
             });
 
-            // Danh sách media từ server
-            let medias = [
-                    @foreach ($medias as $media)
-                {
-                    id: "{{ $media->id }}",
-                    name: "{{ $media->name }}",
-                    duration: "{{ $media->duration }}",
-                    media_url: "{{ $media->media_url }}",
-                    type: "{{ $media->type }}",
-                    enterprise_id: "{{ $media->enterprise_id }}",
-                },
-                @endforeach
-            ];
-            console.log(medias);
+            // Hiển thị playlistGroups
+            function displayPlaylistGroups(enterpriseId) {
+                playlistContainer.innerHTML = '';
+                const filteredPlaylistGroups = playlistGroups.filter(group => group.enterpriseId == enterpriseId);
 
-            // Khởi tạo
+                filteredPlaylistGroups.forEach((item) => {
+                    const isChecked =
+                        assignedPlaylistGroups.some((group) => group.playlist_group_id === item.id);
+
+                    const checkboxHtml = `
+                        <div class="p-2">
+                            <div class="form-check">
+                                <input type="checkbox" name="playlist_groups[]" value="${item.id}" class="form-check-switch"
+                                       id="playlist-group-${item.id}" ${isChecked ? "checked" : ""} />
+                                <label for="playlist-group-${item.id}" class="form-check-label">${item.name}</label>
+                            </div>
+                        </div>
+                    `;
+                    playlistContainer.insertAdjacentHTML("beforeend", checkboxHtml);
+                });
+            }
+
+            // Lấy enterpriseId ban đầu
+            const initialEnterpriseId = enterpriseSelect ? enterpriseSelect.value : "{{ auth()->user()->enterprise_id }}";
+
+            // Hiển thị playlistGroups khi trang load lần đầu
+            if (initialEnterpriseId) {
+                displayPlaylistGroups(initialEnterpriseId);
+            } else {
+                playlistContainer.innerHTML = '<p>No enterprise selected</p>';
+            }
+
+
+            // Khởi tạo media
             selectedMedias = Array.from(document.querySelectorAll(".media-select"))
                 .map(select => select.value)
                 .filter(value => value !== "");
@@ -325,7 +391,35 @@ ${!isDefault ? '<button type="button" class="btn btn-danger btn-remove" style="p
                 }
             });
 
-            // Xử lý submit form
+            /**
+             * Xử lý sự kiện thay đổi enterprise
+             */
+            if (enterpriseSelect) {
+                enterpriseSelect.addEventListener('change', function () {
+                    console.log('su kien change enterprise')
+
+                    const enterpriseId = this.value;
+                    displayPlaylistGroups(enterpriseId)
+                    console.log(enterpriseId);
+
+                    // Cập nhật playlistGroups
+                    displayPlaylistGroups(enterpriseId)
+
+                    // Cập nhật media selects
+                    const filteredMedias = medias.filter(media => media.enterprise_id == enterpriseId);
+                    const mediaSelects = document.querySelectorAll('.media-select');
+                    mediaSelects.forEach(select => {
+                        select.innerHTML = '<option value="">{{__('playlist-create.select-media')}}</option>';
+                        filteredMedias.forEach(media => {
+                            select.innerHTML += `<option value="${media.id}" data-url="${media.media_url}" data-type="${media.type}">${media.name} (${media.duration}s)</option>`;
+                        });
+                    });
+                });
+            }
+
+            /**
+             * Xử lý submit form
+             */
             const form = document.querySelector("form");
             form.addEventListener("submit", function (event) {
                 document.querySelectorAll(".media-select-group").forEach(group => {
@@ -335,32 +429,6 @@ ${!isDefault ? '<button type="button" class="btn btn-danger btn-remove" style="p
                     }
                 });
                 updatePositions();
-            });
-
-
-            /**
-             * Xử lý sự kiện thay đổi enterprise
-             */
-            document.getElementById('enterprise-select').addEventListener('change', function () {
-                console.log('su kien change enterprise')
-
-                let entepriseId = this.value;
-                console.log(entepriseId);
-                console.log(medias);
-                // Lọc các media theo enterprise_id
-                let filteredMedias = medias.filter(media => media.enterprise_id == entepriseId);
-                console.log(filteredMedias);
-
-                // Filter các select box media theo enterprise_id
-                let mediaSelects = document.querySelectorAll('.media-select');
-
-                // Cập nhật lại các select box media
-                mediaSelects.forEach(select => {
-                    select.innerHTML = '<option value="">{{__('playlist-create.select-media')}}</option>';
-                    filteredMedias.forEach(media => {
-                        select.innerHTML += `<option value="${media.id}" data-url="${media.media_url}" data-type="${media.type}">${media.name} (${media.duration}s)</option>`;
-                    });
-                });
             });
         });
     </script>
