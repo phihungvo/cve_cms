@@ -11,7 +11,7 @@ use App\Domains\CvedixrtGroup\Model\Collection\CvedixrtGroupCollection;
 class CvedixrtGroupModel extends ModelAbstract
 {
     use HasFactory;
-    
+
 
     /**
      * @const string
@@ -36,7 +36,8 @@ class CvedixrtGroupModel extends ModelAbstract
     public $timestamps = true;
 
     protected $fillable = [
-        // TODO: Add your fillable fields here
+        'name',
+        'description',
     ];
 
     protected $casts = [
@@ -44,7 +45,7 @@ class CvedixrtGroupModel extends ModelAbstract
         'updated_at' => 'datetime',
     ];
 
-    
+
 
     /**
      * Create a custom collection instance.

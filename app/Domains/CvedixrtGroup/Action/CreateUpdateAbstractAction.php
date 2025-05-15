@@ -6,7 +6,7 @@ use App\Domains\CvedixrtGroup\Model\CvedixrtGroupModel as Model;
 
 abstract class CreateUpdateAbstractAction extends ActionAbstract
 {
-    abstract protected function save():Model;
+    abstract protected function save(): Model;
 
     public function handle(): Model
     {
@@ -19,12 +19,27 @@ abstract class CreateUpdateAbstractAction extends ActionAbstract
 
     protected function data(): void
     {
-       // TODO: implement logic data
+        $this->dataName();
+        $this->dataDescription();
     }
 
     protected function check(): void
     {
-        // TODO: implement logic here
+    }
 
+    /**
+     * @return void
+     */
+    protected function dataName(): void
+    {
+        $this->data['name'] = trim($this->data['name']);
+    }
+
+    /**
+     * @return void
+     */
+    protected function dataDescription(): void
+    {
+        $this->data['description'] = trim($this->data['description']);
     }
 }

@@ -16,7 +16,7 @@ class CreateController extends ControllerAbstract
 
         $this->meta('title', __('cvedixrt-group-create.meta-title'));
 
-        return $this->page('cvedixrt_group.create', $this->data());
+        return $this->page('cvedixrt-group.create', $this->data());
     }
 
     /**

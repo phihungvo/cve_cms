@@ -9,7 +9,8 @@ class Create extends ValidateAbstract
     public function rules(): array
     {
         return [
-            // Todo: Add your validation rules here
+            'name' => 'required|string|max:100',
+            'description' => 'nullable|string|max:255',
         ];
     }
 }
