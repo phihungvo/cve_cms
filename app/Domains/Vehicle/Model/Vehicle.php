@@ -2,6 +2,8 @@
 
 namespace App\Domains\Vehicle\Model;
 
+use App\Domains\VehicleGroup\Model\VehicleGroupMap;
+use App\Domains\VehicleGroup\Model\VehicleGroupModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -92,7 +94,7 @@ class Vehicle extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function alarmsNotifications(): HasMany
     {
@@ -100,7 +102,7 @@ class Vehicle extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function devices(): HasMany
     {
@@ -118,7 +120,7 @@ class Vehicle extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function timezone(): BelongsTo
     {
@@ -126,7 +128,7 @@ class Vehicle extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function trips(): HasMany
     {
@@ -134,10 +136,23 @@ class Vehicle extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(UserModel::class, UserModel::FOREIGN);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function vehicleGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            VehicleGroupModel::class,
+            VehicleGroupMap::TABLE,
+            self::FOREIGN,
+            VehicleGroupModel::FOREIGN
+        );
     }
 }

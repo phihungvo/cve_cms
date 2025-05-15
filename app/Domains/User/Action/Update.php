@@ -19,11 +19,13 @@ class Update extends CreateUpdateAbstract
                 $this->row->update($this->data);
 
                 // Đồng bộ roles
-                $this->row->roles()->sync(
-                    collect($this->data['roles'])->mapWithKeys(fn ($roleId) => [
-                        $roleId => ['enterprise_id' => $this->row->enterprise_id],
-                    ])
-                );
+                if ($this->data['roles'] !== null) {
+                    $this->row->roles()->sync(
+                        collect($this->data['roles'])->mapWithKeys(fn ($roleId) => [
+                            $roleId => ['enterprise_id' => $this->row->enterprise_id],
+                        ])
+                    );
+                }
 
                 // Đồng bộ groups
                 $this->row->groups()->sync($this->data['groups']);

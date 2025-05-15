@@ -52,6 +52,19 @@ class Vehicle extends BuilderAbstract
     }
 
     /**
+     * @param int $vehicleGroupId
+     * @return self
+     */
+    public function byVehicleGroupId(int $vehicleGroupId): self
+    {
+        return $this->whereIn('id', function ($query) use ($vehicleGroupId) {
+            $query->select('vehicle_id')
+                ->from('vehicle_group_map')
+                ->where('vehicle_group_id', $vehicleGroupId);
+        });
+    }
+
+    /**
      * @param int $alarm_id
      *
      * @return self

@@ -4,7 +4,7 @@ namespace App\Domains\UserGroup\Controller;
 
 use Illuminate\Support\Facades\Route;
 
-Route::group([], static function () {
+Route::group(['middleware' => ['user-auth']], static function () {
     Route::get('/user/group', IndexController::class)->name('user_group.index');
 
     Route::any('/user/group/create', CreateController::class)->name('user_group.create');

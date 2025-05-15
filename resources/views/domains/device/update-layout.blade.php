@@ -1,3 +1,4 @@
+@php use Illuminate\Support\Str;@endphp
 @extends ('domains.device.index-layout')
 @section('content')
 <div class="box flex items-center px-5">
@@ -32,9 +33,9 @@
         <!-- CVEDIX-RT-Analytics-->
         <a href="{{ route('device.runtime-analytics', $row->id ?? $device->id) }}"
            class="p-4
-           {{ (Illuminate\Support\Str::is('device.runtime-analytics*', $ROUTE)) ? 'active' : '' }}
-           {{ (Illuminate\Support\Str::is('group.*', $ROUTE)) ? 'active' : '' }}
-           {{ (Illuminate\Support\Str::is('solution.*', $ROUTE)) ? 'active' : '' }}
+           {{ (Str::is('device.runtime-analytics*', $ROUTE)) ? 'active' : '' }}
+           {{ (Str::is('group.*', $ROUTE)) ? 'active' : '' }}
+           {{ (Str::is('solution.*', $ROUTE)) ? 'active' : '' }}
 
 
            "

@@ -27,3 +27,22 @@
         </div>
     </div>
 </div>
+<div class="box p-5 mt-5">
+    <!-- input vehicle_group_id -->
+    <h3 class="text-lg font-bold mt-2">Bookmark Group</h3>
+    @if(isset($bookmarkGroups) && $bookmarkGroups->count() <= 0)
+        <p>No groups available</p>
+    @endif
+    @foreach($bookmarkGroups as $item)
+        <div class="p-2">
+            <div class="form-check">
+                <input type="checkbox" name="vehicle_groups[]" value="{{$item->id}}" class="form-check-switch" id="vehicle-group-{{$item->id}}"
+                    {{ isset($assignedBookmarkGroups) && in_array($item->id, $assignedBookmarkGroups->pluck('vehicle_group_id')->toArray()) ? 'checked' : '' }}
+                    {{ $REQUEST->input('vehicle_groups') ? 'checked' : '' }}
+                >
+                <label for="vehicle-group-{{$item->id}}" class="form-check-label">{{$item->name}}</label>
+            </div>
+        </div>
+
+    @endforeach
+</div>

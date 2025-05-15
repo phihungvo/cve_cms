@@ -1,6 +1,4 @@
-@php
-    use Illuminate\Support\Str;
-@endphp
+@php use Illuminate\Support\Str; @endphp
 
 @extends ('layouts.in')
 
@@ -17,7 +15,6 @@
 
             "
             role="tab">List Device</a>
-
 
             <!-- Device Groups-->
             <a href="{{ route('device_group.index') }}"

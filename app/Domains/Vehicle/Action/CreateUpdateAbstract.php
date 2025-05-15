@@ -4,6 +4,7 @@ namespace App\Domains\Vehicle\Action;
 
 use App\Domains\Timezone\Model\Timezone as TimezoneModel;
 use App\Domains\Vehicle\Model\Vehicle as Model;
+use App\Exceptions\ValidatorException;
 
 abstract class CreateUpdateAbstract extends ActionAbstract
 {
@@ -13,7 +14,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     abstract protected function save(): void;
 
     /**
-     * @return \App\Domains\Vehicle\Model\Vehicle
+     * @throws ValidatorException
+     *
+     * @return Model
      */
     public function handle(): Model
     {
@@ -32,6 +35,8 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         $this->dataName();
         $this->dataPlate();
         $this->dataUserId();
+        $this->vehicleGroups();
+        $this->dataEnterpriseId();
     }
 
     /**
@@ -51,6 +56,8 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
+     * @throws ValidatorException
+     *
      * @return void
      */
     protected function check(): void
@@ -59,6 +66,8 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
+     * @throws ValidatorException
+     *
      * @return void
      */
     protected function checkTimezone(): void
@@ -76,5 +85,19 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         return TimezoneModel::query()
             ->byId($this->data['timezone_id'])
             ->exists();
+    }
+
+    protected function vehicleGroups(): void
+    {
+        if ($this->request->input('vehicle_groups')) {
+            $this->data['vehicle_groups'] = $this->request->input('vehicle_groups');
+        } else {
+            $this->data['vehicle_groups'] = [];
+        }
+    }
+
+    protected function dataEnterpriseId(): void
+    {
+        $this->data['enterprise_id'] = $this->request->input('enterprise_id') ?? auth()->user()->enterprise_id;
     }
 }
