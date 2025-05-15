@@ -9,8 +9,10 @@
             <!--List Device-->
             <a href="{{ route('device.index') }}"
             class="p-4
-            {{ ($ROUTE === 'device.index') ? 'active' : '' }}
-            {{Str::is('device*', $ROUTE) && !Str::is('device_group*', $ROUTE) ? 'active' : ''}}
+            {{ Str::is('device.*', $ROUTE) ? 'active' : '' }}
+            {{ Str::is('solution.*', $ROUTE) ? 'active' : '' }}
+            {{ Str::is('group.*', $ROUTE) ? 'active' : '' }}
+
             "
             role="tab">List Device</a>
 

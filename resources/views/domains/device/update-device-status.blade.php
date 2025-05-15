@@ -1,6 +1,6 @@
-@extends('domains.device.update-layout')
+@extends ('domains.device.update-layout')
 
-@section('content')
+@section ('content_inner')
     <div class="p-0 py-5 bg-light-blue">
         <div class="box shadow-sm rounded-lg p-4">
             @if (empty($infoDevice->deviceStatus->data))

@@ -21,7 +21,7 @@
     </div>
 @endsection
 
-@section('content')
+@section('content_inner')
     <div class="tab-content">
         <div class="tab-pane active" role="tabpanel">
             @yield('content-analytics')

@@ -11,4 +11,10 @@
     'enterprise' => 'Enterprise',
     'select-enterprise' => '--- Select enterprise ---',
     'select-playlist' => '--- Select playlist ---',
+    'error' => [
+        'database' => 'A database error occurred: :message',
+        'not-found' => 'The requested resource was not found: :message',
+        'validation-error' => 'Validation failed: :message',
+        'unknown-error' => 'An unknown error occurred: :message',
+    ],
 ];

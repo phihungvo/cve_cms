@@ -20,7 +20,7 @@ class IndexService extends ControllerAbstract
         // Add filter logic here
     }
 
-    public function data(): mixed
+    public function data(): array
     {
         return [
             'enterprises' => $this->enterprise(),

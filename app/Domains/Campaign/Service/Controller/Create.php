@@ -30,32 +30,6 @@ class Create
         return new self($request, $auth);
     }
 
-    // public function data(): array
-    // {
-    //     // Lấy enterprise_id từ auth (nếu người dùng không phải root)
-    //     $enterpriseId = $this->auth && !$this->auth->isRoleRoot() ? $this->auth->enterprise_id : null;
-
-    //     // Nếu đang chỉnh sửa campaign, lấy enterprise_id từ campaign
-    //     $campaignId = $this->request->route('id'); // Lấy id campaign từ route (nếu có)
-    //     if ($campaignId) {
-    //         $campaign = Model::find($campaignId);
-    //         $enterpriseId = $campaign ? $campaign->enterprise_id : $enterpriseId;
-    //     }
-
-    //     // Query media với bộ lọc enterprise_id
-    //     $mediaQuery = Media::query();
-    //     if ($enterpriseId) {
-    //         $mediaQuery->where('enterprise_id', $enterpriseId);
-    //     }
-
-    //     return [
-    //         'enterprises' => Enterprise::all(),
-    //         'performances' => Performance::all(),
-    //         'locations' => Location::all(),
-    //         'media' => $mediaQuery->get(), // Lấy media đã lọc
-    //     ];
-    // }
-
     public function data(): array
     {
         $enterpriseId = $this->auth && !$this->auth->isRoleRoot() ? $this->auth->enterprise_id : null;
@@ -98,12 +72,13 @@ class Create
             'enterprise_id' => 'required|exists:enterprise,id',
             'media_ids' => 'nullable|array',
             'media_ids.*' => 'exists:media,id',
-            'user_ids' => 'nullable|array',// validation cho user_ids
+            'user_ids' => 'nullable|array',
             'user_ids.*' => 'exists:user,id',
             'reach' => 'required|integer|min:0',
             'impression' => 'required|integer|min:0',
             'distance' => 'required|integer|min:0',
-            'cpm' => 'nullable|integer|min:0', // CPM có thể không được gửi từ form
+            'no_device' => 'required|integer|min:0', // Added validation for no_device
+            'cpm' => 'nullable|integer|min:0',
             'location_id' => 'required|exists:location,id',
             'budget' => 'required|numeric|min:0',
             'status' => 'nullable|string|max:255',
@@ -113,7 +88,6 @@ class Create
             throw new \Exception($validator->errors()->first());
         }
 
-        // Tính CPM nếu không có giá trị từ form
         $reach = $this->request->input('reach');
         $budget = $this->request->input('budget');
         $cpm = $this->request->input('cpm');
@@ -124,11 +98,11 @@ class Create
             $cpm = 0;
         }
 
-        // Tạo bản ghi Performance
         $performance = Performance::create([
             'reach' => $reach,
             'impression' => $this->request->input('impression'),
             'distance' => $this->request->input('distance'),
+            'no_device' => $this->request->input('no_device'), // Added no_device
             'cpm' => $cpm,
         ]);
 
@@ -149,13 +123,11 @@ class Create
 
         $campaign = Model::create($data);
 
-        // Cập nhật campaign_id trong bảng media
         if ($this->request->has('media_ids')) {
             Media::whereIn('id', $this->request->input('media_ids'))
                 ->update(['campaign_id' => $campaign->id]);
         }
 
-        // Gán users
         if ($this->request->has('user_ids')) {
             $campaign->users()->sync($this->request->input('user_ids'));
         }
@@ -183,7 +155,8 @@ class Create
             'reach' => 'required|integer|min:0',
             'impression' => 'required|integer|min:0',
             'distance' => 'required|integer|min:0',
-            'cpm' => 'nullable|integer|min:0', // CPM có thể không được gửi từ form
+            'no_device' => 'required|integer|min:0', // Added validation for no_device
+            'cpm' => 'nullable|integer|min:0',
             'location_id' => 'required|exists:location,id',
             'budget' => 'required|numeric|min:0',
             'status' => 'nullable|string|max:255',
@@ -193,7 +166,6 @@ class Create
             throw new \Exception($validator->errors()->first());
         }
 
-        // Tính CPM nếu không có giá trị từ form
         $reach = $this->request->input('reach');
         $budget = $this->request->input('budget');
         $cpm = $this->request->input('cpm');
@@ -204,12 +176,12 @@ class Create
             $cpm = 0;
         }
 
-        // Cập nhật Performance
         if ($campaign->performance) {
             $campaign->performance->update([
                 'reach' => $reach,
                 'impression' => $this->request->input('impression'),
                 'distance' => $this->request->input('distance'),
+                'no_device' => $this->request->input('no_device'), // Added no_device
                 'cpm' => $cpm,
             ]);
         } else {
@@ -217,6 +189,7 @@ class Create
                 'reach' => $reach,
                 'impression' => $this->request->input('impression'),
                 'distance' => $this->request->input('distance'),
+                'no_device' => $this->request->input('no_device'), // Added no_device
                 'cpm' => $cpm,
             ]);
             $campaign->performance_id = $performance->id;
@@ -238,18 +211,15 @@ class Create
 
         $campaign->update($data);
 
-        // Xóa campaign_id của các media không còn được chọn
         Media::where('campaign_id', $campaign->id)
             ->whereNotIn('id', $this->request->input('media_ids', []))
             ->update(['campaign_id' => null]);
 
-        // Cập nhật campaign_id cho các media được chọn
         if ($this->request->has('media_ids')) {
             Media::whereIn('id', $this->request->input('media_ids'))
                 ->update(['campaign_id' => $campaign->id]);
         }
 
-        // Cập nhật users
         if ($this->request->has('user_ids')) {
             $campaign->users()->sync($this->request->input('user_ids'));
         } else {
@@ -263,27 +233,10 @@ class Create
         ];
     }
 
-    // public function destroy(int $id): array
-    // {
-    //     $campaign = Model::withTrashed()->findOrFail($id);
-
-    //     // Xóa campaign_id của các media liên kết
-    //     Media::where('campaign_id', $campaign->id)
-    //         ->update(['campaign_id' => null]);
-
-    //     $campaign->delete();
-
-    //     return [
-    //         'status' => true,
-    //         'message' => __('campaign-delete.success'),
-    //         'data' => $this->formatCampaign($campaign),
-    //     ];
-    // }
     public function destroy(int $id): array
     {
         $campaign = Model::withTrashed()->findOrFail($id);
         Media::where('campaign_id', $campaign->id)->update(['campaign_id' => null]);
-        // $campaign->users()->detach(); // Xóa quan hệ trong user_campaign
         $campaign->delete();
 
         return [
@@ -305,27 +258,11 @@ class Create
         ];
     }
 
-    // public function forceDelete(int $id): array
-    // {
-    //     $campaign = Model::withTrashed()->findOrFail($id);
-
-    //     // Xóa campaign_id của các media liên kết
-    //     Media::where('campaign_id', $campaign->id)
-    //         ->update(['campaign_id' => null]);
-
-    //     $campaign->forceDelete();
-
-    //     return [
-    //         'status' => true,
-    //         'message' => __('campaign-delete.success'),
-    //         'data' => null,
-    //     ];
-    // }
     public function forceDelete(int $id): array
     {
         $campaign = Model::withTrashed()->findOrFail($id);
         Media::where('campaign_id', $campaign->id)->update(['campaign_id' => null]);
-        $campaign->users()->detach(); // Xóa quan hệ trong user_campaign
+        $campaign->users()->detach();
         $campaign->forceDelete();
 
         return [
@@ -337,13 +274,17 @@ class Create
 
     public function formatCampaign(Model $campaign): array
     {
+        $actualReach = $campaign->performance ? $campaign->performance->actual_reach : 0;
+        $cost = $campaign->budget ?? 0;
+        $actualCpm = $actualReach > 0 ? round(($cost / $actualReach) * 1000) : 0;
+
         return [
             'id' => $campaign->id,
             'name' => $campaign->name,
             'media_names' => $campaign->media->pluck('name')->implode(', ') ?: 'N/A',
             'media_ids' => $campaign->media->pluck('id')->toArray(),
-            'user_ids' => $campaign->users->pluck('id')->toArray(), // Thêm user_ids
-            'user_names' => $campaign->users->pluck('name')->implode(', ') ?: 'N/A', // Thêm tên user
+            'user_ids' => $campaign->users->pluck('id')->toArray(),
+            'user_names' => $campaign->users->pluck('name')->implode(', ') ?: 'N/A',
             'start_time' => $campaign->start_time->toDateTimeString(),
             'end_time' => $campaign->end_time->toDateTimeString(),
             'enterprise_id' => $campaign->enterprise_id,
@@ -352,6 +293,7 @@ class Create
             'reach' => $campaign->performance ? $campaign->performance->reach : 0,
             'impression' => $campaign->performance ? $campaign->performance->impression : 0,
             'distance' => $campaign->performance ? $campaign->performance->distance : 0,
+            'no_device' => $campaign->performance ? $campaign->performance->no_device : 0, // Added no_device
             'cpm' => $campaign->performance ? $campaign->performance->cpm : 0,
             'location_id' => $campaign->location_id,
             'budget' => $campaign->budget,

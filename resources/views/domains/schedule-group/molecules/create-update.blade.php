@@ -1,17 +1,14 @@
 <div class="box p-5 mt-5" {{ auth()->user()->enterprise_id == null ? '' : 'style=display:none' }}>
     @if(auth()->user()->enterprise_id == null)
         <div class="p-2">
-            <label>{{__('schedule-group-create.enterprise')}}</label>
-            <div class="input-group">
-                <select name="enterprise_id" id="enterprise_select" class="form-control form-control-lg">
-                    <option value="">{{__('schedule-group-create.select-enterprise')}}</option>
-                    @foreach ($enterprises as $enterprise)
-                        <option value="{{ $enterprise->id }}"
-                            {{ $REQUEST->input('enterprise_id') == $enterprise->id ? 'selected' : '' }}>
-                            {{ $enterprise->name }}
-                        </option>
-                    @endforeach
-                </select>
+            <x-select name="enterprise_id" :options="$enterprises" value="id"
+                      id="playlist-group-create-enterprise" class="cursor-pointer"
+                      text="name" id="playlist-group-create-enterprise"
+                      placeholder="{{__('schedule-group-create.select-enterprise')}}"
+                      :label="__('playlist-group-create.enterprise')"
+                      :readonly="old('enterprise_id', $REQUEST->input('enterprise_id')) && $ROUTE == 'schedule_group.update'"
+                      :disabled="old('enterprise_id', $REQUEST->input('enterprise_id')) && $ROUTE == 'schedule_group.update'">
+            </x-select>
             </div>
         </div>
     @endif
