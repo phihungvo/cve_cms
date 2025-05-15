@@ -2,10 +2,10 @@
 
 namespace App\Domains\ScheduleGroup\Model;
 
+use App\Domains\ScheduleGroup\Model\Builder\ScheduleGroupBuilder;
 use App\Domains\CoreApp\Model\ModelAbstract;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Domains\ScheduleGroup\Model\Builder\ScheduleGroupBuilder;
 use App\Domains\ScheduleGroup\Model\Collection\ScheduleGroupCollection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -75,7 +75,7 @@ class ScheduleGroupModel extends ModelAbstract
         return new ScheduleGroupBuilder($query);
     }
 
-    public function scheduleGroups(): HasMany
+    public function scheduleGroupsMap(): HasMany
     {
         return $this->hasMany(ScheduleGroupMap::class, ScheduleGroupMap::FOREIGN, self::PRIMARY);
     }

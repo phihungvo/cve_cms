@@ -20,7 +20,6 @@ class CreateService extends CreateUpdateAbstractService
     public function data(): array
     {
         return $this->dataCreateUpdate() + [
-            //  TODO: Add data for creating ScheduleGroup
         ];
     }
 }

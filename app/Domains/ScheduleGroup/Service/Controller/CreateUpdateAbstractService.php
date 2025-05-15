@@ -2,7 +2,7 @@
 
 namespace App\Domains\ScheduleGroup\Service\Controller;
 
-use App\Domains\Campaign\Media\Model\Media as MediaModel;
+use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Database\Eloquent\Collection;
 
 abstract class CreateUpdateAbstractService extends ControllerAbstract
@@ -18,7 +18,13 @@ abstract class CreateUpdateAbstractService extends ControllerAbstract
     protected function dataCreateUpdate(): array
     {
         return [
-            // TODO: Data shared between Create and Update operations
+            'enterprises' => $this->enterprises(),
         ];
+    }
+
+    protected function enterprises(): Collection
+    {
+        return Enterprise::query()
+            ->get();
     }
 }

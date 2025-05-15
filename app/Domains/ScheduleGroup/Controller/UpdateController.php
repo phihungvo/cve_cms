@@ -124,17 +124,15 @@ class UpdateController extends ControllerAbstract
     protected function restore(): RedirectResponse
     {
         try {
-           $this->action()->restore();
+            $this->action()->restore();
 
-           $this->sessionMessage('success', __('schedule-group-update.restore.success'));
+            $this->sessionMessage('success', __('schedule-group-update.restore.success'));
 
-           return redirect()->route('schedule_group.index');
+            return redirect()->route('schedule_group.index');
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
             return redirect()->route('schedule_group.index');
         }
     }
-
-
 }

@@ -9,9 +9,13 @@
     $allPermission = $userPermission['all'] ?? [];
 @endphp
 
-@extends('domains.schedule.index-layout')
+@extends ('domains.schedule.index-layout')
 
-@section('content')
+@extends('layouts.in')
+
+@section('title', __('schedule-index.title'))
+
+@section('body')
     <div class="intro-y box p-5">
         @if(session('success'))
             <div class="alert alert-success mb-4 p-4">

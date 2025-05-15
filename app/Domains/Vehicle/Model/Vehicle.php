@@ -2,8 +2,8 @@
 
 namespace App\Domains\Vehicle\Model;
 
-use App\Domains\VehicleGroup\Model\VehicleGroupMap;
-use App\Domains\VehicleGroup\Model\VehicleGroupModel;
+use App\Domains\VehicleGroup\Model\ScheduleGroupMap;
+use App\Domains\VehicleGroup\Model\ScheduleGroupModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -149,10 +149,10 @@ class Vehicle extends ModelAbstract
     public function vehicleGroups(): BelongsToMany
     {
         return $this->belongsToMany(
-            VehicleGroupModel::class,
-            VehicleGroupMap::TABLE,
+            ScheduleGroupModel::class,
+            ScheduleGroupMap::TABLE,
             self::FOREIGN,
-            VehicleGroupModel::FOREIGN
+            ScheduleGroupModel::FOREIGN
         );
     }
 }

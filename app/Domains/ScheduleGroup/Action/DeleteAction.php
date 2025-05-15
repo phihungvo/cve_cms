@@ -15,6 +15,7 @@ class DeleteAction extends ActionAbstract
      */
     public function handle(): void
     {
+        $this->check();
         $this->delete();
     }
 
@@ -43,6 +44,16 @@ class DeleteAction extends ActionAbstract
         } catch (Throwable $e) {
             // Lỗi không xác định: bắt tất cả các ngoại lệ khác không được xử lý cụ thể ở trên
             throw new Exception(__('schedule-group-delete.error.unexpected', ['message' => $e->getMessage()]), 0, $e);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function check(): void
+    {
+        if ($this->row->scheduleGroupsMap()->exists()) {
+            throw new Exception(__('schedule-group-update.delete.error.in-use'));
         }
     }
 }
