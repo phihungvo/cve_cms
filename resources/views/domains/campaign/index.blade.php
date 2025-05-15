@@ -13,7 +13,7 @@
                     data-table-search="#campaign-list-table" />
             </div>
             @php
-$isRoot = auth()->check() && auth()->user()->isRoleRoot();
+                $isRoot = auth()->check() && auth()->user()->isRoleRoot();
             @endphp
             @if ($isRoot)
                 <div class="flex-grow mt-2 lg:mt-0">
@@ -45,6 +45,7 @@ $isRoot = auth()->check() && auth()->user()->isRoleRoot();
                     <th>{{ __('campaign-index.reach') }} (Actual/Target)</th>
                     <th>{{ __('campaign-index.impression') }} (Actual/Target)</th>
                     <th>{{ __('campaign-index.distance') }} (Actual/Target)</th>
+                    <th>{{ __('campaign-index.no_device') }}</th> <!-- Added no_device column -->
                     <th>{{ __('campaign-index.cpm') }} (Actual/Target)</th>
                     <th>{{ __('campaign-index.city') }}</th>
                     <th>{{ __('campaign-index.status') }}</th>
@@ -75,6 +76,7 @@ $isRoot = auth()->check() && auth()->user()->isRoleRoot();
                             {{ number_format($item['impression']['target'], 0) }}</td>
                         <td>{{ number_format($item['distance']['actual'], 0) }} /
                             {{ number_format($item['distance']['target'], 0) }}</td>
+                        <td>{{ number_format($item['no_device'], 0) }}</td> <!-- Display no_device -->
                         <td>{{ number_format($item['cpm']['actual'], 2) }} /
                             {{ number_format($item['cpm']['target'], 2) }}</td>
                         <td>{{ $item['city'] }}</td>
@@ -126,7 +128,8 @@ $isRoot = auth()->check() && auth()->user()->isRoleRoot();
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ $isRoot ? 12 : 11 }}">{{ __('campaign-index.no_data') }}</td>
+                        <td colspan="{{ $isRoot ? 13 : 12 }}">{{ __('campaign-index.no_data') }}</td>
+                        <!-- Adjusted colspan -->
                     </tr>
                 @endforelse
             </tbody>
@@ -134,15 +137,11 @@ $isRoot = auth()->check() && auth()->user()->isRoleRoot();
     </div>
 
     <style>
-        /* #campaign-list-table tbody tr {
-                        transition: background-color 0.2s;
-                    } */
-
         #campaign-list-table tbody tr:hover {
             background-color: #ffffff;
         }
 
-        #campaign-list-table td:nth-child({{ $isRoot ? 11 : 10 }}) {
+        #campaign-list-table td:nth-child({{ $isRoot ? 12 : 11 }}) {
             font-weight: bold;
         }
     </style>

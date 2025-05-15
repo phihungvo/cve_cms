@@ -13,8 +13,15 @@ class Create
 
     public function handle(array $data): Media
     {
-        $this->data = $data;
-        return $this->createMedia();
+        try {
+            return Media::create($data);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to create media record', [
+                'data' => $data,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
     }
 
     protected function createMedia(): Media
