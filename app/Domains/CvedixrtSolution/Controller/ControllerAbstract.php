@@ -20,7 +20,7 @@ abstract class ControllerAbstract extends ControllerWebAbstract
         return $this->row = Model::query()
             // TODO: define func byId in ModelAbstract
             ->byId($id)
-            // ->roleRoot()
+//            ->roleRoot()
             ->firstOr(fn () => $this->exceptionNotFound(__('cvedixrt-solution-update.error.not-found')));
     }
 }

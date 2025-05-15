@@ -33,12 +33,6 @@
     @include('molecules.delete-modal', [
         'title' => $isDeleted ? __('Delete') : __('Force Delete'),
         'message' => $isDeleted ? __('Are you sure you want to delete this item?') : __('Are you sure you want to force delete this item?'),
-        'action' => $isDeleted ? 'delete' : 'forceDelete'
     ])
 
-    @include('molecules.restore-modal', [
-        'title' => __('Restore CvedixrtSolution'),
-        'message' => __('Are you sure you want to restore this item?'),
-        'action' => 'restore'
-    ])
 @endsection
