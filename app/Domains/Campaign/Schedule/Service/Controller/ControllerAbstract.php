@@ -2,30 +2,10 @@
 
 namespace App\Domains\Campaign\Schedule\Service\Controller;
 
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Http\Request;
+use App\Domains\Campaign\Schedule\Model\Schedule as Model;
+use App\Domains\CoreApp\Service\Controller\ControllerAbstract as ControllerAbstractCore;
 
-abstract class ControllerAbstract
+abstract class ControllerAbstract extends ControllerAbstractCore
 {
-    /**
-     * @var \Illuminate\Http\Request
-     */
-    protected Request $request;
-
-    /**
-     * @var \Illuminate\Contracts\Auth\Authenticatable
-     */
-    protected Authenticatable $auth;
-
-    /**
-     * Constructor
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \Illuminate\Contracts\Auth\Authenticatable $auth
-     */
-    public function __construct(Request $request, Authenticatable $auth)
-    {
-        $this->request = $request;
-        $this->auth = $auth;
-    }
+    protected Model $row;
 }

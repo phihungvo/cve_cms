@@ -12,12 +12,21 @@ use App\Domains\Device\Model\Device as DeviceModel;
 use App\Domains\Display\Model\Display;
 use App\Domains\Playlist\Model\PlaylistModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $description
+ * @property DateTime $start_time
+ * @property DateTime $end_time
+ * @property int $enterprise_id
+ */
 class Schedule extends ModelAbstract // Kế thừa từ ModelAbstract thay vì Model
 {
     use HasFactory;

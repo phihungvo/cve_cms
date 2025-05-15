@@ -29,7 +29,7 @@
         <div class="box p-5 mt-5">
             <div class="text-right">
                 <button type="submit" class="btn btn-primary">{{__('playlist-create.save')}}</button>
-                <a href="{{route('fpp.playlist.index')}}">{{__('playlist-create.cancel')}}</a>
+                <a href="{{route('fpp.playlist.index')}}" class="btn btn-secondary ml-2">{{__('playlist-create.cancel')}}</a>
             </div>
         </div>
 

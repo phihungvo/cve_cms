@@ -16,4 +16,29 @@
     'force-delete-title' => 'Force Delete Playlist',
     'force-delete-message' => 'Are you sure you want to force delete this playlist? This action cannot be undone.',
     'force-delete-success' => 'The playlist has been permanently deleted.',
+    'error' => [
+        'not-found' => 'Playlist not found',
+    ],
+    'aler' => [
+        'confirm-button' => 'OK',
+        'error-message' => 'An error occurred while processing your request.',
+    ],
+    'push-message' => [
+        'title' => 'Are you sure?',
+        'text' => 'Are you sure you want to push message to all devices?',
+        'confirm-button' => 'Yes, push it!',
+        'cancel-button' => 'Cancel',
+
+        'success' => 'Push message successfully',
+    ],
+    'push-playlist-to-device' => [
+        'title' => 'Confirm',
+        'text' => 'Are you sure push message to',
+        'confirm-button' => 'Yes',
+        'cancel-button' => 'Cancel',
+    ],
+    'preview-message' => [
+        'title' => 'Preview Message',
+        'error-message' => 'Failed to preview messagee'
+    ],
 ];

@@ -36,10 +36,13 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         $this->dataPassword();
         $this->dataPhone();
         $this->dataApiKey();
+        $this->dataApiKeyFull();
         $this->dataPreferences();
         $this->dataLanguageId();
         $this->dataTimezoneId();
         $this->dataRoleIds();
+        $this->dataRole();
+        $this->dataGroup();
     }
 
     /**
@@ -69,6 +72,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
             $this->data['password'] = $this->row->password;
         }
     }
+
     protected function dataPhone(): void
     {
         $this->data['phone'] = trim($this->request->input('phone', $this->data['phone'] ?? ''));
@@ -307,5 +311,24 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         return TimezoneModel::query()
             ->byId($this->data['timezone_id'])
             ->exists();
+    }
+
+    protected function dataApiKeyFull(): void
+    {
+        if (isset($this->data['api_key_full'])) {
+            $this->data['api_key_full'] = $this->data['api_key_full'];
+        } else {
+            $this->data['api_key_full'] = $this->row?->api_key_full;
+        }
+    }
+
+    protected function dataRole(): void
+    {
+        $this->data['roles'] ??= [];
+    }
+
+    protected function dataGroup(): void
+    {
+        $this->data['groups'] = $this->request->get('groups') ?? [];
     }
 }
