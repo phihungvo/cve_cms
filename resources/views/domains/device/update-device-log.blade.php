@@ -1,6 +1,6 @@
-@extends('domains.device.update-layout')
+@extends ('domains.device.update-layout')
 
-@section('content')
+@section ('content_inner')
     <div class="p-0 py-5">
         <div class="box shadow-sm rounded-lg p-4">
             <h2 class="text-lg font-semibold mb-4">{{ __('device-update.device-log') }}</h2>

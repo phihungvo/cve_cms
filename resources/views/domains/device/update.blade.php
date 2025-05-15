@@ -1,6 +1,6 @@
 @extends ('domains.device.update-layout')
 
-@section ('content')
+@section ('content_inner')
     <form method="post">
         <input type="hidden" name="_action" value="update"/>
         @if(auth()->user()->isRoleRoot())
@@ -54,7 +54,7 @@
         'message' => __('device-update.delete-message'),
     ])
 
-@stop
+@endsection
 @push('scripts')
     <script>
         let selectEnterprise = document.getElementById('device-update-enterprise');

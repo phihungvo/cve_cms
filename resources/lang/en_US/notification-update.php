@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'title' => 'Update Notification',
+    'meta-title' => 'Update Notification',
+    'title-label' => 'Title',
+    'title-placeholder' => 'Enter notification title',
+    'content-label' => 'Content',
+    'content-placeholder' => 'Enter notification content',
+    'type-label' => 'Notification Type',
+    'type-system' => 'System',
+    'type-enterprise' => 'Enterprise',
+    'target-group-label' => 'Target Group',
+    'target-group-all' => 'All',
+    'submit' => 'Update',
+    'cancel' => 'Cancel',
+    'success' => 'Notification updated successfully.',
+    'failed' => 'Failed to update notification.',
+    'invalid-notification' => 'Invalid notification.',
+    'invalid-data' => 'Invalid data provided.',
+    'invalid-target-group' => 'Invalid target group selected.',
+    'unauthorized' => 'You do not have permission to update this notification.',
+    'unauthorized-system' => 'Only root users can update system notifications.',
+    'owner-enterprise-mismatch' => 'You can only update notifications for your enterprise.',
+];
