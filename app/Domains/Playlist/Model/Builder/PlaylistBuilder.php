@@ -90,9 +90,12 @@ class PlaylistBuilder extends BuilderAbstract
 
     public function userHasPerrmission($alias): PlaylistBuilder|\Illuminate\Support\Collection
     {
-        if (auth()->user()->hasPermission($alias)) {
+        if (auth()->user()->isRoleRoot()) {
+            return $this;
+        } elseif (auth()->user()->isOwner() || auth()->user()->hasPermission($alias)) {
             return $this->where('enterprise_id', auth()->user()->enterprise_id);
         }
+
         return $this->where('enterprise_id', 0);
     }
 }
