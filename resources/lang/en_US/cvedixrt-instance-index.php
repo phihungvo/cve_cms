@@ -14,7 +14,7 @@
 
     'meta-title' => 'Cvedixrt Instance',
     'runtime-analytics' => 'CVEDIX-RT Analytics',
-    'create-instance' => 'Create Cvedixrt Instance',
+    'create-instance' => 'Create',
     'all-instance-list' => 'All Cvedixrt Instance List',
     'rt-analytics-not_supported' => 'Runtime analytics is not supported for this device.',
 
