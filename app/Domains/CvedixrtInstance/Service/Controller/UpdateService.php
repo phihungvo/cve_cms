@@ -10,8 +10,11 @@ use Illuminate\Http\Request;
 
 class UpdateService extends CreateUpdateAbstractService
 {
-    public function __construct(protected Request $request, protected Authenticatable $auth, protected CvedixrtInstanceModel $row)
-    {
+    public function __construct(
+        protected Request $request,
+        protected Authenticatable $auth,
+        protected ?CvedixrtInstanceModel $row
+    ) {
         $this->request();
     }
 

@@ -29,5 +29,5 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(DeleteAction::class);
     }
 
-    
+
 }

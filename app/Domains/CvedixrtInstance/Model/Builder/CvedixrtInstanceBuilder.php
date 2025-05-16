@@ -6,7 +6,26 @@ use App\Domains\CoreApp\Model\Builder\BuilderAbstract;
 
 class CvedixrtInstanceBuilder extends BuilderAbstract
 {
-    # Khởi tạo các phương thức tuỳ chỉnh có Eloquent Builder
+    /**
+     * @param int $solutionId
+     *
+     * @return self
+     */
+    public function whereBySolution(int $solutionId): self
+    {
+        if ($solutionId === 0)
+        {
+            return $this;
+        }
+        return $this->where('solution_id', $solutionId);
+    }
 
-    // Add your custom query methods here
+    public function whereByGroup(int $groupId): self
+    {
+        if ($groupId === 0)
+        {
+            return $this;
+        }
+        return $this->where('group_id', $groupId);
+    }
 }

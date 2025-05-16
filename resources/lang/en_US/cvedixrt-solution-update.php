@@ -29,8 +29,16 @@
     ],
     'update' => [
         'success' => 'Cvedixrt Solution updated successfully.',
-        'error' =>[
-
+        'error' => [
+            'query-error' => 'Database query error during update: :message',
+            'validation-error' => 'Validation failed during update: :message',
+            'type-error' => 'Type error during update: :message',
+            'unexpected-error' => 'An unexpected error occurred during update: :message',
+            'not-found' => 'Cvedixrt Solution to update not found.',
+            'connection-error' => 'Database connection error during update.',
+            'conflict' => 'Update conflict: :message',
+            'unauthorized' => 'You are not authorized to update this Cvedixrt Solution.',
+            'forbidden' => 'Update action is forbidden.',
         ],
     ],
     'delete' => [

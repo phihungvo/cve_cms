@@ -14,6 +14,8 @@ class CreateController extends ControllerAbstract
             return $response;
         }
 
+        $this->redirectUrl();
+
         $this->meta('title', __('cvedixrt-group-create.meta-title'));
 
         return $this->page('cvedixrt-group.create', $this->data());
@@ -32,16 +34,36 @@ class CreateController extends ControllerAbstract
      */
     protected function create(): RedirectResponse
     {
+        $redirectUrl = session('redirect_url', route('solution.index'));
+
         try {
             $this->row = $this->action()->create();
 
             $this->sessionMessage('success', __('cvedixrt-group-create.success'));
 
-            return redirect()->route('cvedixrt_group.index');
+            session()->forget('redirect_url');
+
+            return redirect()->to($redirectUrl);
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
-            return redirect()->route('cvedixrt-group.create')->withInput();
+            return redirect()->back()->withInput();
+        }
+    }
+
+    protected function redirectUrl(): void
+    {
+        $uriPrevious = url()->previous();
+        $route = route('cvedixrt_group.index');
+
+        // Lưu vào session nếu cần
+        if ($uriPrevious !== $route) {
+            if ($uriPrevious === route('cvedixrt_group.create')) {
+                return;
+            }
+            session(['redirect_url' => $uriPrevious]);
+        } else {
+            session(['redirect_url' => $route]);
         }
     }
 }

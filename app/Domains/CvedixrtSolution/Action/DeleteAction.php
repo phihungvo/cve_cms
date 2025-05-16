@@ -32,13 +32,13 @@ class DeleteAction extends ActionAbstract
             throw new Exception(__('cvedixrt-solution-delete.error.unauthorized', ['message' => $e->getMessage()]), 0, $e);
         } catch (QueryException $e) {
             if (str_contains($e->getMessage(), 'foreign key constraint fails')) {
-                throw new Exception(__('cvedixrt-solution-delete.error.in-use'), 0, $e);
+                throw new Exception(__('cvedixrt-solution-update.delete.error.in-use'), 0, $e);
             }
-            throw new Exception(__('cvedixrt-solution-delete.error.query'), 0, $e);
+            throw new Exception(__('cvedixrt-solution-update.delete.error.query'), 0, $e);
         } catch (PDOException $e) {
-            throw new Exception(__('cvedixrt-solution-delete.error.connection'), 0, $e);
+            throw new Exception(__('cvedixrt-solution-update.delete.error.connection'), 0, $e);
         } catch (Throwable $e) {
-            throw new Exception(__('cvedixrt-solution-delete.error.unexpected', ['message' => $e->getMessage()]), 0, $e);
+            throw new Exception(__('cvedixrt-solution-update.delete.error.unexpected', ['message' => $e->getMessage()]), 0, $e);
         }
     }
 

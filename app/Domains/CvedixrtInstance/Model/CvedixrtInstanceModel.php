@@ -3,15 +3,16 @@
 namespace App\Domains\CvedixrtInstance\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
+use App\Domains\CvedixrtGroup\Model\CvedixrtGroupModel;
+use App\Domains\CvedixrtSolution\Model\CvedixrtSolutionModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Domains\CvedixrtInstance\Model\Builder\CvedixrtInstanceBuilder;
-use App\Domains\CvedixrtInstance\Model\Collection\CvedixrtInstanceCollection;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Domains\CvedixrtInstance\Model\Builder\CvedixrtInstanceBuilder as Builder;
+use App\Domains\CvedixrtInstance\Model\Collection\CvedixrtInstanceCollection as Collection;
 
 class CvedixrtInstanceModel extends ModelAbstract
 {
     use HasFactory;
-    
 
     /**
      * @const string
@@ -36,7 +37,12 @@ class CvedixrtInstanceModel extends ModelAbstract
     public $timestamps = true;
 
     protected $fillable = [
-        // TODO: Add your fillable fields here
+        'uuid',
+        'name',
+        'source',
+        'solution_id',
+        'group_id',
+        'description',
     ];
 
     protected $casts = [
@@ -44,18 +50,24 @@ class CvedixrtInstanceModel extends ModelAbstract
         'updated_at' => 'datetime',
     ];
 
-    
+    protected function casts(): array
+    {
+        return [
+            'zones' => 'array',
+            'lines' => 'array',
+        ];
+    }
 
     /**
      * Create a custom collection instance.
      *
      * @param array $models
      *
-     * @return CvedixrtInstanceCollection
+     * @return Collection
      */
-    public function newCollection(array $models = []): CvedixrtInstanceCollection
+    public function newCollection(array $models = []): Collection
     {
-        return new CvedixrtInstanceCollection($models);
+        return new Collection($models);
     }
 
     /**
@@ -63,12 +75,30 @@ class CvedixrtInstanceModel extends ModelAbstract
      *
      * @param $query
      *
-     * @return CvedixrtInstanceBuilder
+     * @return Builder
      */
-    public function newEloquentBuilder($query): CvedixrtInstanceBuilder
+    public function newEloquentBuilder($query): Builder
     {
-        return new CvedixrtInstanceBuilder($query);
+        return new Builder($query);
     }
 
-    //  TODO: Add your relationships and custom methods here
+    /**
+     * Khai báo quan hệ n-1 với bảng cvedixrt_solution
+     *
+     * @return BelongsTo
+     */
+    public function solution(): BelongsTo
+    {
+        return $this->belongsTo(CvedixrtSolutionModel::class, CvedixrtSolutionModel::FOREIGN);
+    }
+
+    /**
+     * Khai báo quan hệ n-1 với bảng cvedixrt_group
+     *
+     * @return BelongsTo
+     */
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(CvedixrtGroupModel::class, CvedixrtGroupModel::FOREIGN);
+    }
 }

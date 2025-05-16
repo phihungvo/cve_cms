@@ -3,9 +3,11 @@
 namespace App\Domains\CvedixrtSolution\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
+use App\Domains\CvedixrtInstance\Model\CvedixrtInstanceModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Domains\CvedixrtSolution\Model\Builder\CvedixrtSolutionBuilder;
 use App\Domains\CvedixrtSolution\Model\Collection\CvedixrtSolutionCollection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
 class CvedixrtSolutionModel extends ModelAbstract
@@ -31,7 +33,7 @@ class CvedixrtSolutionModel extends ModelAbstract
     /**
      * @const string
      */
-    public const FOREIGN = 'cvedixrt_solution_id';
+    public const FOREIGN = 'solution_id';
 
     public $timestamps = true;
 
@@ -69,5 +71,13 @@ class CvedixrtSolutionModel extends ModelAbstract
         return new CvedixrtSolutionBuilder($query);
     }
 
-    //  TODO: Add your relationships and custom methods here
+    /**
+     * Khai báo quan hệ 1-n với bảng cvedixrt_instance
+     *
+     * @return HasMany
+     */
+    public function instances(): HasMany
+    {
+        return $this->hasMany(CvedixrtInstanceModel::class, self::FOREIGN, CvedixrtInstanceModel::PRIMARY);
+    }
 }

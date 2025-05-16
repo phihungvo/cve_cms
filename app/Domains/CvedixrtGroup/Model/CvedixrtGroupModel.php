@@ -3,9 +3,11 @@
 namespace App\Domains\CvedixrtGroup\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
+use App\Domains\CvedixrtInstance\Model\CvedixrtInstanceModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Domains\CvedixrtGroup\Model\Builder\CvedixrtGroupBuilder;
 use App\Domains\CvedixrtGroup\Model\Collection\CvedixrtGroupCollection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 
 class CvedixrtGroupModel extends ModelAbstract
@@ -31,7 +33,7 @@ class CvedixrtGroupModel extends ModelAbstract
     /**
      * @const string
      */
-    public const FOREIGN = 'cvedixrt_group_id';
+    public const FOREIGN = 'group_id';
 
     public $timestamps = true;
 
@@ -71,5 +73,13 @@ class CvedixrtGroupModel extends ModelAbstract
         return new CvedixrtGroupBuilder($query);
     }
 
-    //  TODO: Add your relationships and custom methods here
+    /**
+     * Khai báo quan hệ 1-n với bảng cvedixrt_instance
+     *
+     * @return HasMany
+     */
+    public function instances(): HasMany
+    {
+        return $this->hasMany(CvedixrtInstanceModel::class, self::FOREIGN, CvedixrtInstanceModel::PRIMARY);
+    }
 }

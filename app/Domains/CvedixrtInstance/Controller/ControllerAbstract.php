@@ -11,16 +11,16 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     protected ?Model $row;
 
     /**
-     * @param  int  $id
-     * @return Model
+     * @param int $id
+     *
      * @throws NotFoundException
+     *
+     * @return Model
      */
     protected function row(int $id): Model
     {
         return $this->row = Model::query()
-            // TODO: define func byId in ModelAbstract
             ->byId($id)
-            // ->roleRoot()
             ->firstOr(fn () => $this->exceptionNotFound(__('cvedixrt-instance-update.error.not-found')));
     }
 }

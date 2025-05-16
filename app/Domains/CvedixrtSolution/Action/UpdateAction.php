@@ -31,30 +31,30 @@ class UpdateAction extends CreateUpdateAbstractAction
 
             return $this->row;
         } catch (QueryException $exception) {
-
             throw new Exception(
-                __('cvedixrt-solution-update.update.database-error', ['message' => $exception->getMessage()]),
+                __('cvedixrt-solution-update.update.error.query-error', ['message' => $exception->getMessage()]),
                 0,
                 $exception
             );
         } catch (ValidationException $exception) {
             throw new Exception(
-                __('cvedixrt-solution-update.update.validation-error', ['message' => $exception->getMessage()]),
+                __('cvedixrt-solution-update.update.error.validation-error', ['message' => $exception->getMessage()]),
                 0,
                 $exception
             );
         } catch (TypeError $exception) {
             throw new Exception(
-                __('cvedixrt-solution-update.update.type-error', ['message' => $exception->getMessage()]),
+                __('cvedixrt-solution-update.update.error.type-error', ['message' => $exception->getMessage()]),
                 0,
                 $exception
             );
         } catch (Throwable $exception) {
             throw new Exception(
-                __('cvedixrt-solution-update.update.error', ['message' => $exception->getMessage()]),
+                __('cvedixrt-solution-update.update.error.unexpected-error', ['message' => $exception->getMessage()]),
                 0,
                 $exception
             );
         }
     }
 }
+
