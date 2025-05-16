@@ -28,7 +28,7 @@ class UpdateController extends ControllerAbstract
             return $response;
         }
 
-        $this->meta('title', __('vehicle-group-update.meta-title'));
+        $this->meta('title', __('cvedixrt-instance-update.meta-title'));
 
         return $this->page('cvedixrt-instance.update', $this->data());
     }
@@ -49,7 +49,7 @@ class UpdateController extends ControllerAbstract
     {
         $strategies = [
             'update' => fn () => $this->update(),
-            
+
         ];
 
         foreach ($strategies as $action => $callback) {
@@ -79,5 +79,5 @@ class UpdateController extends ControllerAbstract
         }
     }
 
-    
+
 }

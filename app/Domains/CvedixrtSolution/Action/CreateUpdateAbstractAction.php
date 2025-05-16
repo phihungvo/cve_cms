@@ -6,7 +6,7 @@ use App\Domains\CvedixrtSolution\Model\CvedixrtSolutionModel as Model;
 
 abstract class CreateUpdateAbstractAction extends ActionAbstract
 {
-    abstract protected function save():Model;
+    abstract protected function save(): Model;
 
     public function handle(): Model
     {

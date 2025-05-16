@@ -2,7 +2,9 @@
 
 namespace App\Domains\CvedixrtInstance\Service\Controller;
 
+use App\Domains\CamCloud\Model\Camera;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class CreateService extends CreateUpdateAbstractService
@@ -20,7 +22,32 @@ class CreateService extends CreateUpdateAbstractService
     public function data(): array
     {
         return $this->dataCreateUpdate() + [
-            //  TODO: Add data for creating CvedixrtInstance
+            'uuid' => ($this->input['uuid'] ?? helper()->uuid()),
         ];
+    }
+
+    public function dataInputSource(): array
+    {
+        return [
+            'instance' => $this->instance(),
+            'camerasExisting' => $this->camerasExisting(),
+            'cameras' => Collect([]),
+        ];
+    }
+
+    protected function instance(): array
+    {
+        return [
+            'uuid' => $this->request->input('uuid'),
+            'name' => $this->request->input('instance_name'),
+            'solution_id' => $this->request->input('solution_id'),
+            'group_id' => $this->request->input('group_id'),
+        ];
+    }
+
+    protected function camerasExisting(): Collection
+    {
+        return Camera::query()
+            ->get();
     }
 }

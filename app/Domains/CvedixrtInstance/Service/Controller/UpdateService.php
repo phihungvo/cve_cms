@@ -2,6 +2,7 @@
 
 namespace App\Domains\CvedixrtInstance\Service\Controller;
 
+use App\Domains\CamCloud\Model\Camera;
 use App\Domains\CvedixrtInstance\Model\CvedixrtInstanceModel;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
@@ -23,7 +24,13 @@ class UpdateService extends CreateUpdateAbstractService
     {
         return $this->dataCreateUpdate() + [
             'row' => $this->row,
-            // and more ...
+            'camerasExisting' => $this->camerasExisting(),
         ];
+    }
+
+    protected function camerasExisting(): Collection
+    {
+        return Camera::query()
+            ->get();
     }
 }

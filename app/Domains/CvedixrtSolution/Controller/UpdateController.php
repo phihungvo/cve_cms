@@ -87,12 +87,10 @@ class UpdateController extends ControllerAbstract
             $this->sessionMessage('success', __('cvedixrt-solution-update.delete.success'));
 
             return redirect()->route('cvedixrt_solution.index');
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
             return redirect()->route('cvedixrt_solution.index');
         }
     }
-
-
 }
