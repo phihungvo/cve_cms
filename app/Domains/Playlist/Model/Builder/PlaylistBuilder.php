@@ -87,4 +87,12 @@ class PlaylistBuilder extends BuilderAbstract
 
         return $this;
     }
+
+    public function userHasPerrmission($alias): PlaylistBuilder|\Illuminate\Support\Collection
+    {
+        if (auth()->user()->hasPermission($alias)) {
+            return $this->where('enterprise_id', auth()->user()->enterprise_id);
+        }
+        return $this->where('enterprise_id', 0);
+    }
 }
