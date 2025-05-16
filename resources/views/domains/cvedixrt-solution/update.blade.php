@@ -32,7 +32,7 @@
 
     @include('molecules.delete-modal', [
         'title' => $isDeleted ? __('Delete') : __('Force Delete'),
-        'message' => $isDeleted ? __('Are you sure you want to delete this item?') : __('Are you sure you want to force delete this item?'),
+        'message' => $isDeleted ? __('Are you absolutely sure you want to proceed? This action <b> cannot be undone </b> and will result in <b> loss </b> of related data?') : __('Are you sure you want to force delete this item?'),
     ])
 
 @endsection

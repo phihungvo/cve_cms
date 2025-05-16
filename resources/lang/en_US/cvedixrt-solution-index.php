@@ -1,5 +1,5 @@
 <?php return [
-    'meta-title' => 'Cvedixrt-–Group',
+    'meta-title' => 'Cvedixrt-–Solution',
 
     'no' => 'No',
     'name' => 'Name',
