@@ -64,7 +64,7 @@ abstract class ControllerAbstract extends Controller
      *
      * @return \App\Domains\Core\Action\ActionFactoryAbstract
      */
-    final protected function action(?string $domain = null, ?ModelAbstract $row = null, array $data = []): ActionFactoryAbstract
+    final protected function action(?ModelAbstract $row = null, ?string $domain = null, array $data = []): ActionFactoryAbstract
     {
         return $this->factory(domain: $domain, row: $row)->action($data);
     }
