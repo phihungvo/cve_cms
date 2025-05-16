@@ -6,6 +6,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract;
+use Illuminate\Support\Facades\Log;
 
 use App\Domains\User\Enterprise\Billing\Service\Controller\Create as CreateBilling;
 
@@ -17,7 +18,10 @@ class Create extends ControllerWebAbstract
             return $this->create();
         }
 
-        $this->meta('title', __('billing.meta-title-create'));
+        Log::info('Processing Billing data: ', $this->data());
+
+
+        $this->meta('title', __('billing.create.meta-title'));
         return $this->page('user.enterprise.billing.create', $this->data());
     }
 

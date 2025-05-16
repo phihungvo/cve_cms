@@ -16,9 +16,9 @@ class Index extends ControllerAbstract
             return $this->responseJson($license);
         }
 
-        $this->meta('title', __('eservice-index.meta-title'));
+        $this->meta('title', __('billing.index.meta-title'));
 
-        return $this->page('user.enterprise.license.index', $license->data());
+        return $this->page('user.enterprise.billing.index', $license->data());
     }
 
     protected function responseJson(ControllerBilling $license): JsonResponse

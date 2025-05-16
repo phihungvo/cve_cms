@@ -30,7 +30,7 @@
                 <th class="w-1">{{ __('eservice-index.pricing_model') }}</th>
                 <th class="w-1">{{ __('eservice-index.billing_cycle') }}</th>
                 <th class="w-1">{{ __('eservice-index.max_unit') }}</th>
-                <th class="w-1">{{ __('eservice-index.price_per_unit') }}</th>
+                <th class="w-1">{{ __('eservice-index.price') }}</th>
                 <th class="w-1">{{ __('eservice-index.actions') }}</th>
             </tr>
         </thead>
@@ -66,8 +66,8 @@
                     <a href="{{ $link }}" class="block">{{ $row->max_unit }}</a>
                 </td>
 
-                <td class="w-1" data-table-sort-value="{{ $row->price_per_unit }}">
-                    <a href="{{ $link }}" class="block">{{ $row->price_per_unit }}</a>
+                <td class="w-1" data-table-sort-value="{{ $row->price }}">
+                    <a href="{{ $link }}" class="block">{{ $row->price }}</a>
                 </td>
 
                 <td onclick="event.stopPropagation();">

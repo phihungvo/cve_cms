@@ -11,8 +11,8 @@
         </div>
 
         <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
-            <a href="{{ route('user.enterprise.eservice.create') }}"
-                class="btn form-control-lg whitespace-nowrap">{{ __('license-index.create') }}</a>
+            <a href="{{ route('user.enterprise.billing.create') }}"
+                class="btn form-control-lg whitespace-nowrap">{{ __('billing.create.create') }}</a>
         </div>
     </div>
 </form>

@@ -67,10 +67,9 @@
         </div>
 
         <div class="flex-1 p-2">
-            <label for="price_per_unit" class="form-label">{{ __('eservice-create.price_per_unit') }}</label>
-            <input type="number" name="price_per_unit" id="price_per_unit" class="form-control form-control-lg" min="0"
-                step="0.01"
-                value="{{ old('price_per_unit', number_format((float) ($row->price_per_unit ?? request()->input('price_per_unit', 0)), 2, '.', '')) }}"
+            <label for="price" class="form-label">{{ __('eservice-create.price') }}</label>
+            <input type="number" name="price" id="price" class="form-control form-control-lg" min="0" step="0.01"
+                value="{{ old('price', number_format((float) ($row->price ?? request()->input('price', 0)), 2, '.', '')) }}"
                 required>
         </div>
 

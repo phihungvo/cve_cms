@@ -26,7 +26,7 @@ class Update extends ActionAbstract
             'description' => $this->data['description'],
             'enterprise_id' => $this->data['enterprise_id'],
             'pricing_model' => $this->data['pricing_model'],
-            'price_per_unit' => $this->data['price_per_unit'],
+            'price' => $this->data['price'],
             'billing_cycle' => $this->data['billing_cycle'],
             'max_unit' => $this->data['max_unit'],
             'note' => $this->data['note'],

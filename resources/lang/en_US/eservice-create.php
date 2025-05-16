@@ -27,7 +27,7 @@ return [
     'fixed' => 'Fixed',
     'per_unit' => 'Per Unit',
     'pricing_model' => 'Pricing Model',
-    'price_per_unit' => 'Price Per Unit',
+    'price' => 'Price',
     'billing_cycle' => 'Billing Cycle',
     'max_unit' => 'Max Unit',
     'note' => 'Note'

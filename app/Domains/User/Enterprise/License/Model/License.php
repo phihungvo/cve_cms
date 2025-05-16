@@ -5,7 +5,8 @@ namespace App\Domains\User\Enterprise\License\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Domains\CoreApp\Model\ModelAbstract;
-
+use App\Domains\User\Enterprise\Model\Enterprise;
+use App\Domains\User\Enterprise\EService\Model\EService;
 class License extends ModelAbstract
 {
     use HasFactory, SoftDeletes;
@@ -39,4 +40,14 @@ class License extends ModelAbstract
         'status',
         'license_key',
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(EService::class, 'service_id');
+    }
+
+    public function enterprise()
+    {
+        return $this->belongsTo(Enterprise::class, 'enterprise_id');
+    }
 }

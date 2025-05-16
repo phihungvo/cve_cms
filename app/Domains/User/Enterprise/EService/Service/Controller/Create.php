@@ -37,7 +37,7 @@ class Create
             'alias' => 'required|string|max:255',
             'description' => 'nullable|string',
             'pricing_model' => 'required|string|in:fixed,per_unit',
-            'price_per_unit' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
             'billing_cycle' => 'required|string|in:monthly,yearly',
             'max_unit' => 'required|integer|min:0',
             'note' => 'nullable|string',

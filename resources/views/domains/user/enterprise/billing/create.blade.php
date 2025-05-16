@@ -20,7 +20,7 @@
 
                     <div>
                         <button type="submit" class="btn btn-primary">
-                            {{ __('billing.create') }}
+                            {{ __('billing.create.create') }}
                         </button>
                     </div>
                 </div>

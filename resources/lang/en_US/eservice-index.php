@@ -38,5 +38,5 @@
     'pricing_model' => 'Pricing Model',
     'billing_cycle' => 'Billing Cycle',
     'max_unit' => 'Max Unit',
-    'price_per_unit' => 'Price Per Unit',
+    'price' => 'Price',
 ];

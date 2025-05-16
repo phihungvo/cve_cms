@@ -28,7 +28,7 @@ class EService extends ModelAbstract
         'description',
         'enterprise_id',
         'pricing_model',
-        'price_per_unit',
+        'price',
         'billing_cycle',
         'max_unit',
         'note',
