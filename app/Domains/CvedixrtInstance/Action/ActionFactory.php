@@ -3,7 +3,7 @@
 namespace App\Domains\CvedixrtInstance\Action;
 
 use App\Domains\Core\Action\ActionFactoryAbstract;
-use App\Domains\CvedixrtInstance\Model\CvedixrtInstanceModel as Model;
+use App\Domains\CvedixrtInstance\Model\CvedixrtInstance as Model;
 
 class ActionFactory extends ActionFactoryAbstract
 {
@@ -29,5 +29,5 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(DeleteAction::class);
     }
 
-    
+
 }

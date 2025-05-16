@@ -5,5 +5,5 @@ use App\Domains\CoreApp\Service\Controller\ControllerAbstract as ControllerAbstr
 
 abstract class ControllerAbstract extends ControllerAbstractCore
 {
-
+    protected ?Model $row;
 }

@@ -2,14 +2,14 @@
 
 namespace App\Domains\CvedixrtInstance\Service\Controller;
 
-use App\Domains\CvedixrtInstance\Model\CvedixrtInstanceModel;
+use App\Domains\CvedixrtInstance\Model\CvedixrtInstance;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class UpdateService extends CreateUpdateAbstractService
 {
-    public function __construct(protected Request $request, protected Authenticatable $auth, protected CvedixrtInstanceModel $row)
+    public function __construct(protected Request $request, protected Authenticatable $auth, protected CvedixrtInstance $row)
     {
         $this->request();
     }
