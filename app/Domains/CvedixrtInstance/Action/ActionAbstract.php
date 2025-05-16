@@ -2,7 +2,7 @@
 
 namespace App\Domains\CvedixrtInstance\Action;
 
-use App\Domains\CvedixrtInstance\Model\CvedixrtInstanceModel as Model;
+use App\Domains\CvedixrtInstance\Model\CvedixrtInstance as Model;
 use App\Domains\CoreApp\Action\ActionAbstract as ActionAbstractCore;
 
 abstract class ActionAbstract extends ActionAbstractCore

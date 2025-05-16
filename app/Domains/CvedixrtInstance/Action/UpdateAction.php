@@ -2,7 +2,7 @@
 
 namespace App\Domains\CvedixrtInstance\Action;
 
-use App\Domains\CvedixrtInstance\Model\CvedixrtInstanceModel as Model;
+use App\Domains\CvedixrtInstance\Model\CvedixrtInstance as Model;
 use Exception;
 use Throwable;
 use Illuminate\Database\QueryException;

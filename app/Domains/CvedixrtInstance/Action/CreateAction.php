@@ -2,7 +2,7 @@
 
 namespace App\Domains\CvedixrtInstance\Action;
 
-use App\Domains\CvedixrtInstance\Model\CvedixrtInstanceModel as Model;
+use App\Domains\CvedixrtInstance\Model\CvedixrtInstance as Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;

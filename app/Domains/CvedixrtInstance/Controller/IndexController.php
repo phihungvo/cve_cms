@@ -3,11 +3,13 @@
 namespace App\Domains\CvedixrtInstance\Controller;
 
 use App\Domains\CvedixrtInstance\Service\Controller\IndexService as ControllerService;
+use App\Exceptions\NotFoundException;
+use App\Domains\CvedixrtInstance\Model\CvedixrtInstance as Model;
 use Illuminate\Http\Response;
 
 class IndexController extends ControllerAbstract
 {
-    public function __invoke(): Response
+    public function __invoke(): Response|RedirectResponse
     {
         $this->meta('title', __('cvedixrt-instance-index.meta-title'));
 
