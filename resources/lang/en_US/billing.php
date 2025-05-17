@@ -35,7 +35,7 @@
     'max_device' => 'Max Devices',
     'start_date' => 'Start Date',
     'end_date' => 'End Date',
-
+    'name' => 'Billing Name',
     'back' => 'Back',
     'success' => "Create license successfully",
     'meta-title' => 'Create New License',

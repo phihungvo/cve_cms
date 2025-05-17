@@ -30,15 +30,13 @@ class Update
     public function update(Billing $license): Billing
     {
         $data = $this->request->validate([
-            'service_id' => 'required|integer|exists:service,id',
-            'enterprise_id' => 'required|integer|exists:enterprise,id',
-            'license_type' => 'required|string|in:trial,standard,premium,enterprise',
-            'max_users' => 'required|integer|min:0',
-            'max_devices' => 'required|integer|min:0',
+            'name' => 'required|string',
+            'license_id' => 'required|integer|exists:license,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'status' => 'required|string|in:active,expired,suspended',
-            'license_key' => 'required|string|unique:license,license_key|max:255',
+            'usage_unit' => 'required|integer|min:0',
+            'payment_status' => 'required|string|in:pending,paid,failed',
+            'price' => 'required|integer',
         ]);
 
         return $this->factory->update($license, $data);

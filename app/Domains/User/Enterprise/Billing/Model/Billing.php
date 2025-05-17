@@ -10,7 +10,7 @@ class Billing extends ModelAbstract
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'license';
+    protected $table = 'billing_record';
 
     public $timestamps = true;
 
@@ -18,25 +18,24 @@ class Billing extends ModelAbstract
 
     protected $casts = [
         'id' => 'integer',
-        'service_id' => 'integer',
-        'enterprise_id' => 'integer',
-        'max_users' => 'integer',
-        'max_devices' => 'integer',
+        'name' => 'string',
+        'license_id' => 'integer',
         'start_date' => 'date',
         'end_date' => 'date',
+        'usage_unit' => 'integer',
+        'payment_status' => 'string',
+        'price' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     protected $fillable = [
-        'service_id',
-        'enterprise_id',
-        'license_type',
-        'max_users',
-        'max_devices',
+        'name',
+        'license_id',
         'start_date',
         'end_date',
-        'status',
-        'license_key',
+        'usage_unit',
+        'payment_status',
+        'price',
     ];
 }

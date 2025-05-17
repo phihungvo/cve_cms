@@ -20,6 +20,8 @@
     'end_date' => 'End Date',
     'create' => 'Create',
     'back' => 'Back',
+    'name' => 'Name',
+    'alias' => 'Alias',
     'success' => "Create license successfully",
     'meta-title' => 'Create New License'
 

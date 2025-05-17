@@ -30,6 +30,8 @@ class Update
     public function update(License $license): License
     {
         $data = $this->request->validate([
+            'name' => 'required|string',
+            'alias' => 'required|string',
             'service_id' => 'required|integer|exists:service,id',
             'enterprise_id' => 'required|integer|exists:enterprise,id',
             'license_type' => 'required|string|in:trial,standard,premium,enterprise',

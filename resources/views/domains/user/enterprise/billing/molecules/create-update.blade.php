@@ -3,8 +3,20 @@
     @if(app()->environment('local'))
         <div class="p-2">
             <pre>Licenses: {{ print_r($licenses ?? [], true) }}</pre>
+            @php
+                \Illuminate\Support\Facades\Log::debug('License data in create view', [
+                    'licenses' => $licenses ?? [],
+                    'license_count' => count($licenses ?? [])
+                ]);
+            @endphp
         </div>
     @endif
+
+    <div class="p-2">
+        <label for="name" class="form-label">{{ __('billing.name') }}</label>
+        <input type="text" name="name" class="form-control form-control-lg" id="name"
+            value="{{ old('name', $row->name ?? '') }}" required>
+    </div>
 
     <div class="p-2">
         <label for="license_id" class="form-label">{{ __('billing.license') }}</label>
@@ -22,91 +34,79 @@
 
     <div class="p-2">
         <label for="enterprise_id" class="form-label">{{ __('billing.enterprise') }}</label>
-        <input type="text" id="enterprise_id" class="form-control form-control-lg" value="{{ is_array(old('enterprise_id')) ? '' : old('enterprise_id', '') }}" readonly>
-        <input type="hidden" name="enterprise_id" id="enterprise_id_value" value="{{ is_array(old('enterprise_id')) ? '' : old('enterprise_id', '') }}">
+        <input type="text" id="enterprise_id" class="form-control form-control-lg" value="{{ old('enterprise_id', '') }}" readonly>
     </div>
 
-
-        <div class="p-2">
-        
-            <label for="license_key" class="form-label">{{ __('billing.license_key') }}</label>
-            <div class="input-group">
-                <input type="password" id="license_key" class="form-control form-control-lg"
-                    value="{{ is_array(old('license_key')) ? '' : old('license_key', '') }}" readonly>
-                <input type="hidden" name="license_key" id="license_key_value"
-                    value="{{ is_array(old('license_key')) ? '' : old('license_key', '') }}">
-                <button type="button" class="input-group-text input-group-text-lg" title="{{ __('common.show') }}"
-                    data-password-show="#license_key" tabindex="-1">@icon('eye', 'w-5 h-5')</button>
-                <button type="button" class="input-group-text input-group-text-lg" title="{{ __('common.copy') }}"
-                    data-copy="#license_key" tabindex="-1">@icon('copy', 'w-5 h-5')</button>
-        
-            </div>
+    <div class="p-2">
+        <label for="license_key" class="form-label">{{ __('billing.license_key') }}</label>
+        <div class="input-group">
+            <input type="password" id="license_key" class="form-control form-control-lg"
+                value="{{ old('license_key', '') }}" readonly>
+            <button type="button" class="input-group-text input-group-text-lg" title="{{ __('common.show') }}"
+                data-password-show="#license_key" tabindex="-1">@icon('eye', 'w-5 h-5')</button>
+            <button type="button" class="input-group-text input-group-text-lg" title="{{ __('common.copy') }}"
+                data-copy="#license_key" tabindex="-1">@icon('copy', 'w-5 h-5')</button>
         </div>
+    </div>
 
     <div class="p-2">
         <label for="service_id" class="form-label">{{ __('billing.service') }}</label>
-        <input type="text" id="service_id" class="form-control form-control-lg" value="{{ is_array(old('service_id')) ? '' : old('service_id', '') }}" readonly>
-        <input type="hidden" name="service_id" id="service_id_value" value="{{ is_array(old('service_id')) ? '' : old('service_id', '') }}">
+        <input type="text" id="service_id" class="form-control form-control-lg" value="{{ old('service_id', '') }}" readonly>
     </div>
 
-        <div class="lg:flex">
-            <div class="flex-1 p-2">
-                <label for="license_type" class="form-label">{{ __('billing.license_type') }}</label>
-                <input type="text" id="license_type" class="form-control form-control-lg"
-                    value="{{ is_array(old('license_type')) ? '' : old('license_type', '') }}" readonly>
-                <input type="hidden" name="license_type" id="license_type_value"
-                    value="{{ is_array(old('license_type')) ? '' : old('license_type', '') }}">
-            </div>
-        
-            <div class="flex-1 p-2">
-                <label for="status" class="form-label">{{ __('billing.license_status') }}</label>
-                <input type="text" id="status" class="form-control form-control-lg"
-                    value="{{ is_array(old('status')) ? '' : old('status', '') }}" readonly>
-                <input type="hidden" name="status" id="status_value"
-                    value="{{ is_array(old('status')) ? '' : old('status', '') }}">
-            </div>
+    <div class="lg:flex">
+        <div class="flex-1 p-2">
+            <label for="license_type" class="form-label">{{ __('billing.license_type') }}</label>
+            <input type="text" id="license_type" class="form-control form-control-lg"
+                value="{{ old('license_type', '') }}" readonly>
         </div>
+
+        <div class="flex-1 p-2">
+            <label for="status" class="form-label">{{ __('billing.license_status') }}</label>
+            <input type="text" id="status" class="form-control form-control-lg"
+                value="{{ old('status', '') }}" readonly>
+        </div>
+    </div>
 
     <div class="p-2">
         <label for="max_unit" class="form-label">{{ __('billing.max_unit') }}</label>
         <input type="text" id="max_unit" class="form-control form-control-lg" value="" readonly>
     </div>
 
-        <div class="p-2">
-            <label for="price" class="form-label">{{ __('billing.price') }}</label>
-            <input type="text" id="price" class="form-control form-control-lg" value="" readonly>
-        </div>
+    <div class="p-2">
+        <label for="price" class="form-label">{{ __('billing.price') }}</label>
+        <input type="text" id="price" class="form-control form-control-lg" value="" readonly>
+    </div>
 
     <div class="lg:flex">
         <div class="flex-1 p-2">
             <label for="start_date" class="form-label">{{ __('billing.start_date') }}</label>
-            <input type="date" name="start_date" id="start_date" class="form-control form-control-lg" value="{{ is_array(old('start_date')) ? '' : old('start_date', '') }}" required>
+            <input type="date" name="start_date" id="start_date" class="form-control form-control-lg" value="{{ old('start_date', '') }}" required>
         </div>
 
         <div class="flex-1 p-2">
             <label for="end_date" class="form-label">{{ __('billing.end_date') }}</label>
-            <input type="date" name="end_date" id="end_date" class="form-control form-control-lg" value="{{ is_array(old('end_date')) ? '' : old('end_date', '') }}" required>
+            <input type="date" name="end_date" id="end_date" class="form-control form-control-lg" value="{{ old('end_date', '') }}" required>
         </div>
 
-            <div class=" flex-1 p-2">
-                <label for="duration" class="form-label">{{ __('billing.duration') }}</label>
-                <input type="text" id="duration" class="form-control form-control-lg" value="" readonly>
-            </div>
+        <div class="flex-1 p-2">
+            <label for="duration" class="form-label">{{ __('billing.duration') }}</label>
+            <input type="text" id="duration" class="form-control form-control-lg" value="" readonly>
+        </div>
     </div>
 
     <div class="p-2">
         <label for="usage_unit" class="form-label">{{ __('billing.usage_unit') }}</label>
         <input type="number" name="usage_unit" id="usage_unit" class="form-control form-control-lg" min="0"
-            value="{{ is_array(old('usage_unit')) ? '' : old('usage_unit', '') }}" required>
+            value="{{ old('usage_unit', '') }}" required>
         <div id="usage_unit_error" class="text-red-500 text-sm mt-1 hidden">{{ __('billing.usage_unit_exceeds_max') }}</div>
     </div>
 
     <div class="p-2">
         <label for="total_price" class="form-label">{{ __('billing.total_price') }}</label>
         <input type="text" id="total_price" class="form-control form-control-lg" value="" readonly>
+        <input type="hidden" name="price" id="total_price_value" value="">
     </div>
-
-
 
     <div class="p-2">
         <label for="payment_status" class="form-label">{{ __('billing.payment_status') }}</label>
@@ -119,24 +119,28 @@
             @endforeach
         </select>
     </div>
-
-
 </div>
 
 <script>
 function populateLicenseDetails(select) {
-    const selectedOption = select.options[select.selectedIndex];
-    const licenseData = selectedOption.getAttribute('data-license') ? JSON.parse(selectedOption.getAttribute('data-license')) : {};
+    console.log('Populating license details for selected license');
+    let licenseData;
+    try {
+        const selectedOption = select.options[select.selectedIndex];
+        licenseData = selectedOption.getAttribute('data-license') ? JSON.parse(selectedOption.getAttribute('data-license')) : {};
+        console.log('Selected license data:', licenseData);
+    } catch (error) {
+        console.error('Error parsing license data:', error, select.options[select.selectedIndex].getAttribute('data-license'));
+        licenseData = {};
+    }
 
     // Update enterprise fields
     const enterprise = licenseData.enterprise || {};
     document.getElementById('enterprise_id').value = typeof enterprise.name === 'string' ? enterprise.name : '';
-    document.getElementById('enterprise_id_value').value = typeof enterprise.id === 'number' ? enterprise.id : '';
 
     // Update service fields
     const service = licenseData.service || {};
     document.getElementById('service_id').value = typeof service.name === 'string' ? service.name : (typeof service.alias === 'string' ? service.alias : '');
-    document.getElementById('service_id_value').value = typeof service.id === 'number' ? service.id : '';
 
     // Update max_unit field
     const maxUnit = typeof service.max_unit === 'number' ? service.max_unit : 'N/A';
@@ -155,17 +159,20 @@ function populateLicenseDetails(select) {
 
     // Update license fields
     document.getElementById('license_type').value = typeof licenseData.license_type === 'string' ? licenseData.license_type : '';
-    document.getElementById('license_type_value').value = typeof licenseData.license_type === 'string' ? licenseData.license_type : '';
     document.getElementById('status').value = typeof licenseData.status === 'string' ? licenseData.status : '';
-    document.getElementById('status_value').value = typeof licenseData.status === 'string' ? licenseData.status : '';
     document.getElementById('license_key').value = typeof licenseData.license_key === 'string' ? licenseData.license_key : '';
-    document.getElementById('license_key_value').value = typeof licenseData.license_key === 'string' ? licenseData.license_key : '';
 
     // Update payment_status field
     document.getElementById('payment_status').value = typeof licenseData.payment_status === 'string' ? licenseData.payment_status : '';
 
     // Calculate duration and prices
     function updateDurationAndPrices() {
+        console.log('Updating duration and prices', {
+            start_date: startDateInput.value,
+            end_date: endDateInput.value,
+            usage_unit: usageUnitInput.value
+        });
+
         const startDate = new Date(startDateInput.value);
         const endDate = new Date(endDateInput.value);
         const billingCycle = typeof service.billing_cycle === 'string' ? service.billing_cycle : 'monthly';
@@ -196,6 +203,9 @@ function populateLicenseDetails(select) {
             ? (price * usageUnit * duration).toFixed(2)
             : 'N/A';
         document.getElementById('total_price').value = totalPrice;
+        document.getElementById('total_price_value').value = totalPrice !== 'N/A' ? Math.round(parseFloat(totalPrice)) : ''; // Submit total_price as integer
+
+        console.log('Calculated values:', { duration: durationText, price: priceText, total_price: totalPrice, submitted_price: document.getElementById('total_price_value').value });
     }
 
     // Initial calculation
@@ -211,11 +221,18 @@ function populateLicenseDetails(select) {
         } else {
             usageUnitError.classList.add('hidden');
         }
+        console.log('Usage unit updated:', { usage_unit: this.value, max_unit: maxUnitValue });
         updateDurationAndPrices();
     });
 
     // Update duration and prices on date change
-    startDateInput.addEventListener('input', updateDurationAndPrices);
-    endDateInput.addEventListener('input', updateDurationAndPrices);
+    startDateInput.addEventListener('input', () => {
+        console.log('Start date changed:', startDateInput.value);
+        updateDurationAndPrices();
+    });
+    endDateInput.addEventListener('input', () => {
+        console.log('End date changed:', endDateInput.value);
+        updateDurationAndPrices();
+    });
 }
 </script>

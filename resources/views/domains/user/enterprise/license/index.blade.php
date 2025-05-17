@@ -11,7 +11,7 @@
         </div>
 
         <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
-            <a href="{{ route('user.enterprise.eservice.create') }}"
+            <a href="{{ route('user.enterprise.license.create') }}"
                 class="btn form-control-lg whitespace-nowrap">{{ __('license-index.create') }}</a>
         </div>
     </div>
@@ -24,6 +24,7 @@
         <thead>
             <tr>
                 <th class="w-1">{{ __('license-index.enterprise_name') }}</th>
+                <th class="w-1">{{ __('license-index.name') }}</th>
                 <th class="w-1">{{ __('license-index.service_name') }}</th>
                 <th class="w-1">{{ __('license-index.type') }}</th>
                 <th class="w-1">{{ __('license-index.status') }}</th>
@@ -42,6 +43,9 @@
             <tr>
                 <td class="w-1" data-table-sort-value="{{ $row->enterprise_name }}">
                     <a href="{{ $link }}" class="block">{{ $row->enterprise_name }}</a>
+                </td>
+                <td class="w-1" data-table-sort-value="{{ $row->name }}">
+                    <a href="{{ $link }}" class="block">{{ $row->name }}</a>
                 </td>
                 <td class="w-1" data-table-sort-value="{{ $row->service_name }}">
                     <a href="{{ $link }}" class="block">{{ $row->service_name }}</a>

@@ -1,4 +1,19 @@
 <div class="box p-5 mt-5">
+
+    <div class="lg:flex">
+        <div class="flex-1 p-2">
+            <label for="license-name" class="form-label">{{ __('license-create.name') }}</label>
+            <input type="text" name="name" class="form-control form-control-lg" id="license-name"
+                value="{{ old('name', $row->name ?? request()->input('name')) }}" required>
+        </div>
+
+        <div class="flex-1 p-2">
+            <label for="license-alias" class="form-label">{{ __('license-create.alias') }}</label>
+            <input type="text" name="alias" class="form-control form-control-lg" id="license-alias"
+                value="{{ old('alias', $row->alias ?? request()->input('alias')) }}" readonly required>
+        </div>
+    </div>
+
     <div class="p-2">
         <label for="enterprise_id" class="form-label">{{ __('license-create.enterprise') }}</label>
         <select name="enterprise_id" id="enterprise_id" class="form-control form-control-lg" required>
@@ -92,8 +107,41 @@
                 tabindex="-1">@icon('refresh-cw', 'w-5 h-5')</button>
         </div>
     </div>
-
-    <div class="p-2">
-        <button type="submit" class="btn btn-primary">{{ isset($row) ? __('Update') : __('Create') }}</button>
-    </div>
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const nameInput = document.getElementById('license-name');
+            const aliasInput = document.getElementById('license-alias');
+            let debounceTimeout;
+
+            // Hàm chuyển đổi tiếng Việt có dấu thành không dấu
+            function removeAccents(str) {
+                return str.normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/đ/g, 'd')
+                    .replace(/Đ/g, 'D');
+            }
+
+            function updateAlias() {
+                let value = nameInput.value.trim().toLowerCase();
+                value = removeAccents(value);
+                value = value.replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
+                aliasInput.value = value;
+            }
+
+            // Sự kiện cho alias
+            nameInput.addEventListener('input', function () {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(updateAlias, 300);
+            });
+
+            // Khởi tạo
+            if (nameInput.value) {
+                updateAlias();
+            }
+
+        });
+    </script>
+@endpush

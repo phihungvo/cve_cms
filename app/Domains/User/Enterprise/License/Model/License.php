@@ -19,6 +19,8 @@ class License extends ModelAbstract
 
     protected $casts = [
         'id' => 'integer',
+        'name' => 'string',
+        'alias' => 'string',
         'service_id' => 'integer',
         'enterprise_id' => 'integer',
         'max_users' => 'integer',
@@ -30,6 +32,8 @@ class License extends ModelAbstract
     ];
 
     protected $fillable = [
+        'name',
+        'alias',
         'service_id',
         'enterprise_id',
         'license_type',

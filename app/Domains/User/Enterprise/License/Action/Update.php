@@ -21,6 +21,8 @@ class Update extends ActionAbstract
 
         // Chuẩn bị mảng dữ liệu cơ bản
         $dataToUpdate = [
+            'name' => $this->data['name'],
+            'alias' => $this->data['alias'],
             'service_id' => $this->data['service_id'],
             'enterprise_id' => $this->data['enterprise_id'],
             'license_type' => $this->data['license_type'],
