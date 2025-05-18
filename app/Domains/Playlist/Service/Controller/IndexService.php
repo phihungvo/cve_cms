@@ -59,6 +59,7 @@ class IndexService extends ControllerAbstract
         return Model::query()
             ->roleRoot() // PlaylistBuilder->roleRoot()
             ->roleOwner()
+            ->userHasPerrmission('access-playlist-list')
             ->filterByEnterpriseId((int)$this->request->input('enterprise_id'))
             ->filterByPlaylistGroup((int)$this->request->input('playlist_group_id'))
             ->getEnterpriseName()
