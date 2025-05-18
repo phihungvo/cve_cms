@@ -1,6 +1,6 @@
 @extends ('domains.device.update-layout')
 
-@section ('content')
+@section ('content_inner')
 
 <form action="{{ route('device.update.device-message.create', $row->id) }}" method="post">
     <input type="hidden" name="_action" value="updateDeviceMessageCreate" />

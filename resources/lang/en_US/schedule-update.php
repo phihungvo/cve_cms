@@ -38,4 +38,24 @@ return [
     'restore-success' => 'The schedule has been retored',
     'push-message-success' => 'Push message successfully',
     'push-message-error' => 'Push message error',
+    'push-message' => [
+        'title' => 'Are you sure?',
+        'text' => 'Are you sure you want to push message to all devices?',
+        'confirm-button' => 'Yes, push it!',
+        'cancel-button' => 'Cancel',
+        'success' => 'Push message successfully',
+        'error-message' => 'Failed to push message',
+    ],
+    'push-schedule-to-device' => [
+        'title' => 'Confirm',
+        'text' => 'Are you sure push message to',
+        'confirm-button' => 'Yes',
+        'cancel-button' => 'Cancel',
+        'success' => 'Push schedule successfully',
+        'error-message' => 'Failed to push schedule',
+    ],
+    'preview-message' => [
+        'title' => 'Preview Message',
+        'error-message' => 'Failed to preview messagee'
+    ],
 ];

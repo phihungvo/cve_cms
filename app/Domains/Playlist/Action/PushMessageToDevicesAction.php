@@ -4,7 +4,7 @@ namespace App\Domains\Playlist\Action;
 
 class PushMessageToDevicesAction extends PushMessageAbstract
 {
-    protected function pushMessage(): string
+    protected function pushMessage(): array
     {
         $data = $this->data();
 
@@ -29,6 +29,6 @@ class PushMessageToDevicesAction extends PushMessageAbstract
             $this->mqttService->disconnect();
         }
 
-        return json_encode($data, JSON_UNESCAPED_UNICODE);
+        return $data;
     }
 }

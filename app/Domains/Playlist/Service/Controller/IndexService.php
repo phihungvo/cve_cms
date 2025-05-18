@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Playlist\Service\Controller;
 
 use App\Domains\Playlist\Model\PlaylistModel as Model;
+use App\Domains\PlaylistGroup\Model\PlaylistGroupModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
@@ -30,6 +31,7 @@ class IndexService extends ControllerAbstract
             // Trả về dữ liệu tùy chỉnh cho trang index
             'enterprises' => $this->enterprises(),
             'list' => $this->list(), // Trả về danh sách playlist
+            'playlist_groups' => $this->playlistGroups(), // Trả về danh sách nhóm playlist
         ];
     }
 
@@ -55,15 +57,22 @@ class IndexService extends ControllerAbstract
     protected function list(): Collection
     {
         return Model::query()
-            ->kiemTraRole(2) // test custom query
             ->roleRoot() // PlaylistBuilder->roleRoot()
             ->roleOwner()
-            ->when($this->request->input('enterprise_id'), function ($query) {
-                $query->where('enterprise_id', $this->request->input('enterprise_id'));
-            })
+            ->userHasPerrmission('access-playlist-list')
+            ->filterByEnterpriseId((int)$this->request->input('enterprise_id'))
+            ->filterByPlaylistGroup((int)$this->request->input('playlist_group_id'))
             ->getEnterpriseName()
-            //  ->getDisplaysCount()
             ->getPublishedDisplaysCount()
+            ->get();
+    }
+
+    protected function playlistGroups(): Collection
+    {
+        return PlaylistGroupModel::query()
+            ->whereByEnterprise()
+            ->filterByEnterpriseId((int)$this->request->input('enterprise_id'))
+            ->listSimple()
             ->get();
     }
 }

@@ -3,7 +3,7 @@
     <div class="p-2">
         <label for="device-code" class="form-label">{{ __('device-update.code') }}</label>
         <div class="input-group">
-        <input type="text" name="code" class="form-control form-control-lg" id="device-code"
+            <input type="text" name="code" class="form-control form-control-lg" id="device-code"
                    value="{{ $REQUEST->input('code') }}" readonly required>
             <button type="button" class="input-group-text input-group-text-lg" title="{{ __('common.generate') }}"
                     data-password-generate="#device-code" data-password-generate-format="uuid"
@@ -62,6 +62,7 @@
         ></x-select>
     </div>
 
+
     <!-- Thêm checkbox "Have camera supported?" -->
     <div class="p-2">
         <div class="form-check">
@@ -85,7 +86,7 @@
                min="1" step="1" {{ isset($row) && $row->camera_supported ? '' : 'disabled' }}>
     </div>
     <!-- Enable AI -->
-{{--    auth()->user()->isRoleRoot()--}}
+    {{--    auth()->user()->isRoleRoot()--}}
     @if (auth()->user()->isRoleRoot())
         <div class="p-2">
             <div class="form-check">
@@ -122,6 +123,26 @@
             <label for="device-shared_public" class="form-check-label">{{ __('device-create.shared_public') }}</label>
         </div>
     </div>
+
+</div>
+<div class="box p-5 mt-5">
+    <!-- input device_group_id -->
+    <h3 class="text-lg font-bold mt-2">Device Group</h3>
+    @if(isset($deviceGroups) && $deviceGroups->count() <= 0)
+    <p>No groups available</p>
+    @endif
+    @foreach($deviceGroups as $item)
+        <div class="p-2">
+            <div class="form-check">
+                <input type="checkbox" name="device_groups[]" value="{{$item->id}}" class="form-check-switch"
+                       id="device-group-{{$item->id}}"
+                    {{ isset($assignedDeviceGroups) && in_array($item->id, $assignedDeviceGroups->pluck('device_group_id')->toArray()) ? 'checked' : '' }}
+                    {{ $REQUEST->input('device_groups') ? 'checked' : '' }}
+                />
+                <label for="device-group-{{$item->id}}" class="form-check-label">{{$item->name}}</label>
+            </div>
+        </div>
+    @endforeach
 </div>
 
 @push('scripts')

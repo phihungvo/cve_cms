@@ -1,6 +1,6 @@
-@extends('layouts.in')
+@extends('domains.campaign.playlist.index-layout')
 
-@section('body')
+@section('content')
 
     <div class="tab-content">
         <div class="tab-pane active" role="tabpanel">

@@ -9,11 +9,9 @@
     $allPermission = $userPermission['all'] ?? [];
 @endphp
 
-@extends('layouts.in')
+@extends('domains.schedule.index-layout')
 
-@section('title', __('schedule-create.title'))
-
-@section('body')
+@section('content')
     <h2 class="text-lg font-medium mb-5">{{ __('Create New Schedule') }}</h2>
 
     @if (session('success'))
@@ -28,29 +26,35 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('schedule.create') }}">
+    @if(isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::ROOT->value]))
+        <div class="box p-5 mt-5">
+            <!--Select Enterprise -->
+            <div class="p-2">
+                <form method="get">
+                    <x-select name="enterprise_id" :options="$enterpriseOptions" value="id" text="name"
+                              id="schedule-create-enterprise" class="cursor-pointer"
+                              :label="__('schedule-create.enterprise')"
+                              placeholder="{{__('schedule-index.select-enterprise')}}"
+                              data-change-submit
+                              required
+                              :selected="$REQUEST->input('enterprise_id')"
+                    ></x-select>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    <form id="schedule-create-form" method="POST">
         @csrf
         <!-- Schedule -->
         <div class="box p-5 mt-5">
-            @if(isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::ROOT->value]))
-                <!-- Enterprise -->
-                <div class="mb-4 p-2">
-                    <label class="form-label">{{ __('Enterprise') }}</label>
-                    <select name="enterprise_id" class="form-select" required>
-                        @foreach($enterpriseOptions as $id => $name)
-                            <option value="{{ $id }}" {{ old('enterperise_id') == $id ? 'selected' : '' }}>
-                                {{ $name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            @endif
+            <!-- name -->
             <div class="p-2">
                 <label for="name" class="form-label">{{ __('schedule-create.name') }}</label>
                 <input type="text" name="name" class="form-control form-control-lg" id="name"
                        value="{{ old('name', $row->name ?? request()->input('name')) }}" required>
             </div>
-
+            <!-- description -->
             <div class="p-2">
                 <label for="description" class="form-label">{{ __('schedule-create.description') }}</label>
                 <input type="text" name="description" class="form-control form-control-lg" id="description"
@@ -92,6 +96,26 @@
                     <label for="repeat-create" class="form-check-label">{{ __('Repeat') }}</label>
                 </div>
             </div>
+        </div>
+
+        <div class="box p-5 mt-5">
+            <!--       input Schedule Group-->
+            <h3 class="text-lg font-bold mt-2">Schedule Group</h3>
+            @if( isset( $scheduleGroups) && $scheduleGroups->count() <= 0)
+                <p>No groups available</p>
+            @endif
+            @foreach($scheduleGroups as $item)
+                <div class="p-2">
+                    <div class="form-check">
+                        <input type="checkbox" name="schedule_groups[]" value="{{$item->id}}" class="form-check-switch"
+                               id="schedule-group-{{$item->id}}"
+                            {{ isset($assignedScheduleGroups) && in_array($item->id, $assignedScheduleGroups->pluck('schedule_group_id')->toArray()) ? 'checked' : '' }}
+                            {{ $REQUEST->input('schedule_groups') ? 'checked' : '' }}
+                        >
+                        <label for="schedule-group-{{$item->id}}" class="form-check-label">{{$item->name}}</label>
+                    </div>
+                </div>
+            @endforeach
         </div>
 
         <div class="box p-5 mt-5 text-right">

@@ -4,6 +4,7 @@ namespace App\Domains\Playlist\Service\Controller;
 
 use App\Domains\Campaign\Media\Model\Media as MediaModel;
 use App\Domains\Device\Model\Device;
+use App\Domains\PlaylistGroup\Model\PlaylistGroupModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -24,6 +25,7 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
             'medias' => $this->medias(),
             'enterprises' => $this->enterprises(),
             'devices' => $this->devices(),
+            'playlistGroups' => $this->playlistGroups(),
         ];
     }
 
@@ -51,6 +53,15 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
     {
         return Device::query()
             ->whereDeviceTypeAlias('fpp')
+            ->userHasPermission('access-playlist-create-any')
+            ->get();
+    }
+
+    protected function playlistGroups()
+    {
+        return PlaylistGroupModel::query()
+            ->whereByRoot() // custom query in MediaBuilder->roleRoot()
+            ->whereByOwner()
             ->get();
     }
 }

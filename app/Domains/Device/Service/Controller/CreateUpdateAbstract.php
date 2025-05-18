@@ -3,6 +3,7 @@
 namespace App\Domains\Device\Service\Controller;
 
 use App\Domains\Device\Model\DeviceType;
+use App\Domains\DeviceGroup\Model\DeviceGroupModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use App\Domains\User\Model\User;
 use App\Domains\Vehicle\Model\Vehicle;
@@ -27,11 +28,12 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
     protected function dataCreateUpdate(): array
     {
         return $this->dataCore() + [
-                'device_types' => $this->deviceTypes(),
-                'enterprises' => $this->enterprises(),
-                'vehicles' => $this->listVehicles(), // Bookmark
-//                'listUser' => $this->listUsers(),
-            ];
+            'device_types' => $this->deviceTypes(),
+            'enterprises' => $this->enterprises(),
+            'vehicles' => $this->listVehicles(), // Bookmark
+            //                'listUser' => $this->listUsers(),
+            'deviceGroups' => $this->deviceGroups(),
+        ];
     }
 
     /**
@@ -66,7 +68,7 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
                 [
                     'id' => $this->auth->enterprise->id,
                     'name' => $this->auth->enterprise->name,
-                ]
+                ],
             ]);
         }
     }
@@ -74,29 +76,29 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
     /**
      * @return Collection
      */
-//    protected function listUsers(): Collection
-//    {
-//        if ($this->auth->isRoot()) {
-//            if ($this->request->input('enterprise_id')) {
-//                $this->users = User::where('enterprise_id', $this->request->input('enterprise_id'))->get();
-//            } else {
-//                $this->users = User::get();
-//            }
-//            return $this->users->map(function ($user) {
-//                return [
-//                    'id' => $user->id,
-//                    'name' => $user->name,
-//                ];
-//            });
-//        } else {
-//            return collect([
-//                [
-//                    'id' => $this->auth->id,
-//                    'name' => $this->auth->name,
-//                ]
-//            ]);
-//        }
-//    }
+    //    protected function listUsers(): Collection
+    //    {
+    //        if ($this->auth->isRoot()) {
+    //            if ($this->request->input('enterprise_id')) {
+    //                $this->users = User::where('enterprise_id', $this->request->input('enterprise_id'))->get();
+    //            } else {
+    //                $this->users = User::get();
+    //            }
+    //            return $this->users->map(function ($user) {
+    //                return [
+    //                    'id' => $user->id,
+    //                    'name' => $user->name,
+    //                ];
+    //            });
+    //        } else {
+    //            return collect([
+    //                [
+    //                    'id' => $this->auth->id,
+    //                    'name' => $this->auth->name,
+    //                ]
+    //            ]);
+    //        }
+    //    }
 
     protected function listVehicles(): Collection
     {
@@ -108,6 +110,7 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
             } else {
                 $this->vehicles = Collect([]);
             }
+
             return $this->vehicles->map(function ($vehicle) {
                 return [
                     'id' => $vehicle->id,
@@ -115,9 +118,10 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
                 ];
             });
         } elseif ($this->auth->isOwner()) {
-//            root owner
+            //            root owner
             $userIds = User::where('enterprise_id', $this->auth->enterprise->id)->pluck('id');
             $this->vehicles = Vehicle::whereIn('user_id', $userIds)->get();
+
             return $this->vehicles->map(function ($vehicle) {
                 return [
                     'id' => $vehicle->id,
@@ -127,6 +131,7 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
         } else {
             // case user
             $this->vehicles = Vehicle::where('user_id', $this->auth->id)->get();
+
             return $this->vehicles->map(function ($vehicle) {
                 return [
                     'id' => $vehicle->id,
@@ -135,5 +140,30 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
             });
         }
     }
-}
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    protected function deviceGroups(): Collection
+    {
+        if ($this->auth->enterprise_id == null) {
+            // role root
+            if ($this->request->input('enterprise_id')) {
+                $this->deviceGroups = DeviceGroupModel::query()
+                    ->where('enterprise_id', $this->request->input('enterprise_id'))
+                    ->get();
+            } else {
+                $this->deviceGroups = Collect([]);
+            }
+
+            return $this->deviceGroups;
+        } else {
+            // root owner
+            $this->deviceGroups = DeviceGroupModel::query()
+                ->where('enterprise_id', $this->auth->enterprise->id)
+                ->get();
+
+            return $this->deviceGroups;
+        }
+    }
+}

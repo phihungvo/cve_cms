@@ -11,7 +11,7 @@ abstract class PushMessageAbstract extends ActionAbstract
 
     protected MqttService $mqttService;
 
-    public function handle(): string
+    public function handle(): array
     {
         $this->playlist = $this->getPlaylist();
         $this->mqttService = app(MqttService::class);
@@ -19,11 +19,11 @@ abstract class PushMessageAbstract extends ActionAbstract
         return $this->pushMessage();
     }
 
-    abstract protected function pushMessage(): string|false;
+    abstract protected function pushMessage(): array;
 
     protected function getPlaylist()
     {
-        $playlistId = $this->request->get('playlist_id');
+        $playlistId = $this->request->get(PlaylistModel::FOREIGN);
 
         return PlaylistModel::with('medias', 'displays')
             ->find($playlistId);
@@ -54,7 +54,7 @@ abstract class PushMessageAbstract extends ActionAbstract
         })->toArray();
     }
 
-    protected function src()
+    protected function src(): array
     {
         return $this->playlist->medias()->get()->map(function ($media) {
             $patternBucket = '/https?:\/\/[^\/]+\/([^\/]+)/u';

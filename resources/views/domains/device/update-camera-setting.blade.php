@@ -1,6 +1,6 @@
-@extends('domains.device.update-layout')
+@extends ('domains.device.update-layout')
 
-@section('content')
+@section ('content_inner')
     <div class="intro-y box p-5 mt-5">
         <h2 class="text-lg font-medium mb-5">{{ __('camera.camera-setting') }}</h2>
 

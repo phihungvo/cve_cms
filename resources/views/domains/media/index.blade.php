@@ -18,13 +18,31 @@
                     placeholder="{{ __('media-index.filter') }}" data-table-search="#media-list-table"
                     value="{{ request('search') }}" />
             </form>
-            <form method="POST" action="{{ route('fpp.media.create') }}" enctype="multipart/form-data" id="upload-form" class="sm:ml-4 mt-2 sm:mt-0 bg-white">
+            <form method="POST" action="{{ route('fpp.media.create') }}" enctype="multipart/form-data" id="upload-form"
+                class="sm:ml-4 mt-2 sm:mt-0 bg-white">
                 @csrf
+                <!-- Hidden fields for required data -->
+                <input type="hidden" name="name" value="Uploaded Media {{ now()->format('Y-m-d H:i:s') }}">
+                @if(auth()->user()->hasRole('root'))
+                    <input type="hidden" name="enterprise_id" value="">
+                @else
+                    <input type="hidden" name="enterprise_id" value="{{ auth()->user()->enterprise_id }}">
+                @endif
                 <input type="file" name="media_files[]" id="media-files" class="hidden" accept="video/mp4" multiple required>
-                <button type="button" class="btn form-control-lg whitespace-nowrap" onclick="document.getElementById('media-files').click();">
+                <button type="button" class="btn form-control-lg whitespace-nowrap"
+                    onclick="document.getElementById('media-files').click();">
                     {{ __('media-index.create') }}
                 </button>
             </form>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progress-container" class="mt-4 hidden">
+            <label>{{ __('Uploading...') }}</label>
+            <div class="w-full bg-gray-200 rounded-full h-4">
+                <div id="progress-bar" class="bg-blue-600 h-4 rounded-full" style="width: 0%; transition: width 0.3s ease;"></div>
+            </div>
+            <p id="progress-text" class="text-sm text-gray-600 mt-1">0%</p>
         </div>
 
         <!-- Table -->
@@ -134,24 +152,176 @@
 
 @endsection
 
+@push('styles')
+    <style>
+        .alert.alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #f5c6cb;
+            display: block !important;
+            z-index: 1000;
+            position: relative;
+        }
+        .alert.alert-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #c3e6cb;
+            display: block !important;
+            z-index: 1000;
+            position: relative;
+        }
+    </style>
+@endpush
+
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Delete modal
             const deleteForm = document.querySelector('#delete-modal form');
-            const deleteInput = document.createElement('input');
-            deleteInput.type = 'hidden';
-            deleteInput.name = 'media_url';
-            deleteInput.id = 'delete-media-id';
-            deleteForm.appendChild(deleteInput);
+            if (deleteForm) {
+                const deleteInput = document.createElement('input');
+                deleteInput.type = 'hidden';
+                deleteInput.name = 'media_url';
+                deleteInput.id = 'delete-media-id';
+                deleteForm.appendChild(deleteInput);
+            } else {
+                console.error('Delete modal form not found');
+            }
 
             // Upload form
             const fileInput = document.getElementById('media-files');
+            const uploadForm = document.getElementById('upload-form');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            if (!progressContainer || !progressBar || !progressText) {
+                console.error('Progress bar elements not found');
+                return;
+            }
+
+            if (!uploadForm) {
+                console.error('Upload form not found');
+                return;
+            }
+
             fileInput.addEventListener('change', function() {
                 if (fileInput.files.length > 0) {
-                    document.getElementById('upload-form').submit();
+                    // Disable upload button
+                    const uploadButton = uploadForm.querySelector('button');
+                    uploadButton.disabled = true;
+
+                    // Show progress bar
+                    progressContainer.classList.remove('hidden');
+                    progressBar.style.width = '0%';
+                    progressText.textContent = '0%';
+
+                    // Create FormData
+                    const formData = new FormData(uploadForm);
+                    const xhr = new XMLHttpRequest();
+
+                    // Progress event
+                    xhr.upload.addEventListener('progress', function(event) {
+                        if (event.lengthComputable) {
+                            const percentComplete = Math.round((event.loaded / event.total) * 100);
+                            progressBar.style.width = percentComplete + '%';
+                            progressText.textContent = percentComplete + '%';
+                        }
+                    });
+
+                    // Completion event
+                    xhr.addEventListener('load', function() {
+                        progressContainer.classList.add('hidden');
+                        uploadButton.disabled = false;
+                        fileInput.value = ''; // Clear file input
+
+                        console.log('Response Status:', xhr.status);
+                        console.log('Response Text:', xhr.responseText);
+
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+
+                            if (xhr.status === 200 && response.success) {
+                                // Full success
+                                showSuccess(response.message || '{{ __('media-create.upload-success', ['count' => '__COUNT__']) }}'.replace('__COUNT__', response.data.length));
+                                setTimeout(() => window.location.reload(), 2000);
+                            } else if (xhr.status === 207) {
+                                // Partial success
+                                if (response.data && response.data.length > 0) {
+                                    showSuccess('{{ __('media-create.upload-success', ['count' => '__COUNT__']) }}'.replace('__COUNT__', response.data.length));
+                                }
+                                if (response.errors && response.errors.length > 0) {
+                                    response.errors.forEach(error => {
+                                        showError(`File ${error.file}: ${error.error}`);
+                                    });
+                                }
+                                setTimeout(() => window.location.reload(), 3000);
+                            } else if (xhr.status === 422) {
+                                // Validation errors
+                                if (response.errors) {
+                                    Object.keys(response.errors).forEach(key => {
+                                        response.errors[key].forEach(msg => {
+                                            showError(`${key}: ${msg}`);
+                                        });
+                                    });
+                                } else {
+                                    showError(response.message || 'Validation failed');
+                                }
+                            } else {
+                                // General error (including 500)
+                                showError(response.message || 'Upload failed: Server error');
+                            }
+                        } catch (e) {
+                            console.error('Parse Error:', e, 'Response:', xhr.responseText);
+                            showError('Server error: ' + (xhr.responseText.substring(0, 100) || 'Unknown error'));
+                        }
+                    });
+
+                    // Error event (network issues)
+                    xhr.addEventListener('error', function() {
+                        progressContainer.classList.add('hidden');
+                        uploadButton.disabled = false;
+                        fileInput.value = '';
+                        showError('Network error during upload');
+                    });
+
+                    // Send request
+                    xhr.open('POST', uploadForm.action, true);
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    xhr.setRequestHeader('Accept', 'application/json');
+                    xhr.send(formData);
                 }
             });
+
+            function showSuccess(message) {
+                console.log('Displaying Success:', message);
+                const successDiv = document.createElement('div');
+                successDiv.className = 'alert alert-success mb-4 p-4';
+                successDiv.style.display = 'block';
+                successDiv.style.zIndex = '1000';
+                successDiv.style.position = 'relative';
+                successDiv.textContent = message;
+                const container = document.querySelector('.intro-y.box.p-5') || document.body;
+                container.insertBefore(successDiv, container.firstChild);
+                setTimeout(() => successDiv.remove(), 5000);
+            }
+
+            function showError(message) {
+                console.error('Displaying Error:', message);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger mb-4 p-4';
+                errorDiv.style.display = 'block';
+                errorDiv.style.zIndex = '1000';
+                errorDiv.style.position = 'relative';
+                errorDiv.textContent = 'Error: ' + message;
+                const container = document.querySelector('.intro-y.box.p-5') || document.body;
+                container.insertBefore(errorDiv, container.firstChild);
+                setTimeout(() => errorDiv.remove(), 10000);
+            }
         });
     </script>
 @endpush

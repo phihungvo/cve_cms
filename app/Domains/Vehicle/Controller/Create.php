@@ -2,6 +2,7 @@
 
 namespace App\Domains\Vehicle\Controller;
 
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use App\Domains\Vehicle\Service\Controller\Create as ControllerService;
@@ -9,7 +10,7 @@ use App\Domains\Vehicle\Service\Controller\Create as ControllerService;
 class Create extends ControllerAbstract
 {
     /**
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function __invoke(): Response|RedirectResponse
     {
@@ -31,14 +32,20 @@ class Create extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function create(): RedirectResponse
     {
-        $this->row = $this->action()->create();
+        try {
+            $this->row = $this->action()->create();
 
-        $this->sessionMessage('success', __('vehicle-create.success'));
+            $this->sessionMessage('success', __('vehicle-create.success'));
 
-        return redirect()->route('vehicle.update', $this->row->id);
+            return redirect()->route('vehicle.update', $this->row->id);
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->back()->withInput();
+        }
     }
 }

@@ -8,6 +8,8 @@
     'meta-title' => 'Bookmark > :title',
     'notifications' => 'Notifications',
     'save' => 'Save',
+    'cancel' => 'Cancel',
     'success' => 'The device has been successfully updated',
     'user' => 'User',
+    'enterprise' => 'Enterprise',
 ];

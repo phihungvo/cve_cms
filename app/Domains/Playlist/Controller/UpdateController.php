@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Playlist\Controller;
 
 use App\Domains\Playlist\Service\Controller\UpdateService as ControllerService;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 
@@ -17,7 +18,7 @@ class UpdateController extends ControllerAbstract
     {
         try {
             $this->row($id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
             return redirect()->route('fpp.playlist.index');
@@ -45,14 +46,18 @@ class UpdateController extends ControllerAbstract
      */
     protected function actions(): RedirectResponse|false|null
     {
-        if ($this->actionPost('update')) {
-            return $this->actionPost('update');
-        } elseif ($this->actionPost('delete')) {
-            return $this->actionPost('delete');
-        } elseif ($this->actionPost('forceDelete')) {
-            return $this->actionPost('forceDelete');
-        } elseif ($this->actionPost('restore')) {
-            return $this->actionPost('restore');
+
+        $strategies = [
+            'update' => fn () => $this->update(),
+            'delete' => fn () => $this->delete(),
+            'forceDelete' => fn () => $this->forceDelete(),
+            'restore' => fn () => $this->restore(),
+        ];
+
+        foreach ($strategies as $action => $callback) {
+            if ($this->actionPost($action)) {
+                return $callback();
+            }
         }
 
         return false;
@@ -63,11 +68,15 @@ class UpdateController extends ControllerAbstract
      */
     protected function update(): RedirectResponse
     {
-        $this->action()->update();
 
-        $this->sessionMessage('success', __('playlist-update.success'));
-
-        return redirect()->route('fpp.playlist.update', $this->row->id);
+        try {
+            $this->action()->update();
+            $this->sessionMessage('success', __('playlist-update.success'));
+            return redirect()->route('fpp.playlist.update', $this->row->id);
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+            return redirect()->route('fpp.playlist.index');
+        }
     }
 
     /**
@@ -75,26 +84,44 @@ class UpdateController extends ControllerAbstract
      */
     protected function delete(): RedirectResponse
     {
-        $this->action()->delete();
-
-        $this->sessionMessage('success', __('playlist-update.delete-success'));
+        try {
+            $this->action()->delete();
+            $this->sessionMessage('success', __('playlist-update.delete-success'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+        }
 
         return redirect()->route('fpp.playlist.index');
     }
 
+    /**
+     * @return RedirectResponse
+     */
     protected function forceDelete(): RedirectResponse
     {
-        $this->action()->forceDelete();
-        $this->sessionMessage('success', __('playlist-update.delete-success'));
+        try {
+            $this->action()->forceDelete();
+            $this->sessionMessage('success', __('playlist-update.delete-success'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+        }
 
         return redirect()->route('fpp.playlist.index');
     }
 
+    /**
+     * @return RedirectResponse
+     */
     protected function restore(): RedirectResponse
     {
-        $this->action()->restore();
-        $this->sessionMessage('success', __('playlist-update.restore-success'));
+        try {
+            $this->action()->restore();
+            $this->sessionMessage('success', __('playlist-update.restore-success'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+        }
 
         return redirect()->route('fpp.playlist.index');
     }
 }
+

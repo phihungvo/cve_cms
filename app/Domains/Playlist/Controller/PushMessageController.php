@@ -2,6 +2,7 @@
 
 namespace App\Domains\Playlist\Controller;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 
 class PushMessageController extends ControllerAbstract
@@ -21,7 +22,7 @@ class PushMessageController extends ControllerAbstract
             return response()->json([
                 'status' => 'success',
                 'data' => $message]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),

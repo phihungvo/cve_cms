@@ -15,6 +15,6 @@ abstract class ControllerAbstract extends ControllerWebAbstract
             // TODO: define func byId in ModelAbstract
             ->byId($id)
             ->roleRoot() // PlaylistBuilder->roleRoot()
-            ->firstOr(fn () => $this->exceptionNotFound(__('playlist.error.not-found')));
+            ->firstOr(fn () => $this->exceptionNotFound(__('playlist-update.error.not-found')));
     }
 }

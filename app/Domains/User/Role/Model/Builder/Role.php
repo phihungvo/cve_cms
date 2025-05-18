@@ -17,4 +17,25 @@ class Role extends BuilderAbstract
         return $this->orderBy('name', 'ASC');
     }
 
+    public function whereBySystem(?int $enterpriseId = null): self
+    {
+        if (auth()->user()->enterprise_id == null) {
+            if ($enterpriseId) {
+                return $this->where('enterprise_id', '=', $enterpriseId);
+            }
+            return $this->where('enterprise_id', '=', null);
+        }
+        return $this;
+    }
+
+    public function whereByEnterprise(?int $enterpriseId = null): self
+    {
+        if (auth()->user()->enterprise_id != null) {
+            if ($enterpriseId) {
+                return $this->where('enterprise_id', '=', $enterpriseId);
+            }
+            return $this->where('enterprise_id', '=', auth()->user()->enterprise_id);
+        }
+        return $this;
+    }
 }

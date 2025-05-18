@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Playlist\Model\Builder;
 
@@ -8,14 +8,6 @@ use App\Domains\Display\Model\Display;
 class PlaylistBuilder extends BuilderAbstract
 {
     # Khởi tạo các phương thức tùy chỉnh cho Eloquent Builder
-
-    public function kiemTraRole(int $id)
-    {
-        // log giá trị $id ra console
-        //        dd($id);
-
-        return $this;
-    }
 
     public function roleRoot()
     {
@@ -74,5 +66,36 @@ class PlaylistBuilder extends BuilderAbstract
         return $this->withCount(['displays' => function ($query) {
             $query->where(Display::PLAYLIST_PUBLISHED, '!=', 0);
         }]);
+    }
+
+    public function filterByEnterpriseId(?int $enterpriseId): self
+    {
+        if ($enterpriseId) {
+            $this->where('enterprise_id', $enterpriseId);
+        }
+
+        return $this;
+    }
+
+    public function filterByPlaylistGroup(?int $playlistGroupId): self
+    {
+        if ($playlistGroupId) {
+            $this->whereHas('playlistGroups', function ($q) use ($playlistGroupId) {
+                $q->where('playlist_group_id', $playlistGroupId);
+            });
+        }
+
+        return $this;
+    }
+
+    public function userHasPerrmission($alias): PlaylistBuilder|\Illuminate\Support\Collection
+    {
+        if (auth()->user()->isRoleRoot()) {
+            return $this;
+        } elseif (auth()->user()->isOwner() || auth()->user()->hasPermission($alias)) {
+            return $this->where('enterprise_id', auth()->user()->enterprise_id);
+        }
+
+        return $this->where('enterprise_id', 0);
     }
 }

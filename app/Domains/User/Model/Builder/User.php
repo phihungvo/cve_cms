@@ -71,4 +71,32 @@ class User extends BuilderAbstract
     {
         return $this->where('api_key_enabled', $api_key_enabled);
     }
+
+    public function roleRoot(): self
+    {
+        if (auth()->user()->isRoleRoot()) {
+            return $this; // No additional filtering, return all records
+        }
+
+        return $this;
+    }
+
+    public function roleOwner(): self
+    {
+        if (auth()->user()->isOwner()) {
+            return $this->where('enterprise_id', auth()->user()->enterprise->id);
+        }
+
+        return $this;
+    }
+
+    public function filterByUserPermission(string $alias): self
+    {
+        if (auth()->user()->hasPermission($alias)) {
+            return $this->where('enterprise_id', auth()->user()->enterprise_id);
+
+        }
+        return $this->where('id', 0);
+
+    }
 }

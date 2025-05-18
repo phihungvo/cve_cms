@@ -2,9 +2,13 @@
 
 namespace App\Domains\User\Service\Controller;
 
+use App\Domains\User\Role\Enum\RoleEnum;
+use App\Domains\User\Role\Model\Role;
+use App\Domains\UserGroup\Model\GroupModel;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use App\Domains\User\Model\User as Model;
+use Illuminate\Support\Collection;
 
 class Update extends CreateUpdateAbstract
 {
@@ -34,7 +38,7 @@ class Update extends CreateUpdateAbstract
     public function requestApiKey(): string
     {
         return $this->row->api_key_prefix
-            ? ($this->row->api_key_prefix . '-*****-****-****-************')
+            ? ($this->row->api_key_prefix.'-*****-****-****-************')
             : '';
     }
 
@@ -45,9 +49,35 @@ class Update extends CreateUpdateAbstract
     {
         return $this->dataCommon() + [
             'row' => $this->row,
-            'roles' => $this->row->roles(),
-            // 'roles' => $this->row->roles->pluck('id')->toArray(),
+            'roles' => $this->roles(),
+            'groups' => $this->groups(), // override
+            'assignedRoles' => $this->row->roles(),
+            'assignedGroups' => $this->row->groups(),
             'can_be_deleted' => ($this->row->id !== $this->auth->id),
         ];
+    }
+
+    public function roles(): \App\Domains\User\Role\Model\Collection\Role
+    {
+        return Role::query()
+            ->whereBySystem($this->row->enterprise_id)
+            ->whereByEnterprise($this->row->enterprise_id)
+            ->whereNotIn('name', [RoleEnum::ROOT->value, RoleEnum::OWNER->value])
+            ->get();
+    }
+
+    /**
+     * Override phương thức group ở lớp cha.
+     *
+     * @return Collection
+     *
+     * @override
+     */
+    protected function groups(): Collection
+    {
+        return GroupModel::query()
+            ->whereBySystem($this->row->enterprise_id)
+            ->whereByEnterprise($this->row->enterprise_id)
+            ->get();
     }
 }

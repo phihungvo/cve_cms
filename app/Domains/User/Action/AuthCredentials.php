@@ -39,6 +39,7 @@ class AuthCredentials extends ActionAbstract
     protected function row(): void
     {
         $this->row = Model::query()
+            ->with(['roles'])
             ->where(function ($query) {
                 $query->byEmail($this->data['email'])
                     ->orWhere(function ($q) {

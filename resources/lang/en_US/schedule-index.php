@@ -4,7 +4,7 @@ return [
     'title' => 'Schedule List',
     'meta-title' => 'Schedule List',
     'filter' => 'Search schedules...',
-    'create' => 'Create New Schedule',
+    'create' => 'Create',
     'ID' => 'ID',
     'Active' => 'Active',
     'Start Date' => 'Start Date',
@@ -28,9 +28,15 @@ return [
     'time' => 'Time',
     'duration' => 'Duration',
     'never' => 'Never',
+    'list-schedule' => 'List Schedule',
+    'schedule-group' => 'Schedule Groups',
+    'select-enterprise' => '-- select Enterprise --',
+    'select-schedule-group' => '-- select Schedule Group --',
     'delete' => [
         'title' => 'Delete Schedule',
         'message' => 'Are you sure you want to permanently delete the schedule ":name"? This action cannot be undone.',
     ],
-
+    'error' => [
+        'not-found' => 'Schedule not found',
+    ],
 ];
