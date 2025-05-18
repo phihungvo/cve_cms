@@ -55,6 +55,7 @@
     'meta-title' => 'Create New License',
     'meta-title-create' => 'Create New Billing',
     'success-create' => "Create billing successfully",
+    'update' => 'Update',
 
 
 ];

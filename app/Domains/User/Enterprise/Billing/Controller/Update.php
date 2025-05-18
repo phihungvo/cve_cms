@@ -20,17 +20,17 @@ class Update extends ControllerWebAbstract
         try {
             $this->row = Model::withTrashed()->findOrFail($id);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::error('UpdateController: License not found', ['id' => $id]);
-            $this->sessionMessage('error', __('license-update.not-found'));
-            return redirect()->route('user.enterprise.license.index');
+            Log::error('UpdateController: Billing not found', ['id' => $id]);
+            $this->sessionMessage('error', __('billing.update.not-found'));
+            return redirect()->route('user.enterprise.billing.index');
         }
 
         if ($this->request->isMethod('patch')) {
             return $this->update();
         }
 
-        $this->meta('title', __('license-update.meta-title'));
-        return $this->page('user.enterprise.license.update', $this->data());
+        $this->meta('title', __('billing.update.meta-title'));
+        return $this->page('user.enterprise.billing.update', $this->data());
     }
 
     protected function data(): array
@@ -38,7 +38,7 @@ class Update extends ControllerWebAbstract
         $data = array_merge(
             ['row' => $this->row],
             ['can_be_deleted' => $this->canBeDeleted()],
-            UpdateLicense::new($this->request, $this->auth)->data(),
+            UpdateBilling::new($this->request, $this->auth)->data($this->row), // Truyền $this->row
         );
 
         return $data;
@@ -48,11 +48,11 @@ class Update extends ControllerWebAbstract
     {
         Log::info('UpdateController: Starting update', ['id' => $this->row->id]);
         try {
-            $service = UpdateLicense::new($this->request, $this->auth);
+            $service = UpdateBilling::new($this->request, $this->auth);
             $this->row = $service->update($this->row);
 
             $this->sessionMessage('success', __('license-update.success'));
-            return redirect()->route('user.enterprise.license.index');
+            return redirect()->route('user.enterprise.billing.index');
         } catch (\Exception $e) {
             Log::error('UpdateController: Update failed', [
                 'id' => $this->row->id,

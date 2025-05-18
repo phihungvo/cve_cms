@@ -95,7 +95,7 @@
                             style="display:inline;" onsubmit="return confirm('{{ __('billing.index.delete_confirm') }}');">
                             @csrf
                             <button type="submit"
-                                class="btn btn-danger btn-sm">{{ $row['deleted_at'] !== null ? __('billing.update.force-delete-button') : __('billing.update.soft-delete-button') }}</button>
+                                class="btn btn-danger btn-sm">{{ $row['deleted_at'] !== null ? __('billing.force-delete-button') : __('billing.soft-delete-button') }}</button>
                         </form>
                     @endif
                 </td>

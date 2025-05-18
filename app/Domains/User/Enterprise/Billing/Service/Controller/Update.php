@@ -4,6 +4,7 @@ namespace App\Domains\User\Enterprise\Billing\Service\Controller;
 
 use App\Domains\User\Enterprise\Billing\Model\Billing;
 use App\Domains\User\Enterprise\Billing\Action\ActionFactory;
+use App\Domains\User\Enterprise\License\Model\License;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use App\Domains\User\Enterprise\EService\Model\EService;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ class Update
         return new self($request, $auth);
     }
 
-    public function update(Billing $license): Billing
+    public function update(Billing $billing): Billing
     {
         $data = $this->request->validate([
             'name' => 'required|string',
@@ -39,14 +40,17 @@ class Update
             'price' => 'required|integer',
         ]);
 
-        return $this->factory->update($license, $data);
+        return $this->factory->update($billing, $data);
     }
 
-    public function data(): array
+    public function data(?Billing $row = null): array
     {
         $user = Auth::user();
         if (!$user) {
-            Log::warning('No authenticated user found in Create service');
+            Log::warning('No authenticated user found in billing', [
+                'request_path' => $this->request->path(),
+                'request_method' => $this->request->method()
+            ]);
             return redirect()->guest('user/auth')->toArray();
         }
 
@@ -54,21 +58,33 @@ class Update
         $userPermission = session('userPermission_' . $userId, []);
         $allPermissions = $userPermission['all'] ?? [];
 
-        $enterprises = Enterprise::pluck('name', 'id')->toArray();
-        $services = EService::pluck('name', 'id')->toArray();
+        // Lấy danh sách licenses từ License
+        $licenses = License::with(['service', 'enterprise'])->get()->map(function ($license) {
+            $licenseData = array_merge(
+                $license->toArray(),
+                [
+                    'service' => $license->service ? $license->service->toArray() : null,
+                    'enterprise' => $license->enterprise ? $license->enterprise->toArray() : null,
+                ]
+            );
+            return $licenseData;
+        })->toArray();
+
+        Log::debug('Collected licenses', [
+            'license_count' => count($licenses)
+        ]);
 
         $data = [
-            'enterpriseOptions' => $enterprises,
-            'serviceOptions' => $services,
-            'licenses' => License::all(),
+            'licenses' => $licenses,
+            'row' => $row, // Trả về đối tượng Billing thay vì mảng
         ];
 
-        if (isset($allPermissions['root'])) {
-            return $data;
-        }
+        Log::info('Returning data', [
+            'user_id' => $userId,
+            'license_count' => count($licenses),
+            'has_row' => !is_null($row)
+        ]);
 
-        return [
-            'licenses' => License::all(),
-        ];
+        return $data;
     }
 }

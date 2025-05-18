@@ -33,9 +33,4 @@ class EService extends ModelAbstract
         'max_unit',
         'note',
     ];
-
-    public function getNameAttribute(): ?string
-    {
-        return $this->role?->name;
-    }
 }
