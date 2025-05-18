@@ -34,6 +34,7 @@ class IndexService extends ControllerAbstract
         return Model::query()
             ->roleRoot()
             ->roleOwner()
+            ->filterByUserPermission('access-user-list')
             ->when($this->request->input('enterprise_id'), function ($query) {
                 $query->where('enterprise_id', $this->request->input('enterprise_id'));
             })

@@ -51,7 +51,7 @@ class Device extends BuilderAbstract
      */
     public function whenTripFinished(?bool $finished): self
     {
-        return $this->when(is_bool($finished), fn($q) => $q->whereTripFinished($finished));
+        return $this->when(is_bool($finished), fn ($q) => $q->whereTripFinished($finished));
     }
 
     /**
@@ -61,7 +61,7 @@ class Device extends BuilderAbstract
      */
     public function whenShared(?bool $shared): self
     {
-        return $this->when(is_bool($shared), fn($q) => $q->whereShared($shared));
+        return $this->when(is_bool($shared), fn ($q) => $q->whereShared($shared));
     }
 
     /**
@@ -71,7 +71,7 @@ class Device extends BuilderAbstract
      */
     public function whenSharedPublic(?bool $shared_public): self
     {
-        return $this->when(is_bool($shared_public), fn($q) => $q->whereSharedPublic($shared_public));
+        return $this->when(is_bool($shared_public), fn ($q) => $q->whereSharedPublic($shared_public));
     }
 
     /**
@@ -127,7 +127,7 @@ class Device extends BuilderAbstract
      */
     public function withMessagesPendingCount(): self
     {
-        return $this->withCount(['messages as messages_pending_count' => fn($q) => $q->whereResponseAt()]);
+        return $this->withCount(['messages as messages_pending_count' => fn ($q) => $q->whereResponseAt()]);
     }
 
     /**
@@ -135,7 +135,7 @@ class Device extends BuilderAbstract
      */
     public function withWhereHasPositionLast(): self
     {
-        return $this->withWhereHas('positionLast', fn($q) => $q->withCityState());
+        return $this->withWhereHas('positionLast', fn ($q) => $q->withCityState());
     }
 
     /**
@@ -159,7 +159,7 @@ class Device extends BuilderAbstract
      */
     public function withVehicle(): self
     {
-        return $this->with(['vehicle' => fn($q) => $q->withTimezone()]);
+        return $this->with(['vehicle' => fn ($q) => $q->withTimezone()]);
     }
 
     /**
@@ -172,6 +172,7 @@ class Device extends BuilderAbstract
 
     /**
      * @param int $enterprise_id
+     *
      * @return self
      */
     public function byEnterpriseId(int $enterprise_id): self
@@ -181,11 +182,12 @@ class Device extends BuilderAbstract
 
     /**
      * @param ?int $enterprise_id
+     *
      * @return self
      */
     public function whenEnterpriseId(?int $enterprise_id): self
     {
-        return $this->when($enterprise_id, fn($q) => $q->byEnterpriseId($enterprise_id));
+        return $this->when($enterprise_id, fn ($q) => $q->byEnterpriseId($enterprise_id));
     }
 
     /**
@@ -215,5 +217,16 @@ class Device extends BuilderAbstract
         return $this->join(Display::TABLE, 'device.id', '=', 'display.device_id')
             ->where('display.playlist_id', $playlistId)
             ->select('device.*');
+    }
+
+    public function userHasPermission($alias)
+    {
+        if (auth()->user()->isRoleRoot()) {
+            return $this;
+        } elseif (auth()->user()->isOwner() || auth()->user()->hasPermission($alias)) {
+            return $this->where('enterprise_id', auth()->user()->enterprise_id);
+        }
+
+        return $this->where('enterprise_id', 0);
     }
 }
