@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Domains\Device\Model\Device;
 
 class Notification extends ModelAbstract
 {
@@ -50,5 +51,10 @@ class Notification extends ModelAbstract
     public function userNotifications(): HasMany
     {
         return $this->hasMany(UserNotification::class, 'notification_id');
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class, 'enterprise_id', 'enterprise_id');
     }
 }

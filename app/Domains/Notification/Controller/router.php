@@ -19,9 +19,6 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::get('/notification/users-by-enterprise', UserByEnterpriseController::class)->name('notification.users-by-enterprise');
     Route::get('/notification/roles-by-enterprise', RolesByEnterpriseController::class)->name('notification.roles-by-enterprise');
 
-    // Route::post('/notification/push-notification', PushNotificationController::class)->name('notification.push-notification');
-    Route::post('/notification/push-notification', [PushNotificationController::class, '__invoke'])->name('notification.push-notification');
-    Route::post('/notification/push-notification-to-devices', PushNotificationToDevicesController::class)->name('notification.push-notification-to-devices');
-    Route::get('/notification/{id}/device-status', [DeviceNotificationStatusController::class, 'show'])->name('notification.device-status');
-    Route::post('/notification/{id}/resend', [ResendNotificationController::class, 'resend'])->name('notification.resend');
+    Route::post('/notification/push-message-all-devices', PushMessageController::class)->name('notification.push-message');
+    Route::post('/notification/push-message-to-devices', PushMessageToDevicesController::class)->name('notification.push-message-to-devices');
 });
