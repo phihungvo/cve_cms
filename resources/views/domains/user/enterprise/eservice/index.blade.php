@@ -1,12 +1,18 @@
-@extends('layouts.in')
+@extends ('domains.user.enterprise.eservice.tab-layout')
 
-@section('body')
+@section ('content')
+
 
 <form method="get">
     <div class="sm:flex sm:space-x-4">
         <div class="flex-grow mt-2 sm:mt-0">
             <input type="search" class="form-control form-control-lg" placeholder="{{ __('eservice-index.filter') }}"
                 data-table-search="#role-list-table" />
+        </div>
+
+        <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
+            <a href="{{ route('user.enterprise.eservice.create') }}"
+                class="btn form-control-lg whitespace-nowrap">{{ __('eservice-index.create') }}</a>
         </div>
     </div>
 </form>
@@ -17,10 +23,14 @@
         data-table-pagination data-table-pagination-limit="10">
         <thead>
             <tr>
+                <th class="w-1">{{ __('eservice-index.enterprise_name') }}</th>
                 <th class="w-1">{{ __('eservice-index.name') }}</th>
                 <th class="w-1">{{ __('eservice-index.alias') }}</th>
                 <th class="w-1">{{ __('eservice-index.description') }}</th>
-                <th class="w-1">{{ __('eservice-index.created') }}</th>
+                <th class="w-1">{{ __('eservice-index.pricing_model') }}</th>
+                <th class="w-1">{{ __('eservice-index.billing_cycle') }}</th>
+                <th class="w-1">{{ __('eservice-index.max_unit') }}</th>
+                <th class="w-1">{{ __('eservice-index.price') }}</th>
                 <th class="w-1">{{ __('eservice-index.actions') }}</th>
             </tr>
         </thead>
@@ -30,6 +40,10 @@
             @php ($link = route('user.enterprise.eservice.update', $row->id))
 
             <tr>
+                <td class="w-1" data-table-sort-value="{{ $row->enterprise_name }}">
+                    <a href="{{  $link }}" class="block">{{ $row->enterprise_name }}</a>
+                </td>
+
                 <td class="w-1" data-table-sort-value="{{ $row->name }}">
                     <a href="{{ $link }}" class="block">{{ $row->name }}</a>
                 </td>
@@ -39,9 +53,23 @@
                 <td class="w-1" data-table-sort-value="{{ $row->description }}">
                     <a href="{{ $link }}" class="block">{{ $row->description }}</a>
                 </td>
-                <td class="w-1" data-table-sort-value="{{ $row->created_at }}">
-                    <a href="{{ $link }}" class="block">@dateWithUserTimezone($row->created_at)</a>
+
+                <td class="w-1" data-table-sort-value="{{ $row->pricing_model }}">
+                    <a href="{{ $link }}" class="block">{{ $row->pricing_model }}</a>
                 </td>
+
+                <td class="w-1" data-table-sort-value="{{ $row->billing_cycle }}">
+                    <a href="{{ $link }}" class="block">{{ $row->billing_cycle }}</a>
+                </td>
+
+                <td class="w-1" data-table-sort-value="{{ $row->max_unit }}">
+                    <a href="{{ $link }}" class="block">{{ $row->max_unit }}</a>
+                </td>
+
+                <td class="w-1" data-table-sort-value="{{ $row->price }}">
+                    <a href="{{ $link }}" class="block">{{ $row->price }}</a>
+                </td>
+
                 <td onclick="event.stopPropagation();">
                     <a href="{{ $link }}" class="btn btn-primary btn-sm">{{ __('eservice-index.edit') }}</a>
                     @if ($row['deleted_at'])
@@ -74,4 +102,4 @@
     </table>
 </div>
 
-@endsection
+@stop

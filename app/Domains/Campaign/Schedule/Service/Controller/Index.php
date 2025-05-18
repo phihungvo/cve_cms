@@ -76,7 +76,7 @@ class Index
         }
 
         $userId = $user->id;
-        $userPermission = session('userPermission_'.$userId, []);
+        $userPermission = session('userPermission_' . $userId, []);
         $allPermissions = $userPermission['all'] ?? [];
         if (isset($allPermissions['root'])) {
             // Lấy danh sách schedules
