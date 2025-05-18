@@ -37,7 +37,7 @@
                             @endif
 
                             <button type="submit" class="btn btn-primary" data-click-one>
-                                {{ __('billing.update') }}
+                                {{ __('billing.update.update') }}
                             </button>
                         </div>
                     </div>
@@ -51,12 +51,12 @@
                 'route' => route('user.enterprise.license.delete', $row->id),
             ])
 
-            @includeWhen(true, 'molecules.restore-modal', [
-                'title' => __('billing.update.restore-title'),
-                'message' => __('billing.update.restore-message'),
-                'route' => route('user.enterprise.license.restore', $row->id),
-            ])
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                            @includeWhen(true, 'molecules.restore-modal', [
+                                'title' => __('billing.update.restore-title'),
+                                'message' => __('billing.update.restore-message'),
+                                'route' => route('user.enterprise.license.restore', $row->id),
+                            ])
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
 
 @endsection
