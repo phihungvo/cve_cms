@@ -15,7 +15,7 @@ class Update extends ControllerWebAbstract
 
     public function __invoke(int $id): Response|RedirectResponse
     {
-        Log::info('UpdateController: Starting request', ['id' => $id]);
+        // Log::info('UpdateController: Starting request', ['id' => $id]);
 
         try {
             $this->row = Model::withTrashed()->findOrFail($id);
@@ -46,7 +46,7 @@ class Update extends ControllerWebAbstract
 
     protected function update(): RedirectResponse
     {
-        Log::info('UpdateController: Starting update', ['id' => $this->row->id]);
+        // Log::info('UpdateController: Starting update', ['id' => $this->row->id]);
         try {
             $service = UpdateBilling::new($this->request, $this->auth);
             $this->row = $service->update($this->row);

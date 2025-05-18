@@ -77,14 +77,13 @@
                     <a href="{{ $link }}" class="btn btn-primary btn-sm">{{ __('billing.index.edit') }}</a>
                     @if ($row['deleted_at'])
                         <form action="{{ route('user.enterprise.billing.restore', $row['id']) }}" method="POST"
-                            style="display:inline;" onsubmit="return confirm('{{ __('billing.index.restore_confirm') }}');">
+                            style="display:inline;" onsubmit="return confirm('{{ __('billing.restore_confirm') }}');">
                             @csrf
-                            <button type="submit" class="btn btn-success btn-sm">{{ __('billing.index.restore') }}</button>
+                            <button type="submit" class="btn btn-success btn-sm">{{ __('billing.restore') }}</button>
                         </form>
 
                         <form action="{{ route('user.enterprise.billing.delete', $row['id']) }}" method="POST"
-                            style="display:inline;"
-                            onsubmit="return confirm('{{ __('billing.index.force_delete_confirm') }}');">
+                            style="display:inline;" onsubmit="return confirm('{{ __('billing.force_delete_confirm') }}');">
                             @csrf
                             <button type="submit" class="btn btn-danger btn-sm">
                                 {{ __('billing.force-delete-button') }}
@@ -92,7 +91,7 @@
                         </form>
                     @else
                         <form action="{{ route('user.enterprise.billing.delete', $row['id']) }}" method="POST"
-                            style="display:inline;" onsubmit="return confirm('{{ __('billing.index.delete_confirm') }}');">
+                            style="display:inline;" onsubmit="return confirm('{{ __('billing.delete_confirm') }}');">
                             @csrf
                             <button type="submit"
                                 class="btn btn-danger btn-sm">{{ $row['deleted_at'] !== null ? __('billing.force-delete-button') : __('billing.soft-delete-button') }}</button>

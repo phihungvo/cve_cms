@@ -45,9 +45,9 @@ class Create
                 'price' => 'required|integer',
             ]);
 
-            Log::debug('Validated request data', [
-                'validated_data' => $data
-            ]);
+            // Log::debug('Validated request data', [
+            //     'validated_data' => $data
+            // ]);
 
             $billing = $this->factory->create($data);
 

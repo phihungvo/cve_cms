@@ -28,6 +28,19 @@
 
     ],
 
+    'update' => [
+        'meta-title' => 'Update Bill',
+        'filter' => 'Search billing...',
+        'name' => 'Name',
+        'enterprise_name' => 'Enterprise',
+        'service_name' => 'Service',
+        'license_name' => 'License',
+        'usage_unit' => 'Usage Unit',
+        'payment_status' => 'Payment Status',
+        'actions' => 'Actions',
+        'edit' => 'Edit',
+    ],
+
     'soft-delete-button' => 'Soft Delete',
     'force-delete-button' => 'Force Delete',
     'select_license' => 'Select License',
@@ -56,6 +69,10 @@
     'meta-title-create' => 'Create New Billing',
     'success-create' => "Create billing successfully",
     'update' => 'Update',
-
-
+    'force_delete_confirm' => 'Are you sure you want to permanently delete this bill?',
+    'force-delete-success' => 'The bill has been permanently deleted.',
+    'delete_confirm' => 'Are you sure you want to delete this bill?',
+    'delete-success' => 'Bill has been deleted successfully',
+    'delete-error' => 'Failed to delete Bill',
+    'restore' => 'Restore',
 ];

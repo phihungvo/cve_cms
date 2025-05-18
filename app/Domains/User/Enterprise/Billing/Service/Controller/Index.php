@@ -42,7 +42,7 @@ class Index extends ControllerAbstract
             return $billingData;
         });
 
-        Log::info('billings IndexController:', [$billings]);
+        // Log::info('billings IndexController:', [$billings]);
 
         // Log::info('IndexController: Billing list fetched', [
         //     'total' => $billings->count(),

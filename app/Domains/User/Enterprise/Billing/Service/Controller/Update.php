@@ -70,20 +70,16 @@ class Update
             return $licenseData;
         })->toArray();
 
-        Log::debug('Collected licenses', [
-            'license_count' => count($licenses)
-        ]);
-
         $data = [
             'licenses' => $licenses,
             'row' => $row, // Trả về đối tượng Billing thay vì mảng
         ];
 
-        Log::info('Returning data', [
-            'user_id' => $userId,
-            'license_count' => count($licenses),
-            'has_row' => !is_null($row)
-        ]);
+        // Log::info('Returning data', [
+        //     'user_id' => $userId,
+        //     'license_count' => count($licenses),
+        //     'has_row' => !is_null($row)
+        // ]);
 
         return $data;
     }

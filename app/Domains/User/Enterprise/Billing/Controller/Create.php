@@ -18,7 +18,7 @@ class Create extends ControllerWebAbstract
             return $this->create();
         }
 
-        Log::info('Processing Billing data: ', $this->data());
+        // Log::info('Processing Billing data: ', $this->data());
 
 
         $this->meta('title', __('billing.create.meta-title'));

@@ -29,17 +29,17 @@ class Delete extends ControllerWebAbstract
             // Gọi delete, logic soft delete/force delete được xử lý trong Action
             $service->delete($this->row);
 
-            $messageKey = $this->row->trashed() ? 'license-delete.force-delete-success' : 'license-delete.delete-success';
+            $messageKey = $this->row->trashed() ? 'billing.force-delete-success' : 'billing.delete-success';
             $this->sessionMessage('success', __($messageKey));
 
-            return redirect()->route('user.enterprise.license.index');
+            return redirect()->route('user.enterprise.billing.index');
         } catch (\Exception $e) {
             Log::error('Controller: license deletion failed', [
                 'id' => $id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            $this->sessionMessage('error', __('license-delete.delete-error'));
+            $this->sessionMessage('error', __('billing.delete-error'));
             return redirect()->back();
         }
     }
