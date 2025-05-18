@@ -7,9 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Domains\User\Enterprise\Billing\Model\Collection\Billing as Collection;
 use App\Domains\User\Enterprise\Billing\Model\Billing as Model;
-use App\Domains\User\Enterprise\Model\Enterprise;
-use App\Domains\User\Enterprise\EService\Model\EService;
-
 
 class Index extends ControllerAbstract
 {
@@ -23,35 +20,34 @@ class Index extends ControllerAbstract
         // Log::info('IndexController: Fetching data');
         $data = [
             ...$this->dataCore(),
-            'licenses' => $this->list(),
+            'billings' => $this->list(),
         ];
-        // Log::info('IndexController: Data prepared', ['services_count' => $data['services']->count()]);
+        // Log::info('IndexController: Data prepared', ['billings_count' => $data['billings']->count()]);
         return $data;
     }
 
-    /**
-     * @return \App\Domains\User\Enterprise\License\Model\Collection\License
-     */
     public function list(): Collection
     {
-        // Log::info('IndexController: Fetching License list with trashed records');
-        $licenses = Model::query()->withTrashed()->get();
+        // Log::info('IndexController: Fetching Billing list with trashed records');
+        $billings = Model::with(['license.service', 'license.enterprise'])->withTrashed()->get()->map(function ($billing) {
+            $billingData = array_merge(
+                $billing->toArray(),
+                [
+                    'license' => $billing->license ? $billing->license->toArray() : null,
+                    'service' => $billing->license && $billing->license->service ? $billing->license->service->toArray() : null,
+                    'enterprise' => $billing->license && $billing->license->enterprise ? $billing->license->enterprise->toArray() : null,
+                ]
+            );
 
-        // Process each item to include enterprise_name
-        $licenses = $licenses->map(function ($license) {
-            $enterprise = Enterprise::find($license->enterprise_id);
-            $service = EService::find($license->service_id);
-
-            $license->enterprise_name = $enterprise ? $enterprise->name : null;
-            $license->service_name = $service ? $service->name : null;
-
-            return $license;
+            return $billingData;
         });
 
-        // Log::info('IndexController: License list fetched', [
-        //     'total' => $services->count(),
-        //     'trashed' => $services->filter(fn($service) => $service->trashed())->count()
+        Log::info('billings IndexController:', [$billings]);
+
+        // Log::info('IndexController: Billing list fetched', [
+        //     'total' => $billings->count(),
+        //     'trashed' => $billings->filter(fn($billing) => $billing->trashed())->count()
         // ]);
-        return new Collection($licenses->all());
+        return new Collection($billings->all());
     }
 }

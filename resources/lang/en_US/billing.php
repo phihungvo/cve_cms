@@ -15,7 +15,21 @@
     ],
     'index' => [
         'meta-title' => 'Billings',
+        'filter' => 'Search billing...',
+        'name' => 'Name',
+        'enterprise_name' => 'Enterprise',
+        'service_name' => 'Service',
+        'license_name' => 'License',
+        'usage_unit' => 'Usage Unit',
+        'payment_status' => 'Payment Status',
+        'actions' => 'Actions',
+        'edit' => 'Edit',
+
+
     ],
+
+    'soft-delete-button' => 'Soft Delete',
+    'force-delete-button' => 'Force Delete',
     'select_license' => 'Select License',
     'select_payment_status' => 'Select Payment Status',
     'payment_status' => 'Payment Status',

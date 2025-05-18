@@ -10,19 +10,19 @@ class Index extends ControllerAbstract
 {
     public function __invoke(): Response|JsonResponse
     {
-        $license = new ControllerBilling($this->request, $this->auth);
+        $billings = new ControllerBilling($this->request, $this->auth);
 
         if ($this->request->wantsJson()) {
-            return $this->responseJson($license);
+            return $this->responseJson($billings);
         }
 
         $this->meta('title', __('billing.index.meta-title'));
 
-        return $this->page('user.enterprise.billing.index', $license->data());
+        return $this->page('user.enterprise.billing.index', $billings->data());
     }
 
-    protected function responseJson(ControllerBilling $license): JsonResponse
+    protected function responseJson(ControllerBilling $billings): JsonResponse
     {
-        return $this->json($this->factory()->fractal('simple', $license->list()));
+        return $this->json($this->factory()->fractal('simple', $billings->list()));
     }
 }

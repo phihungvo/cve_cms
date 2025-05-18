@@ -38,4 +38,21 @@ class Billing extends ModelAbstract
         'payment_status',
         'price',
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(\App\Domains\User\Enterprise\EService\Model\EService::class, 'service_id');
+    }
+
+    // Định nghĩa mối quan hệ với Enterprise
+    public function enterprise()
+    {
+        return $this->belongsTo(\App\Domains\User\Enterprise\Model\Enterprise::class, 'enterprise_id');
+    }
+
+    // Mối quan hệ với License
+    public function license()
+    {
+        return $this->belongsTo(\App\Domains\User\Enterprise\License\Model\License::class, 'license_id');
+    }
 }

@@ -1,12 +1,11 @@
-@extends ('domains.user.enterprise.eservice.tab-layout')
+@extends('domains.user.enterprise.eservice.tab-layout')
 
-@section ('content')
-
+@section('content')
 
 <form method="get">
     <div class="sm:flex sm:space-x-4">
         <div class="flex-grow mt-2 sm:mt-0">
-            <input type="search" class="form-control form-control-lg" placeholder="{{ __('license-index.filter') }}"
+            <input type="search" class="form-control form-control-lg" placeholder="{{ __('billing.index.filter') }}"
                 data-table-search="#role-list-table" />
         </div>
 
@@ -23,74 +22,80 @@
         data-table-pagination data-table-pagination-limit="10">
         <thead>
             <tr>
-                <th class="w-1">{{ __('license-index.enterprise_name') }}</th>
-                <th class="w-1">{{ __('license-index.service_name') }}</th>
-                <th class="w-1">{{ __('license-index.type') }}</th>
-                <th class="w-1">{{ __('license-index.status') }}</th>
-                <th class="w-1">{{ __('license-index.max_user') }}</th>
-                <th class="w-1">{{ __('license-index.max_device') }}</th>
-                <th class="w-1">{{ __('license-index.start_date') }}</th>
-                <th class="w-1">{{ __('license-index.end_date') }}</th>
-                <th class="w-1">{{ __('license-index.actions') }}</th>
+                <th class="w-1">{{ __('billing.index.name') }}</th>
+                <th class="w-1">{{ __('billing.index.enterprise_name') }}</th>
+                <th class="w-1">{{ __('billing.index.service_name') }}</th>
+                <th class="w-1">{{ __('billing.index.license_name') }}</th>
+                <th class="w-1">{{ __('billing.index.usage_unit') }}</th>
+                <th class="w-1">{{ __('billing.price') }}</th>
+                <th class="w-1">{{ __('billing.index.payment_status') }}</th>
+                <th class="w-1">{{ __('billing.start_date') }}</th>
+                <th class="w-1">{{ __('billing.end_date') }}</th>
+                <th class="w-1">{{ __('billing.index.actions') }}</th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach ($licenses as $row)
-            @php ($link = route('user.enterprise.license.update', $row->id))
+            @foreach ($billings as $row)
+            @php ($link = route('user.enterprise.billing.update', $row['id']))
 
             <tr>
-                <td class="w-1" data-table-sort-value="{{ $row->enterprise_name }}">
-                    <a href="{{ $link }}" class="block">{{ $row->enterprise_name }}</a>
-                </td>
-                <td class="w-1" data-table-sort-value="{{ $row->service_name }}">
-                    <a href="{{ $link }}" class="block">{{ $row->service_name }}</a>
-                </td>
-                <td class="w-1" data-table-sort-value="{{ $row->license_type }}">
-                    <a href="{{ $link }}" class="block">{{ $row->license_type }}</a>
-                </td>
-                <td class="w-1" data-table-sort-value="{{ $row->status }}">
-                    <a href="{{ $link }}" class="block">{{ $row->status }}</a>
-
-                <td class="w-1" data-table-sort-value="{{ $row->max_users }}">
-                    <a href="{{ $link }}" class="block">{{ $row->max_users }}</a>
+                <td class="w-1" data-table-sort-value="{{ $row['name'] ?? '' }}">
+                    <a href="{{ $link }}" class="block">{{ $row['name'] ?? 'N/A' }}</a>
                 </td>
 
-                <td class="w-1" data-table-sort-value="{{ $row->max_devices }}">
-                    <a href="{{ $link }}" class="block">{{ $row->max_devices }}</a>
+                <td class="w-1" data-table-sort-value="{{ $row['enterprise']['name'] ?? '' }}">
+                    <a href="{{ $link }}" class="block">{{ $row['enterprise']['name'] ?? 'N/A' }}</a>
+                </td>
+                <td class="w-1" data-table-sort-value="{{ $row['service']['name'] ?? '' }}">
+                    <a href="{{ $link }}" class="block">{{ $row['service']['name'] ?? 'N/A' }}</a>
+                </td>
+                <td class="w-1" data-table-sort-value="{{ $row['license']['name'] ?? '' }}">
+                    <a href="{{ $link }}" class="block">{{ $row['license']['name'] ?? 'N/A' }}</a>
                 </td>
 
-
-                <td class="w-1" data-table-sort-value="{{ $row->start_date }}">
-                    <a href="{{ $link }}" class="block">@dateWithUserTimezone($row->start_date)</a>
+                <td class="w-1" data-table-sort-value="{{ $row['usage_unit'] ?? '' }}">
+                    <a href="{{ $link }}" class="block">{{ $row['usage_unit'] ?? 'N/A' }}</a>
                 </td>
 
-                <td class="w-1" data-table-sort-value="{{ $row->end_date }}">
-                    <a href="{{ $link }}" class="block">@dateWithUserTimezone($row->end_date)</a>
+                <td class="w-1" data-table-sort-value="{{ $row['price'] ?? '' }}">
+                    <a href="{{ $link }}" class="block">{{ $row['price'] ?? 'N/A' }}</a>
+                </td>
+
+                <td class="w-1" data-table-sort-value="{{ $row['payment_status'] ?? '' }}">
+                    <a href="{{ $link }}" class="block">{{ $row['payment_status'] ?? 'N/A' }}</a>
+                </td>
+
+                <td class="w-1" data-table-sort-value="{{ $row['start_date'] }}">
+                    <a href="{{ $link }}" class="block">@dateWithUserTimezone($row['start_date'])</a>
+                </td>
+
+                <td class="w-1" data-table-sort-value="{{ $row['end_date'] }}">
+                    <a href="{{ $link }}" class="block">@dateWithUserTimezone($row['end_date'])</a>
                 </td>
                 <td onclick="event.stopPropagation();">
-                    <a href="{{ $link }}" class="btn btn-primary btn-sm">{{ __('eservice-index.edit') }}</a>
+                    <a href="{{ $link }}" class="btn btn-primary btn-sm">{{ __('billing.index.edit') }}</a>
                     @if ($row['deleted_at'])
-                        <form action="{{ route('user.enterprise.eservice.restore', $row['id']) }}" method="POST"
-                            style="display:inline;"
-                            onsubmit="return confirm('{{ __('eservice-index.restore_confirm') }}');">
+                        <form action="{{ route('user.enterprise.billing.restore', $row['id']) }}" method="POST"
+                            style="display:inline;" onsubmit="return confirm('{{ __('billing.index.restore_confirm') }}');">
                             @csrf
-                            <button type="submit" class="btn btn-success btn-sm">{{ __('eservice-index.restore') }}</button>
+                            <button type="submit" class="btn btn-success btn-sm">{{ __('billing.index.restore') }}</button>
                         </form>
 
-                        <form action="{{ route('user.enterprise.eservice.delete', $row['id']) }}" method="POST"
+                        <form action="{{ route('user.enterprise.billing.delete', $row['id']) }}" method="POST"
                             style="display:inline;"
-                            onsubmit="return confirm('{{ __('eservice-index.force_delete_confirm') }}');">
+                            onsubmit="return confirm('{{ __('billing.index.force_delete_confirm') }}');">
+                            @csrf
                             <button type="submit" class="btn btn-danger btn-sm">
-                                {{  __('eservice-update.force-delete-button') }}
+                                {{ __('billing.force-delete-button') }}
                             </button>
                         </form>
                     @else
-                        <form action="{{ route('user.enterprise.eservice.delete', $row['id']) }}" method="POST"
-                            style="display:inline;" onsubmit="return confirm('{{ __('eservice-index.delete_confirm') }}');">
-
+                        <form action="{{ route('user.enterprise.billing.delete', $row['id']) }}" method="POST"
+                            style="display:inline;" onsubmit="return confirm('{{ __('billing.index.delete_confirm') }}');">
+                            @csrf
                             <button type="submit"
-                                class="btn btn-danger btn-sm">{{ $row->deleted_at !== null ? __('eservice-update.force-delete-button') : __('eservice-update.soft-delete-button') }}</button>
+                                class="btn btn-danger btn-sm">{{ $row['deleted_at'] !== null ? __('billing.update.force-delete-button') : __('billing.update.soft-delete-button') }}</button>
                         </form>
                     @endif
                 </td>
