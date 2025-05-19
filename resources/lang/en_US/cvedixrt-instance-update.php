@@ -2,6 +2,7 @@
     'meta-title' => 'Cvedixrt-Instance > Create',
     'input-source-type' => 'Source Type',
     'select-existing-camera' => 'Select Existing Camera',
+    'add-new-input-source' => 'Add New Input Source',
     'description' => 'Description',
     'btn-delete' => 'Delete',
     'btn-force-delete' => 'Force Delete',

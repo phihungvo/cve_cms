@@ -27,7 +27,7 @@
                     {{ __('cvedixrt-instance-update.select-existing-camera') }}
                 </option>
                 <option value="add_input_source" {{$selectSourceType == 'input-source-text' ? 'selected' : ''}}>
-                    {{ __('cvedixrt-instance-update.add_new_input_source') }}
+                    {{ __('cvedixrt-instance-update.add-new-input-source') }}
                 </option>
             </select>
         </div>
