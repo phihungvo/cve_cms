@@ -53,6 +53,7 @@ abstract class CreateUpdateAbstract extends ControllerAbstract
     {
         return Device::query()
             ->whereDeviceTypeAlias('fpp')
+            ->userHasPermission('access-playlist-create-any')
             ->get();
     }
 

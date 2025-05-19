@@ -83,10 +83,20 @@ class User extends BuilderAbstract
 
     public function roleOwner(): self
     {
-        if (auth()->user()?->isOwner() || auth()->user()?->enterprise_id) {
+        if (auth()->user()->isOwner()) {
             return $this->where('enterprise_id', auth()->user()->enterprise->id);
         }
 
         return $this;
+    }
+
+    public function filterByUserPermission(string $alias): self
+    {
+        if (auth()->user()->hasPermission($alias)) {
+            return $this->where('enterprise_id', auth()->user()->enterprise_id);
+
+        }
+        return $this->where('id', 0);
+
     }
 }

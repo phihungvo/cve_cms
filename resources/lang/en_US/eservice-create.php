@@ -16,7 +16,7 @@ return [
     'select-enterprise' => 'Select Enterprise',
     'save' => 'Save',
     'create' => 'Create',
-
+    'back' => 'Back',
     'alias' => 'Alias',
     'menu_route' => 'Menu Action Route',
     'is_menu' => 'Show in menu side',
@@ -24,4 +24,11 @@ return [
     'menu_icon' => 'Menu Icon',
     'parent_id' => 'Parent Service',
     'no_parent' => 'No Parent',
+    'fixed' => 'Fixed',
+    'per_unit' => 'Per Unit',
+    'pricing_model' => 'Pricing Model',
+    'price' => 'Price',
+    'billing_cycle' => 'Billing Cycle',
+    'max_unit' => 'Max Unit',
+    'note' => 'Note'
 ];
