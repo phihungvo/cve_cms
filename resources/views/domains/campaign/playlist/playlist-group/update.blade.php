@@ -6,7 +6,7 @@
     <form method="POST">
         <input type="hidden" name="_action" value="update" />
 
-        @include('domains.playlist-group.molecules.create-update')
+        @include('domains.campaign.playlist.playlist-group.molecules.create-update')
 
         @php
             $isDeleted = is_null($row->deleted_at);

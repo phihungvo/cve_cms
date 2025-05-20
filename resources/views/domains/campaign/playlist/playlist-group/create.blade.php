@@ -6,7 +6,7 @@
     <form method="post">
         <input type="hidden" name="_action" value="create" />
 
-        @include('domains.playlist-group.molecules.create-update')
+        @include('domains.campaign.playlist.playlist-group.molecules.create-update')
 
         <div class="box p-5 mt-5">
             <div class="text-right">

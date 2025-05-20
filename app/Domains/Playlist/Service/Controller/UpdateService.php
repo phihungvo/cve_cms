@@ -5,7 +5,7 @@ namespace App\Domains\Playlist\Service\Controller;
 use App\Domains\Device\Model\Device;
 use App\Domains\Display\Model\Display;
 use App\Domains\Playlist\Model\PlaylistModel;
-use App\Domains\PlaylistGroup\Model\PlaylistGroupMap;
+use App\Domains\Playlist\PlaylistGroup\Model\PlaylistGroupMap;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
