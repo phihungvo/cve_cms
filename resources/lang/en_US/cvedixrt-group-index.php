@@ -4,6 +4,7 @@
     'no' => 'No',
     'name' => 'Name',
     'description' => 'Description',
+    'instances-count' => 'Instance Count',
     'created-at' => 'Created At',
     'updated-at' => 'Updated At',
     'filter' => 'Filter...',
