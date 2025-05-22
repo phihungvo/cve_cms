@@ -6,6 +6,7 @@ use Illuminate\View\Component;
 use Illuminate\View\View;
 use App\Domains\Position\Model\Collection\Position as PositionCollection;
 use App\Domains\Position\Model\Position as PositionModel;
+use Illuminate\Support\Facades\Log;
 
 class ChartSpeed extends Component
 {
@@ -32,7 +33,7 @@ class ChartSpeed extends Component
     public function render(): View
     {
         return view('components.chart-speed', [
-            'id' => 'chart-speed-'.uniqid(),
+            'id' => 'chart-speed-' . uniqid(),
             'positionsJson' => $this->positionsJson(),
         ]);
     }
@@ -42,9 +43,9 @@ class ChartSpeed extends Component
      */
     protected function positionsJson(): string
     {
-        return $this->positions
-            ->toBase()
-            ->sortBy('date_at')
+        $sortedPositions = $this->positions->toBase()->sortBy('date_at');
+        Log::debug('Sorted Positions:', $sortedPositions->toArray());
+        return $sortedPositions
             ->map($this->positionsJsonMap(...))
             ->values()
             ->toJson();
@@ -59,7 +60,7 @@ class ChartSpeed extends Component
     {
         return [
             'id' => $position->id,
-            'date_at' => explode(' ', $position->date_at)[1],
+            'date_at' => $position->date_at->format('H:i:s'), // Extract time part directly
             'speed' => helper()->unit('speed', $position->speed),
         ];
     }
