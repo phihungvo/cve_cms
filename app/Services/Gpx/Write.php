@@ -14,6 +14,7 @@ use phpGPX\Models\Track;
 use App\Domains\Position\Model\Collection\Position as PositionCollection;
 use App\Domains\Position\Model\Position as PositionModel;
 use App\Domains\Trip\Model\Trip as TripModel;
+use Illuminate\Support\Carbon;
 
 class Write
 {
@@ -65,7 +66,11 @@ class Write
     {
         $this->gpx = new GpxFile();
         $this->gpx->metadata = new Metadata();
-        $this->gpx->metadata->time = $this->datetime($this->trip->start_at, $this->trip->timezone->zone);
+        // Convert Carbon to string
+        $this->gpx->metadata->time = $this->datetime(
+            $this->trip->start_at instanceof Carbon ? $this->trip->start_at->toDateTimeString() : $this->trip->start_at,
+            $this->trip->timezone->zone
+        );
         $this->gpx->metadata->description = $this->trip->name;
 
         return $this;
@@ -116,7 +121,11 @@ class Write
         $point = new Point(Point::TRACKPOINT);
         $point->latitude = $position->latitude;
         $point->longitude = $position->longitude;
-        $point->time = $this->datetime($position->date_at, $position->timezone->zone);
+        // Convert Carbon to string
+        $point->time = $this->datetime(
+            $position->date_at instanceof Carbon ? $position->date_at->toDateTimeString() : $position->date_at,
+            $position->timezone->zone
+        );
 
         $trackPointExtension = new TrackPointExtension();
         $trackPointExtension->speed = $position->speed;
