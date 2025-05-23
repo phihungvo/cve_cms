@@ -107,4 +107,21 @@ return [
     'View Details' => 'View Details',
     'Back to List' => 'Back to List',
     'No notifications found' => 'No notifications found.',
+
+    // General notifications
+    'not-found' => 'Notification not found.',
+    'validation-error' => 'Validation error. Please check the input data.',
+    'success' => 'Operation completed successfully.',
+    'error' => 'An error occurred: :message',
+
+    // Push message
+    'push-message' => 'Send notification to all devices',
+    'push-message-success' => 'Notification successfully sent to all devices.',
+    'push-message-failed' => 'Failed to send notification: :message',
+
+    // Push message to specific devices
+    'push-to-device' => 'Send to device',
+    'push-to-device-success' => 'Notification successfully sent to the selected device.',
+    'push-to-device-failed' => 'Failed to send notification to device: :message',
+
 ];
