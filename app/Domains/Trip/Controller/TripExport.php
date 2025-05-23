@@ -15,11 +15,16 @@ class TripExport extends ControllerAbstract
     public function __invoke(): Response|BinaryFileResponse
     {
         $selectedRows = json_decode(request()->input('selected_rows'), true);
+        $exportTypes = request()->input('export_type', []);
 
         if (empty($selectedRows)) {
             return response()->json(['error' => 'Vui lòng chọn ít nhất một hàng để xuất.'], 400);
         }
 
-        return (new TripExportService($this->request, $selectedRows))->export();
+        if (empty($exportTypes)) {
+            return response()->json(['error' => 'Vui lòng chọn ít nhất một kiểu xuất.'], 400);
+        }
+
+        return (new TripExportService($this->request, $selectedRows, $exportTypes))->export();
     }
 }

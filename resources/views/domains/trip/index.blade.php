@@ -1,6 +1,6 @@
-@extends ('layouts.in')
+@extends('layouts.in')
 
-@section ('body')
+@section('body')
 
 <form method="get" id="trip-form">
     <div class="lg:flex lg:space-x-4">
@@ -62,11 +62,62 @@
         </div>
 
         <div class="lg:ml-4 mt-2 lg:mt-0 bg-white">
-            <button type="button" id="export-selected"
-                class="btn form-control-lg whitespace-nowrap">{{ __('trip-index.export') }}</button>
+            <button type="button" class="btn form-control-lg whitespace-nowrap" onclick="openExportModal()">
+                {{ __('trip-index.export') }}
+            </button>
         </div>
     </div>
 </form>
+
+<!-- Modal Export với Inline CSS -->
+<div id="exportModal"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div
+        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 5px; width: 400px; max-width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h5 style="margin: 0; font-size: 18px;">{{ __('trip-index.select-export-type') }}</h5>
+            <button onclick="closeExportModal()"
+                style="background: none; border: none; font-size: 16px; cursor: pointer;">✖</button>
+        </div>
+        <form id="exportForm" action="{{ route('trip.export.selected') }}" method="POST">
+            @csrf
+            <input type="hidden" name="selected_rows" id="selectedRows">
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">{{ __('trip-index.export-type') }}</label>
+                <div>
+                    <div style="margin-bottom: 5px;">
+                        <input type="checkbox" name="export_type[]" value="user" id="exportUser"
+                            style="margin-right: 5px;">
+                        <label for="exportUser">{{ __('trip-index.by-user') }}</label>
+                    </div>
+                    <div style="margin-bottom: 5px;">
+                        <input type="checkbox" name="export_type[]" value="vehicle" id="exportVehicle"
+                            style="margin-right: 5px;">
+                        <label for="exportVehicle">{{ __('trip-index.by-vehicle') }}</label>
+                    </div>
+                    <div style="margin-bottom: 5px;">
+                        <input type="checkbox" name="export_type[]" value="device" id="exportDevice"
+                            style="margin-right: 5px;">
+                        <label for="exportDevice">{{ __('trip-index.by-device') }}</label>
+                    </div>
+                    <div style="margin-bottom: 5px;">
+                        <input type="checkbox" name="export_type[]" value="day" id="exportDay"
+                            style="margin-right: 5px;">
+                        <label for="exportDay">{{ __('trip-index.by-day') }}</label>
+                    </div>
+                    <div style="margin-bottom: 5px;">
+                        <input type="checkbox" name="export_type[]" value="month" id="exportMonth"
+                            style="margin-right: 5px;">
+                        <label for="exportMonth">{{ __('trip-index.by-month') }}</label>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                style="background: #007bff; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">{{ __('trip-index.export') }}</button>
+        </form>
+    </div>
+</div>
 
 <div class="overflow-auto scroll-visible header-sticky">
     <table id="trip-list-table"
@@ -169,39 +220,49 @@
 </div>
 
 <script>
+    // Hàm mở modal
+    function openExportModal() {
+
+        document.getElementById('exportModal').style.display = 'block';
+    }
+
+    // Hàm đóng modal
+    function closeExportModal() {
+
+        document.getElementById('exportModal').style.display = 'none';
+    }
+
+    // Xử lý checkbox "select all"
     document.getElementById('select-all').addEventListener('change', function () {
+
         const checkboxes = document.querySelectorAll('.select-row');
         checkboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
         });
     });
 
-    document.getElementById('export-selected').addEventListener('click', function () {
+    // Xử lý submit form export
+    document.getElementById('exportForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // Ngăn submit mặc định để kiểm tra
+
+
         const selectedRows = Array.from(document.querySelectorAll('.select-row:checked')).map(checkbox => checkbox.value);
+
+
+        const exportTypes = Array.from(document.querySelectorAll('input[name="export_type[]"]:checked')).map(checkbox => checkbox.value);
+
+
         if (selectedRows.length === 0) {
-            alert('Please select at least one row to export.');
+            alert('{{ __('trip-index.select-at-least-one-row') }}');
             return;
         }
 
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{{ route("trip.export.selected") }}';
-        form.style.display = 'none';
+        // Cập nhật input hidden
+        document.getElementById('selectedRows').value = JSON.stringify(selectedRows);
 
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'selected_rows';
-        input.value = JSON.stringify(selectedRows);
-        form.appendChild(input);
 
-        const csrf = document.createElement('input');
-        csrf.type = 'hidden';
-        csrf.name = '_token';
-        csrf.value = '{{ csrf_token() }}';
-        form.appendChild(csrf);
-
-        document.body.appendChild(form);
-        form.submit();
+        // Gửi form
+        this.submit();
     });
 </script>
 
