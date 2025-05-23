@@ -1,6 +1,6 @@
-@extends ('layouts.in')
+@extends ('domains.device.index-layout')
 
-@section ('body')
+@section ('content')
     <form method="post">
         <input type="hidden" name="_action" value="create"/>
 

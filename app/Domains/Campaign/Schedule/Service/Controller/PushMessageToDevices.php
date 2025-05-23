@@ -1,10 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Campaign\Schedule\Service\Controller;
 
 use App\Domains\Campaign\Schedule\Model\Schedule;
 use App\Domains\Device\Model\Device;
 use App\Services\Mqtt\MqttService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Authenticatable;
 
@@ -14,44 +15,40 @@ class PushMessageToDevices
 
     protected ?Authenticatable $auth;
 
+    protected Schedule $row;
+
     protected MqttService $mqttService;
 
-    public function __construct(Request $request, $auth, MqttService $mqttService)
+    public function __construct(Request $request, $auth, Schedule $row, MqttService $mqttService)
     {
         $this->request = $request;
         $this->auth = $auth;
+        $this->row = $row;
         $this->mqttService = $mqttService;
     }
 
-    public static function new(Request $request, $auth, MqttService $mqttService): self
+    public static function new(Request $request, $auth, Schedule $row, MqttService $mqttService): self
     {
-        return new self($request, $auth, $mqttService);
+        return new self($request, $auth, $row, $mqttService);
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function pushMessageToDevices(): string
+    public function pushMessageToDevices(): array
     {
-        // Thực hiện logic gửi tin nhắn ở đây
-        $scheduleId = $this->request->get('schedule_id');
-
-        $schedule = Schedule::findOrFail($scheduleId);
-
-        // Kiểm tra xem schedule có tồn tại hay không
-        if (!$schedule) {
-            throw new \Exception('Schedule not found');
-        }
-
-        $data = $this->data($schedule);
+        $schedule =  $this->row;
 
         $device_ids = $this->request->get('device_ids');
+
+        $data = $this->data($this->row, $device_ids);
 
         // lấy danh sách device với mảng device_ids
         $devices = Device::query()
             ->whereIn('id', $device_ids)
             ->with('displays', function ($query) use ($schedule) {
-                return $query->where('playlist_id', $schedule->playlist_id);
+                return $query->where('playlist_id', $schedule->playlist_id)
+                             ->where('playlist_published', 1);
             })
             ->get();
 
@@ -75,23 +72,41 @@ class PushMessageToDevices
             $this->mqttService->disconnect();
         }
 
-        return json_encode($data, JSON_UNESCAPED_UNICODE);
+        return $data;
     }
 
-    protected function data(Schedule $schedule): array
+    protected function data(Schedule $schedule, array $device_ids): array
     {
-        // chuẩn bị dữ liệu
-        $data = [
-            'playlist' => $schedule->playlist->name,
-            'display_id' => $schedule->devices()->pluck('serial')->toArray(),
+        return [
+           'playlist' => $this->getPlaylistName($schedule),
+            'display_id' => $this->getDisplayIds($schedule, $device_ids ),
             'day' => '7',
-            'startTime' => $schedule->start_time->format('H:i:s'),
-            'endTime' => $schedule->end_time->format('H:i:s'),
-            'startDate' => $schedule->start_time->format('Y-m-d'),
-            'endDate' => $schedule->end_time->format('Y-m-d'),
+            'startTime' => $this->formatData('time', $schedule->start_time),
+            'endTime' => $this->formatData('time', $schedule->end_time),
+            'startDate' => $this->formatData('date', $schedule->start_time),
+            'endDate' => $this->formatData('date', $schedule->end_time),
+        ];
+    }
 
+    protected function getPlaylistName(Schedule $schedule): string
+    {
+        return $schedule->playlist->name;
+    }
+
+    protected function getDisplayIds(Schedule $schedule, array $device_ids): array
+    {
+        return $schedule->devices()
+            ->whereIn('device.id', $device_ids)
+            ->where('playlist_published', 1)->pluck('serial')->toArray();
+    }
+
+    protected function formatData(string $type, $value): string
+    {
+        $strategies = [
+            'time' => fn($time) => $time->format('H:i:s'),
+            'date' => fn($time) => $time->format('Y-m-d'),
         ];
 
-        return $data;
+        return $strategies[$type]($value);
     }
 }

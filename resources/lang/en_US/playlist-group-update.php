@@ -1,0 +1,73 @@
+<?php return [
+    'force-delete-button' => 'force delete',
+    'soft-delete-button' => 'Delete',
+    'restore-button' => 'Restore',
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'success' => 'The playlist group has been saved.',
+    'meta-title' => 'Fpp/Playlist-Group>Update',
+    'delete-title' => 'Delete playlist',
+    'delete-message' => 'The playlist has been deleted.',
+    'delete-success' => 'The playlist has been deleted.',
+    'restore-title' => 'Restore Playlist',
+    'restore-message' => 'Are you sure restore playlist group',
+    'restore-success' => 'The playlist group has been retored',
+    'force-delete-title' => 'Force Delete Playlist Group',
+    'force-delete-message' => 'Are you sure you want to force delete this playlist group? This action cannot be undone.',
+    'force-delete-success' => 'The playlist group has been permanently deleted.',
+
+    'error' => [
+        'unauthorized' => 'You are not authorized to perform this action: :message',
+        'in-use' => 'This playlist group is currently in use and cannot be deleted.',
+        'query' => 'A database query error occurred.',
+        'connection' => 'A database connection error occurred.',
+        'unexpected' => 'An unexpected error occurred: :message',
+        'not-found' => 'The playlist group was not found.',
+        'already-deleted' => 'The playlist group has already been deleted.',
+        'cannot-delete' => 'The playlist group cannot be deleted.',
+    ],
+    'restore' => [
+        'success' => 'The playlist group has been successfully restored.',
+        'error' => [
+            'model-not-found' => 'The playlist group could not be found.',
+            'query-error' => 'A database query error occurred during the restore.',
+            'connection-error' => 'A database connection error occurred during the restore.',
+            'not-authorized' => 'You are not authorized to restore this playlist group.',
+            'validation-failed' => 'Validation failed during the restore process.',
+            'unexpected-error' => 'An unexpected error occurred during the restore.',
+        ],
+    ],
+    'force-delete' => [
+        'success' => 'The playlist group has been successfully force deleted.',
+        'error' => [
+            'model-not-found' => 'The playlist group could not be found.',
+            'query-error' => 'A database query error occurred during the force deletion.',
+            'unexpected-error' => 'An unexpected error occurred during the force deletion.',
+            'in-use' => 'This playlist group is currently in use and cannot be force deleted.',
+        ],
+    ],
+    'delete' => [
+        'success' => 'The playlist group has been successfully deleted.',
+        'error' => [
+            'unauthorized' => 'You are not authorized to delete this playlist group: :message',
+            'in-use' => 'This playlist group is currently in use and cannot be deleted.',
+            'query' => 'A database query error occurred during the deletion.',
+            'connection' => 'A database connection error occurred during the deletion.',
+            'unexpected' => 'An unexpected error occurred during the deletion: :message',
+        ],
+    ],
+    'update' => [
+        'success' => 'The playlist group has been successfully updated.',
+        'error' => [
+            'unauthorized' => 'You are not authorized to update this playlist group: :message',
+            'in-use' => 'This playlist group is currently in use and cannot be updated.',
+            'query' => 'A database query error occurred during the update.',
+            'connection' => 'A database connection error occurred during the update.',
+            'unexpected' => 'An unexpected error occurred during the update: :message',
+            'database-error' => 'A database error occurred: :message',
+            'validation-error' => 'Validation failed: :message',
+            'type-error' => 'A type error occurred: :message',
+        ],
+    ],
+];
+

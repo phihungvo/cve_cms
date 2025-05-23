@@ -29,4 +29,5 @@ return [
     'never' => 'Never',
     'name' => 'Schedule Name',
     'description' => 'Description',
+    'enterprise' => 'Enterprise',
 ];

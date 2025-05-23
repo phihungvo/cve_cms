@@ -1,7 +1,7 @@
 @php use Carbon\Carbon; @endphp
-@extends('layouts.in')
+@extends('domains.campaign.playlist.index-layout')
 
-@section('body')
+@section('content')
 {{--    @dd($list) displays_count --}}
     <form method="get">
         <div class="sm:flex sm:space-x-4">
@@ -11,9 +11,15 @@
             @if(auth()->user()->isRoleRoot())
                 <div class="sm:ml-4 mt-2 sm:mt-0">
                     <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
-                              placeholder="{{__('playlist-index.enterprise')}}" data-change-submit></x-select>
+                              placeholder="{{__('playlist-index.select-enterprise')}}" data-change-submit></x-select>
                 </div>
             @endif
+            <!-- Filter PlaylistGroup -->
+            <div class="sm:ml-4 mt-2 sm:mt-0">
+                <x-select name="playlist_group_id" :options="$playlist_groups" value="id" text="name"
+                          placeholder="{{__('playlist-index.select-playlist-group')}}" data-change-submit></x-select>
+            </div>
+
             <!-- Btn Create -->
             <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
                 <a href="{{ route('fpp.playlist.create') }}" class="btn form-control-lg whitespace-nowrap">{{__('playlist-index.create')}}</a>

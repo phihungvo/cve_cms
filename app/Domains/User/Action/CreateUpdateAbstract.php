@@ -36,10 +36,12 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         $this->dataPassword();
         $this->dataPhone();
         $this->dataApiKey();
+        $this->dataApiKeyFull();
         $this->dataPreferences();
         $this->dataLanguageId();
         $this->dataTimezoneId();
         $this->dataRoleIds();
+        $this->dataGroup();
     }
 
     /**
@@ -69,6 +71,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
             $this->data['password'] = $this->row->password;
         }
     }
+
     protected function dataPhone(): void
     {
         $this->data['phone'] = trim($this->request->input('phone', $this->data['phone'] ?? ''));
@@ -174,7 +177,17 @@ abstract class CreateUpdateAbstract extends ActionAbstract
 
     protected function dataRoleIds(): void
     {
-        $this->data['roles'] = $this->request->get('roles') ?? [];
+        if ($this->auth->enterprise_id == $this->row->enterprise_id) {
+            # co quyen sua
+            if ($this->request->input('roles')) {
+                $this->data['roles'] = $this->request->input('roles');
+            } else {
+                $this->data['roles'] = [];
+            }
+        } else {
+            # khong co quyen sua
+            $this->data['roles'] = null;
+        }
     }
 
     /**
@@ -307,5 +320,19 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         return TimezoneModel::query()
             ->byId($this->data['timezone_id'])
             ->exists();
+    }
+
+    protected function dataApiKeyFull(): void
+    {
+        if (isset($this->data['api_key_full'])) {
+            $this->data['api_key_full'] = $this->data['api_key_full'];
+        } else {
+            $this->data['api_key_full'] = $this->row?->api_key_full;
+        }
+    }
+
+    protected function dataGroup(): void
+    {
+        $this->data['groups'] = $this->request->get('groups') ?? [];
     }
 }

@@ -36,7 +36,7 @@ class ManifestGenerate extends ActionAbstract
             'orientation' => 'any',
             'icons' => [
                 [
-                    'src' => asset('/build/images/webapp/logo.png'),
+                    'src' => asset('/build/images/webapp/logo.jpg'),
                     'type' => 'image/png',
                 ],
             ],

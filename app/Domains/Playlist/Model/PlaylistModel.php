@@ -10,6 +10,7 @@ use App\Domains\Device\Model\Device;
 use App\Domains\Display\Model\Display;
 use App\Domains\Playlist\Model\Builder\PlaylistBuilder;
 use App\Domains\Playlist\Model\Collection\PlaylistCollection;
+use App\Domains\Playlist\PlaylistGroup\Model\PlaylistGroupModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -145,8 +146,8 @@ class PlaylistModel extends ModelAbstract
     /**
      * Một playlists có nhiều Media thông qua `playlist_media`
      *
-     * @return :BelongsToMany
-     **/
+     * @return BelongsToMany
+     */
     public function medias(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -177,7 +178,7 @@ class PlaylistModel extends ModelAbstract
     {
         return $this->hasOne(
             Schedule::class,
-        self::FOREIGN,
+            self::FOREIGN,
             self::PRIMARY
         );
     }
@@ -210,6 +211,16 @@ class PlaylistModel extends ModelAbstract
     public function devices(): belongsToMany
     {
         return $this->belongsToMany(Device::class, Display::TABLE, self::FOREIGN, Device::FOREIGN);
+    }
+
+    public function playlistGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            PlaylistGroupModel::class,
+            'playlist_group_map',
+            self::FOREIGN,
+            PlaylistGroupModel::FOREIGN
+        );
     }
 
     /**

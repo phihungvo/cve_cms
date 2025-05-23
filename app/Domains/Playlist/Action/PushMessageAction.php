@@ -11,7 +11,7 @@ class PushMessageAction extends PushMessageAbstract
      *
      * @override
      */
-    protected function pushMessage(): string|false
+    protected function pushMessage(): array
     {
 
         $data = $this->data();
@@ -32,12 +32,14 @@ class PushMessageAction extends PushMessageAbstract
                 $message = json_encode(array_merge($data, ['display_id' => $device['display_id']]), JSON_UNESCAPED_UNICODE);
                 $this->mqttService->publish($topic, $message, 1, false);
             }
+
+//            return $data;
         } finally {
             // Giữ kết nối 1s trước khi đóng để tránh mất dữ liệu.
             sleep(1);
             $this->mqttService->disconnect();
         }
 
-        return json_encode($data, JSON_UNESCAPED_UNICODE);
+        return $data;
     }
 }

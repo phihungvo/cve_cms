@@ -2,13 +2,23 @@
 
 namespace App\Domains\Position\Job;
 
-class UpdateCity extends JobAbstract
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class UpdateCity extends JobAbstract implements ShouldQueue
 {
-    /**
-     * @return void
-     */
+    use Queueable;
+
+    public $tries = 3;
+    public $timeout = 120;
+
     public function handle(): void
     {
-        $this->factory(row: $this->row())->action()->updateCity();
+        try {
+            $this->factory(row: $this->row())->action()->updateCity();
+        } catch (\Exception $e) {
+            \Log::error('UpdateCityJob failed: ' . $e->getMessage());
+            throw $e;
+        }
     }
 }

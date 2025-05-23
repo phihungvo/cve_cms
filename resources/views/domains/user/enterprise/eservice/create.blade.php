@@ -10,10 +10,22 @@
             @include ('domains.user.enterprise.eservice.molecules.create-update')
 
             <div class="box p-5 mt-5">
-                <div class="text-right">
-                    <button type="submit" class="btn btn-primary">{{ __('eservice-create.create') }}</button>
+                <div class="flex justify-between">
+                    <div>
+                        <button type="button" onclick="window.history.back()" class="btn btn-outline-danger">
+                            {{ __('eservice-create.back') }}
+                        </button>
+
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn btn-primary">
+                            {{ __('eservice-create.create') }}
+                        </button>
+                    </div>
                 </div>
             </div>
+
         </form>
     </div>
 </div>

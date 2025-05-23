@@ -2,6 +2,7 @@
 
 namespace App\Domains\Vehicle\Controller;
 
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use App\Domains\Vehicle\Service\Controller\Update as ControllerService;
@@ -11,11 +12,17 @@ class Update extends ControllerAbstract
     /**
      * @param int $id
      *
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function __invoke(int $id): Response|RedirectResponse
     {
-        $this->row($id);
+        try {
+            $this->row($id);
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('vehicle.index');
+        }
 
         if ($response = $this->actions()) {
             return $response;
@@ -35,7 +42,7 @@ class Update extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse|false|null
+     * @return RedirectResponse|false|null
      */
     protected function actions(): RedirectResponse|false|null
     {
@@ -44,19 +51,25 @@ class Update extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function update(): RedirectResponse
     {
-        $this->action()->update();
+        try {
+            $this->action()->update();
 
-        $this->sessionMessage('success', __('vehicle-update.success'));
+            $this->sessionMessage('success', __('vehicle-update.success'));
 
-        return redirect()->route('vehicle.update', $this->row->id);
+            return redirect()->route('vehicle.update', $this->row->id);
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('vehicle.index');
+        }
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function delete(): RedirectResponse
     {

@@ -25,11 +25,12 @@ class EService extends ModelAbstract
     protected $fillable = [
         'name',
         'alias',
-        'description'
+        'description',
+        'enterprise_id',
+        'pricing_model',
+        'price',
+        'billing_cycle',
+        'max_unit',
+        'note',
     ];
-
-    public function getNameAttribute(): ?string
-    {
-        return $this->role?->name;
-    }
 }

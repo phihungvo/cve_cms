@@ -233,10 +233,10 @@ class Create extends ActionAbstract
             return true;
         }
 
-        return ((string)$this->previous->speed !== (string)$this->data['speed'])
-            || ((string)$this->previous->latitude !== (string)$this->data['latitude'])
-            || ((string)$this->previous->longitude !== (string)$this->data['longitude'])
-            || ((string)$this->previous->direction !== (string)$this->data['direction']);
+        return ((string) $this->previous->speed !== (string) $this->data['speed'])
+            || ((string) $this->previous->latitude !== (string) $this->data['latitude'])
+            || ((string) $this->previous->longitude !== (string) $this->data['longitude'])
+            || ((string) $this->previous->direction !== (string) $this->data['direction']);
     }
 
     /**

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Campaign\Schedule\Service\Controller;
 
@@ -14,31 +14,35 @@ class PushMessage
 
     protected ?Authenticatable $auth;
 
+    protected Schedule $row;
+
     protected MqttService $mqttService;
 
-    public function __construct(Request $request, $auth, MqttService $mqttService)
+    public function __construct(Request $request, $auth, Schedule $row,MqttService $mqttService)
     {
         $this->request = $request;
         $this->auth = $auth;
+        $this->row = $row;
         $this->mqttService = $mqttService;
     }
 
-    public static function new(Request $request, $auth, MqttService $mqttService): self
+    public static function new(Request $request, $auth, Schedule $row, MqttService $mqttService): self
     {
-        return new self($request, $auth, $mqttService);
+        return new self($request, $auth, $row, $mqttService);
     }
 
     /**
      * @throws \Exception
      */
-    public function pushMessage(): string
+    public function pushMessage(): array
     {
-        // Thực hiện logic gửi tin nhắn ở đây
-        $scheduleId = $this->request->input('schedule_id');
+//        // Thực hiện logic gửi tin nhắn ở đây
 
-        $data = $this->data($scheduleId);
+        $data = $this->data();
 
-        $devices = Schedule::find($scheduleId)->devices()->withPivot('id')->get();
+        $devices = Schedule::find($this->row->id)->devices()
+            ->where('playlist_published', 1)
+            ->withPivot('id')->get();
 
         try {
             // kết nối mqtt broker
@@ -55,10 +59,10 @@ class PushMessage
             sleep(1);
             $this->mqttService->disconnect();
         }
-        return json_encode($data, JSON_UNESCAPED_UNICODE);
+        return $data;
     }
 
-    protected function data(int $scheduleId): array
+    protected function data(): array
     {
         // chuẩn bị dữ liệu để gửi theo cấu trúc sau.
 
@@ -73,18 +77,18 @@ class PushMessage
         // }
 
         // Lấy schedule theo id
-        $schedule = Schedule::with(PlaylistModel::TABLE)
-            ->findOrFail($scheduleId);
+//        $schedule = Schedule::with(PlaylistModel::TABLE)
+//            ->findOrFail($scheduleId);
 
         // chuyển bị dữ liệu theo mẫu trên
         $data = [
-            'playlist' => $schedule->playlist->name,
-            'display_id' => $schedule->devices->pluck('serial')->toArray(),
+            'playlist' => $this->row->playlist->name,
+            'display_id' => $this->row->devices()->where('playlist_published', 1)->pluck('serial')->toArray(),
             'day' => '7',
-            'startTime' => $schedule->start_time->format('H:i:s'),
-            'endTime' => $schedule->end_time->format('H:i:s'),
-            'startDate' => $schedule->start_time->format('Y-m-d'),
-            'endDate' => $schedule->end_time->format('Y-m-d'),
+            'startTime' => $this->row->start_time->format('H:i:s'),
+            'endTime' => $this->row->end_time->format('H:i:s'),
+            'startDate' => $this->row->start_time->format('Y-m-d'),
+            'endDate' => $this->row->end_time->format('Y-m-d'),
         ];
 
         return $data;

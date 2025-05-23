@@ -6,6 +6,7 @@ use Throwable;
 use Illuminate\Http\Response;
 use Eusonlito\LaravelMeta\Facade as Meta;
 use App\Domains\Core\Model\ModelAbstract;
+use App\Exceptions\AuthenticationException;
 use App\Services\Html\Alert;
 use App\Services\Request\Response as ResponseService;
 
@@ -65,7 +66,7 @@ abstract class ControllerWebAbstract extends ControllerAbstract
      * @param array $data = []
      * @param ?int $status = null
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     protected function page(string $page, array $data = [], ?int $status = null): Response
     {
@@ -74,7 +75,7 @@ abstract class ControllerWebAbstract extends ControllerAbstract
 
     /**
      * @param array $data = []
-     * @param ?\App\Domains\Core\Model\ModelAbstract $row = null
+     * @param ?ModelAbstract $row = null
      *
      * @return void
      */
@@ -84,7 +85,7 @@ abstract class ControllerWebAbstract extends ControllerAbstract
     }
 
     /**
-     * @param ?\App\Domains\Core\Model\ModelAbstract $row
+     * @param ?ModelAbstract $row
      *
      * @return array
      */
@@ -151,4 +152,29 @@ abstract class ControllerWebAbstract extends ControllerAbstract
     {
         return Alert::{$status}($message);
     }
+
+    /**
+     * Check if user has any of the specified permissions
+     *
+     * @param string ...$permissions One or more permissions to check
+     * @throws AuthenticationException
+     * @return bool
+     */
+    protected function checkRolePermission(string ...$permissions): bool
+    {
+        // Root and owner roles bypass permission checks
+        if (auth()->user()->hasRole('root') || auth()->user()->hasRole('owner')) {
+            return true;
+        }
+
+        // Check if user has any of the specified permissions
+        foreach ($permissions as $permission) {
+            if (auth()->user()->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        throw new AuthenticationException(__('You do not have permission to perform this action.'));
+    }
 }
+

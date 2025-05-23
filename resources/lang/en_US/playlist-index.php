@@ -7,6 +7,7 @@
     'filter' => 'Filter...',
     'create' => 'Create Playlist',
     'meta-title' => 'Fpp>Playlist>Index',
-    'enterprise' => 'Enterprise',
+    'select-enterprise' => '-- select Enterprise --',
     'count-display' => 'Displays',
+    'select-playlist-group' => '-- select Playlist Group --',
 ];

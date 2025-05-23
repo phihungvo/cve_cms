@@ -82,6 +82,14 @@ class Kernel extends KernelVendor
             UserEnabled::class,
             UserManagerMode::class,
         ],
+        'livewire' => [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
     ];
 
     /**
@@ -99,6 +107,7 @@ class Kernel extends KernelVendor
         'user.request' => UserRequest::class,
         'enterprise.access' => CheckEnterpriseAccess::class,
         'feature.access' => FeatureAccess::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         // 'check.permission' => CheckPermission::class,
     ];
 }

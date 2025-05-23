@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Domains\Campaign\Schedule\Action;
 
@@ -60,6 +59,9 @@ class Create extends ActionAbstract
                     $display->schedule_id = $this->row->id;
                     $display->save();
                 }
+
+                // Đồng bộ các Schedule Group
+                $this->row->scheduleGroups()->sync($this->data['schedule_groups']);
 
                 return $this->row;
             });

@@ -35,20 +35,21 @@ class DailyDistanceImpressionReach
         $endDate = $this->request->input('end_date');
         $enterpriseId = $this->auth->enterprise_id ?? null;
 
-        // Log::info('Step 1 - Input Parameters:', [
-        //     'campaign_id' => $campaignId,
-        //     'start_date' => $startDate,
-        //     'end_date' => $endDate,
-        //     'enterprise_id' => $enterpriseId,
-        // ]);
-
         if (!$enterpriseId) {
             Log::error('Step 1 - Error: No enterprise_id found');
             throw new \Exception('Enterprise ID is required from authenticated user.');
         }
 
-        $start = Carbon::parse($startDate);
-        $end = Carbon::parse($endDate);
+        // Parse start and end dates, ensuring end date includes the full day
+        $start = Carbon::parse($startDate)->startOfDay();
+        $end = Carbon::parse($endDate)->endOfDay(); // Changed to include full end date
+
+        // Log::info('Step 1 - Input Parameters:', [
+        //     'campaign_id' => $campaignId,
+        //     'start_date' => $start->toDateTimeString(),
+        //     'end_date' => $end->toDateTimeString(),
+        //     'enterprise_id' => $enterpriseId,
+        // ]);
 
         // Log bước 2: Lấy danh sách media
         $mediaQuery = MediaModel::query()

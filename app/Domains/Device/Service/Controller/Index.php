@@ -2,13 +2,13 @@
 
 namespace App\Domains\Device\Service\Controller;
 
+use App\Domains\DeviceGroup\Model\Collection\DeviceGroupCollection;
+use App\Domains\DeviceGroup\Model\DeviceGroupModel;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use App\Domains\Device\Model\Collection\Device as Collection;
-use App\Domains\Device\Model\Device as Device;
-use App\Domains\Device\Model\DeviceType as DeviceType;
-use App\Domains\Device\Model\DeviceStatus as DeviceStatus;
-use Illuminate\Support\Facades\Log;
+use App\Domains\Device\Model\Device;
+use App\Domains\Device\Model\DeviceType;
 
 class Index extends ControllerAbstract
 {
@@ -63,6 +63,7 @@ class Index extends ControllerAbstract
             'vehicle_empty' => $this->vehicleEmpty(),
             'list' => $this->list(),
             'device_type' => $this->getAllDeviceTypes(),
+            'device_groups' => $this->deviceGroups(),
             'users' => $this->users(),
             'users_multiple' => $this->usersMultiple(),
             'user_empty' => $this->userEmpty,
@@ -100,6 +101,13 @@ class Index extends ControllerAbstract
                 });
             }
 
+            // Filter theo device-group
+            if ($device_group_id = $this->request->input('device_group_id')) {
+                $query->whereHas('deviceGroups', function ($q) use ($device_group_id) {
+                    $q->where('device_group_id', $device_group_id); // Lọc theo ID của device_group
+                });
+            }
+
             // Filter theo enterprise nếu không phải root
             if (!$this->auth->isRoot()) {
                 $query->byEnterpriseId($this->auth->enterprise->id);
@@ -115,6 +123,7 @@ class Index extends ControllerAbstract
                         }
                     }
                 }
+
                 return $item;
             })->values();
 
@@ -128,5 +137,12 @@ class Index extends ControllerAbstract
     protected function getAllDeviceTypes()
     {
         return DeviceType::all();
+    }
+
+    protected function deviceGroups(): DeviceGroupCollection
+    {
+        return DeviceGroupModel::query()
+            ->whereByEnterprise()
+            ->get();
     }
 }

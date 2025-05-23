@@ -1,6 +1,6 @@
-@extends ('layouts.in')
+@extends ('domains.vehicle.index-layout')
 
-@section ('body')
+@section ('content')
 
 <form method="get">
     <div class="sm:flex sm:space-x-4">
@@ -9,9 +9,39 @@
         </div>
 
         @if ($users_multiple)
+        @if(auth()->user()->enterprise_id == null)
+            <div class="flex-grow mt-2 lg:mt-0">
+                <x-select name="enterprise_id"
+                          :options="$enterprises"
+                          value="id" text="name"
+                          class="cursor-pointer"
+                          placeholder="{{ __('vehicle-index.select-enterprise') }}"
+                          data-change-submit>
+
+                </x-select>
+            </div>
+        @endif
 
         <div class="flex-grow mt-2 lg:mt-0">
-            <x-select name="user_id" :options="$users" value="id" text="name" placeholder="{{ __('vehicle-index.user') }}" data-change-submit></x-select>
+            <x-select name="vehicle_group_id"
+                      :options="$bookmarkGroups"
+                      class="cursor-pointer"
+                      value="id" text="name"
+                      placeholder="{{ __('vehicle-index.select-group') }}"
+                      data-change-submit>
+
+            </x-select>
+        </div>
+
+        <div class="flex-grow mt-2 lg:mt-0">
+            <x-select
+                name="user_id" class="cursor-pointer"
+                :options="$users"
+                value="id" text="name"
+                placeholder="{{ __('vehicle-index.select-user') }}"
+                data-change-submit>
+
+            </x-select>
         </div>
 
         @endif

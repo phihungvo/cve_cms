@@ -33,6 +33,11 @@ class Update extends ValidateAbstract
 
             'language_id' => ['bail', 'nullable', 'integer'],
             'timezone_id' => ['bail', 'nullable', 'integer'],
+
+            'roles' => ['bail', 'array'],
+            'role.*' => ['bail', 'integer', 'exists:role,id'],
+            'groups' => ['bail', 'array'],
+            'group.*' => ['bail', 'integer', 'exists:user_group,id'],
         ];
     }
 }
