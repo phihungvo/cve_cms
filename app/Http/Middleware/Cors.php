@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class Cors
 {
@@ -20,15 +21,20 @@ class Cors
     {
         $response = $next($request);
 
-        // Check if the response is a StreamedResponse
+        // Xử lý StreamedResponse
         if ($response instanceof StreamedResponse) {
-            // For streamed responses, we can't directly set headers after the response is created.
-            // Instead, you can set headers before streaming or handle differently.
-            // Alternatively, wrap it in a standard Response if needed, or skip header modification.
             return $response;
         }
 
-        // For standard responses, add CORS headers
+        // Xử lý BinaryFileResponse
+        if ($response instanceof BinaryFileResponse) {
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+            return $response;
+        }
+
+        // Thêm tiêu đề CORS cho các phản hồi khác
         return $response
             ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')

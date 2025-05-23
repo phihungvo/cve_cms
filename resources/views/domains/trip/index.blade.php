@@ -2,34 +2,40 @@
 
 @section ('body')
 
-<form method="get">
+<form method="get" id="trip-form">
     <div class="lg:flex lg:space-x-4">
         <div class="flex-grow mt-2 lg:mt-0">
-            <input type="search" class="form-control form-control-lg" placeholder="{{ __('trip-index.filter') }}" data-table-search="#trip-list-table" />
+            <input type="search" class="form-control form-control-lg" placeholder="{{ __('trip-index.filter') }}"
+                data-table-search="#trip-list-table" />
         </div>
 
         @if ($users_multiple)
-
-        <div class="flex-grow mt-2 lg:mt-0">
-            <x-select name="user_id" :options="$users" value="id" text="name" placeholder="{{ __('trip-index.user') }}" data-change-submit></x-select>
-        </div>
-
+            <div class="flex-grow mt-2 lg:mt-0">
+                <x-select name="user_id" :options="$users" value="id" text="name" placeholder="{{ __('trip-index.user') }}"
+                    data-change-submit></x-select>
+            </div>
         @endif
 
         <div class="flex-grow mt-2 lg:mt-0">
-            <x-select name="vehicle_id" :options="$vehicles" value="id" text="name" placeholder="{{ __('trip-index.vehicle') }}" data-change-submit></x-select>
+            <x-select name="vehicle_id" :options="$vehicles" value="id" text="name"
+                placeholder="{{ __('trip-index.vehicle') }}" data-change-submit></x-select>
         </div>
 
         <div class="flex-grow mt-2 lg:mt-0">
-            <x-select name="device_id" :options="$devices" value="id" text="name" placeholder="{{ __('trip-index.device') }}" data-change-submit></x-select>
+            <x-select name="device_id" :options="$devices" value="id" text="name"
+                placeholder="{{ __('trip-index.device') }}" data-change-submit></x-select>
         </div>
 
         <div class="flex-grow mt-2 lg:mt-0">
-            <input type="search" name="start_at" value="{{ $REQUEST->input('start_at') }}" class="form-control form-control-lg" placeholder="{{ __('trip-index.start-at') }}" data-datepicker data-datepicker-min-date="{{ $date_min }}" data-change-submit />
+            <input type="search" name="start_at" value="{{ $REQUEST->input('start_at') }}"
+                class="form-control form-control-lg" placeholder="{{ __('trip-index.start-at') }}" data-datepicker
+                data-datepicker-min-date="{{ $date_min }}" data-change-submit />
         </div>
 
         <div class="flex-grow mt-2 lg:mt-0">
-            <input type="search" name="end_at" value="{{ $REQUEST->input('end_at') }}" class="form-control form-control-lg" placeholder="{{ __('trip-index.end-at') }}" data-datepicker data-datepicker-min-date="{{ $date_min }}" data-change-submit />
+            <input type="search" name="end_at" value="{{ $REQUEST->input('end_at') }}"
+                class="form-control form-control-lg" placeholder="{{ __('trip-index.end-at') }}" data-datepicker
+                data-datepicker-min-date="{{ $date_min }}" data-change-submit />
         </div>
 
         <div class="flex-grow mt-2 lg:mt-0">
@@ -41,33 +47,46 @@
         </div>
 
         <div class="lg:ml-4 mt-2 lg:mt-0 bg-white">
-            <a href="{{ route('trip.heatmap') }}" class="btn form-control-lg whitespace-nowrap">{{ __('trip-index.heatmap') }}</a>
+            <a href="{{ route('trip.heatmap') }}"
+                class="btn form-control-lg whitespace-nowrap">{{ __('trip-index.heatmap') }}</a>
         </div>
 
         <div class="lg:ml-4 mt-2 lg:mt-0 bg-white">
-            <a href="{{ route('trip.search') }}" class="btn form-control-lg whitespace-nowrap">{{ __('trip-index.search') }}</a>
+            <a href="{{ route('trip.search') }}"
+                class="btn form-control-lg whitespace-nowrap">{{ __('trip-index.search') }}</a>
         </div>
 
         <div class="lg:ml-4 mt-2 lg:mt-0 bg-white">
-            <a href="{{ route('trip.import') }}" class="btn form-control-lg whitespace-nowrap">{{ __('trip-index.import') }}</a>
+            <a href="{{ route('trip.import') }}"
+                class="btn form-control-lg whitespace-nowrap">{{ __('trip-index.import') }}</a>
+        </div>
+
+        <div class="lg:ml-4 mt-2 lg:mt-0 bg-white">
+            <button type="button" id="export-selected"
+                class="btn form-control-lg whitespace-nowrap">{{ __('trip-index.export') }}</button>
         </div>
     </div>
 </form>
 
 <div class="overflow-auto scroll-visible header-sticky">
-    <table id="trip-list-table" class="table table-report sm:mt-2 font-medium font-semibold text-center whitespace-nowrap" data-table-sort data-table-pagination data-table-pagination-limit="10">
+    <table id="trip-list-table"
+        class="table table-report sm:mt-2 font-medium font-semibold text-center whitespace-nowrap" data-table-sort
+        data-table-pagination data-table-pagination-limit="10">
         <thead>
             <tr>
+                <th>
+                    <input type="checkbox" id="select-all" />
+                </th>
                 @if ($user_empty)
-                <th>{{ __('trip-index.user') }}</th>
+                    <th>{{ __('trip-index.user') }}</th>
                 @endif
 
                 @if ($vehicle_empty)
-                <th>{{ __('trip-index.vehicle') }}</th>
+                    <th>{{ __('trip-index.vehicle') }}</th>
                 @endif
 
                 @if ($device_empty)
-                <th>{{ __('trip-index.device') }}</th>
+                    <th>{{ __('trip-index.device') }}</th>
                 @endif
 
                 <th class="text-left">{{ __('trip-index.name') }}</th>
@@ -83,31 +102,41 @@
 
         <tbody>
             @foreach ($list as $row)
-
             @php ($link = route('trip.update.map', $row->id))
-
             <tr>
+                <td>
+                    <input type="checkbox" name="selected_rows[]" value="{{ $row->id }}" class="select-row" />
+                </td>
                 @if ($user_empty)
-                <td><a href="{{ $link }}" class="block">{{ $row->user->name }}</a></td>
+                    <td><a href="{{ $link }}" class="block">{{ $row->user->name }}</a></td>
                 @endif
 
                 @if ($vehicle_empty)
-                <td><a href="{{ $link }}" class="block">{{ $row->vehicle->name }}</a></td>
+                    <td><a href="{{ $link }}" class="block">{{ $row->vehicle->name }}</a></td>
                 @endif
 
                 @if ($device_empty)
-                <td><a href="{{ $link }}" class="block">{{ $row->device->name }}</a></td>
+                    <td><a href="{{ $link }}" class="block">{{ $row->device->name }}</a></td>
                 @endif
 
-                <td class="text-left"><a href="{{ $link }}" class="d-t-m-o max-w-md" title="{{ $row->name }}">{{ $row->name }}</a></td>
+                <td class="text-left"><a href="{{ $link }}" class="d-t-m-o max-w-md"
+                        title="{{ $row->name }}">{{ $row->name }}</a></td>
 
-                <td class="w-1" data-table-sort-value="{{ $row->start_at }}"><a href="{{ $link }}" class="block">@dateLocal($row->start_at)</a></td>
-                <td class="w-1" data-table-sort-value="{{ $row->end_at }}"><a href="{{ $link }}" class="block">@dateLocal($row->end_at)</a></td>
+                <td class="w-1" data-table-sort-value="{{ $row->start_at }}"><a href="{{ $link }}"
+                        class="block">@dateLocal($row->start_at)</a></td>
+                <td class="w-1" data-table-sort-value="{{ $row->end_at }}"><a href="{{ $link }}"
+                        class="block">@dateLocal($row->end_at)</a></td>
 
-                <td data-table-sort-value="{{ $row->distance }}"><a href="{{ $link }}" class="block">@unitHuman('distance', $row->distance)</a></td>
-                <td data-table-sort-value="{{ $row->time }}"><a href="{{ $link }}" class="block">@timeHuman($row->time)</a></td>
-                <td data-table-sort-value="{{ (int)$row->shared }}" class="w-1"><a href="{{ route('trip.update.boolean', [$row->id, 'shared']) }}" class="block" data-update-boolean="shared">@status($row->shared)</a></td>
-                <td data-table-sort-value="{{ (int)$row->shared_public }}" class="w-1"><a href="{{ route('trip.update.boolean', [$row->id, 'shared_public']) }}" class="block" data-update-boolean="shared_public">@status($row->shared_public)</a></td>
+                <td data-table-sort-value="{{ $row->distance }}"><a href="{{ $link }}"
+                        class="block">@unitHuman('distance', $row->distance)</a></td>
+                <td data-table-sort-value="{{ $row->time }}"><a href="{{ $link }}"
+                        class="block">@timeHuman($row->time)</a></td>
+                <td data-table-sort-value="{{ (int) $row->shared }}" class="w-1"><a
+                        href="{{ route('trip.update.boolean', [$row->id, 'shared']) }}" class="block"
+                        data-update-boolean="shared">@status($row->shared)</a></td>
+                <td data-table-sort-value="{{ (int) $row->shared_public }}" class="w-1"><a
+                        href="{{ route('trip.update.boolean', [$row->id, 'shared_public']) }}" class="block"
+                        data-update-boolean="shared_public">@status($row->shared_public)</a></td>
 
                 <td class="w-1">
                     <a href="{{ route('trip.update', $row->id) }}">@icon('edit', 'w-4 h-4')</a>
@@ -125,13 +154,12 @@
                     <a href="{{ route('trip.update.export', $row->id) }}">@icon('package', 'w-4 h-4')</a>
                 </td>
             </tr>
-
             @endforeach
         </tbody>
 
         <tfoot class="bg-white">
             <tr>
-                <th colspan="{{ 3 + intval($user_empty) + intval($vehicle_empty) + intval($device_empty) }}"></th>
+                <th colspan="{{ 4 + intval($user_empty) + intval($vehicle_empty) + intval($device_empty) }}"></th>
                 <th>@unitHuman('distance', $list->sum('distance'))</th>
                 <th>@timeHuman($list->sum('time'))</th>
                 <th colspan="3"></th>
@@ -139,5 +167,42 @@
         </tfoot>
     </table>
 </div>
+
+<script>
+    document.getElementById('select-all').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('.select-row');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    document.getElementById('export-selected').addEventListener('click', function () {
+        const selectedRows = Array.from(document.querySelectorAll('.select-row:checked')).map(checkbox => checkbox.value);
+        if (selectedRows.length === 0) {
+            alert('Please select at least one row to export.');
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("trip.export.selected") }}';
+        form.style.display = 'none';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'selected_rows';
+        input.value = JSON.stringify(selectedRows);
+        form.appendChild(input);
+
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = '_token';
+        csrf.value = '{{ csrf_token() }}';
+        form.appendChild(csrf);
+
+        document.body.appendChild(form);
+        form.submit();
+    });
+</script>
 
 @stop
