@@ -27,6 +27,8 @@ class DeviceCvedixrtInstance extends ModelAbstract
         'solution_id',
         'group_id',
         'description',
+        'lines',
+        'zones',
     ];
 
     protected $casts = [

@@ -318,7 +318,7 @@
                     : null,
                 showCloseButton: true,
                 confirmButtonText: '{{__("playlist-update.aler.confirm-button")}}',
-                width: '60%',
+                width: '80%',
             });
         }
 

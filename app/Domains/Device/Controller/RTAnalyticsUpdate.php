@@ -68,7 +68,7 @@ class RTAnalyticsUpdate extends ControllerAbstract
     protected function delete(): RedirectResponse
     {
         try {
-            $this->action()->deleteInstance();
+            $this->action()->deleteInstance($this->deviceCvedixrtInstance);
             $this->sessionMessage('success', __('Delete Instance Success'));
 
             return redirect()->route('device.runtime-analytics', $this->row->id);

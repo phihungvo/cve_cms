@@ -2,7 +2,12 @@
 
 @section('content')
     <div class="intro-y box p-5 mt-5">
-        <h2 class="text-lg font-medium mb-5">{{ __('rt-analytics-create.update-instance') }}</h2>
+        <div class="flex  justify-between items-center px-5">
+            <h2 class="text-lg font-medium mb-5">{{ __('rt-analytics-create.update-instance') }}</h2>
+            <a
+                href="{{ route('device.runtime-analytics.analytcs-rules',['id' => $row->id,'instanceId' => $instance->id]) }}"
+                class="inline-block text-primary p-2 font-bold">analytics rule</a>
+        </div>
 
         <!-- Display Success or Error Messages -->
         @if (session('success'))

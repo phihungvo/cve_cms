@@ -43,6 +43,8 @@ Route::group(['middleware' => ['user-auth']], static function () {
         ->name('device.runtime-analytics.update');
     Route::any('/device/{id}/runtime-analytics/input-source', RTAnalyticsInputSource::class)
         ->name('device.runtime-analytics.input-source');
+    Route::any('/device/{id}/runtime-analytics/analytics-rules', RTAnalyticsRules::class)
+        ->name('device.runtime-analytics.analytcs-rules');
 });
 
 Route::group(['middleware' => ['user-auth-manager-mode']], static function () {

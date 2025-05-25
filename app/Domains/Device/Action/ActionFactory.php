@@ -88,19 +88,30 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(DeleteCamera::class);
     }
 
-    public function createInstance(): void
+    public function createInstance(): DeviceCvedixrtInstance
     {
-        $this->actionHandle(CreateInstance::class, $this->validate()->createInstance());
+        return $this->actionHandle(CreateInstance::class, $this->validate()->createInstance());
     }
 
-    public function updateInstance(DeviceCvedixrtInstance $instance):void
+    public function updateInstance(DeviceCvedixrtInstance $instance): void
     {
         $this->instance = $instance;
         $this->actionHandle(UpdateInstance::class, $this->validate()->updateInstance(), $instance);
     }
 
-    public function deleteInstance(): void
+    public function updateLines(DeviceCvedixrtInstance $instance): DeviceCvedixrtInstance
     {
-        $this->actionHandle(DeleteInstance::class);
+        $this->instance = $instance;
+
+        return $this->actionHandle(
+            UpdateLines::class,
+            $this->validate()->updateLines(),
+            $instance
+        );
+    }
+
+    public function deleteInstance(DeviceCvedixrtInstance $instance): void
+    {
+        $this->actionHandle(DeleteInstance::class, [], $instance);
     }
 }
