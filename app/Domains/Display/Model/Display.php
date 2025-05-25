@@ -43,6 +43,7 @@ class Display extends ModelAbstract
     protected $casts = [
         'playlist_published' => 'integer',
         'schedule_published' => 'integer',
+        'notification_published' => 'integer',
     ];
 
     public function device(): BelongsTo

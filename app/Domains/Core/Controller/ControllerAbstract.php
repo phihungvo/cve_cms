@@ -107,7 +107,6 @@ abstract class ControllerAbstract extends Controller
     protected function actionException(Throwable $e): mixed
     {
         report($e);
-
         return false;
     }
 

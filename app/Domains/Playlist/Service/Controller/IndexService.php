@@ -3,7 +3,7 @@
 namespace App\Domains\Playlist\Service\Controller;
 
 use App\Domains\Playlist\Model\PlaylistModel as Model;
-use App\Domains\PlaylistGroup\Model\PlaylistGroupModel;
+use App\Domains\Playlist\PlaylistGroup\Model\PlaylistGroupModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;

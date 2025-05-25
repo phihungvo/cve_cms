@@ -34,4 +34,12 @@
     'time' => 'Duration',
     'user' => 'User',
     'vehicle' => 'Bookmark',
+    'export' => 'Export',
+    'select-export-type' => 'Select Export Type',
+    'export-type' => 'Export Type',
+    'by-user' => 'Group by User',
+    'by-vehicle' => 'Group by Vehicle',
+    'by-device' => 'Group by Device',
+    'by-day' => 'Group by Day',
+    'by-month' => 'Group by Month',
 ];
