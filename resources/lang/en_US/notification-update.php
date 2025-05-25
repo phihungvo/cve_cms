@@ -22,4 +22,12 @@ return [
     'unauthorized' => 'You do not have permission to update this notification.',
     'unauthorized-system' => 'Only root users can update system notifications.',
     'owner-enterprise-mismatch' => 'You can only update notifications for your enterprise.',
+
+    'error' => 'Failed to update notification',
+    'validation-error' => 'Validation failed',
+    'devices' => 'Devices',
+    'no-devices' => 'No devices found',
+    'push-message' => 'Push Message',
+    'push-to-device' => 'Push to Device',
+    'not-found' => 'Notification not found',
 ];

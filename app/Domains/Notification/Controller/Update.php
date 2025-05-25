@@ -1,51 +1,84 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Domains\Notification\Controller;
 
+use App\Domains\Device\Model\Device;
+use App\Domains\Notification\Action\Update as UpdateAction;
 use App\Domains\Notification\Model\Notification;
-use App\Domains\Notification\Service\Controller\Update as UpdateService;
-use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
+use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
 
 class Update extends ControllerAbstract
 {
-    public function __invoke(Request $request, int $id): Response|RedirectResponse
+    public function __invoke(Request $request, $id)
     {
-        $notification = Notification::findOrFail($id);
+        // Tìm notification theo ID
+        $notification = Notification::find($id);
 
-        $this->meta('title', __('notification-update.meta-title'));
-
-        // Xử lý cả GET và PATCH
-        if ($request->isMethod('patch')) {
-            return $this->update($request, $notification);
+        // Kiểm tra nếu notification không tồn tại
+        if (!$notification) {
+            return redirect()->route('notification.index')->with('error', __('notification-update.not-found'));
         }
 
-        $service = UpdateService::new($request, $this->auth, $notification);
+        if ($request->isMethod('GET')) {
+            return $this->showForm($notification);
+        }
 
-        return $this->page('notification.update', $service->data());
+        return $this->updateNotification($request, $notification);
     }
 
-    protected function update(Request $request, Notification $notification): RedirectResponse
+    protected function showForm(Notification $notification)
     {
-        $service = UpdateService::new($request, $this->auth, $notification);
+        $isRoot = Auth::user()->isRoot();
+        $roles = $this->getRoles($notification->enterprise_id);
+        $devices = $this->getDevices($notification);
 
+        return view('domains.notification.update', [
+            'notification' => $notification,
+            'is_root' => $isRoot,
+            'roles' => $roles,
+            'devices' => $devices,
+        ]);
+    }
+
+    protected function updateNotification(Request $request, Notification $notification)
+    {
         try {
-            $service->update();
-            $this->sessionMessage('success', __('notification-update.success'));
+            $action = app(UpdateAction::class);
+            $action->handle($notification, $request->all(), Auth::user());
 
-            return redirect()->route('notification.update', $notification->id);
-        } catch (ValidationException $e) {
-            Log::error('Validation failed: ', $e->errors());
-            return redirect()->back()->withInput()->withErrors($e->errors());
+            return redirect()->route('notification.index')->with('success', __('notification-update.success'));
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput()->with('error', __('notification-update.validation-error'));
         } catch (\Exception $e) {
-            $this->sessionMessage('error', $e->getMessage());
-            return redirect()->back()->withInput();
+            return back()->with('error', __('notification-update.error') . ': ' . $e->getMessage())->withInput();
         }
+    }
+
+    protected function getRoles(?int $enterpriseId): array
+    {
+        // Thay bằng logic thực tế để lấy roles
+        return ['User', 'Manager', 'Admin'];
+    }
+
+    protected function getDevices(Notification $notification)
+    {
+        $query = Device::query();
+
+        if ($notification->enterprise_id) {
+            $query->whereHas('displays', function ($q) use ($notification) {
+                $q->where('enterprise_id', $notification->enterprise_id);
+            });
+        }
+
+        if ($notification->userNotifications->isNotEmpty()) {
+            $userIds = $notification->userNotifications->pluck('user_id')->toArray();
+            $query->orWhereHas('displays', function ($q) use ($userIds) {
+                $q->whereIn('user_id', $userIds);
+            });
+        }
+
+        return $query->get();
     }
 }
