@@ -101,4 +101,9 @@ class Display extends ModelAbstract
     {
         return new DisplayBuilder($query);
     }
+
+    public function notification(): BelongsTo
+    {
+        return $this->belongsTo(\App\Domains\Notification\Model\Notification::class, 'notification_id');
+    }
 }

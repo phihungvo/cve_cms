@@ -115,7 +115,7 @@
 
                 // Xử lý sự kiện gửi thông báo
                 document.getElementById('push-notification').addEventListener('click', function () {
-                    fetch("{{ route('notification.push-notification') }}", {
+                    fetch("{{ route('notification.push-message') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -147,12 +147,15 @@
 
                 // Xử lý sự kiện gửi lại thông báo
                 document.getElementById('resend-notification').addEventListener('click', function () {
-                    fetch("{{ route('notification.resend', $notification['id']) }}", {
+                    fetch("{{ route('notification.push-message-to-devices') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
+                        },
+                        body: JSON.stringify({
+                            notification_id: {{ $notification['id'] }},
+                        })
                     })
                         .then(response => {
                             if (!response.ok) {
@@ -162,7 +165,7 @@
                         })
                         .then(data => {
                             if (data.status === 'success') {
-                                alert('Notification resent to ' + data.data.resent_devices.length + ' devices');
+                                alert('Notification resent to ' + data.data.sent_devices.length + ' devices');
                                 location.reload();
                             } else {
                                 throw new Error(data.message || 'Failed to resend notification');
