@@ -1,7 +1,23 @@
-
 function showUiDraw() {
     let cameraStream = null;
     let canvasInstance = null;
+
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            const r = (crypto.getRandomValues(new Uint8Array(1))[0] % 16) | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+    function rgbToHex(rgb) {
+        return `#${rgb.map(x => Math.round(x).toString(16).padStart(2, '0')).join('')}`;
+    }
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
+    }
 
     const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
@@ -16,12 +32,12 @@ function showUiDraw() {
         html: `
 <div class="custom-canvas-container flex flex-col justify-center items-center">
     <div class="flex w-full" style="height: 450px;">
-        <div style="position: relative; width: 75%; height: 100%;">
-            <video id="videoStream" width="100%" height="100%" autoplay muted playsinline
+        <div style="position: relative; width: 640px; height: 480px;">
+            <video id="videoStream" autoplay muted playsinline
                 style="position: absolute; top: 0; left: 0; z-index: 1;">
                 Your browser does not support the video tag.
             </video>
-            <canvas id="drawingCanvas" width="600" height="450"
+            <canvas id="drawingCanvas" width="640" height="480"
                 style="position: absolute; top: 0; left: 0; z-index: 2; border: 1px solid #000; background: transparent;">
             </canvas>
         </div>
@@ -55,177 +71,119 @@ function showUiDraw() {
             const canvasEl = document.getElementById('drawingCanvas');
             canvasInstance = new fabric.Canvas(canvasEl);
 
+            console.log('Canvas Logical Size (HTML):', {width: canvasEl.width, height: canvasEl.height});
+            console.log('Canvas Display Size (CSS):', {width: canvasEl.offsetWidth, height: canvasEl.offsetHeight});
+
             let mode = 'draw';
             let isDrawing = false;
 
-            // Hàm xử lý và nạp dữ liệu vào canvas
             function loadCanvasData() {
                 let processedCanvasData = null;
-                const canvasOffsetX = canvasInstance.width / 2; // Offset dựa trên kích thước canvas hiện tại
-                const canvasOffsetY = canvasInstance.height / 2;
+                const canvasWidth = canvasInstance.width; // 640
+                const canvasHeight = canvasInstance.height; // 480
+
+                console.log('Canvas size when loading:', {width: canvasWidth, height: canvasHeight});
 
                 if (initialCanvasData && Array.isArray(initialCanvasData)) {
                     const normalizedObjects = initialCanvasData.map(obj => {
                         if (obj.type === 'line') {
+                            if (obj.x1 === undefined || obj.y1 === undefined ||
+                                obj.x2 === undefined || obj.y2 === undefined) {
+                                console.error('Invalid coordinates format:', obj);
+                                return null;
+                            }
+
+                            const stroke = obj.stroke || rgbToHex(obj.color || [0, 0, 0]);
                             return {
                                 type: 'line',
-                                x1: obj.x1 + canvasOffsetX,
-                                y1: obj.y1 + canvasOffsetY,
-                                x2: obj.x2 + canvasOffsetX,
-                                y2: obj.y2 + canvasOffsetY,
-                                stroke: obj.stroke || '#000000',
+                                x1: obj.x1,
+                                y1: obj.y1,
+                                x2: obj.x2,
+                                y2: obj.y2,
+                                stroke: stroke,
                                 strokeWidth: obj.strokeWidth || 4,
-                                groupId: obj.groupId || Date.now() + Math.random()
-                            };
-                        } else if (obj.type === 'text') {
-                            return {
-                                type: 'text',
-                                text: obj.text,
-                                left: obj.left + (obj.originX === 'center' ? 0 : canvasOffsetX),
-                                top: obj.top + canvasOffsetY,
-                                fill: obj.fill || '#000000',
-                                fontSize: obj.fontSize || 12,
-                                originX: obj.originX || 'center',
-                                originY: obj.originY || 'center',
-                                groupId: obj.groupId || Date.now() + Math.random()
+                                groupId: obj.groupId || generateUUID(),
+                                label: obj.label || 'Unnamed',
+                                classes: obj.classes || [],
+                                direction: obj.direction || 'Unknown'
                             };
                         }
                         return obj;
-                    });
-
-                    // Gán groupId cho cặp line và text dựa trên vị trí gần nhau
-                    for (let i = 0; i < normalizedObjects.length - 1; i++) {
-                        if (normalizedObjects[i].type === 'line' && normalizedObjects[i + 1].type === 'text') {
-                            const lineMidX = (normalizedObjects[i].x1 + normalizedObjects[i].x2) / 2;
-                            const lineMidY = (normalizedObjects[i].y1 + normalizedObjects[i].y2) / 2;
-                            const textX = normalizedObjects[i + 1].left;
-                            const textY = normalizedObjects[i + 1].top;
-                            if (Math.abs(lineMidX - textX) < 50 && Math.abs(lineMidY - textY) < 50) {
-                                const groupId = Date.now() + Math.random();
-                                normalizedObjects[i].groupId = groupId;
-                                normalizedObjects[i + 1].groupId = groupId;
-                            }
-                        }
-                    }
+                    }).filter(obj => obj !== null);
 
                     processedCanvasData = {
-                        version: '5.3.0',
+                        version: '5.1.0',
                         objects: normalizedObjects
                     };
                 } else {
                     processedCanvasData = {
-                        version: '5.3.0',
+                        version: '5.1.0',
                         objects: []
                     };
                 }
 
-                // Nạp dữ liệu vào canvas
                 if (processedCanvasData.objects.length > 0) {
                     try {
-                        console.log('Processed Canvas Data:', JSON.stringify(processedCanvasData, null, 2));
+                        console.log('Processed Canvas Data before load:', JSON.stringify(processedCanvasData, null, 2));
                         canvasInstance.loadFromJSON(processedCanvasData, () => {
                             const lines = {};
                             canvasInstance.forEachObject(obj => {
-                                console.log('Object loaded:', obj);
-                                if (obj.type !== 'textbox') {
-                                    obj.selectable = false;
-                                }
+                                console.log('Object loaded - Position:', {
+                                    x1: obj.x1,
+                                    y1: obj.y1,
+                                    x2: obj.x2,
+                                    y2: obj.y2
+                                });
+                                obj.selectable = false;
                                 if (obj.groupId) {
-                                    if (obj.type === 'line') {
-                                        lines[obj.groupId] = {line: obj, text: null};
-                                    } else if (obj.type === 'text') {
-                                        if (lines[obj.groupId]) {
-                                            lines[obj.groupId].text = obj;
-                                        } else {
-                                            lines[obj.groupId] = {line: null, text: obj};
-                                        }
-                                    }
+                                    // Thêm nhãn cho line đã load
+                                    const labelText = new fabric.Text(obj.label || 'Unnamed', {
+                                        left: (obj.x1 + obj.x1) / 2,
+                                        top: (obj.y1 + obj.y2) / 2,
+                                        fontSize: 14,
+                                        fill: '#000000',
+                                        selectable: false,
+                                        groupId: obj.groupId
+                                    });
+                                    canvasInstance.add(labelText);
                                 }
                             });
 
                             console.log('Grouped lines:', lines);
 
                             Object.values(lines).forEach(group => {
-                                if (group.line && group.text) {
-                                    group.line._associatedText = group.text;
-                                    addLineInfo(group.line, group.text.text);
-                                } else if (group.line) {
-                                    const midX = (group.line.x1 + group.line.x2) / 2;
-                                    const midY = (group.line.y1 + group.line.y2) / 2;
-                                    const textBox = new fabric.Textbox('Enter Name', {
-                                        left: midX - 50,
-                                        top: midY - 20,
-                                        width: 100,
-                                        fontSize: 12,
-                                        backgroundColor: '#fff',
-                                        borderColor: '#000',
-                                        fill: '#000',
-                                        editable: true,
-                                        selectable: true,
-                                        groupId: group.line.groupId
-                                    });
-                                    canvasInstance.add(textBox);
-                                    group.line._associatedText = textBox;
-                                    canvasInstance.setActiveObject(textBox);
-                                    textBox.enterEditing();
-                                    textBox.selectAll();
-
-                                    textBox.on('editing:exited', () => {
-                                        const lineName = textBox.text.trim();
-                                        if (lineName && lineName !== 'Enter Name') {
-                                            const text = new fabric.Text(lineName, {
-                                                left: midX,
-                                                top: midY - 20,
-                                                fontSize: 12,
-                                                fill: group.line.stroke,
-                                                selectable: false,
-                                                originX: 'center',
-                                                originY: 'center',
-                                                groupId: group.line.groupId
-                                            });
-                                            canvasInstance.add(text);
-                                            group.line._associatedText = text;
-                                            addLineInfo(group.line, lineName);
-                                        }
-                                        canvasInstance.remove(textBox);
-                                        canvasInstance.renderAll();
-                                    });
+                                if (group.line) {
+                                    addLineInfo(group.line, group.line.label);
                                 }
                             });
 
                             canvasInstance.renderAll();
                         }, (error) => {
                             console.error('Error loading canvas data:', error);
+                            console.error('Invalid JSON data:', processedCanvasData);
                         });
                     } catch (error) {
                         console.error('Exception during loadFromJSON:', error);
+                        console.error('Invalid JSON data:', processedCanvasData);
                     }
                 }
             }
 
-            // Truy cập camera và đồng bộ kích thước canvas
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({
                     video: true,
-                    audio: false
+                    audio: false,
+                    video: {width: 640, height: 480}
                 })
                     .then(stream => {
                         cameraStream = stream;
                         video.srcObject = stream;
                         video.play().catch(err => console.error('Video play error:', err));
 
-                        // Đồng bộ kích thước canvas với video khi video được tải
                         video.addEventListener('loadedmetadata', () => {
                             console.log('Video loadedmetadata - Width:', video.videoWidth, 'Height:', video.videoHeight);
-                            // Cập nhật kích thước canvas bằng Fabric.js
-                            canvasInstance.setDimensions({
-                                width: video.videoWidth || 600, // Giá trị mặc định nếu video không có kích thước
-                                height: video.videoHeight || 450
-                            }, {backstoreOnly: true}); // Chỉ cập nhật backend, tránh vẽ lại ngay
-
-                            // Vẽ lại các object sau khi kích thước được đồng bộ
                             loadCanvasData();
-                            canvasInstance.renderAll(); // Đảm bảo vẽ lại canvas
+                            canvasInstance.renderAll();
                         });
                     })
                     .catch(err => {
@@ -245,7 +203,7 @@ function showUiDraw() {
                 });
             }
 
-            function addLineInfo(line, name = 'Unnamed') {
+            function addLineInfo(line, label = 'Unnamed') {
                 const lineInfoList = document.getElementById('lineInfoList');
                 const length = Math.sqrt(
                     Math.pow(line.x2 - line.x1, 2) + Math.pow(line.y2 - line.y1, 2)
@@ -261,15 +219,46 @@ function showUiDraw() {
                 lineInfo.innerHTML = `
                         <div>
                             <label>Name</label>
-                            <input value="${name}"/>
+                            <input value="${label}" data-line-id="${line.id}" class="line-label-input"/>
                         </div>
                         <div>
                             <strong>Color:</strong>
-                            <input type="color" value="${line.stroke || '#000000'}">
+                            <input type="color" value="${line.stroke || '#000000'}" data-line-id="${line.id}" class="line-color-input">
                         </div>
                         <div><strong>Length:</strong> ${length}px</div>
                     `;
                 lineInfoList.appendChild(lineInfo);
+
+                const labelInput = lineInfo.querySelector('.line-label-input');
+                labelInput.addEventListener('change', (e) => {
+                    const newLabel = e.target.value.trim();
+                    if (newLabel) {
+                        line.label = newLabel;
+                        updateLineInfo(line);
+                    }
+                });
+
+                const colorInput = lineInfo.querySelector('.line-color-input');
+                colorInput.addEventListener('input', (e) => {
+                    line.set({stroke: e.target.value});
+                    canvasInstance.renderAll();
+                    updateLineInfo(line);
+                });
+            }
+
+            function updateLineInfo(line) {
+                const lineInfo = document.getElementById('lineInfoList')
+                    .querySelector(`li[data-line-id="${line.id}"]`);
+                if (lineInfo) {
+                    const labelInput = lineInfo.querySelector('.line-label-input');
+                    const colorInput = lineInfo.querySelector('.line-color-input');
+                    const length = Math.sqrt(
+                        Math.pow(line.x2 - line.x1, 2) + Math.pow(line.y2 - line.y1, 2)
+                    ).toFixed(2);
+                    labelInput.value = line.label || 'Unnamed';
+                    colorInput.value = line.stroke || '#000000';
+                    lineInfo.querySelector('div:last-child').textContent = `Length: ${length}px`;
+                }
             }
 
             function removeLineInfo(line) {
@@ -306,15 +295,21 @@ function showUiDraw() {
                 if (mode !== 'draw') return;
                 isDrawing = true;
                 const pointer = canvasInstance.getPointer(options.e);
-                const groupId = Date.now() + Math.random();
+                console.log('Mouse Down - Pointer:', {x: pointer.x, y: pointer.y});
+                const groupId = generateUUID();
                 const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
                     stroke: document.getElementById('colorPicker').value,
                     strokeWidth: 4,
                     selectable: true,
-                    groupId: groupId
+                    groupId: groupId,
+                    label: `Line ${canvasInstance.getObjects('line').length + 1}`,
+                    classes: [],
+                    direction: 'Unknown'
                 });
+                console.log('Line Created - Initial:', {x1: line.x1, y1: line.y1, x2: line.x2, y2: line.y2});
                 canvasInstance.add(line);
                 canvasInstance._currentLine = line;
+                addLineInfo(line, line.label);
             });
 
             canvasInstance.on('mouse:up', (options) => {
@@ -326,58 +321,29 @@ function showUiDraw() {
 
                 if (!line) return;
 
+                console.log('Mouse Up - Final Line:', {x1: line.x1, y1: line.y1, x2: line.x2, y2: line.y2});
+
                 const isLineTooShort = line.x1 === line.x2 && line.y1 === line.y2;
                 if (isLineTooShort) {
+                    console.log('Line too short, removing:', line);
                     canvasInstance.remove(line);
+                    removeLineInfo(line);
+                    // Xoá nhãn nếu có.
+                    const labelObject = canvasInstance.getObjects().filter(obj => obj.type === 'text' && obj.groupId === line.groupId);
+                    labelObject.forEach(label => canvasInstance.remove(label));
                     return;
                 }
 
-                const existingLines = canvasInstance.getObjects('line').length;
-                const defaultLineName = `Line ${existingLines}`;
-
-                const midX = (line.x1 + line.x2) / 2;
-                const midY = (line.y1 + line.y2) / 2;
-                const textBoxWidth = 100;
-                const offsetY = -20;
-
-                const textBox = new fabric.Textbox(defaultLineName, {
-                    left: midX - textBoxWidth / 2,
-                    top: midY + offsetY,
-                    width: textBoxWidth,
-                    fontSize: 12,
-                    backgroundColor: '#fff',
-                    borderColor: '#000',
-                    fill: '#000',
-                    editable: true,
-                    selectable: true,
+                const labelText = new fabric.Text(line.label, {
+                    left: (line.x1 + line.x2) / 2,
+                    top: (line.y1 + line.y2) / 2,
+                    fontSize: 14,
+                    fill: '#000000',
+                    selectable: false,
                     groupId: line.groupId
                 });
-                canvasInstance.add(textBox);
-                canvasInstance.setActiveObject(textBox);
-                textBox.enterEditing();
-                textBox.selectAll();
-
-                textBox.on('editing:exited', () => {
-                    const lineName = textBox.text.trim();
-                    if (lineName && lineName !== 'Enter Name') {
-                        line.set({name: lineName});
-                        const text = new fabric.Text(lineName, {
-                            left: midX,
-                            top: midY + offsetY,
-                            fontSize: 12,
-                            fill: line.stroke,
-                            selectable: false,
-                            originX: 'center',
-                            originY: 'center',
-                            groupId: line.groupId
-                        });
-                        canvasInstance.add(text);
-                        line._associatedText = text;
-                        addLineInfo(line, lineName);
-                    }
-                    canvasInstance.remove(textBox);
-                    canvasInstance.renderAll();
-                });
+                canvasInstance.add(labelText);
+                canvasInstance.renderAll();
             });
 
             canvasInstance.on('mouse:move', (options) => {
@@ -386,6 +352,8 @@ function showUiDraw() {
                 const line = canvasInstance._currentLine;
                 if (line) {
                     line.set({x2: pointer.x, y2: pointer.y});
+                    console.log('Mouse Move - Updating Line:', {x1: line.x1, y1: line.y1, x2: line.x2, y2: line.y2});
+                    updateLineInfo(line);
                     canvasInstance.renderAll();
                 }
             });
@@ -395,15 +363,7 @@ function showUiDraw() {
                     if (mode !== 'select') return;
                     const active = canvasInstance.getActiveObject();
                     if (active) {
-                        if (active.type === 'line') {
-                            removeLineInfo(active);
-                            const associatedText = canvasInstance.getObjects().find(obj =>
-                                obj.type === 'text' && obj.groupId === active.groupId
-                            );
-                            if (associatedText) {
-                                canvasInstance.remove(associatedText);
-                            }
-                        }
+                        removeLineInfo(active);
                         canvasInstance.remove(active);
                         canvasInstance.discardActiveObject();
                         canvasInstance.renderAll();
@@ -417,31 +377,7 @@ function showUiDraw() {
                 if (activeObject && activeObject.set) {
                     activeObject.set({stroke: e.target.value});
                     if (activeObject.type === 'line') {
-                        const associatedText = canvasInstance.getObjects().find(obj =>
-                            obj.type === 'text' && obj.groupId === activeObject.groupId
-                        );
-                        if (associatedText) {
-                            associatedText.set({fill: e.target.value});
-                            const lineInfo = document.getElementById('lineInfoList')
-                                .querySelector(`li[data-line-id="${activeObject.id}"]`);
-                            if (lineInfo) {
-                                const name = associatedText.text || 'Unnamed';
-                                lineInfo.innerHTML = `
-                                        <div>
-                                            <label>Name</label>
-                                            <input value="${name}"/>
-                                        </div>
-                                        <div>
-                                            <strong>Color:</strong>
-                                            <input type="color" value="${activeObject.stroke}">
-                                        </div>
-                                        <div><strong>Length:</strong> ${Math.sqrt(
-                                    Math.pow(activeObject.x2 - activeObject.x1, 2) +
-                                    Math.pow(activeObject.y2 - activeObject.y1, 2)
-                                ).toFixed(2)}px</div>
-                                    `;
-                            }
-                        }
+                        updateLineInfo(activeObject);
                     }
                     canvasInstance.renderAll();
                 }
@@ -455,44 +391,31 @@ function showUiDraw() {
                 return false;
             }
 
-            const canvasData = canvasInstance.toJSON();
-            console.log('Canvas Data before sending:', JSON.stringify(canvasData, null, 2));
-
-            if (!canvasData.objects || canvasData.objects.length === 0) {
+            const lines = canvasInstance.getObjects('line');
+            if (!lines || lines.length === 0) {
                 Swal.showValidationMessage('Chưa vẽ gì cả! Vui lòng vẽ ít nhất một đối tượng trước khi gửi.');
                 return false;
             }
 
-            // Chuẩn hóa dữ liệu trước khi gửi
             const normalizedData = {
-                objects: canvasData.objects.map(obj => {
-                    if (obj.type === 'line') {
-                        return {
-                            type: 'line',
-                            x1: obj.x1,
-                            y1: obj.y1,
-                            x2: obj.x2,
-                            y2: obj.y2,
-                            stroke: obj.stroke,
-                            strokeWidth: obj.strokeWidth,
-                            groupId: obj.groupId
-                        };
-                    } else if (obj.type === 'text') {
-                        return {
-                            type: 'text',
-                            text: obj.text,
-                            left: obj.left,
-                            top: obj.top,
-                            fill: obj.fill,
-                            fontSize: obj.fontSize,
-                            originX: obj.originX,
-                            originY: obj.originY,
-                            groupId: obj.groupId
-                        };
-                    }
-                    return obj;
+                objects: lines.map(line => {
+                    return {
+                        type: 'line',
+                        x1: line.x1,
+                        y1: line.y1,
+                        x2: line.x2,
+                        y2: line.y2,
+                        stroke: line.stroke,
+                        strokeWidth: line.strokeWidth,
+                        groupId: line.groupId || generateUUID(),
+                        label: line.label || 'Unnamed',
+                        classes: line.classes || [],
+                        direction: line.direction || 'Unknown'
+                    };
                 })
             };
+
+            console.log('Normalized Data before sending:', JSON.stringify(normalizedData, null, 2));
 
             const confirmSubmit = await Swal.fire({
                 title: 'Xác nhận gửi dữ liệu',
