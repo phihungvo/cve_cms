@@ -43,20 +43,16 @@ class CvedixrtInstanceModel extends ModelAbstract
         'solution_id',
         'group_id',
         'description',
+        'zones',
+        'lines',
     ];
 
     protected $casts = [
+        'lines' => 'array',
+        'zones' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'zones' => 'array',
-            'lines' => 'array',
-        ];
-    }
 
     /**
      * Create a custom collection instance.

@@ -72,7 +72,7 @@ class CreateController extends ControllerAbstract
 
             $this->sessionMessage('success', __('cvedixrt-instance-create.success'));
 
-            return redirect()->route('cvedixrt_instance.index');
+            return redirect()->route('cvedixrt_instance.analytics', ['id' => $this->row->id]);
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 

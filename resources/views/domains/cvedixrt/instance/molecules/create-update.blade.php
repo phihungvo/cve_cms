@@ -1,5 +1,13 @@
 {{--Start phan chung UI Create/Update--}}
 <div class="grid grid-cols-1 sm:grid-cols-1 lg:gap-4 sm:gap-0">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">{{ __('Update instance') }}</h2>
+        <a href="{{ route('cvedixrt_instance.analytics', ['id' => $row->id]) }}"
+           class="text-blue-800 font-bold hover:underline">
+            {{ __('Analytic Rule') }}
+        </a>
+    </div>
+
     <!-- UUID -->
     <div class="mt-2">
         <span class="text-red-500">*</span>

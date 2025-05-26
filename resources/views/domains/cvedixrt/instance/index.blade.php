@@ -110,19 +110,27 @@
                         <td class="text-left">
                             <a href="{{$link}}" class="block">
                                 @if(isset($instance->zones) && is_array($instance->zones))
-                                    {{ implode(', ', $instance->zones) }}
+                                    <div style="max-width: 300px; white-space: nowrap; overflow: hidden;
+                                                text-overflow: ellipsis; background-color: #f8f8f8; padding: 5px;
+                                                border: 1px solid #ccc; border-radius: 4px;">
+                                        {{ json_encode($instance->zones, JSON_UNESCAPED_UNICODE) }}
+                                    </div>
                                 @else
-                                    -
+                                    <div>—</div>
                                 @endif
+
                             </a>
                         </td>
                         <!-- Lines -->
                         <td class="text-left">
                             <a href="{{$link}}" class="block">
                                 @if(isset($instance->lines) && is_array($instance->lines))
-                                    {{ implode(', ', $instance->lines) }}
+                                    <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                                                background-color: #f8f8f8; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+                                        {{ json_encode($instance->lines, JSON_UNESCAPED_UNICODE) }}
+                                    </div>
                                 @else
-                                    -
+                                    <div>—</div>
                                 @endif
                             </a>
                         </td>

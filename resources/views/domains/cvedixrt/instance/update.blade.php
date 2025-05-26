@@ -1,8 +1,10 @@
 @extends('layouts.in')
 
 @section('body')
+
     <form method="POST">
         <input type="hidden" name="_action" value="update"/>
+
     <div class="box p-5">
         @include('domains.cvedixrt.instance.molecules.create-update')
 
@@ -61,7 +63,6 @@
             >{{old('description', isset($row) ?$row->description : '')}}
                             </textarea>
         </div>
-
         <div class="box p-5 mt-5">
             <div class="flex justify-end items-center">
                 @if($isDeleted)
@@ -96,6 +97,8 @@
     ])
 @endsection
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('/js/drawing-tool.js') }}" type="module"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const inputSourceSelect = document.getElementById('input-source-select');
