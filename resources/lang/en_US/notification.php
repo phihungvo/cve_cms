@@ -124,4 +124,8 @@ return [
     'push-to-device-success' => 'Notification successfully sent to the selected device.',
     'push-to-device-failed' => 'Failed to send notification to device: :message',
 
+    'fetch' => [
+        'no-auth' => 'Bạn cần đăng nhập để xem thông báo.',
+        'failed' => 'Không thể lấy danh sách thông báo.',
+    ],
 ];
