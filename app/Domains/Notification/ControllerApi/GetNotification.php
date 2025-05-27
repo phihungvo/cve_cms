@@ -44,9 +44,9 @@ class GetNotification extends Controller
     {
         $validator = Validator::make($this->request->all(), [
             'user_id' => 'required|numeric|exists:user,id',
-            'read_status' => 'nullable|string|in:read,unread,all', // Lọc theo trạng thái đọc
-            'limit' => 'nullable|integer|min:1|max:100', // Giới hạn số lượng thông báo
-            'offset' => 'nullable|integer|min:0', // Phân trang
+            'read_status' => 'nullable|string|in:read,unread,all',
+            'limit' => 'nullable|integer|min:1|max:100',
+            'offset' => 'nullable|integer|min:0',
         ]);
 
         if ($validator->fails()) {
