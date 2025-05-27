@@ -102,7 +102,7 @@ function showUiDraw() {
                                 y2: obj.y2,
                                 stroke: stroke,
                                 strokeWidth: obj.strokeWidth || 4,
-                                groupId: obj.groupId || generateUUID(),
+                                id: obj.id || generateUUID(),
                                 label: obj.label || 'Unnamed',
                                 classes: obj.classes || [],
                                 direction: obj.direction || 'Unknown'
@@ -135,17 +135,32 @@ function showUiDraw() {
                                     y2: obj.y2
                                 });
                                 obj.selectable = false;
-                                if (obj.groupId) {
+                                if (obj.id) {
                                     // Thêm nhãn cho line đã load
+                                    const dx = obj.x2 - obj.x1;
+                                    const dy = obj.y2 - obj.y1;
+                                    const angle = Math.atan2(dy, dx)*180/Math.PI;
+
+                                    let left, top;
+                                    if (Math.abs(angle) < 45 || Math.abs(angle) > 135) { // Đường ngang
+                                        left = (obj.x1 + obj.x2) / 2;
+                                        top = Math.min(obj.y1, obj.y2) - 20;
+                                    } else { // Đường dọc hoặc chéo
+                                        left = Math.max(obj.x1, obj.x2) + 10;
+                                        top = (obj.y1 + obj.y2) / 2;
+                                    }
+
                                     const labelText = new fabric.Text(obj.label || 'Unnamed', {
-                                        left: (obj.x1 + obj.x1) / 2,
-                                        top: (obj.y1 + obj.y2) / 2,
+                                        left: left,
+                                        top: top,
                                         fontSize: 14,
                                         fill: '#000000',
                                         selectable: false,
-                                        groupId: obj.groupId
+                                        id: obj.id
                                     });
                                     canvasInstance.add(labelText);
+                                    // Thêm thông tin vào panel
+                                    addLineInfo(obj, obj.label);
                                 }
                             });
 
@@ -171,7 +186,7 @@ function showUiDraw() {
 
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({
-                    video: true,
+                    // video: true,
                     audio: false,
                     video: {width: 640, height: 480}
                 })
@@ -203,6 +218,40 @@ function showUiDraw() {
                 });
             }
 
+            function updateLabelOnCanvas (id, newLabel, line) {
+                if(!id || !newLabel) {
+                    console.warn('Invalid id or newLabel:', { id, newLabel });
+                    return;
+                }
+                 const labelObjects = canvasInstance.getObjects().filter(obj => obj.type === 'text' && obj.id === id);
+                if(labelObjects && labelObjects.length > 0 && labelObjects[0]) {
+                    const dx = line.x2 - line.x1;
+                    const dy = line.y2 - line.y1;
+                    const length = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI; // Góc của đường (độ)
+
+                    let left, top;
+                    if (Math.abs(angle) < 45 || Math.abs(angle) > 135) { // Đường ngang
+                        left = (line.x1 + line.x2) / 2;
+                        top = Math.min(line.y1, line.y2) - 20; // Phía trên 20px
+                    } else { // Đường dọc hoặc chéo
+                        left = Math.max(line.x1, line.x2) + 10; // Bên phải 10px
+                        top = (line.y1 + line.y2) / 2; // Trung điểm y
+                    }
+
+                    labelObjects[0].set({
+                        text: newLabel,
+                        left: left,
+                        top: top,
+                        fontSize: 14,
+                        fill: '#000000'
+                    });
+                    canvasInstance.renderAll();
+                }else{
+                    console.warn('No label object found for id:', id);
+                }
+            }
+
             function addLineInfo(line, label = 'Unnamed') {
                 const lineInfoList = document.getElementById('lineInfoList');
                 const length = Math.sqrt(
@@ -225,7 +274,8 @@ function showUiDraw() {
                             <strong>Color:</strong>
                             <input type="color" value="${line.stroke || '#000000'}" data-line-id="${line.id}" class="line-color-input">
                         </div>
-                        <div><strong>Length:</strong> ${length}px</div>
+                        <div class="length-info"><strong>Length:</strong> ${length}px</div>
+                        <button class="delete-line-btn btn btn-danger mt-2" data-line-id="${line.id}">Delete</button>
                     `;
                 lineInfoList.appendChild(lineInfo);
 
@@ -235,6 +285,7 @@ function showUiDraw() {
                     if (newLabel) {
                         line.label = newLabel;
                         updateLineInfo(line);
+                        updateLabelOnCanvas(line.id, newLabel, line); // Cập nhật nhãn trên canvas
                     }
                 });
 
@@ -244,6 +295,17 @@ function showUiDraw() {
                     canvasInstance.renderAll();
                     updateLineInfo(line);
                 });
+
+                const deleteBtn = lineInfo.querySelector('.delete-line-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    // Xoá line và label trên canvas
+                    canvasInstance.remove(line);
+                    const labelObjects = canvasInstance.getObjects().filter(obj => obj.type === 'text' && obj.id === line.id);
+                    labelObjects.forEach(label => canvasInstance.remove(label));
+                    // Xoá thông tin khởi panel
+                    removeLineInfo(line);
+                    canvasInstance.renderAll();
+                });
             }
 
             function updateLineInfo(line) {
@@ -252,12 +314,17 @@ function showUiDraw() {
                 if (lineInfo) {
                     const labelInput = lineInfo.querySelector('.line-label-input');
                     const colorInput = lineInfo.querySelector('.line-color-input');
+                    const lengthDiv = lineInfo.querySelector('.line-info');
                     const length = Math.sqrt(
                         Math.pow(line.x2 - line.x1, 2) + Math.pow(line.y2 - line.y1, 2)
                     ).toFixed(2);
                     labelInput.value = line.label || 'Unnamed';
                     colorInput.value = line.stroke || '#000000';
-                    lineInfo.querySelector('div:last-child').textContent = `Length: ${length}px`;
+                    if (lengthDiv) {
+                        lengthDiv.textContent = `Length: ${length}px`; // Cập nhật nội dung của length-info
+                    } else {
+                        console.error('Length div not found for line:', line.id);
+                    }
                 }
             }
 
@@ -296,12 +363,12 @@ function showUiDraw() {
                 isDrawing = true;
                 const pointer = canvasInstance.getPointer(options.e);
                 console.log('Mouse Down - Pointer:', {x: pointer.x, y: pointer.y});
-                const groupId = generateUUID();
+                const id = generateUUID();
                 const line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
                     stroke: document.getElementById('colorPicker').value,
                     strokeWidth: 4,
                     selectable: true,
-                    groupId: groupId,
+                    id: id,
                     label: `Line ${canvasInstance.getObjects('line').length + 1}`,
                     classes: [],
                     direction: 'Unknown'
@@ -329,18 +396,32 @@ function showUiDraw() {
                     canvasInstance.remove(line);
                     removeLineInfo(line);
                     // Xoá nhãn nếu có.
-                    const labelObject = canvasInstance.getObjects().filter(obj => obj.type === 'text' && obj.groupId === line.groupId);
+                    const labelObject = canvasInstance.getObjects().filter(obj => obj.type === 'text' && obj.id === line.id);
                     labelObject.forEach(label => canvasInstance.remove(label));
                     return;
                 }
 
+                const dx = line.x2 - line.x1;
+                const dy = line.y2 - line.y1;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+                let left, top;
+                if (Math.abs(angle) < 45 || Math.abs(angle) > 135) { // Đường ngang
+                    left = (line.x1 + line.x2) / 2;
+                    top = Math.min(line.y1, line.y2) - 20;
+                } else { // Đường dọc hoặc chéo
+                    left = Math.max(line.x1, line.x2) + 10;
+                    top = (line.y1 + line.y2) / 2;
+                }
+
                 const labelText = new fabric.Text(line.label, {
-                    left: (line.x1 + line.x2) / 2,
-                    top: (line.y1 + line.y2) / 2,
+                    left: left,
+                    top: top,
                     fontSize: 14,
                     fill: '#000000',
                     selectable: false,
-                    groupId: line.groupId
+                    id: line.id
                 });
                 canvasInstance.add(labelText);
                 canvasInstance.renderAll();
@@ -407,7 +488,7 @@ function showUiDraw() {
                         y2: line.y2,
                         stroke: line.stroke,
                         strokeWidth: line.strokeWidth,
-                        groupId: line.groupId || generateUUID(),
+                        id: line.id || generateUUID(),
                         label: line.label || 'Unnamed',
                         classes: line.classes || [],
                         direction: line.direction || 'Unknown'
