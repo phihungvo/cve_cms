@@ -1,3 +1,9 @@
+@php
+    if (!isset($notification) || !$notification) {
+        return redirect()->route('notification.index')->with('error', __('notification-show.not-found'));
+    }
+@endphp
+
 @extends('layouts.in')
 
 @section('title', __('notification-show.title'))
@@ -100,7 +106,6 @@
                             const { total_sent, total_read } = data.data;
                             document.getElementById('device-stats').innerText = `${total_read}/${total_sent} devices read`;
 
-                            // Kích hoạt nút gửi lại nếu có thiết bị chưa đọc
                             if (total_read < total_sent) {
                                 document.getElementById('resend-notification').disabled = false;
                             }
@@ -113,7 +118,7 @@
                         document.getElementById('device-stats').innerText = 'Failed to load stats: ' + error.message;
                     });
 
-                // Xử lý sự kiện gửi thông báo
+                // Xử lý gửi thông báo
                 document.getElementById('push-notification').addEventListener('click', function () {
                     fetch("{{ route('notification.push-message') }}", {
                         method: 'POST',
@@ -145,7 +150,7 @@
                         });
                 });
 
-                // Xử lý sự kiện gửi lại thông báo
+                // Xử lý gửi lại thông báo
                 document.getElementById('resend-notification').addEventListener('click', function () {
                     fetch("{{ route('notification.push-message-to-devices') }}", {
                         method: 'POST',
@@ -155,6 +160,7 @@
                         },
                         body: JSON.stringify({
                             notification_id: {{ $notification['id'] }},
+                            device_ids: [], // Gửi lại cho tất cả thiết bị chưa đọc
                         })
                     })
                         .then(response => {
