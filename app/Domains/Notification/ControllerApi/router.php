@@ -10,4 +10,5 @@ use Illuminate\Http\Request;
 
 Route::group(['middleware' => ['user-auth']], static function () {
     Route::get('/notification/get', GetNotification::class)->name('notification.get');
+    Route::get('/notifications/read', NotificationMarkAsRead::class)->name('notification.mark-as-read');
 });
