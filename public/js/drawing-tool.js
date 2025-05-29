@@ -1,6 +1,6 @@
 /**
  * Drawing Tool Module
- * Handles canvas drawing functionality for analytics rules 2
+ * Handles canvas drawing functionality for analytics rules
  */
 let DrawingTool = (function () {
     let canvas, ctx, videoElement;
@@ -26,6 +26,7 @@ let DrawingTool = (function () {
     let direction = 'both';
     const defaultWidth = 3;
     let shapeIdCounter = 0;
+    let tempShapes = [];
 
     const generateShapeId = () => {
         return `shape_${instanceUuid}_${shapeIdCounter++}`;
@@ -51,7 +52,6 @@ let DrawingTool = (function () {
         return availableColors[Math.floor(Math.random() * availableColors.length)];
     };
 
-    // Convert RGB array to hex for canvas rendering
     const rgbToHex = (rgb) => {
         if (!Array.isArray(rgb) || rgb.length !== 3 || rgb.some(x => typeof x !== 'number')) {
             console.error('Invalid RGB input:', rgb);
@@ -63,7 +63,6 @@ let DrawingTool = (function () {
         }).join('');
     };
 
-    // Check if point is near a shape (for selection)
     const isPointNearShape = (x, y, shape, tolerance = 15) => {
         if (shape.type === 'line') {
             const dx = shape.endX - shape.startX;
@@ -156,7 +155,6 @@ let DrawingTool = (function () {
         return { isHandle: false, inside: false };
     };
 
-    // Find shape at given coordinates
     const findShapeAtPoint = (x, y) => {
         for (let i = shapes.length - 1; i >= 0; i--) {
             const pointInfo = isPointNearShape(x, y, shapes[i]);
@@ -167,7 +165,6 @@ let DrawingTool = (function () {
         return null;
     };
 
-    // Initialize DOM elements
     const initElements = function () {
         canvas = document.getElementById('canvasOverlay');
         ctx = canvas.getContext('2d');
@@ -180,7 +177,6 @@ let DrawingTool = (function () {
         return true;
     };
 
-    // Update available drawing modes based on rule type
     const updateDrawingModes = () => {
         const lineBtn = document.getElementById('lineBtn');
         const rectBtn = document.getElementById('rectBtn');
@@ -199,17 +195,13 @@ let DrawingTool = (function () {
             rectBtn.style.display = 'inline-block';
             polyBtn.style.display = 'inline-block';
             closePolyBtn.style.display = currentMode === 'poly' ? 'inline-block' : 'none';
-            if (currentMode === 'line') {
-                setActiveMode('rect');
-            }
+            setActiveMode(currentMode === 'line' ? 'rect' : currentMode);
         }
         editBtn.style.display = 'inline-block';
-        shapes = [...lines, ...zones];
         redrawAll();
         updateShapesList();
     };
 
-    // Initialize event listeners
     const initEventListeners = function () {
         const lineBtn = document.getElementById('lineBtn');
         const rectBtn = document.getElementById('rectBtn');
@@ -228,7 +220,6 @@ let DrawingTool = (function () {
             return;
         }
 
-        // Drawing tool buttons
         if (lineBtn) {
             lineBtn.addEventListener('click', () => {
                 setActiveMode('line');
@@ -268,15 +259,11 @@ let DrawingTool = (function () {
             });
         }
 
-        // Undo, redo, clear
         undoBtn.addEventListener('click', () => {
             if (shapes.length > 0) {
                 redoShapes.push(shapes.pop());
-                if (currentRuleType === 'Line Crossing') {
-                    lines = [...shapes];
-                } else {
-                    zones = [...shapes];
-                }
+                lines = shapes.filter(s => s.type === 'line');
+                zones = shapes.filter(s => s.type !== 'line');
                 redrawAll();
                 updateShapesList();
             }
@@ -284,30 +271,25 @@ let DrawingTool = (function () {
         redoBtn.addEventListener('click', () => {
             if (redoShapes.length > 0) {
                 shapes.push(redoShapes.pop());
-                if (currentRuleType === 'Line Crossing') {
-                    lines = [...shapes];
-                } else {
-                    zones = [...shapes];
-                }
+                lines = shapes.filter(s => s.type === 'line');
+                zones = shapes.filter(s => s.type !== 'line');
                 redrawAll();
                 updateShapesList();
             }
         });
         clearBtn.addEventListener('click', () => {
             shapes = [];
+            lines = [];
+            zones = [];
             redoShapes = [];
             points = [];
-            if (currentRuleType === 'Line Crossing') {
-                lines = [];
-            } else {
-                zones = [];
-            }
+            tempShapes = [];
+            window.tempShapesToSave = null;
             redrawAll();
             updateShapesList();
             updateClosePolyButton();
         });
 
-        // Color, label, and direction inputs
         colorPicker.addEventListener('change', () => {
             const hex = colorPicker.value;
             currentColor = [
@@ -338,18 +320,15 @@ let DrawingTool = (function () {
             }
         });
 
-        // Canvas drawing events
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', endDrawing);
         canvas.addEventListener('dblclick', finishPolygon);
 
-        // Touch events for mobile
         canvas.addEventListener('touchstart', handleTouchStart);
         canvas.addEventListener('touchmove', handleTouchMove);
         canvas.addEventListener('touchend', handleTouchEnd);
 
-        // Video and canvas resizing
         videoElement.addEventListener('loadeddata', resizeCanvas);
         window.addEventListener('resize', resizeCanvas);
         videoElement.onloadedmetadata = () => {
@@ -358,7 +337,6 @@ let DrawingTool = (function () {
         };
     };
 
-    // Touch event handlers
     const handleTouchStart = (e) => {
         e.preventDefault();
         if (e.touches.length === 1) {
@@ -386,7 +364,6 @@ let DrawingTool = (function () {
         canvas.dispatchEvent(new MouseEvent('mouseup', {}));
     };
 
-    // Set active drawing mode
     const setActiveMode = function (mode) {
         if (currentRuleType === 'Line Crossing' && mode !== 'line' && mode !== 'edit') {
             return;
@@ -420,7 +397,6 @@ let DrawingTool = (function () {
         canvas.style.cursor = editMode ? 'default' : 'crosshair';
     };
 
-    // Update close polygon button state
     const updateClosePolyButton = () => {
         const closePolyBtn = document.getElementById('closePolyBtn');
         if (closePolyBtn) {
@@ -428,7 +404,6 @@ let DrawingTool = (function () {
         }
     };
 
-    // Resize canvas to match video
     const resizeCanvas = () => {
         const wrapper = document.getElementById('videoWrapper');
         canvas.width = wrapper.offsetWidth;
@@ -440,7 +415,6 @@ let DrawingTool = (function () {
         redrawAll();
     };
 
-    // Start drawing
     const startDrawing = (e) => {
         const rect = canvas.getBoundingClientRect();
         startX = e.clientX - rect.left;
@@ -509,11 +483,10 @@ let DrawingTool = (function () {
         }
     };
 
-    // Draw while moving
     const draw = (e) => {
         if (!isDrawing) return;
 
-        const rect = canvas.getBoundingRect();
+        const rect = canvas.getBoundingClientRect();
         currentX = e.clientX - rect.left;
         currentY = e.clientY - rect.top;
 
@@ -842,6 +815,7 @@ let DrawingTool = (function () {
                 lines = lines.filter(s => s.id !== shape.id);
                 zones = zones.filter(s => s.id !== shape.id);
                 shapes = shapes.filter(s => s.id !== shape.id);
+                tempShapes = tempShapes.filter(s => s.id !== shape.id);
                 if (selectedShape && selectedShape.id === shape.id) {
                     selectedShape = null;
                 }
@@ -865,7 +839,6 @@ let DrawingTool = (function () {
         }
     };
 
-    // Redraw all shapes
     const redrawAll = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -995,6 +968,10 @@ let DrawingTool = (function () {
     };
 
     const saveShapesToServer = (instanceId) => {
+        shapes = [...lines, ...zones].filter((shape, index, self) =>
+            index === self.findIndex(s => s.id === shape.id)
+        );
+
         const drawingObjects = shapes.map(shape => {
             const baseShape = {
                 type: shape.type,
@@ -1038,44 +1015,18 @@ let DrawingTool = (function () {
             instance_id: instanceId
         };
 
-        console.log('shapesToSave:', shapesToSave);
+        console.log('Shapes to save:', shapesToSave);
 
-        fetch(`/cvedixrt/instances/${instanceId}/shapes`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify(shapesToSave)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công',
-                        text: 'Đã lưu dữ liệu thành công',
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
-                } else {
-                    throw new Error(data.message || 'Không thể lưu dữ liệu');
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi lưu dữ liệu:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Không thể lưu dữ liệu: ' + error.message
-                });
-            });
+        window.tempShapesToSave = shapesToSave;
+        tempShapes = [...shapes];
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công',
+            text: 'Đã lưu dữ liệu tạm thời',
+            timer: 1200,
+            showConfirmButton: false
+        });
     };
 
     const loadShapesFromServer = (instanceId) => {
@@ -1180,7 +1131,6 @@ let DrawingTool = (function () {
             });
     };
 
-    // Initialize drawing tool
     const init = () => {
         if (!initElements()) return;
         initEventListeners();
@@ -1214,8 +1164,41 @@ let DrawingTool = (function () {
             #canvasOverlay:hover {
                 cursor: ${editMode ? 'default' : 'crosshair'};
             }
+            #saveBtn {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+            #saveBtn:hover {
+                background-color: #45a049;
+            }
+            #cancelBtn {
+                background-color: #f44336;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+            #cancelBtn:hover {
+                background-color: #da190b;
+            }
         `;
         document.head.appendChild(style);
+
+        // Khôi phục shapes từ tempShapes nếu có
+        if (tempShapes.length > 0) {
+            shapes = [...tempShapes];
+            lines = shapes.filter(s => s.type === 'line');
+            zones = shapes.filter(s => s.type !== 'line');
+            redrawAll();
+            updateShapesList();
+        }
 
         setActiveMode(currentRuleType === 'Line Crossing' ? 'line' : 'rect');
         updateDrawingModes();
@@ -1228,6 +1211,13 @@ let DrawingTool = (function () {
             detectObjects = options.detect_objects || [];
             ruleName = options.rule_name || '';
             shapeIdCounter = 0;
+
+            // Reset shapes if no tempShapes
+            if (!tempShapes.length) {
+                shapes = [];
+                lines = [];
+                zones = [];
+            }
 
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: { confirmButton: 'hidden', popup: 'swal-wide-popup' },
@@ -1244,11 +1234,11 @@ let DrawingTool = (function () {
                             <button id="lineBtn" class="draw-tool-btn px-3 py-2 rounded transition-colors" style="display: none;">Draw Line</button>
                             <button id="rectBtn" class="draw-tool-btn px-3 py-2 rounded transition-colors" style="display: none;">Draw Rect</button>
                             <button id="polyBtn" class="draw-tool-btn px-3 py-2 rounded transition-colors" style="display: none;">Draw Poly</button>
-                            <button id="closePolyBtn" class="px-3 py-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition-colors" style="display: none;" disabled>Close Poly</button>
+                            <button id="closePolyBtn" class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors" style="display: none;" disabled>Close Poly</button>
                             <button id="editBtn" class="draw-tool-btn px-3 py-2 rounded transition-colors">Edit</button>
-                            <button id="undoBtn" class="px-3 py-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition-colors">⟲ Undo</button>
-                            <button id="redoBtn" class="px-3 py-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition-colors">⟳ Redo</button>
-                            <button id="clearBtn" class="px-3 py-2 bg-blue-500 text-black rounded hover:bg-blue-600 transition-colors">Clear</button>
+                            <button id="undoBtn" class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">⟲ Undo</button>
+                            <button id="redoBtn" class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">⟳ Redo</button>
+                            <button id="clearBtn" class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">Clear</button>
                         </div>
                         <div class="flex flex-wrap gap-2 mb-2 mt-3">
                             <label class="flex items-center gap-2">
@@ -1271,19 +1261,19 @@ let DrawingTool = (function () {
                     </div>
                     <div class="relative w-full bg-black" style="height: 400px;">
                         <div id="videoWrapper" class="w-full h-full relative">
-                            <video id="videoElement" class="absolute top-0 left-0 w-full h-full object-contain" style="z-index:0;" autoplay loop muted playsinline>
+                            <video id="videoElement" class="absolute top-0 left-0 w-full h-full object-contain" style="z-index: 0;" autoplay loop muted playsinline>
                                 <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4">
                             </video>
-                            <canvas id="canvasOverlay" class="absolute top-0 left-0" style="z-index:10; pointer-events: auto;"></canvas>
+                            <canvas id="canvasOverlay" class="absolute top-0 left-0" style="z-index: 10; pointer-events: auto;"></canvas>
                         </div>
                     </div>
                     <div class="mt-4 p-3 border border-gray-200 rounded max-h-40 overflow-y-auto">
-                        <h3 class="font-semibold mb-2">List of Drawn Shapes: </h3>
+                        <h3 class="font-semibold mb-2">List of Drawn Shapes:</h3>
                         <ul id="shapesList" class="list-disc pl-5"></ul>
                     </div>
                     <div class="flex justify-end gap-3 mt-4">
-                        <button id="saveBtn" class="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Save</button>
-                        <button id="cancelBtn" class="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancel</button>
+                        <button id="saveBtn" class="px-6 py-2">OK</button>
+                        <button id="cancelBtn" class="px-6 py-2">Cancel</button>
                     </div>
                 </div>
             `;
@@ -1301,18 +1291,26 @@ let DrawingTool = (function () {
 
                     setTimeout(() => {
                         init();
-                        loadShapesFromServer(instanceId);
                         document.getElementById('saveBtn').addEventListener('click', () => {
                             saveShapesToServer(instanceId);
+                            Swal.close();
                         });
-                        document.getElementById('cancelBtn').addEventListener('click', () => Swal.close());
+                        document.getElementById('cancelBtn').addEventListener('click', () => {
+                            tempShapes = [...shapes];
+                            Swal.close();
+                        });
                     }, 100);
                 }
             });
         },
         getShapes: () => [...shapes],
-        loadShapes: loadShapesFromServer,
+        loadShapesFromServer: loadShapesFromServer,
         saveShapes: saveShapesToServer,
+        getTempShapes: () => [...tempShapes],
+        clearTempShapes: () => {
+            tempShapes = [];
+            window.tempShapesToSave = null;
+        }
     };
 })();
 
