@@ -3,14 +3,14 @@
 namespace App\Domains\Cvedixrt\Instance\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
-use App\Domains\Cvedixrt\Group\Model\CvedixrtGroupModel;
-use App\Domains\Cvedixrt\Solution\Model\CvedixrtSolutionModel;
+use App\Domains\Cvedixrt\Instance\Enums\Direction;
+use App\Domains\Cvedixrt\Instance\Enums\RuleType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Domains\Cvedixrt\Instance\Model\Builder\CvedixrtInstanceBuilder as Builder;
 use App\Domains\Cvedixrt\Instance\Model\Collection\CvedixrtInstanceCollection as Collection;
 
-class CvedixrtInstanceModel extends ModelAbstract
+class CvedixrtInstanceRuleModel extends ModelAbstract
 {
     use HasFactory;
 
@@ -22,34 +22,34 @@ class CvedixrtInstanceModel extends ModelAbstract
     /**
      * @var string
      */
-    protected $table = 'cvedixrt_instance';
+    protected $table = 'cvedixrt_instance_rule';
 
     /**
      * @const string
      */
-    public const TABLE = 'cvedixrt_instance';
+    public const TABLE = 'cvedixrt_instance_rule';
 
     /**
      * @const string
      */
-    public const FOREIGN = 'cvedixrt_instance_id';
+    public const FOREIGN = 'cvedixrt_instance_rule_id';
 
     public $timestamps = true;
 
     protected $fillable = [
         'uuid',
         'name',
-        'source',
-        'solution_id',
-        'group_id',
-        'description',
-        'zones',
-        'lines',
+        'detected_object',
+        'direction',
+        'rule_type',
+        'drawing_object',
     ];
 
     protected $casts = [
-        'lines' => 'array',
-        'zones' => 'array',
+        'detected_object' => 'array', // json
+        'rule_type' => 'string', // cast to string
+        'direction' => 'string', // cast to string
+        'drawing_object' => 'array', // json
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -73,33 +73,25 @@ class CvedixrtInstanceModel extends ModelAbstract
      *
      * @return Builder
      */
-    public function newEloquentBuilder($query): Builder
-    {
-        return new Builder($query);
-    }
+    //    public function newEloquentBuilder($query): Builder
+    //    {
+    //        return new Builder($query);
+    //    }
 
     /**
-     * Khai báo quan hệ n-1 với bảng cvedixrt_solution
+     * Khai báo quan hệ n-1 với bảng cvedixrt_instance
      *
      * @return BelongsTo
      */
-    public function solution(): BelongsTo
+    public function instance(): BelongsTo
     {
-        return $this->belongsTo(CvedixrtSolutionModel::class, CvedixrtSolutionModel::FOREIGN);
+        return $this->belongsTo(CvedixrtInstanceModel::class, 'cvedixrt_instance_id');
     }
 
-    /**
-     * Khai báo quan hệ n-1 với bảng cvedixrt_group
+
+    /*
+     * $objects = $model->detected_object; // array từ DB
      *
-     * @return BelongsTo
+     *   $objectEnums = array_map(fn($type) => DetectedObject::from($type), $objects);
      */
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(CvedixrtGroupModel::class, CvedixrtGroupModel::FOREIGN);
-    }
-
-    public function instanceRules()
-    {
-        return $this->hasMany(CvedixrtInstanceRuleModel::class, 'cvedixrt_instance_id');
-    }
 }
