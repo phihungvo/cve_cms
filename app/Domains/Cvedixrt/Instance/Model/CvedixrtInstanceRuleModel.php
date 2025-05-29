@@ -3,12 +3,10 @@
 namespace App\Domains\Cvedixrt\Instance\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
-use App\Domains\Cvedixrt\Instance\Enums\Direction;
-use App\Domains\Cvedixrt\Instance\Enums\RuleType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Domains\Cvedixrt\Instance\Model\Builder\CvedixrtInstanceBuilder as Builder;
-use App\Domains\Cvedixrt\Instance\Model\Collection\CvedixrtInstanceCollection as Collection;
+use App\Domains\Cvedixrt\Instance\Model\Builder\CvedixrtInstanceRuleBuilder as Builder;
+use App\Domains\Cvedixrt\Instance\Model\Collection\CvedixrtInstanceRuleCollection as Collection;
 
 class CvedixrtInstanceRuleModel extends ModelAbstract
 {
@@ -73,10 +71,10 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
      *
      * @return Builder
      */
-    //    public function newEloquentBuilder($query): Builder
-    //    {
-    //        return new Builder($query);
-    //    }
+        public function newEloquentBuilder($query): Builder
+        {
+            return new Builder($query);
+        }
 
     /**
      * Khai báo quan hệ n-1 với bảng cvedixrt_instance

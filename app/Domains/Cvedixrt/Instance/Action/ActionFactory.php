@@ -4,6 +4,7 @@ namespace App\Domains\Cvedixrt\Instance\Action;
 
 use App\Domains\Core\Action\ActionFactoryAbstract;
 use App\Domains\Cvedixrt\Instance\Model\CvedixrtInstanceModel as Model;
+use App\Domains\Cvedixrt\Instance\Model\CvedixrtInstanceRuleModel as InstanceRule;
 
 class ActionFactory extends ActionFactoryAbstract
 {
@@ -29,5 +30,24 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(DeleteAction::class);
     }
 
+    public function createInstanceRule(): InstanceRule
+    {
+        return $this->actionHandle(
+            CreateInstanceRuleAction::class,
+            $this->validate('Cvedixrt\InstanceRule')->createInstanceRule()
+        );
+    }
 
+    public function updateInstanceRule(): InstanceRule
+    {
+        return $this->actionHandle(
+            UpdateInstanceRuleAction::class,
+            $this->validate('Cvedixrt\InstanceRule')->updateInstanceRule()
+        );
+    }
+
+    public function deleteInstanceRule(): void
+    {
+        $this->actionHandle(DeleteInstanceRuleAction::class, $this->data);
+    }
 }

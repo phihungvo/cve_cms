@@ -19,8 +19,9 @@
                             {{$rule->name}}
 
                         </li>
-                        <button type="button" class="ml-2 px-2 py-1 rounded text-red-500 hover:text-red-700 hover:bg-blue-100"
-                                onclick="deleteRule({{$rule->id}})">
+                        <button type="button" data-rule-id="{{$rule->id}}" class="btn-delete-rule ml-2 px-2 py-1
+                        rounded text-red-500 hover:text-red-700 hover:bg-blue-100"
+                                onclick="deleteRule({{ $rule->id }})">
                             &times;
                         </button>
                     </div>
@@ -236,6 +237,53 @@
          */
         function deleteRule(ruleId){
             console.log('Deleting rule with ID:', ruleId);
+
+            // submit về domain hiện tại với _action : deleteInstanceRule
+            // dùng hàm fetch
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    _action: 'deleteInstanceRule',
+                    rule_id: ruleId,
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    // Xoá rule khỏi danh sách
+                    const ruleItem = document.querySelector(`.rule-item[data-rule-id="${ruleId}"]`);
+                    const btnDelteRule = document.querySelector(`.btn-delete-rule[data-rule-id="${ruleId}"]`);
+                    if (ruleItem) {
+                        ruleItem.remove();
+                        btnDelteRule.remove();
+                    }
+
+                    // Reset selectedAddedRule và cập nhật cấu hình
+                    selectedAddedRule = null;
+                    updateRuleConfiguration(selectedAddedRule);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '{{ __('cvedixt-analytic.rule_deleted') }}',
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{{ __('cvedixt-analytic.error_deleting_rule') }}',
+                    });
+                });
         }
 
         document.addEventListener('DOMContentLoaded', () => {

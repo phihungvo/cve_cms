@@ -4,19 +4,30 @@ namespace App\Domains\Cvedixrt\Instance\Controller;
 
 use Exception;
 use App\Domains\Cvedixrt\Instance\Service\Controller\RTAnalyticsService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 
 class RTAnalyticsIndex extends ControllerAbstract
 {
-    public function __invoke(int $id): Response|RedirectResponse
+    public function __invoke(int $id): Response|RedirectResponse|JsonResponse
     {
         try {
             $this->row($id);
+
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
-            return redirect()->route('cvedixrt.instance.analyticsr-rules');
+            return redirect()->route('cvedixrt_instance.analytics', ['id' => $id]);
+        }
+
+        if ($this->request->wantsJson()) {
+            $ruleId = $this->request->input('rule_id');
+            if ($ruleId) {
+                $this->instanceRule($ruleId);
+            }
+
+            return $this->actions();
         }
 
         $this->meta('title', __('Cvedixrt Instance Analytics Index'));
@@ -28,5 +39,75 @@ class RTAnalyticsIndex extends ControllerAbstract
     {
         return RTAnalyticsService::new($this->request, $this->auth, $this->row)
             ->data();
+    }
+
+    protected function actions(): JsonResponse|false|null
+    {
+        return $this->actionPost('createInstanceRule')
+            ?: $this->actionPost('updateInstanceRule')
+                ?: $this->actionPost('deleteInstanceRule');
+    }
+
+    protected function createInstanceRule(): JsonResponse
+    {
+        try {
+            $this->action(
+                $this->row,
+                'Cvedixrt\Instance'
+            )->createInstanceRule();
+
+            return $this->json([
+                'status' => true,
+                'message' => __('cvedixrt-instance-analytics.create-success'),
+            ]);
+        } catch (Exception $e) {
+            return $this->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    protected function updateInstanceRule(): JsonResponse
+    {
+        try {
+            $this->action(
+                $this->row,
+                'Cvedixrt\Instance',
+                ['id' => $this->instanceRule->id]
+            )->updateInstanceRule();
+
+            return $this->json([
+                'status' => true,
+                'message' => __('cvedixrt-instance-analytics.update-success'),
+            ]);
+        } catch (Exception $e) {
+            return $this->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+
+    }
+
+    protected function deleteInstanceRule(): JsonResponse
+    {
+        try {
+            $this->action(
+                $this->row,
+                'Cvedixrt\Instance',
+                ['id' => $this->instanceRule->id]
+            )->deleteInstanceRule();
+
+            return $this->json([
+                'status' => true,
+                'message' => __('cvedixrt-instance-analytics.delete-success'),
+            ]);
+        } catch (Exception $e) {
+            return $this->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
     }
 }
