@@ -34,32 +34,32 @@ abstract class CreateUpdateInstanceRuleAbstractAction extends ActionAbstract
 
     protected function dataUuid(): void
     {
-        $this->data['uuid'] = $this->request->input('uuid', \Illuminate\Support\Str::uuid()->toString());
+        $this->data['uuid'] = $this->request->input('uuid');
     }
 
     protected function dataName(): void
     {
-        $this->data['name'] = trim($this->request->input('name') ?? '');
+        $this->data['name'] = trim($this->request->input('name'));
     }
 
     protected function dataDetectedObject(): void
     {
-        $this->data['detected_object'] = $this->request->input('detected_object', []);
+        $this->data['detected_object'] = $this->request->input('detected_object');
     }
 
     protected function dataRuleType(): void
     {
-        $this->data['rule_type'] = $this->request->input('rule_type', '');
+        $this->data['rule_type'] = $this->request->input('rule_type');
     }
 
     protected function dataDrawingObject(): void
     {
-        $this->data['drawing_object'] = $this->request->input('drawing_object', []);
+        $this->data['drawing_object'] = $this->request->input('drawing_object');
     }
 
     protected function dataDirection(): void
     {
-        $this->data['direction'] = $this->request->input('direction', 'both');
+        $this->data['direction'] = $this->request->input('direction');
     }
 
     protected function dataInstanceId(): void

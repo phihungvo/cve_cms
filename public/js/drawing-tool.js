@@ -27,6 +27,7 @@ let DrawingTool = (function () {
     const defaultWidth = 3;
     let shapeIdCounter = 0;
     let tempShapes = [];
+    let selectedRule = null;
 
     const generateShapeId = () => {
         return `shape_${instanceUuid}_${shapeIdCounter++}`;
@@ -81,19 +82,19 @@ let DrawingTool = (function () {
             const rotatedY = -relX * sinR + relY * cosR;
 
             const handles = [
-                { x: shape.startX, y: shape.startY, handle: 'start' },
-                { x: shape.endX, y: shape.endY, handle: 'end' },
-                { x: midX + (length / 2 + 20) * cosR, y: midY + (length / 2 + 20) * sinR, handle: 'rotate' }
+                {x: shape.startX, y: shape.startY, handle: 'start'},
+                {x: shape.endX, y: shape.endY, handle: 'end'},
+                {x: midX + (length / 2 + 20) * cosR, y: midY + (length / 2 + 20) * sinR, handle: 'rotate'}
             ];
 
             for (const h of handles) {
                 if (Math.hypot(x - h.x, y - h.y) <= handleSize) {
-                    return { isHandle: true, handle: h.handle };
+                    return {isHandle: true, handle: h.handle};
                 }
             }
 
             if (length === 0) {
-                return { isHandle: false, inside: Math.hypot(x - shape.startX, y - shape.startY) <= tolerance };
+                return {isHandle: false, inside: Math.hypot(x - shape.startX, y - shape.startY) <= tolerance};
             }
 
             const t = Math.max(0, Math.min(1, ((x - shape.startX) * dx + (y - shape.startY) * dy) / (length * length)));
@@ -102,18 +103,18 @@ let DrawingTool = (function () {
                 y: shape.startY + t * dy
             };
             const distance = Math.hypot(x - projection.x, y - projection.y);
-            return { isHandle: false, inside: distance <= tolerance };
+            return {isHandle: false, inside: distance <= tolerance};
         } else if (shape.type === 'rect') {
             const handles = [
-                { x: shape.startX, y: shape.startY, handle: 'top-left' },
-                { x: shape.startX + shape.width, y: shape.startY, handle: 'top-right' },
-                { x: shape.startX, y: shape.startY + shape.height, handle: 'bottom-left' },
-                { x: shape.startX + shape.width, y: shape.startY + shape.height, handle: 'bottom-right' }
+                {x: shape.startX, y: shape.startY, handle: 'top-left'},
+                {x: shape.startX + shape.width, y: shape.startY, handle: 'top-right'},
+                {x: shape.startX, y: shape.startY + shape.height, handle: 'bottom-left'},
+                {x: shape.startX + shape.width, y: shape.startY + shape.height, handle: 'bottom-right'}
             ];
 
             for (const h of handles) {
                 if (Math.abs(x - h.x) <= handleSize && Math.abs(y - h.y) <= handleSize) {
-                    return { isHandle: true, handle: h.handle };
+                    return {isHandle: true, handle: h.handle};
                 }
             }
 
@@ -126,19 +127,19 @@ let DrawingTool = (function () {
             for (let i = 0; i < shape.points.length; i++) {
                 const point = shape.points[i];
                 if (Math.hypot(x - point.x, y - point.y) <= handleSize) {
-                    return { isHandle: true, handle: `point_${i}` };
+                    return {isHandle: true, handle: `point_${i}`};
                 }
             }
 
             const center = shape.points.reduce((acc, p) => ({
                 x: acc.x + p.x,
                 y: acc.y + p.y
-            }), { x: 0, y: 0 });
+            }), {x: 0, y: 0});
             center.x /= shape.points.length;
             center.y /= shape.points.length;
 
             if (Math.hypot(x - center.x, y - center.y) <= handleSize) {
-                return { isHandle: true, handle: 'scale' };
+                return {isHandle: true, handle: 'scale'};
             }
 
             let inside = false;
@@ -150,16 +151,16 @@ let DrawingTool = (function () {
                     inside = !inside;
                 }
             }
-            return { isHandle: false, inside };
+            return {isHandle: false, inside};
         }
-        return { isHandle: false, inside: false };
+        return {isHandle: false, inside: false};
     };
 
     const findShapeAtPoint = (x, y) => {
         for (let i = shapes.length - 1; i >= 0; i--) {
             const pointInfo = isPointNearShape(x, y, shapes[i]);
             if (pointInfo.isHandle || pointInfo.inside) {
-                return { shape: shapes[i], pointInfo };
+                return {shape: shapes[i], pointInfo};
             }
         }
         return null;
@@ -245,7 +246,7 @@ let DrawingTool = (function () {
         if (closePolyBtn) {
             closePolyBtn.addEventListener('click', () => {
                 if (points.length >= 2) {
-                    points.push({ ...points[0] });
+                    points.push({...points[0]});
                     finishPolygon();
                 }
             });
@@ -406,6 +407,10 @@ let DrawingTool = (function () {
 
     const resizeCanvas = () => {
         const wrapper = document.getElementById('videoWrapper');
+        if (!wrapper || wrapper.offsetWidth === 0 || wrapper.offsetHeight === 0) {
+            setTimeout(resizeCanvas, 100);
+            return;
+        }
         canvas.width = wrapper.offsetWidth;
         canvas.height = wrapper.offsetHeight;
         canvas.style.width = wrapper.offsetWidth + 'px';
@@ -417,6 +422,11 @@ let DrawingTool = (function () {
 
     const startDrawing = (e) => {
         const rect = canvas.getBoundingClientRect();
+
+        if (rect.width === 0 || rect.height === 0) {
+            console.warn("Canvas dimensions are zero, cannot start drawing.");
+            return;
+        }
         startX = e.clientX - rect.left;
         startY = e.clientY - rect.top;
         currentX = startX;
@@ -466,7 +476,7 @@ let DrawingTool = (function () {
         isDrawing = true;
 
         if (currentMode === 'poly') {
-            points.push({ x: startX, y: startY, color: rgbToHex(currentColor) });
+            points.push({x: startX, y: startY, color: rgbToHex(currentColor)});
             ctx.beginPath();
             ctx.arc(startX, startY, 3, 0, Math.PI * 2);
             ctx.fillStyle = rgbToHex(currentColor);
@@ -487,6 +497,12 @@ let DrawingTool = (function () {
         if (!isDrawing) return;
 
         const rect = canvas.getBoundingClientRect();
+
+        if (rect.width === 0 || rect.height === 0) {
+            console.warn("Canvas dimensions are zero, cannot draw.");
+            return;
+        }
+
         currentX = e.clientX - rect.left;
         currentY = e.clientY - rect.top;
 
@@ -535,7 +551,7 @@ let DrawingTool = (function () {
                         const center = selectedShape.points.reduce((acc, p) => ({
                             x: acc.x + p.x,
                             y: acc.y + p.y
-                        }), { x: 0, y: 0 });
+                        }), {x: 0, y: 0});
                         center.x /= selectedShape.points.length;
                         center.y /= selectedShape.points.length;
                         const scale = Math.hypot(currentX - center.x, currentY - center.y) /
@@ -565,10 +581,10 @@ let DrawingTool = (function () {
 
             if (selectedShape.type === 'line') {
                 const index = lines.findIndex(s => s.id === selectedShape.id);
-                if (index !== -1) lines[index] = { ...selectedShape };
+                if (index !== -1) lines[index] = {...selectedShape};
             } else {
                 const index = zones.findIndex(s => s.id === selectedShape.id);
-                if (index !== -1) zones[index] = { ...selectedShape };
+                if (index !== -1) zones[index] = {...selectedShape};
             }
 
             shapes = [...lines, ...zones].filter((shape, index, self) =>
@@ -602,6 +618,14 @@ let DrawingTool = (function () {
         isResizing = false;
         resizeHandle = null;
 
+        const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+            console.warn('Canvas has invalid dimensions');
+            return;
+        }
+        const endX = e.clientX - rect.left;
+        const endY = e.clientY - rect.top;
+
         if (editMode && selectedShape) {
             selectedShape.color = [...currentColor];
             selectedShape.label = currentLabel || 'Line';
@@ -610,16 +634,16 @@ let DrawingTool = (function () {
             if (selectedShape.type === 'line') {
                 const index = lines.findIndex(s => s.id === selectedShape.id);
                 if (index !== -1) {
-                    lines[index] = { ...selectedShape };
+                    lines[index] = {...selectedShape};
                 } else {
-                    lines.push({ ...selectedShape });
+                    lines.push({...selectedShape});
                 }
             } else {
                 const index = zones.findIndex(s => s.id === selectedShape.id);
                 if (index !== -1) {
-                    zones[index] = { ...selectedShape };
+                    zones[index] = {...selectedShape};
                 } else {
-                    zones.push({ ...selectedShape });
+                    zones.push({...selectedShape});
                 }
             }
 
@@ -631,10 +655,6 @@ let DrawingTool = (function () {
             redrawAll();
             return;
         }
-
-        const rect = canvas.getBoundingClientRect();
-        const endX = e.clientX - rect.left;
-        const endY = e.clientY - rect.top;
 
         if (currentMode === 'line') {
             const count = lines.filter(s => s.type === 'line').length + 1;
@@ -842,6 +862,11 @@ let DrawingTool = (function () {
     const redrawAll = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        if (!shapes.length) {
+            console.warn('Mảng shapes rỗng, không có shape nào để vẽ.');
+            return;
+        }
+
         shapes.forEach(shape => {
             ctx.beginPath();
             ctx.strokeStyle = rgbToHex(shape.color || [255, 0, 0]);
@@ -886,16 +911,16 @@ let DrawingTool = (function () {
                     const cosR = Math.cos(rotation);
                     const sinR = Math.sin(rotation);
                     handles = [
-                        { x: shape.startX, y: shape.startY, handle: 'start' },
-                        { x: shape.endX, y: shape.endY, handle: 'end' },
-                        { x: midX + (length / 2 + 20) * cosR, y: midY + (length / 2 + 20) * sinR, handle: 'rotate' }
+                        {x: shape.startX, y: shape.startY, handle: 'start'},
+                        {x: shape.endX, y: shape.endY, handle: 'end'},
+                        {x: midX + (length / 2 + 20) * cosR, y: midY + (length / 2 + 20) * sinR, handle: 'rotate'}
                     ];
                 } else if (shape.type === 'rect') {
                     handles = [
-                        { x: shape.startX, y: shape.startY, handle: 'top-left' },
-                        { x: shape.startX + shape.width, y: shape.startY, handle: 'top-right' },
-                        { x: shape.startX, y: shape.startY + shape.height, handle: 'bottom-left' },
-                        { x: shape.startX + shape.width, y: shape.startY + shape.height, handle: 'bottom-right' }
+                        {x: shape.startX, y: shape.startY, handle: 'top-left'},
+                        {x: shape.startX + shape.width, y: shape.startY, handle: 'top-right'},
+                        {x: shape.startX, y: shape.startY + shape.height, handle: 'bottom-left'},
+                        {x: shape.startX + shape.width, y: shape.startY + shape.height, handle: 'bottom-right'}
                     ];
                 } else if (shape.type === 'poly') {
                     handles = shape.points.map((point, index) => ({
@@ -906,10 +931,10 @@ let DrawingTool = (function () {
                     const center = shape.points.reduce((acc, p) => ({
                         x: acc.x + p.x,
                         y: acc.y + p.y
-                    }), { x: 0, y: 0 });
+                    }), {x: 0, y: 0});
                     center.x /= shape.points.length;
                     center.y /= shape.points.length;
-                    handles.push({ x: center.x, y: center.y, handle: 'scale' });
+                    handles.push({x: center.x, y: center.y, handle: 'scale'});
                 }
 
                 handles.forEach(h => {
@@ -939,10 +964,10 @@ let DrawingTool = (function () {
                 } else if (shape.type === 'rect') {
                     ctx.fillText(shape.label, shape.startX + 5, shape.startY - 5);
                 } else if (shape.type === 'poly' && shape.points.length > 0) {
-                    const { x: centerX, y: centerY } = shape.points.reduce((acc, p) => ({
+                    const {x: centerX, y: centerY} = shape.points.reduce((acc, p) => ({
                         x: acc.x + p.x,
                         y: acc.y + p.y
-                    }), { x: 0, y: 0 });
+                    }), {x: 0, y: 0});
                     ctx.fillText(shape.label, centerX / shape.points.length, centerY / shape.points.length);
                 }
             }
@@ -999,7 +1024,7 @@ let DrawingTool = (function () {
             } else if (shape.type === 'poly') {
                 return {
                     ...baseShape,
-                    points: shape.points.map(point => ({ x: point.x, y: point.y }))
+                    points: shape.points.map(point => ({x: point.x, y: point.y}))
                 };
             }
             return null;
@@ -1018,7 +1043,6 @@ let DrawingTool = (function () {
         console.log('Shapes to save:', shapesToSave);
 
         window.tempShapesToSave = shapesToSave;
-        tempShapes = [...shapes];
 
         Swal.fire({
             icon: 'success',
@@ -1029,115 +1053,118 @@ let DrawingTool = (function () {
         });
     };
 
-    const loadShapesFromServer = (instanceId) => {
-        fetch(`/cvedixrt/instances/${instanceId}/shapes`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error('Không thể tải dữ liệu từ server');
-                return response.json();
-            })
-            .then(data => {
-                if (data.success && data.data) {
-                    // lines = [];
-                    // zones = [];
-                    // shapes = [];
-                    console.log('Loaded data:', data.data);
-                    lines = data.data.lines || [];
-                    zones = data.data.zones || [];
-                    shapes = [...lines, ...zones];
+    const processShapesFromServer = (instanceRule) => {
 
-                    console.log('Loaded shapes:', shapes);
-                    console.log('Loaded lines:', lines);
-                    console.log('Loaded zones:', zones);
+        if (!instanceRule) {
+            console.error('Không có dữ liệu instanceRule được cung cấp');
+            return;
+        }
 
-                    instanceUuid = data.data.uuid || instanceUuid;
-                    ruleName = data.data.name || ruleName;
-                    detectObjects = data.data.detected_object || detectObjects;
-                    currentRuleType = data.data.rule_type
-                        ? data.data.rule_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
-                        : currentRuleType;
-                    direction = data.data.direction || 'both';
+        selectedRule = { ...instanceRule };
 
-                    if (data.data.drawing_object && Array.isArray(data.data.drawing_object)) {
+        shapes = [];
+        lines = [];
+        zones = [];
 
-                        console.log('Drawing objects:', data.data.drawing_object);
+        // Xử lý drawing_object
+        if (instanceRule.drawing_object && Array.isArray(instanceRule.drawing_object)) {
 
-                        data.data.drawing_object.forEach(shape => {
-                            const shapeId = generateShapeId();
-                            const baseShape = {
-                                id: shapeId,
-                                type: shape.type,
-                                color: shape.color || [255, 0, 0],
-                                label: shape.label || `Shape ${shapeId}`,
-                                detect_objects: data.data.detected_object || ['Person'],
-                                direction: data.data.direction && data.data.direction.length > 0
-                                    ? data.data.direction[0]
-                                    : 'both',
-                                rule_name: data.data.name || '',
-                                instance_uuid: instanceUuid
-                            };
+            instanceRule.drawing_object.forEach(shape => {
+                const shapeId = generateShapeId();
+                const baseShape = {
+                    id: shapeId,
+                    type: shape.type,
+                    color: shape.color,
+                    label: shape.label ,
+                    detect_objects: instanceRule.detected_object,
+                    direction: instanceRule.direction,
+                    rule_name: instanceRule.name,
+                    instance_uuid: instanceRule.uuid
+                };
 
-                            if (shape.type === 'line') {
-                                const lineShape = {
-                                    ...baseShape,
-                                    startX: parseFloat(shape.startX) || 0,
-                                    startY: parseFloat(shape.startY) || 0,
-                                    endX: parseFloat(shape.endX) || 0,
-                                    endY: parseFloat(shape.endY) || 0,
-                                    rotation: parseFloat(shape.rotation) || 0
-                                };
-                                lines.push(lineShape);
-                                shapes.push(lineShape);
-                            } else if (shape.type === 'rect') {
-                                const rectShape = {
-                                    ...baseShape,
-                                    startX: parseFloat(shape.startX) || 0,
-                                    startY: parseFloat(shape.startY) || 0,
-                                    width: parseFloat(shape.width) || 0,
-                                    height: parseFloat(shape.height) || 0
-                                };
-                                zones.push(rectShape);
-                                shapes.push(rectShape);
-                            } else if (shape.type === 'poly') {
-                                const polyShape = {
-                                    ...baseShape,
-                                    points: shape.points.map(point => ({
-                                        x: parseFloat(point.x) || 0,
-                                        y: parseFloat(point.y) || 0
-                                    }))
-                                };
-                                zones.push(polyShape);
-                                shapes.push(polyShape);
-                            }
-                        });
+                if (shape.type === 'line') {
+                    const lineShape = {
+                        ...baseShape,
+                        startX: parseFloat(shape.startX),
+                        startY: parseFloat(shape.startY),
+                        endX: parseFloat(shape.endX),
+                        endY: parseFloat(shape.endY),
+                        rotation: parseFloat(shape.rotation)
+                    };
+                    // Kiểm tra tính hợp lệ của line
+                    if (lineShape.startX !== lineShape.endX || lineShape.startY !== lineShape.endY) {
+                        lines.push(lineShape);
+                        shapes.push(lineShape);
+                    } else {
+                        console.warn('Bỏ qua line không hợp lệ (điểm đầu và cuối trùng nhau):', lineShape);
                     }
-
-                    shapes = [...lines, ...zones].filter((shape, index, self) =>
-                        index === self.findIndex(s => s.id === shape.id)
-                    );
-
-                    document.getElementById('directionSelect').value = direction;
-                    document.getElementById('labelInput').value = '';
-                    document.getElementById('colorPicker').value = rgbToHex(currentColor);
-
-                    redrawAll();
-                    updateShapesList();
-                    updateDrawingModes();
+                } else if (shape.type === 'rect') {
+                    const rectShape = {
+                        ...baseShape,
+                        startX: parseFloat(shape.startX),
+                        startY: parseFloat(shape.startY),
+                        width: parseFloat(shape.width),
+                        height: parseFloat(shape.height)
+                    };
+                    // Kiểm tra tính hợp lệ của rect
+                    if (rectShape.width > 0 && rectShape.height > 0) {
+                        zones.push(rectShape);
+                        shapes.push(rectShape);
+                    } else {
+                        console.warn('Bỏ qua rect không hợp lệ (width hoặc height không hợp lệ):', rectShape);
+                    }
+                } else if (shape.type === 'poly') {
+                    const polyShape = {
+                        ...baseShape,
+                        points: Array.isArray(shape.points) ? shape.points.map(point => ({
+                            x: parseFloat(point.x),
+                            y: parseFloat(point.y)
+                        })) : []
+                    };
+                    if (polyShape.points.length >= 3) {
+                        zones.push(polyShape);
+                        shapes.push(polyShape);
+                    } else {
+                        console.warn('Bỏ qua poly không hợp lệ (số điểm < 3):', polyShape);
+                    }
                 }
-            })
-            .catch(error => {
-                console.error('Lỗi khi tải dữ liệu:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: 'Không thể tải dữ liệu từ server: ' + error.message
-                });
             });
+
+            // Loại bỏ các shapes trùng lặp
+            shapes = [...lines, ...zones].filter((shape, index, self) =>
+                index === self.findIndex(s => s.id === shape.id)
+            );
+        } else {
+            console.warn('Không có drawing_object hoặc không phải mảng:', instanceRule.drawing_object);
+        }
+
+        tempShapes = [...shapes];
+    };
+
+    const renderShapesForRule = () => {
+        if (!selectedRule) {
+            console.warn('Không có rule nào được chọn để vẽ');
+            return;
+        }
+
+        instanceUuid = selectedRule.uuid;
+        ruleName = selectedRule.name;
+        detectObjects = selectedRule.detected_object
+        currentRuleType = selectedRule.rule_type
+        direction = selectedRule.direction;
+
+        // Cập nhật giao diện người dùng
+        document.getElementById('directionSelect').value = direction;
+        document.getElementById('labelInput').value = '';
+        document.getElementById('colorPicker').value = rgbToHex(currentColor);
+
+        // Đảm bảo canvas được resize trước khi vẽ
+        resizeCanvas();
+
+        // Vẽ lại tất cả shapes
+        redrawAll();
+        updateShapesList();
+        updateDrawingModes();
     };
 
     const init = () => {
@@ -1200,25 +1227,40 @@ let DrawingTool = (function () {
         `;
         document.head.appendChild(style);
 
-        // Khôi phục shapes từ tempShapes nếu có
-        if (tempShapes.length > 0) {
-            shapes = [...tempShapes];
-            lines = shapes.filter(s => s.type === 'line');
-            zones = shapes.filter(s => s.type !== 'line');
-            redrawAll();
-            updateShapesList();
+        // Đợi video tải xong trước khi cho phép vẽ
+        if (videoElement.readyState >= 3) { // HAS_ENOUGH_DATA
+            resizeCanvas();
+            if (tempShapes.length > 0) {
+                shapes = [...tempShapes];
+                lines = shapes.filter(s => s.type === 'line');
+                zones = shapes.filter(s => s.type !== 'line');
+                redrawAll();
+                updateShapesList();
+            }
+            setActiveMode(currentRuleType === 'Line Crossing' ? 'line' : 'rect');
+            updateDrawingModes();
+        } else {
+            videoElement.addEventListener('loadeddata', () => {
+                resizeCanvas();
+                if (tempShapes.length > 0) {
+                    shapes = [...tempShapes];
+                    lines = shapes.filter(s => s.type === 'line');
+                    zones = shapes.filter(s => s.type !== 'line');
+                    redrawAll();
+                    updateShapesList();
+                }
+                setActiveMode(currentRuleType === 'Line Crossing' ? 'line' : 'rect');
+                updateDrawingModes();
+            }, {once: true});
         }
-
-        setActiveMode(currentRuleType === 'Line Crossing' ? 'line' : 'rect');
-        updateDrawingModes();
     };
 
     return {
         open: function (instanceId, uuid, options = {}) {
             instanceUuid = uuid;
             currentRuleType = options.rule_type || 'Instruction Detection';
-            detectObjects = options.detect_objects || [];
-            ruleName = options.rule_name || '';
+            detectObjects = options.detect_objects;
+            ruleName = options.rule_name;
             shapeIdCounter = 0;
 
             // Reset shapes if no tempShapes
@@ -1229,7 +1271,7 @@ let DrawingTool = (function () {
             }
 
             const swalWithBootstrapButtons = Swal.mixin({
-                customClass: { confirmButton: 'hidden', popup: 'swal-wide-popup' },
+                customClass: {confirmButton: 'hidden', popup: 'swal-wide-popup'},
                 buttonsStyling: false,
                 showConfirmButton: false,
                 showCloseButton: true,
@@ -1261,8 +1303,8 @@ let DrawingTool = (function () {
                             <label class="flex items-center gap-2 ml-4">
                                 <span>Direction:</span>
                                 <select id="directionSelect" class="px-2 py-1 border border-gray-300 rounded">
-                                    <option value="in">In</option>
-                                    <option value="out">Out</option>
+                                    <option value="up">Up</option>
+                                    <option value="down">Down</option>
                                     <option value="both" selected>Both</option>
                                 </select>
                             </label>
@@ -1300,6 +1342,7 @@ let DrawingTool = (function () {
 
                     setTimeout(() => {
                         init();
+                        renderShapesForRule();
                         document.getElementById('saveBtn').addEventListener('click', () => {
                             saveShapesToServer(instanceId);
                             Swal.close();
@@ -1313,14 +1356,16 @@ let DrawingTool = (function () {
             });
         },
         getShapes: () => [...shapes],
-        loadShapesFromServer: loadShapesFromServer,
+        loadShapesFromServer: processShapesFromServer,
         saveShapes: saveShapesToServer,
         getTempShapes: () => [...tempShapes],
         clearTempShapes: () => {
             tempShapes = [];
             window.tempShapesToSave = null;
-        }
+        },
+        getSelectedRule: () => selectedRule
     };
-})();
+})
+();
 
 window.DrawingTool = DrawingTool;

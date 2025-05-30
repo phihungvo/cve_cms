@@ -49,11 +49,7 @@ class RTAnalyticsIndex extends ControllerAbstract
     protected function createInstanceRule(): JsonResponse
     {
         try {
-            $data = $this->request->all();
-
-            $data['cvedixrt_instance_id'] = $data['instance_id'] ?? $this->row->id;
-
-            $rule = $this->action($this->row, 'Cvedixrt\Instance')->createInstanceRule($data);
+            $rule = $this->action($this->row, 'Cvedixrt\Instance')->createInstanceRule();
 
             return $this->json([
                 'status' => true,
@@ -71,10 +67,7 @@ class RTAnalyticsIndex extends ControllerAbstract
     protected function updateInstanceRule(): JsonResponse
     {
         try {
-            $data = $this->request->all();
-            $data['cvedixrt_instance_id'] = $data['instance_id'] ?? $this->row->id;
-
-            $rule = $this->action($this->row, 'Cvedixrt\Instance', $data)
+            $rule = $this->action($this->row, 'Cvedixrt\Instance')
                 ->updateInstanceRule();
 
             return $this->json([

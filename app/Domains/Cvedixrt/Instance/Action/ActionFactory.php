@@ -30,12 +30,11 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(DeleteAction::class);
     }
 
-    public function createInstanceRule(array $data): InstanceRule
+    public function createInstanceRule(): InstanceRule
     {
         return $this->actionHandle(
             CreateInstanceRuleAction::class,
-            $this->validate('Cvedixrt\Instance')->createInstanceRule($data),
-            $data
+            $this->validate('Cvedixrt\Instance')->createInstanceRule($this->data),
         );
     }
 
@@ -43,8 +42,7 @@ class ActionFactory extends ActionFactoryAbstract
     {
         return $this->actionHandle(
             UpdateInstanceRuleAction::class,
-            $this->validate('Cvedixrt\Instance')->updateInstanceRule(),
-            $this->data,
+            $this->validate('Cvedixrt\Instance')->updateInstanceRule($this->data),
         );
     }
 
