@@ -41,6 +41,7 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
         'direction',
         'rule_type',
         'drawing_object',
+        'cvedixrt_instance_id',
     ];
 
     protected $casts = [
@@ -71,10 +72,10 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
      *
      * @return Builder
      */
-        public function newEloquentBuilder($query): Builder
-        {
-            return new Builder($query);
-        }
+    public function newEloquentBuilder($query): Builder
+    {
+        return new Builder($query);
+    }
 
     /**
      * Khai báo quan hệ n-1 với bảng cvedixrt_instance
@@ -85,7 +86,6 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
     {
         return $this->belongsTo(CvedixrtInstanceModel::class, 'cvedixrt_instance_id');
     }
-
 
     /*
      * $objects = $model->detected_object; // array từ DB

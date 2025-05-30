@@ -19,10 +19,52 @@ abstract class CreateUpdateInstanceRuleAbstractAction extends ActionAbstract
 
     protected function data(): void
     {
-        // logic xử lý data
+        $this->dataUuid();
+        $this->dataName();
+        $this->dataDetectedObject();
+        $this->dataRuleType();
+        $this->dataDrawingObject();
+        $this->dataDirection();
+        $this->dataInstanceId();
     }
 
     protected function check(): void
     {
     }
+
+    protected function dataUuid(): void
+    {
+        $this->data['uuid'] = $this->request->input('uuid', \Illuminate\Support\Str::uuid()->toString());
+    }
+
+    protected function dataName(): void
+    {
+        $this->data['name'] = trim($this->request->input('name') ?? '');
+    }
+
+    protected function dataDetectedObject(): void
+    {
+        $this->data['detected_object'] = $this->request->input('detected_object', []);
+    }
+
+    protected function dataRuleType(): void
+    {
+        $this->data['rule_type'] = $this->request->input('rule_type', '');
+    }
+
+    protected function dataDrawingObject(): void
+    {
+        $this->data['drawing_object'] = $this->request->input('drawing_object', []);
+    }
+
+    protected function dataDirection(): void
+    {
+        $this->data['direction'] = $this->request->input('direction', 'both');
+    }
+
+    protected function dataInstanceId(): void
+    {
+        $this->data['cvedixrt_instance_id'] = $this->row?->id;
+    }
+
 }

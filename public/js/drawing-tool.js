@@ -1043,9 +1043,17 @@ let DrawingTool = (function () {
             })
             .then(data => {
                 if (data.success && data.data) {
-                    lines = [];
-                    zones = [];
-                    shapes = [];
+                    // lines = [];
+                    // zones = [];
+                    // shapes = [];
+                    console.log('Loaded data:', data.data);
+                    lines = data.data.lines || [];
+                    zones = data.data.zones || [];
+                    shapes = [...lines, ...zones];
+
+                    console.log('Loaded shapes:', shapes);
+                    console.log('Loaded lines:', lines);
+                    console.log('Loaded zones:', zones);
 
                     instanceUuid = data.data.uuid || instanceUuid;
                     ruleName = data.data.name || ruleName;
@@ -1053,11 +1061,12 @@ let DrawingTool = (function () {
                     currentRuleType = data.data.rule_type
                         ? data.data.rule_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
                         : currentRuleType;
-                    direction = data.data.direction && data.data.direction.length > 0
-                        ? data.data.direction[0]
-                        : direction;
+                    direction = data.data.direction || 'both';
 
                     if (data.data.drawing_object && Array.isArray(data.data.drawing_object)) {
+
+                        console.log('Drawing objects:', data.data.drawing_object);
+
                         data.data.drawing_object.forEach(shape => {
                             const shapeId = generateShapeId();
                             const baseShape = {

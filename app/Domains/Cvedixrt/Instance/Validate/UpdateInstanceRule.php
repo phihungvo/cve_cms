@@ -4,5 +4,4 @@ namespace App\Domains\Cvedixrt\Instance\Validate;
 
 class UpdateInstanceRule extends CreateInstanceRule
 {
-
 }

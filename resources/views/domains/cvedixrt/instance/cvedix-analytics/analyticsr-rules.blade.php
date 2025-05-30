@@ -4,7 +4,7 @@
     use App\Domains\Cvedixrt\Instance\Enums\RuleType;
 @endphp
 @extends('layouts.in')
-{{--@dd($row->instanceRules)--}}
+
 @section('body')
     <div class="flex rounded shadow bg-white min-h-[600px]">
         <!-- List Rule đã thêm -->
@@ -15,13 +15,13 @@
                     <div class="flex items-center justify-between">
                         <li data-rule-id="{{$rule->id}}"
                             class="rule-item block px-2 py-1 rounded font-medium text-sm
-                        bg-white hover:bg-blue-100 focus:bg-blue-500 focus:text-white transition-colors cursor-pointer">
+                            bg-white hover:bg-blue-100 focus:bg-blue-500 focus:text-white transition-colors cursor-pointer">
                             {{$rule->name}}
                         </li>
                         <button type="button" data-rule-id="{{$rule->id}}" class="btn-delete-rule ml-2 px-2 py-1
-                        rounded text-red-500 hover:text-red-700 hover:bg-blue-100"
+                            rounded text-red-500 hover:text-red-700 hover:bg-blue-100"
                                 onclick="deleteRule({{ $rule->id }})">
-                            &times;
+                            ×
                         </button>
                     </div>
                 @endforeach
@@ -105,9 +105,9 @@
         // Khởi tạo các biến toàn cục
         const instanceId = {{ $row->id ?? 'null' }};
         const instanceUuid = '{{ $row->uuid ?? '' }}';
-        let selectedRuleType = 'Line Crossing';
-        let selectedAddedRule = null; // Đại diện cho rule đã chọn (trong danh sách rule đã được thêm)
-        const instanceRules = []; // Mảng chứa các rule đã thêm từ backend
+        let selectedRuleType = 'line_crossing';
+        let selectedAddedRule = null;
+        const instanceRules = [];
 
         // Lấy danh sách các rule đã thêm từ backend
         @foreach($row->instanceRules as $rule)
@@ -141,7 +141,7 @@
             // Lấy tên quy tắc
             const ruleName = document.getElementById('ruleNameInput').value.trim();
 
-            // Hiển thị thông báo lỗi bằng dòng chữ đỏ
+            // Hiển thị thông báo lỗi
             const ruleNameError = document.getElementById('ruleNameError');
             const detectObjectsError = document.getElementById('detectObjectsError');
 
@@ -165,7 +165,6 @@
                     rule_name: ruleName
                 });
             } else {
-                console.error('{{ __('cvedixt-analytic.error_drawing_tool') }}');
                 Swal.fire({
                     icon: 'error',
                     title: '{{ __('cvedixt-analytic.error_drawing_tool') }}'
@@ -173,7 +172,6 @@
             }
         }
 
-        // Hàm lưu rule vào database khi nhấn nút Add
         function saveRule() {
             if (!window.tempShapesToSave || !window.tempShapesToSave.drawing_object || window.tempShapesToSave.drawing_object.length === 0) {
                 Swal.fire({
@@ -184,16 +182,32 @@
                 return;
             }
 
-            console.log('Saving rule with shapes:', window.tempShapesToSave);
+            const action = selectedAddedRule ? 'updateInstanceRule' : 'createInstanceRule';
+            const ruleId = selectedAddedRule ? selectedAddedRule.id : null;
 
-            fetch(`/cvedixrt/instances/${instanceId}/shapes`, {
+            const requestData = {
+                _action: action,
+                uuid: window.tempShapesToSave.uuid,
+                name: window.tempShapesToSave.name,
+                detected_object: window.tempShapesToSave.detected_object,
+                rule_type: window.tempShapesToSave.rule_type,
+                drawing_object: window.tempShapesToSave.drawing_object,
+                direction: window.tempShapesToSave.direction,
+                cvedixrt_instance_id: instanceId
+            }
+
+            if (action === 'updateInstanceRule') {
+                requestData.rule_id = ruleId;
+            }
+
+            fetch(window.location.href, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify(window.tempShapesToSave)
+                body: JSON.stringify(requestData)
             })
                 .then(response => {
                     if (!response.ok) {
@@ -202,15 +216,14 @@
                     return response.json();
                 })
                 .then(data => {
-                    if (data.success) {
+                    if (data.status) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Thành công',
-                            text: 'Đã lưu rule thành công',
+                            text: data.message,
                             timer: 1200,
                             showConfirmButton: false
                         }).then(() => {
-                            // Xóa tempShapes và tempShapesToSave sau khi lưu thành công
                             window.DrawingTool.clearTempShapes();
                             window.location.reload();
                         });
@@ -219,7 +232,6 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Lỗi khi lưu rule:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Lỗi',
@@ -233,7 +245,7 @@
                 let ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
                 selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
 
-                // Xoá trạng thái active của các rule khác
+                // Xóa trạng thái active của các rule khác
                 document.querySelectorAll('.rule-item').forEach(el => {
                     el.classList.remove('bg-blue-500', 'text-white');
                     el.classList.add('bg-white');
@@ -248,18 +260,15 @@
 
                 // Cập nhật form cấu hình
                 updateRuleConfiguration(selectedAddedRule);
+
+                // Tải shapes lên canvas
+                if (window.DrawingTool) {
+                    window.DrawingTool.loadShapesFromServer(instanceId);
+                }
             });
         });
 
-        /**
-         * Cập nhật cấu hình rule dựa trên rule đã chọn
-         *
-         * @param {Object} dataCurrentRule - Dữ liệu của rule hiện tại
-         *
-         * @param dataCurrentRule
-         */
         function updateRuleConfiguration(dataCurrentRule) {
-
             // Cập nhật tên rule
             document.getElementById('ruleNameInput').value = dataCurrentRule?.name || '';
 
@@ -282,11 +291,6 @@
             });
         }
 
-        /**
-         * Hàm xóa rule
-         *
-         * @param {number} ruleId - ID của rule cần xóa
-         */
         function deleteRule(ruleId) {
             Swal.fire({
                 title: 'Xác nhận xóa',
@@ -316,16 +320,13 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log('Success:', data);
-                            // Xoá rule khỏi danh sách
                             const ruleItem = document.querySelector(`.rule-item[data-rule-id="${ruleId}"]`);
-                            const btnDelteRule = document.querySelector(`.btn-delete-rule[data-rule-id="${ruleId}"]`);
+                            const btnDeleteRule = document.querySelector(`.btn-delete-rule[data-rule-id="${ruleId}"]`);
                             if (ruleItem) {
                                 ruleItem.remove();
-                                btnDelteRule.remove();
+                                btnDeleteRule.remove();
                             }
 
-                            // Reset selectedAddedRule và cập nhật cấu hình
                             selectedAddedRule = null;
                             updateRuleConfiguration(selectedAddedRule);
 
@@ -337,14 +338,13 @@
                             });
                         })
                         .catch(error => {
-                            console.error('Error:', error);
                             Swal.fire({
                                 icon: 'error',
                                 title: '{{ __('cvedixt-analytic.error_deleting_rule') }}',
                             });
                         });
                 }
-            })
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -360,22 +360,21 @@
                     buttons.forEach(b => {
                         b.classList.remove('bg-blue-500', 'text-white');
                         b.classList.add('bg-white');
-
-                        selectedAddedRule = null; // Reset rule đã chọn khi đổi loại rule
-                        updateRuleConfiguration(selectedAddedRule);
-
-                        // Xoá trạng thái active của các rule khác
-                        document.querySelectorAll('.rule-item').forEach(el => {
-                            el.classList.remove('bg-blue-500', 'text-white');
-                            el.classList.add('bg-white');
-                        });
-
-                        const btnSaveRule = document.getElementById('btn-save-rule');
-                        btnSaveRule.innerText = 'Add +';
                     });
                     btn.classList.remove('bg-white');
                     btn.classList.add('bg-blue-500', 'text-white');
                     selectedRuleType = btn.dataset.ruleType;
+
+                    selectedAddedRule = null;
+                    updateRuleConfiguration(selectedAddedRule);
+
+                    document.querySelectorAll('.rule-item').forEach(el => {
+                        el.classList.remove('bg-blue-500', 'text-white');
+                        el.classList.add('bg-white');
+                    });
+
+                    const btnSaveRule = document.getElementById('btn-save-rule');
+                    btnSaveRule.innerText = 'Add +';
                 });
             });
         });

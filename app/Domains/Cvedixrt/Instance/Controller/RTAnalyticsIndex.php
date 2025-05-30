@@ -2,8 +2,8 @@
 
 namespace App\Domains\Cvedixrt\Instance\Controller;
 
-use Exception;
 use App\Domains\Cvedixrt\Instance\Service\Controller\RTAnalyticsService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
@@ -14,7 +14,6 @@ class RTAnalyticsIndex extends ControllerAbstract
     {
         try {
             $this->row($id);
-
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
@@ -37,8 +36,7 @@ class RTAnalyticsIndex extends ControllerAbstract
 
     protected function data(): array
     {
-        return RTAnalyticsService::new($this->request, $this->auth, $this->row)
-            ->data();
+        return RTAnalyticsService::new($this->request, $this->auth, $this->row)->data();
     }
 
     protected function actions(): JsonResponse|false|null
@@ -51,13 +49,15 @@ class RTAnalyticsIndex extends ControllerAbstract
     protected function createInstanceRule(): JsonResponse
     {
         try {
-            $this->action(
-                $this->row,
-                'Cvedixrt\Instance'
-            )->createInstanceRule();
+            $data = $this->request->all();
+
+            $data['cvedixrt_instance_id'] = $data['instance_id'] ?? $this->row->id;
+
+            $rule = $this->action($this->row, 'Cvedixrt\Instance')->createInstanceRule($data);
 
             return $this->json([
                 'status' => true,
+                'data' => $rule,
                 'message' => __('cvedixrt-instance-analytics.create-success'),
             ]);
         } catch (Exception $e) {
@@ -71,14 +71,15 @@ class RTAnalyticsIndex extends ControllerAbstract
     protected function updateInstanceRule(): JsonResponse
     {
         try {
-            $this->action(
-                $this->row,
-                'Cvedixrt\Instance',
-                ['id' => $this->instanceRule->id]
-            )->updateInstanceRule();
+            $data = $this->request->all();
+            $data['cvedixrt_instance_id'] = $data['instance_id'] ?? $this->row->id;
+
+            $rule = $this->action($this->row, 'Cvedixrt\Instance', $data)
+                ->updateInstanceRule();
 
             return $this->json([
                 'status' => true,
+                'data' => $rule,
                 'message' => __('cvedixrt-instance-analytics.update-success'),
             ]);
         } catch (Exception $e) {
@@ -87,7 +88,6 @@ class RTAnalyticsIndex extends ControllerAbstract
                 'message' => $e->getMessage(),
             ], 422);
         }
-
     }
 
     protected function deleteInstanceRule(): JsonResponse
