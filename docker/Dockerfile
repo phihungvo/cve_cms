@@ -23,12 +23,14 @@ RUN chmod 0600 /etc/cron.d/crontab
 
 WORKDIR /app
 
-COPY  ./ /app
+COPY composer.json /app/
+COPY ./ /app
 
 RUN echo ":set noshowmode" >> $HOME/.vimrc
 
 RUN git config --global --add safe.directory /app
 
-RUN COMPOSER_ALLOW_SUPERUSER=1 ./composer install --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
+# Sử dụng composer update để sinh composer.lock
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
 
 CMD ["./docker/init.sh"]
