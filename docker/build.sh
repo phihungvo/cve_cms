@@ -39,3 +39,4 @@ docker compose -f docker/docker-compose.yml build || { echo "Failed to build ima
 docker compose -f docker/docker-compose.yml up -d --scale platform-worker=5 || { echo "Failed to start containers"; exit 1; }
 
 echo "Build and deployment completed successfully!"
+echo "Application is running at http://localhost:8080"
