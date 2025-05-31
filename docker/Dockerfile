@@ -13,6 +13,11 @@ RUN rm -rf /var/lib/apt/lists/*
 
 RUN apt clean && apt autoclean && apt autoremove --assume-yes
 
+# Cài đặt Composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
+    php -r "unlink('composer-setup.php');"
+
 # Cập nhật kênh PECL và cài đặt redis
 RUN pecl channel-update pecl.php.net && \
     pecl install redis-6.0.2 && \
