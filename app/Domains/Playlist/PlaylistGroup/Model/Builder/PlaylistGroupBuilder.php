@@ -3,6 +3,7 @@
 namespace App\Domains\Playlist\PlaylistGroup\Model\Builder;
 
 use App\Domains\CoreApp\Model\Builder\BuilderAbstract;
+use App\Domains\User\Enterprise\Model\Enterprise;
 
 class PlaylistGroupBuilder extends BuilderAbstract
 {
