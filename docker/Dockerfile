@@ -12,14 +12,10 @@ RUN apt install -yqq --no-install-recommends \
 RUN rm -rf /var/lib/apt/lists/*
 RUN apt clean && apt autoclean && apt autoremove --assume-yes
 
-# Cài đặt Redis từ mã nguồn
-RUN git clone --branch 6.0.2 https://github.com/phpredis/phpredis.git /tmp/phpredis && \
-    cd /tmp/phpredis && \
-    phpize && \
-    ./configure && \
-    make && make install && \
-    docker-php-ext-enable redis && \
-    rm -rf /tmp/phpredis
+# Cập nhật kênh PECL và cài Redis
+RUN pecl channel-update pecl.php.net && \
+    pecl install redis && \
+    docker-php-ext-enable redis
 
 RUN docker-php-ext-install bcmath bz2 intl mbstring opcache pdo_mysql pcntl sockets xsl zip
 
