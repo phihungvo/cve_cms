@@ -4,18 +4,13 @@ RUN apt-get update && apt-get upgrade -y
 
 # Cài đặt các gói cần thiết
 RUN apt install -yqq --no-install-recommends \
-    cron default-mysql-client git curl \
+    cron default-mysql-client git \
     libbz2-dev libicu-dev libldb-dev libonig-dev \
     libxslt-dev libzip-dev procps psmisc unzip vim \
     autoconf build-essential
 
 RUN rm -rf /var/lib/apt/lists/*
 RUN apt clean && apt autoclean && apt autoremove --assume-yes
-
-# Cài đặt Composer
-RUN curl -sS https://getcomposer.org/installer -o composer-setup.php && \
-    php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-    rm composer-setup.php
 
 # Cài đặt Redis từ mã nguồn
 RUN git clone --branch 6.0.2 https://github.com/phpredis/phpredis.git /tmp/phpredis && \
@@ -34,12 +29,14 @@ RUN chmod 0600 /etc/cron.d/crontab
 
 WORKDIR /app
 COPY composer.json /app/
+
+# Dùng image composer để cài phụ thuộc
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
+
 COPY ./ /app
 
 RUN echo ":set noshowmode" >> $HOME/.vimrc
 RUN git config --global --add safe.directory /app
-
-# Sinh composer.lock
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
 
 CMD ["./docker/init.sh"]
