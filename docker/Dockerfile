@@ -2,7 +2,7 @@ FROM php:8.3
 
 RUN apt-get update && apt-get upgrade -y
 
-# Cài đặt các gói cần thiết
+# Install required packages
 RUN apt install -yqq --no-install-recommends \
     cron default-mysql-client git \
     libbz2-dev libicu-dev libldb-dev libonig-dev \
@@ -12,11 +12,12 @@ RUN apt install -yqq --no-install-recommends \
 RUN rm -rf /var/lib/apt/lists/*
 RUN apt clean && apt autoclean && apt autoremove --assume-yes
 
-# Cập nhật kênh PECL và cài Redis
+# Try installing Redis via PECL with specific version
 RUN pecl channel-update pecl.php.net && \
-    pecl install redis && \
+    (pecl install redis-6.1.0 || pecl install redis-6.0.2) && \
     docker-php-ext-enable redis
 
+# Install PHP extensions
 RUN docker-php-ext-install bcmath bz2 intl mbstring opcache pdo_mysql pcntl sockets xsl zip
 
 COPY ./docker/php.ini /usr/local/etc/php/
@@ -26,7 +27,7 @@ RUN chmod 0600 /etc/cron.d/crontab
 WORKDIR /app
 COPY composer.json /app/
 
-# Dùng image composer để cài phụ thuộc
+# Use composer image for dependencies
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
 
