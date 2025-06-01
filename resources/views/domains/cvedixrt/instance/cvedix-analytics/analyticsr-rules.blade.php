@@ -34,7 +34,7 @@
                 @foreach(RuleType::cases() as $rule)
                     <a href="#"
                        class="btn form-control-lg mb-3 border-2 border-primary text-sm text-left justify-start
-                        bg-white hover:bg-blue-100 focus:bg-blue-500 focus:text-white transition-colors"
+                       bg-white hover:bg-blue-100 focus:text-white transition-colors"
                        data-rule-type="{{ $rule->value }}">
                         {{ str_replace('_', ' ', ucfirst($rule->value)) }}
                     </a>
@@ -114,7 +114,6 @@
         const ruleNameEl = document.getElementById('ruleNameInput');
         const detectObjectsCheckboxes = document.querySelectorAll('input[name="detect_objects"]');
         const ruleTypeButtons = document.querySelectorAll('.btn.form-control-lg');
-        let listItemEl = document.getElementById('list-item');
         const ruleItemsEl = document.querySelectorAll('.rule-item');
 
         function loadInstanceRules() {
@@ -144,7 +143,6 @@
             }
 
             // Lấy danh sách đối tượng phát hiện
-            // const checkboxes = document.querySelectorAll('input[name="detect_objects"]');
             const detectObjects = Array.from(detectObjectsCheckboxes)
                 .filter(cb => cb.checked)
                 .map(cb => cb.value);
@@ -183,24 +181,122 @@
             }
         }
 
+        /**
+         * Hàm sử lý khi click vào rule item
+         * Clear form trống chuẩn bị sẵn sàng cho create mới instance_rule
+         * @param ruleId
+         */
+        function handleRuleItemClick(ruleId) {
+            selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
+            console.log(selectedAddedRule);
+
+            // Xóa trạng thái active của các rule khác
+            ruleItemsEl.forEach(el => {
+                el.classList.remove('bg-blue-500', 'text-white');
+                el.classList.add('bg-white');
+            });
+
+            // Thêm trạng thái active cho rule được chọn
+            const currentRuleItem = document.querySelector(`.rule-item[data-rule-id="${ruleId}"]`);
+            currentRuleItem.classList.remove('bg-white');
+            currentRuleItem.classList.add('bg-blue-500', 'text-white');
+
+            const btnSaveRule = document.getElementById('btn-save-rule');
+            btnSaveRule.innerText = 'Update +';
+
+            // Cập nhật form cấu hình
+            updateRuleConfiguration(selectedAddedRule);
+        }
+
+        /**
+         * Cập nhật lại mảng danh sách ruleList
+         * Cập nhật lại các element trên UI
+         */
+        function updateElement(addedRule) {
+            // Cập nhật danh sách rule đã thêm
+            instanceRules.push({
+                id: addedRule.id,
+                uuid: addedRule.uuid,
+                name: addedRule.name,
+                detected_object: addedRule.detected_object,
+                rule_type: addedRule.rule_type,
+                drawing_object: addedRule.drawing_object,
+                direction: addedRule.direction,
+                cvedixrt_instance_id: addedRule.cvedixrt_instance_id,
+            })
+
+            // Gọi lại hàm render thẻ li
+            const ruleList = document.querySelector('.rule-item');
+            console.log('Rule List', ruleList);
+            const newRuleItemContainer = document.createElement('div');
+            newRuleItemContainer.className = 'flex items-center justify-between';
+
+            const newRuleItem = document.createElement('li');
+            newRuleItem.setAttribute('data-rule-id', addedRule.id);
+            newRuleItem.className = 'rule-item block px-2 py-1 rounded font-medium text-sm bg-white hover:bg-blue-100 focus:bg-blue-500 focus:text-white transition-colors cursor-pointer';
+            newRuleItem.textContent = addedRule.name;
+
+            newRuleItem.addEventListener('click', function () {
+                let ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
+                selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
+                console.log(selectedAddedRule)
+
+                // Xóa trạng thái active của các rule khác
+                ruleItemsEl.forEach(el => {
+                    el.classList.remove('bg-blue-500', 'text-white');
+                    el.classList.add('bg-white');
+                });
+
+                // Thêm trạng thái active cho rule được chọn
+                this.classList.remove('bg-white');
+                this.classList.add('bg-blue-500', 'text-white');
+
+                const btnSaveRule = document.getElementById('btn-save-rule');
+                btnSaveRule.innerText = 'Update +';
+
+                // Cập nhật form cấu hình
+                updateRuleConfiguration(selectedAddedRule);
+            })
+
+            const deleteButton = document.createElement('button');
+            deleteButton.setAttribute('type', 'button');
+            deleteButton.setAttribute('data-rule-id', addedRule.id);
+            deleteButton.className = 'btn-delete-rule ml-2 px-2 py-1 rounded text-red-500 hover:text-red-700 hover:bg-blue-100';
+            deleteButton.textContent = '×';
+            deleteButton.setAttribute('onclick', `deleteRule(${addedRule.id})`);
+
+            newRuleItemContainer.appendChild(newRuleItem);
+            newRuleItemContainer.appendChild(deleteButton);
+
+            ruleList.appendChild(newRuleItemContainer);
+        }
+
+        /**
+         * Hàm xử lý button khi người dùng nhấn vào
+         * Có 2 trường hợp xảy ra là create vs update
+         */
         function saveRule() {
-            const ruleName = document.getElementById('ruleNameInput').value.trim();
-            const detectObjects = Array.from(document.querySelectorAll('input[name="detect_objects"]:checked')).map(cb => cb.value);
-
             const action = selectedAddedRule ? 'updateInstanceRule' : 'createInstanceRule';
-            const ruleId = selectedAddedRule ? selectedAddedRule.id : null;
 
+            const ruleName = document.getElementById('ruleNameInput').value.trim();
+            const detectObjects = Array.from(document.querySelectorAll('input[name="detect_objects"]:checked'))
+                .map(cb => cb.value);
+            const ruleType = Array.from(document.querySelectorAll('.btn.form-control-lg'))
+                .map(btn => btn.dataset.ruleType)[0];
+            const ruleId = selectedAddedRule ? selectedAddedRule.id : null;
+            const uuid = window.tempShapesToSave?.uuid || selectedAddedRule?.uuid || instanceUuid;
             const drawingObject = window.tempShapesToSave?.drawing_object
                 || selectedAddedRule?.drawing_object || [];
+            const direction = window.tempShapesToSave?.direction || selectedAddedRule.direction;
 
             const requestData = {
                 _action: action,
-                uuid: window.tempShapesToSave?.uuid || selectedAddedRule?.uuid || instanceUuid,
+                uuid: uuid,
                 name: ruleName,
                 detected_object: detectObjects,
-                rule_type: window.tempShapesToSave.rule_type,
+                rule_type: window.tempShapesToSave?.rule_type || ruleType,
                 drawing_object: drawingObject,
-                direction: window.tempShapesToSave.direction,
+                direction: direction,
                 cvedixrt_instance_id: instanceId
             }
 
@@ -264,16 +360,11 @@
                 });
         }
 
-        document.querySelectorAll('.rule-item').forEach(item => {
+        ruleItemsEl.forEach(item => {
             item.addEventListener('click', function () {
                 let ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
-                selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
-
-                // Xóa trạng thái active của các rule khác
-                document.querySelectorAll('.rule-item').forEach(el => {
-                    el.classList.remove('bg-blue-500', 'text-white');
-                    el.classList.add('bg-white');
-                });
+                // gọi hàm
+                handleRuleItemClick(ruleId)
 
                 // Thêm trạng thái active cho rule được chọn
                 this.classList.remove('bg-white');

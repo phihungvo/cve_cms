@@ -2,7 +2,6 @@
 
 namespace App\Domains\Cvedixrt\Instance\Action;
 
-use App\Domains\Cvedixrt\Instance\Model\CvedixrtInstanceModel as Model;
 use App\Domains\Cvedixrt\Instance\Model\CvedixrtInstanceRuleModel as InstanceRule;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
@@ -14,9 +13,9 @@ use Throwable;
 class CreateInstanceRuleAction extends CreateUpdateInstanceRuleAbstractAction
 {
     /**
-     * Create CvedixrtInstance
+     * Create CvedixrtInstanceRule
      *
-     * @return Model
+     * @return InstanceRule
      *
      * @override
      */
