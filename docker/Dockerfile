@@ -15,8 +15,7 @@ RUN apt-get update && apt-get upgrade -y && \
         psmisc \
         unzip \
         vim \
-        php-pear \
-        php-dev && \
+        php8.3-dev && \
     apt-get clean && \
     apt-get autoclean && \
     apt-get autoremove -y && \
