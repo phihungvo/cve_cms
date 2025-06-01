@@ -16,15 +16,27 @@ RUN apt-get update && apt-get upgrade -y && \
         psmisc \
         unzip \
         vim \
-        ffmpeg && \
+        ffmpeg \
+        build-essential \
+        autoconf && \
     apt-get clean && \
     apt-get autoclean && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Redis via PECL
-RUN pecl channel-update pecl.php.net && \
-    (pecl install redis-6.1.0 || pecl install redis-6.0.2) && \
+# Install Redis via PECL with fallback
+RUN pecl channel-update pecl.php.net || true && \
+    (pecl install redis-6.1.0 || \
+     pecl install redis-6.0.2 || \
+     (wget https://github.com/phpredis/phpredis/archive/refs/tags/6.0.2.tar.gz -O /tmp/redis.tar.gz && \
+      tar -xzf /tmp/redis.tar.gz -C /tmp && \
+      mv /tmp/phpredis-6.0.2 /tmp/phpredis && \
+      cd /tmp/phpredis && \
+      phpize && \
+      ./configure && \
+      make && \
+      make install && \
+      rm -rf /tmp/phpredis /tmp/redis.tar.gz)) && \
     docker-php-ext-enable redis
 
 # Install PHP extensions
