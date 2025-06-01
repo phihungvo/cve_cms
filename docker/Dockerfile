@@ -53,8 +53,8 @@ COPY composer.json ./
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer config --global process-timeout 600 && \
-    COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer config --global process-timeout 3600 && \
+    COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --no-cache --optimize-autoloader --classmap-authoritative --no-scripts
 
 # Copy application code
 COPY . ./
