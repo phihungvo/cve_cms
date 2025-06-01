@@ -8,9 +8,9 @@
         "php-mqtt/laravel-client": "^1.6",
         "phpoffice/phpspreadsheet": "^2.3",
         "mockery/mockery": "^1.6",
-        "brianium/paratest": "^7.5",
+        "brianium/paratest": "~7.7.0",
         "psalm/plugin-laravel": "^2.10",
-        "vimeo/psalm": "^5.26"
+        "vimeo/psalm": "~5.25.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
