@@ -167,6 +167,7 @@
                 return;
             }
 
+            // DrawingTool.clearTempShapes();
             if (window.DrawingTool) {
                 window.DrawingTool.open(instanceId, instanceUuid, {
                     rule_type: selectedRuleType,
@@ -289,12 +290,15 @@
                 || selectedAddedRule?.drawing_object || [];
             const direction = window.tempShapesToSave?.direction || selectedAddedRule.direction;
 
+            console.log('Drawing Object:', drawingObject);
+
             const requestData = {
                 _action: action,
                 uuid: uuid,
                 name: ruleName,
                 detected_object: detectObjects,
-                rule_type: window.tempShapesToSave?.rule_type || ruleType,
+                // rule_type: window.tempShapesToSave?.rule_type || ruleType,
+                rule_type: ruleType,
                 drawing_object: drawingObject,
                 direction: direction,
                 cvedixrt_instance_id: instanceId
@@ -321,6 +325,7 @@
                 })
                 .then(data => {
                     if (data.status) {
+                        console.log('response data:', data, 'status: ', data.status);
 
                         // Cập nhật instanceRules
                         if (action === 'createInstanceRule') {
@@ -341,11 +346,16 @@
                         }).then(() => {
                             window.DrawingTool.clearTempShapes();
 
+                            console.log('Cleared temp shapes');
+
+                            window.tempShapesToSave = null;
+
                             updateRuleList();
                             updateRuleConfiguration();
-                            // window.location.reload()
                             selectedAddedRule = null;
                             document.getElementById('btn-save-rule').innerText = 'Add +';
+                            window.shapes = [];
+                            window.tempShapes= [];
                         });
                     } else {
                         throw new Error(data.message || 'Không thể lưu rule');
@@ -482,6 +492,12 @@
                             return response.json();
                         })
                         .then(data => {
+                            // Delete rule from instanceRules array
+                            const ruleIndex = instanceRules.findIndex(rule => rule.id === ruleId);
+                            if (ruleIndex !== -1) {
+                                instanceRules.splice(ruleIndex, 1);
+                            }
+
                             const ruleItem = document.querySelector(`.rule-item[data-rule-id="${ruleId}"]`);
                             const btnDeleteRule = document.querySelector(`.btn-delete-rule[data-rule-id="${ruleId}"]`);
                             if (ruleItem) {
@@ -528,6 +544,8 @@
                     selectedRuleType = btn.dataset.ruleType;
 
                     selectedAddedRule = null;
+                    window.shapes = [];
+                    window.tempShapes = [];
 
                     ruleNameEl.value = '';
 
@@ -543,6 +561,12 @@
 
                     const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Add +';
+
+                    window.tempShapesToSave = null;
+
+                    if (window.DrawingTool) {
+                        window.DrawingTool.clearTempShapes();
+                    }
                 });
             });
         });
