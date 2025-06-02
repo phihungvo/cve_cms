@@ -167,6 +167,7 @@
                 return;
             }
 
+            // DrawingTool.clearTempShapes();
             if (window.DrawingTool) {
                 window.DrawingTool.open(instanceId, instanceUuid, {
                     rule_type: selectedRuleType,
@@ -341,12 +342,13 @@
                             window.DrawingTool.clearTempShapes();
 
                             updateRuleList(data.data);
-
+                            window.tempShapesToSave = null;
                             updateRuleConfiguration();
                             ruleItemsEl = document.querySelectorAll('.rule-item');
-                            // window.location.reload()
                             selectedAddedRule = null;
                             document.getElementById('btn-save-rule').innerText = 'Add +';
+                            window.shapes = [];
+                            window.tempShapes= [];
                         });
                     } else {
                         throw new Error(data.message || 'Không thể lưu rule');
@@ -377,7 +379,6 @@
                 updateRuleConfiguration(selectedAddedRule);
 
                 window.DrawingTool.loadShapesFromServer(selectedAddedRule);
-                console.log( 'this'+ this.classList)
             });
         });
 
@@ -573,6 +574,8 @@
                     selectedRuleType = btn.dataset.ruleType;
 
                     selectedAddedRule = null;
+                    window.shapes = [];
+                    window.tempShapes = [];
 
                     ruleNameEl.value = '';
 
@@ -588,6 +591,12 @@
 
                     const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Add +';
+
+                    window.tempShapesToSave = null;
+
+                    if (window.DrawingTool) {
+                        window.DrawingTool.clearTempShapes();
+                    }
                 });
             });
         });

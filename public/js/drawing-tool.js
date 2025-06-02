@@ -13,7 +13,7 @@ let DrawingTool = (function () {
     let selectedShape = null;
     let startX, startY, currentX, currentY;
     let points = [];
-    let shapes = [];
+    window.shapes = [];
     let lines = [];
     let zones = [];
     let redoShapes = [];
@@ -26,7 +26,7 @@ let DrawingTool = (function () {
     let direction = 'both';
     const defaultWidth = 3;
     let shapeIdCounter = 0;
-    let tempShapes = [];
+    window.tempShapes = [];
     let selectedRule = null;
 
     const generateShapeId = () => {
@@ -185,7 +185,7 @@ let DrawingTool = (function () {
         const closePolyBtn = document.getElementById('closePolyBtn');
         const editBtn = document.getElementById('editBtn');
 
-        if (currentRuleType === 'Line Crossing') {
+        if (currentRuleType === 'line_crossing') {
             lineBtn.style.display = 'inline-block';
             rectBtn.style.display = 'none';
             polyBtn.style.display = 'none';
@@ -1040,9 +1040,9 @@ let DrawingTool = (function () {
             instance_id: instanceId
         };
 
-        console.log('Shapes to save:', shapesToSave);
-
         window.tempShapesToSave = shapesToSave;
+        tempShapes = shapesToSave;
+        console.log('Dữ liệu shapes đã được lưu tạm thời:',  window.tempShapesToSave);
 
         Swal.fire({
             icon: 'success',
@@ -1263,13 +1263,6 @@ let DrawingTool = (function () {
             ruleName = options.rule_name;
             shapeIdCounter = 0;
 
-            // Reset shapes if no tempShapes
-            if (!tempShapes.length) {
-                shapes = [];
-                lines = [];
-                zones = [];
-            }
-
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {confirmButton: 'hidden', popup: 'swal-wide-popup'},
                 buttonsStyling: false,
@@ -1355,15 +1348,12 @@ let DrawingTool = (function () {
                 }
             });
         },
-        getShapes: () => [...shapes],
         loadShapesFromServer: processShapesFromServer,
         saveShapes: saveShapesToServer,
-        getTempShapes: () => [...tempShapes],
         clearTempShapes: () => {
             tempShapes = [];
             window.tempShapesToSave = null;
         },
-        getSelectedRule: () => selectedRule
     };
 })
 ();
