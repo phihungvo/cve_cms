@@ -34,6 +34,9 @@ class Update extends CreateUpdateAbstract
         if (!$this->row->camera_supported && $previousCameraSupported) {
             $this->row->cameras()->delete();
         }
+
+        // Update the device groups
+        $this->row->deviceGroups()->sync($this->data['device_groups']);
     }
 
 }

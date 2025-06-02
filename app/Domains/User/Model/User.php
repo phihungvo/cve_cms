@@ -6,6 +6,8 @@ namespace App\Domains\User\Model;
 
 use App\Domains\User\Role\Enum\RoleEnum;
 use App\Domains\User\Role\Model\UserRole;
+use App\Domains\UserGroup\Model\GroupModel;
+use App\Domains\UserGroup\Model\UserGroupModel;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,12 +26,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Domains\User\Enterprise\Model\Enterprise as EnterpriseModel;
 use App\Domains\Device\Model\Device as DeviceModel;
 
+/**
+ * @property int|null $enterprise_id
+ * @property string $phone
+ * @property string $api_key_full
+ * @property array $preferences
+ */
 class User extends ModelAbstract implements Authenticatable
 {
     use AuthenticatableTrait;
     use HasFactory;
-    use PreferencesTrait;
     use HasRoles;
+    use PreferencesTrait;
 
     /**
      * @var string
@@ -60,6 +68,7 @@ class User extends ModelAbstract implements Authenticatable
      * @var array<int, string>
      */
     protected $hidden = ['password'];
+
     /**
      * @var array<int, string>
      */
@@ -67,7 +76,7 @@ class User extends ModelAbstract implements Authenticatable
         'name',
         'email',
         'password',
-        'phone', // Thêm trường phone
+        'phone',
         'api_key',
         'api_key_prefix',
         'api_key_enabled',
@@ -86,7 +95,7 @@ class User extends ModelAbstract implements Authenticatable
     /**
      * @param array $models
      *
-     * @return \App\Domains\User\Model\Collection\User
+     * @return Collection
      */
     public function newCollection(array $models = []): Collection
     {
@@ -96,7 +105,7 @@ class User extends ModelAbstract implements Authenticatable
     /**
      * @param \Illuminate\Database\Query\Builder $query
      *
-     * @return \App\Domains\User\Model\Builder\User
+     * @return Builder
      */
     public function newEloquentBuilder($query): Builder
     {
@@ -104,7 +113,7 @@ class User extends ModelAbstract implements Authenticatable
     }
 
     /**
-     * @return \App\Domains\User\Test\Factory\User
+     * @return TestFactory
      */
     protected static function newFactory(): TestFactory
     {
@@ -112,7 +121,7 @@ class User extends ModelAbstract implements Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function language(): BelongsTo
     {
@@ -120,7 +129,7 @@ class User extends ModelAbstract implements Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function sessions(): HasMany
     {
@@ -128,7 +137,7 @@ class User extends ModelAbstract implements Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function timezone(): BelongsTo
     {
@@ -173,7 +182,8 @@ class User extends ModelAbstract implements Authenticatable
 
     /**
      * Thêm quan hệ đến Device
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     *
+     * @return HasMany
      */
     public function devices(): HasMany
     {
@@ -197,13 +207,12 @@ class User extends ModelAbstract implements Authenticatable
     /**
      * Kiểm tra nếu user có vai trò cụ thể
      *
-     * @param string $roleName
-     *
+     * @param string $alias
      * @return bool
      */
-    public function hasRole(string $roleName): bool
+    public function hasRole(string $alias): bool
     {
-        return $this->roles->contains('name', $roleName);
+        return $this->roles->contains('alias', $alias);
     }
 
     public function hasRoleFeatureAccess(string $featureName): bool
@@ -222,9 +231,37 @@ class User extends ModelAbstract implements Authenticatable
     }
 
     /**
+     * Get all unique permissions of the user via their roles.
+     *
+     * @return \Illuminate\Support\Collection<int, array{id: int, name: string, alias: string}>
+     */
+    public function getRolePermissionsAttribute(): \Illuminate\Support\Collection
+    {
+        return $this->roles
+            ->flatMap->permissions
+            ->unique('id')
+            ->map(function ($permission) {
+                return $permission->only(['id', 'name', 'alias']);
+            })
+            ->values();
+    }
+
+    /**
+     * Check if the user has a specific permission by alias.
+     *
+     * @param string $alias
+     *
+     * @return bool
+     */
+    public function hasPermission(string $alias): bool
+    {
+        return $this->getRolePermissionsAttribute()->contains('alias', $alias);
+    }
+
+    /**
      * Kiểm tra nếu User thuộc một Enterprise cụ thể
      *
-     * @param int $enterpriseId
+     * @param int|null $enterpriseId
      *
      * @return bool
      */
@@ -262,6 +299,21 @@ class User extends ModelAbstract implements Authenticatable
             'user_campaign',
             'user_id',
             'campaign_id'
+        )->withTimestamps();
+    }
+
+    /**
+     * Một User có thể thuộc nhiều Group, quan hệ n-n
+     *
+     * @return BelongsToMany
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            GroupModel::class,
+            UserGroupModel::TABLE,
+            self::FOREIGN,
+            GroupModel::FOREIGN_KEY
         )->withTimestamps();
     }
 }

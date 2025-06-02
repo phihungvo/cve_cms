@@ -5,6 +5,7 @@ namespace App\Domains\Playlist\Service\Controller;
 use App\Domains\Device\Model\Device;
 use App\Domains\Display\Model\Display;
 use App\Domains\Playlist\Model\PlaylistModel;
+use App\Domains\Playlist\PlaylistGroup\Model\PlaylistGroupMap;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -31,6 +32,7 @@ class UpdateService extends CreateUpdateAbstract
             'isUpdate' => true,
             'devices' => $this->getDevices(),
             'deviceIds' => $this->selectedDevices(),
+            'assignedPlaylistGroups' => $this->assignPlaylistGroups(),
         ];
     }
 
@@ -52,5 +54,12 @@ class UpdateService extends CreateUpdateAbstract
     protected function selectedDevices(): array
     {
         return $this->row->devices()->pluck('device.id')->toArray();
+    }
+
+    protected function assignPlaylistGroups(): Collection
+    {
+        return PlaylistGroupMap::query()
+            ->where('playlist_id', $this->row->id)
+            ->get();
     }
 }

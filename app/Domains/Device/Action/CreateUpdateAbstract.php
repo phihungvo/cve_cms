@@ -16,9 +16,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     abstract protected function save(): void;
 
     /**
-     * @return Model
      * @throws ValidatorException
      *
+     * @return Model
      */
     public function handle(): Model
     {
@@ -30,8 +30,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
+     *
+     * @return void
      */
     protected function data(): void
     {
@@ -41,6 +42,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         $this->dataPassword();
         $this->dataUserId();
         $this->dataDeviceTypeId();
+        $this->dataDeviceGroups();
         $this->dataEnterpriseId();
         $this->dataCameraSupported();
         $this->dataCameraMaximum();
@@ -116,9 +118,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
      *
+     * @return void
      */
     protected function check(): void
     {
@@ -128,9 +130,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
      *
+     * @return void
      */
     protected function checkCode(): void
     {
@@ -151,9 +153,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
      *
+     * @return void
      */
     protected function checkSerial(): void
     {
@@ -174,9 +176,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
      *
+     * @return void
      */
     protected function checkVehicleId(): void
     {
@@ -196,9 +198,9 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     }
 
     /**
-     * @return void
      * @throws ValidatorException
      *
+     * @return void
      */
     protected function dataDeviceTypeId(): void
     {
@@ -226,7 +228,7 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         }
 
         if ($this->request['_action'] == 'update') {
-            if($this->auth->isRoot()) {
+            if ($this->auth->isRoot()) {
                 $this->data['enabled'] = (bool)$this->request->input('enabled', false);
             } else {
                 $this->data['enabled'] = (bool)$this->request->input('enabled', $this->row->enabled ?? false);
@@ -249,6 +251,15 @@ abstract class CreateUpdateAbstract extends ActionAbstract
             } else {
                 $this->data['enable_ai'] = (bool)$this->request->input('enable_ai', $this->row->enable_ai ?? false);
             }
+        }
+    }
+
+    protected function dataDeviceGroups(): void
+    {
+        if ($this->request->input('device_groups')) {
+            $this->data['device_groups'] = $this->request->input('device_groups');
+        } else {
+            $this->data['device_groups'] = [];
         }
     }
 }

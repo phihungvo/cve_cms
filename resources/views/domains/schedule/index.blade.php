@@ -9,11 +9,11 @@
     $allPermission = $userPermission['all'] ?? [];
 @endphp
 
-@extends('layouts.in')
+@extends ('domains.schedule.index-layout')
 
-@section('title', __('schedule-index.title'))
+@extends ('domains.schedule.index-layout')
 
-@section('body')
+@section('content')
     <div class="intro-y box p-5">
         @if(session('success'))
             <div class="alert alert-success mb-4 p-4">
@@ -38,9 +38,13 @@
                 @if(auth()->user()->isRoleRoot())
                     <div class="sm:ml-4 mt-2 sm:mt-0">
                         <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
-                                  placeholder="{{__('playlist-index.enterprise')}}" data-change-submit></x-select>
+                                  placeholder="{{__('schedule-index.select-enterprise')}}" data-change-submit></x-select>
                     </div>
                 @endif
+                <div class="sm:ml-4 mt-2 sm:mt-0">
+                    <x-select name="schedule_group_id" :options="$scheduleGroups" value="id" text="name"
+                              placeholder="{{__('schedule-index.select-schedule-group')}}" data-change-submit></x-select>
+                </div>
 
                 <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
                     <a href="{{ route('schedule.create') }}" class="btn form-control-lg whitespace-nowrap">

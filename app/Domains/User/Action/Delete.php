@@ -2,9 +2,13 @@
 
 namespace App\Domains\User\Action;
 
+use App\Exceptions\ValidatorException;
+
 class Delete extends ActionAbstract
 {
     /**
+     * @throws ValidatorException
+     *
      * @return void
      */
     public function handle(): void
@@ -14,6 +18,8 @@ class Delete extends ActionAbstract
     }
 
     /**
+     * @throws ValidatorException
+     *
      * @return void
      */
     protected function check(): void

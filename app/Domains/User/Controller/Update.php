@@ -2,6 +2,7 @@
 
 namespace App\Domains\User\Controller;
 
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use App\Domains\User\Service\Controller\Update as ControllerService;
@@ -11,11 +12,17 @@ class Update extends ControllerAbstract
     /**
      * @param int $id
      *
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function __invoke(int $id): Response|RedirectResponse
     {
-        $this->row($id);
+        try {
+            $this->row($id);
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('user.index');
+        }
 
         if ($response = $this->actions()) {
             return $response;
@@ -35,7 +42,7 @@ class Update extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse|false|null
+     * @return RedirectResponse|false|null
      */
     protected function actions(): RedirectResponse|false|null
     {
@@ -44,26 +51,37 @@ class Update extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function update(): RedirectResponse
     {
-        $this->action()->update();
+        try {
+            $this->action()->update();
 
-        $this->sessionMessage('success', __('user-update.success'));
+            $this->sessionMessage('success', __('user-update.success'));
 
-        return redirect()->route('user.update', $this->row->id);
+            return redirect()->route('user.update', $this->row->id);
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('user.update', $this->row->id);
+        }
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function delete(): RedirectResponse
     {
-        $this->action()->delete();
+        try {
+            $this->action()->delete();
 
-        $this->sessionMessage('success', __('user-update.delete-success'));
+            $this->sessionMessage('success', __('user-update.delete-success'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+        } finally {
+            return redirect()->route('user.index');
+        }
 
-        return redirect()->route('user.index');
     }
 }

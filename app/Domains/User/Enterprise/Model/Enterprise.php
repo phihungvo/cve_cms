@@ -59,6 +59,8 @@ class Enterprise extends ModelAbstract
 
     protected $table = 'enterprise';
 
+    public const TABLE = 'enterprise';
+
     public const PRIMARY = 'id';
 
     public const FOREIGN = 'enterprise_id';

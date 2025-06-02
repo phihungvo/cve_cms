@@ -2,20 +2,21 @@
 
 namespace App\Domains\Device\Service\Controller;
 
+use App\Domains\DeviceGroup\Model\DeviceGroupMap;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use App\Domains\Device\Model\Device as Device;
-use App\Domains\Device\Model\Collection\Device as Collection;
+use App\Domains\Device\Model\Device;
 use Illuminate\Support\Facades\Log;
-use App\Domains\Device\Model\DeviceLog as DeviceLog;
+use App\Domains\Device\Model\DeviceLog;
 use App\Domains\User\Enterprise\Model\Enterprise;
 
 class Update extends CreateUpdateAbstract
 {
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \Illuminate\Contracts\Auth\Authenticatable $auth
-     * @param \App\Domains\Device\Model\Device $row
+     * @param Request $request
+     * @param Authenticatable $auth
+     * @param Device $row
      *
      * @return self
      */
@@ -31,13 +32,14 @@ class Update extends CreateUpdateAbstract
     {
         $data = $this->dataCreateUpdate() + [
             'row' => $this->row,
+            'assignedDeviceGroups' => $this->assignedDeviceGroups(),
             'infoDevice' => $this->infoDevice(),
             'deviceLogs' => $this->deviceLogs(),
         ];
 
         // Thêm dữ liệu enterprise
         if ($this->auth->isRoot()) {
-            $data['enterprises'] = Enterprise::all()->map(fn($e) => [
+            $data['enterprises'] = Enterprise::all()->map(fn ($e) => [
                 'id' => $e->id,
                 'name' => $e->name,
             ])->toArray();
@@ -51,15 +53,15 @@ class Update extends CreateUpdateAbstract
         return $data;
     }
 
-    protected function infoDevice(): \App\Domains\Device\Model\Device
+    protected function infoDevice(): Device
     {
         $deviceId = $this->request->route('id');
 
         return $this->cache(function () use ($deviceId) {
             $item = Device::query()
                 ->where('id', $deviceId)
-                //->whenUserId($this->user()?->id)
-                //->whenVehicleId($this->vehicle()?->id)
+                // ->whenUserId($this->user()?->id)
+                // ->whenVehicleId($this->vehicle()?->id)
                 ->withMessagesCount()
                 ->withMessagesPendingCount()
                 ->withUser()
@@ -79,13 +81,20 @@ class Update extends CreateUpdateAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
-    protected function deviceLogs(): \Illuminate\Database\Eloquent\Collection
+    protected function deviceLogs(): Collection
     {
         return DeviceLog::query()
             ->where('serial', $this->row->serial)
             ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    protected function assignedDeviceGroups(): Collection
+    {
+        return DeviceGroupMap::query()
+            ->where('device_id', $this->row->id)
             ->get();
     }
 }

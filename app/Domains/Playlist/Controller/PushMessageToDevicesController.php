@@ -8,9 +8,7 @@ class PushMessageToDevicesController extends ControllerAbstract
 {
     public function __invoke(): JsonResponse
     {
-        $response = $this->actionPost('pushMessageToDevices');
-
-        return $response;
+        return $this->actionPost('pushMessageToDevices');
     }
 
     protected function pushMessageToDevices(): JsonResponse

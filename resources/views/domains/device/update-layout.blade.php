@@ -1,6 +1,6 @@
-@extends ('layouts.in')
-
-@section ('body')
+@php use Illuminate\Support\Str;@endphp
+@extends ('domains.device.index-layout')
+@section('content')
 <div class="box flex items-center px-5">
     <div class="flex flex-col">
         {{--    main nav --}}
@@ -33,9 +33,9 @@
         <!-- CVEDIX-RT-Analytics-->
         <a href="{{ route('device.runtime-analytics', $row->id ?? $device->id) }}"
            class="p-4
-           {{ (Illuminate\Support\Str::is('device.runtime-analytics*', $ROUTE)) ? 'active' : '' }}
-           {{ (Illuminate\Support\Str::is('group.*', $ROUTE)) ? 'active' : '' }}
-           {{ (Illuminate\Support\Str::is('solution.*', $ROUTE)) ? 'active' : '' }}
+           {{ (Str::is('device.runtime-analytics*', $ROUTE)) ? 'active' : '' }}
+           {{ (Str::is('group.*', $ROUTE)) ? 'active' : '' }}
+           {{ (Str::is('solution.*', $ROUTE)) ? 'active' : '' }}
 
 
            "
@@ -49,7 +49,7 @@
 
 <div class="tab-content">
     <div class="tab-pane active" role="tabpanel">
-        @yield('content')
+        @yield('content_inner')
     </div>
 </div>
 
