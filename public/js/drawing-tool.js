@@ -1075,7 +1075,7 @@ let DrawingTool = (function () {
                     id: shapeId,
                     type: shape.type,
                     color: shape.color,
-                    label: shape.label ,
+                    label: shape.label,
                     detect_objects: instanceRule.detected_object,
                     direction: instanceRule.direction,
                     rule_name: instanceRule.name,
