@@ -367,18 +367,20 @@
             item.addEventListener('click', function () {
                 let ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
                 // gọi hàm
-                handleRuleItemClick(ruleId)
+                handleRuleItemClick(ruleId);
 
                 // Thêm trạng thái active cho rule được chọn
-                // this.classList.remove('bg-white');
-                // this.classList.add('bg-blue-500', 'text-white');
+                this.classList.remove('bg-white');
+                this.classList.add('bg-blue-500', 'text-white');
 
                 const btnSaveRule = document.getElementById('btn-save-rule');
                 btnSaveRule.innerText = 'Update +';
 
-                updateRuleConfiguration(selectedAddedRule);
-
-                window.DrawingTool.loadShapesFromServer(selectedAddedRule);
+                selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
+                if (selectedAddedRule && window.DrawingTool) {
+                    // Đảm bảo selectedAddedRule có drawing_object trước khi load
+                    window.DrawingTool.loadShapesFromServer(selectedAddedRule);
+                }
             });
         });
 
@@ -576,14 +578,13 @@
                     selectedAddedRule = null;
                     window.shapes = [];
                     window.tempShapes = [];
+                    window.DrawingTool.clearTempShapes();
 
+                    // Reset form và UI state
                     ruleNameEl.value = '';
-
-                    // Cập nhật các checkbox của DetectedObject
                     detectObjectsCheckboxes.forEach(checkbox => {
                         checkbox.checked = false;
                     });
-
                     ruleItemsEl.forEach(el => {
                         el.classList.remove('bg-blue-500', 'text-white');
                         el.classList.add('bg-white');
@@ -591,12 +592,7 @@
 
                     const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Add +';
-
                     window.tempShapesToSave = null;
-
-                    if (window.DrawingTool) {
-                        window.DrawingTool.clearTempShapes();
-                    }
                 });
             });
         });

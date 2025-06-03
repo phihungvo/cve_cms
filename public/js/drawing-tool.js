@@ -179,28 +179,37 @@ let DrawingTool = (function () {
     };
 
     const updateDrawingModes = () => {
-        const lineBtn = document.getElementById('lineBtn');
-        const rectBtn = document.getElementById('rectBtn');
-        const polyBtn = document.getElementById('polyBtn');
-        const closePolyBtn = document.getElementById('closePolyBtn');
-        const editBtn = document.getElementById('editBtn');
+        const waitForButtons = () => {
+            const lineBtn = document.getElementById('lineBtn');
+            const rectBtn = document.getElementById('rectBtn');
+            const polyBtn = document.getElementById('polyBtn');
+            const closePolyBtn = document.getElementById('closePolyBtn');
+            const editBtn = document.getElementById('editBtn');
 
-        if (currentRuleType === 'line_crossing') {
-            lineBtn.style.display = 'inline-block';
-            rectBtn.style.display = 'none';
-            polyBtn.style.display = 'none';
-            closePolyBtn.style.display = 'none';
-            setActiveMode('line');
-        } else {
-            lineBtn.style.display = 'inline-block';
-            rectBtn.style.display = 'inline-block';
-            polyBtn.style.display = 'inline-block';
-            closePolyBtn.style.display = currentMode === 'poly' ? 'inline-block' : 'none';
-            setActiveMode(currentMode === 'line' ? 'rect' : currentMode);
-        }
-        editBtn.style.display = 'inline-block';
-        redrawAll();
-        updateShapesList();
+            if (!lineBtn || !rectBtn || !polyBtn || !closePolyBtn || !editBtn) {
+                setTimeout(waitForButtons, 100);
+                return;
+            }
+
+            if (currentRuleType === 'line_crossing') {
+                lineBtn.style.display = 'inline-block';
+                rectBtn.style.display = 'none';
+                polyBtn.style.display = 'none';
+                closePolyBtn.style.display = 'none';
+                setActiveMode('line');
+            } else {
+                lineBtn.style.display = 'inline-block';
+                rectBtn.style.display = 'inline-block';
+                polyBtn.style.display = 'inline-block';
+                closePolyBtn.style.display = currentMode === 'poly' ? 'inline-block' : 'none';
+                setActiveMode(currentMode === 'line' ? 'rect' : currentMode);
+            }
+            editBtn.style.display = 'inline-block';
+            redrawAll();
+            updateShapesList();
+        };
+
+        waitForButtons();
     };
 
     const initEventListeners = function () {
@@ -284,7 +293,7 @@ let DrawingTool = (function () {
             zones = [];
             redoShapes = [];
             points = [];
-            tempShapes = [];
+            window.tempShapes = [];
             window.tempShapesToSave = null;
             redrawAll();
             updateShapesList();
@@ -366,7 +375,7 @@ let DrawingTool = (function () {
     };
 
     const setActiveMode = function (mode) {
-        if (currentRuleType === 'Line Crossing' && mode !== 'line' && mode !== 'edit') {
+        if (currentRuleType === 'line_crossing' && mode !== 'line' && mode !== 'edit') {
             return;
         }
 
@@ -835,7 +844,7 @@ let DrawingTool = (function () {
                 lines = lines.filter(s => s.id !== shape.id);
                 zones = zones.filter(s => s.id !== shape.id);
                 shapes = shapes.filter(s => s.id !== shape.id);
-                tempShapes = tempShapes.filter(s => s.id !== shape.id);
+                window.tempShapes = window.tempShapes.filter(s => s.id !== shape.id);
                 if (selectedShape && selectedShape.id === shape.id) {
                     selectedShape = null;
                 }
@@ -860,116 +869,131 @@ let DrawingTool = (function () {
     };
 
     const redrawAll = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (!shapes.length) {
-            console.warn('Mảng shapes rỗng, không có shape nào để vẽ.');
+        if (!canvas || !ctx) {
+            console.warn('Canvas hoặc context không tồn tại');
             return;
         }
 
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (!Array.isArray(shapes)) {
+            console.warn('Mảng shapes không hợp lệ');
+            shapes = [];
+        }
+
         shapes.forEach(shape => {
-            ctx.beginPath();
-            ctx.strokeStyle = rgbToHex(shape.color || [255, 0, 0]);
-            ctx.lineWidth = defaultWidth;
+            if (!shape || !shape.type) {
+                console.warn('Invalid shape:', shape);
+                return;
+            }
 
-            if (selectedShape && selectedShape.id === shape.id) {
-                ctx.lineWidth = defaultWidth + 2;
-                ctx.setLineDash([5, 5]);
-            } else {
+            try {
+                ctx.beginPath();
+                ctx.strokeStyle = rgbToHex(shape.color || [255, 0, 0]);
+                ctx.lineWidth = defaultWidth;
                 ctx.setLineDash([]);
-            }
 
-            if (shape.type === 'line') {
-                const rotation = shape.rotation || 0;
-                const midX = (shape.startX + shape.endX) / 2;
-                const midY = (shape.startY + shape.endY) / 2;
-
-                ctx.save();
-                ctx.translate(midX, midY);
-                ctx.rotate(rotation);
-                ctx.moveTo(shape.startX - midX, shape.startY - midY);
-                ctx.lineTo(shape.endX - midX, shape.endY - midY);
-                ctx.stroke();
-                ctx.restore();
-            } else if (shape.type === 'rect') {
-                ctx.rect(shape.startX, shape.startY, shape.width, shape.height);
-                ctx.stroke();
-            } else if (shape.type === 'poly' && shape.points.length > 0) {
-                ctx.moveTo(shape.points[0].x, shape.points[0].y);
-                shape.points.slice(1).forEach(point => ctx.lineTo(point.x, point.y));
-                ctx.closePath();
-                ctx.stroke();
-            }
-
-            if (selectedShape && selectedShape.id === shape.id) {
-                let handles = [];
-                if (shape.type === 'line') {
-                    const midX = (shape.startX + shape.endX) / 2;
-                    const midY = (shape.startY + shape.endY) / 2;
-                    const length = Math.sqrt((shape.endX - shape.startX) ** 2 + (shape.endY - shape.startY) ** 2);
-                    const rotation = shape.rotation || 0;
-                    const cosR = Math.cos(rotation);
-                    const sinR = Math.sin(rotation);
-                    handles = [
-                        {x: shape.startX, y: shape.startY, handle: 'start'},
-                        {x: shape.endX, y: shape.endY, handle: 'end'},
-                        {x: midX + (length / 2 + 20) * cosR, y: midY + (length / 2 + 20) * sinR, handle: 'rotate'}
-                    ];
-                } else if (shape.type === 'rect') {
-                    handles = [
-                        {x: shape.startX, y: shape.startY, handle: 'top-left'},
-                        {x: shape.startX + shape.width, y: shape.startY, handle: 'top-right'},
-                        {x: shape.startX, y: shape.startY + shape.height, handle: 'bottom-left'},
-                        {x: shape.startX + shape.width, y: shape.startY + shape.height, handle: 'bottom-right'}
-                    ];
-                } else if (shape.type === 'poly') {
-                    handles = shape.points.map((point, index) => ({
-                        x: point.x,
-                        y: point.y,
-                        handle: `point_${index}`
-                    }));
-                    const center = shape.points.reduce((acc, p) => ({
-                        x: acc.x + p.x,
-                        y: acc.y + p.y
-                    }), {x: 0, y: 0});
-                    center.x /= shape.points.length;
-                    center.y /= shape.points.length;
-                    handles.push({x: center.x, y: center.y, handle: 'scale'});
+                if (selectedShape && selectedShape.id === shape.id) {
+                    ctx.lineWidth = defaultWidth + 2;
+                    ctx.setLineDash([5, 5]);
+                } else {
+                    ctx.setLineDash([]);
                 }
 
-                handles.forEach(h => {
-                    ctx.beginPath();
-                    ctx.fillStyle = '#ffffff';
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 1;
-                    ctx.rect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
-                    ctx.fill();
-                    ctx.stroke();
-                });
-            }
-
-            if (shape.label) {
-                ctx.font = '12px Arial';
-                ctx.fillStyle = rgbToHex(shape.color || [255, 0, 0]);
-                ctx.setLineDash([]);
-
                 if (shape.type === 'line') {
+                    const rotation = shape.rotation || 0;
                     const midX = (shape.startX + shape.endX) / 2;
                     const midY = (shape.startY + shape.endY) / 2;
+
                     ctx.save();
                     ctx.translate(midX, midY);
-                    ctx.rotate(shape.rotation || 0);
-                    ctx.fillText(shape.label, 5, -5);
+                    ctx.rotate(rotation);
+                    ctx.moveTo(shape.startX - midX, shape.startY - midY);
+                    ctx.lineTo(shape.endX - midX, shape.endY - midY);
+                    ctx.stroke();
                     ctx.restore();
                 } else if (shape.type === 'rect') {
-                    ctx.fillText(shape.label, shape.startX + 5, shape.startY - 5);
-                } else if (shape.type === 'poly' && shape.points.length > 0) {
-                    const {x: centerX, y: centerY} = shape.points.reduce((acc, p) => ({
-                        x: acc.x + p.x,
-                        y: acc.y + p.y
-                    }), {x: 0, y: 0});
-                    ctx.fillText(shape.label, centerX / shape.points.length, centerY / shape.points.length);
+                    ctx.rect(shape.startX, shape.startY, shape.width, shape.height);
+                    ctx.stroke();
+                } else if (shape.type === 'poly' && shape.points && shape.points.length > 0) {
+                    ctx.moveTo(shape.points[0].x, shape.points[0].y);
+                    shape.points.slice(1).forEach(point => ctx.lineTo(point.x, point.y));
+                    ctx.closePath();
+                    ctx.stroke();
                 }
+
+                if (selectedShape && selectedShape.id === shape.id) {
+                    let handles = [];
+                    if (shape.type === 'line') {
+                        const midX = (shape.startX + shape.endX) / 2;
+                        const midY = (shape.startY + shape.endY) / 2;
+                        const length = Math.sqrt((shape.endX - shape.startX) ** 2 + (shape.endY - shape.startY) ** 2);
+                        const rotation = shape.rotation || 0;
+                        const cosR = Math.cos(rotation);
+                        const sinR = Math.sin(rotation);
+                        handles = [
+                            {x: shape.startX, y: shape.startY, handle: 'start'},
+                            {x: shape.endX, y: shape.endY, handle: 'end'},
+                            {x: midX + (length / 2 + 20) * cosR, y: midY + (length / 2 + 20) * sinR, handle: 'rotate'}
+                        ];
+                    } else if (shape.type === 'rect') {
+                        handles = [
+                            {x: shape.startX, y: shape.startY, handle: 'top-left'},
+                            {x: shape.startX + shape.width, y: shape.startY, handle: 'top-right'},
+                            {x: shape.startX, y: shape.startY + shape.height, handle: 'bottom-left'},
+                            {x: shape.startX + shape.width, y: shape.startY + shape.height, handle: 'bottom-right'}
+                        ];
+                    } else if (shape.type === 'poly' && shape.points) {
+                        handles = shape.points.map((point, index) => ({
+                            x: point.x,
+                            y: point.y,
+                            handle: `point_${index}`
+                        }));
+                        const center = shape.points.reduce((acc, p) => ({
+                            x: acc.x + p.x,
+                            y: acc.y + p.y
+                        }), {x: 0, y: 0});
+                        center.x /= shape.points.length;
+                        center.y /= shape.points.length;
+                        handles.push({x: center.x, y: center.y, handle: 'scale'});
+                    }
+
+                    handles.forEach(h => {
+                        ctx.beginPath();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.strokeStyle = '#000000';
+                        ctx.lineWidth = 1;
+                        ctx.rect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                        ctx.fill();
+                        ctx.stroke();
+                    });
+                }
+
+                if (shape.label) {
+                    ctx.font = '12px Arial';
+                    ctx.fillStyle = rgbToHex(shape.color || [255, 0, 0]);
+                    ctx.setLineDash([]);
+
+                    if (shape.type === 'line') {
+                        const midX = (shape.startX + shape.endX) / 2;
+                        const midY = (shape.startY + shape.endY) / 2;
+                        ctx.save();
+                        ctx.translate(midX, midY);
+                        ctx.rotate(shape.rotation || 0);
+                        ctx.fillText(shape.label, 5, -5);
+                        ctx.restore();
+                    } else if (shape.type === 'rect') {
+                        ctx.fillText(shape.label, shape.startX + 5, shape.startY - 5);
+                    } else if (shape.type === 'poly' && shape.points && shape.points.length > 0) {
+                        const {x: centerX, y: centerY} = shape.points.reduce((acc, p) => ({
+                            x: acc.x + p.x,
+                            y: acc.y + p.y
+                        }), {x: 0, y: 0});
+                        ctx.fillText(shape.label, centerX / shape.points.length, centerY / shape.points.length);
+                    }
+                }
+            } catch (error) {
+                console.error('Error drawing shape:', error);
             }
         });
 
@@ -993,10 +1017,6 @@ let DrawingTool = (function () {
     };
 
     const saveShapesToServer = (instanceId) => {
-        shapes = [...lines, ...zones].filter((shape, index, self) =>
-            index === self.findIndex(s => s.id === shape.id)
-        );
-
         const drawingObjects = shapes.map(shape => {
             const baseShape = {
                 type: shape.type,
@@ -1041,8 +1061,7 @@ let DrawingTool = (function () {
         };
 
         window.tempShapesToSave = shapesToSave;
-        tempShapes = shapesToSave;
-        console.log('Dữ liệu shapes đã được lưu tạm thời:',  window.tempShapesToSave);
+        window.tempShapes = [...shapes];
 
         Swal.fire({
             icon: 'success',
@@ -1055,90 +1074,117 @@ let DrawingTool = (function () {
 
     const processShapesFromServer = (instanceRule) => {
 
-        if (!instanceRule) {
-            console.error('Không có dữ liệu instanceRule được cung cấp');
+        if (!instanceRule || !instanceRule.drawing_object) {
+            console.error('Invalid instance rule data');
             return;
         }
 
-        selectedRule = { ...instanceRule };
-
-        shapes = [];
+        // Reset state
+        window.shapes = [];
         lines = [];
         zones = [];
+        points = [];
+        redoShapes = [];
 
-        // Xử lý drawing_object
-        if (instanceRule.drawing_object && Array.isArray(instanceRule.drawing_object)) {
+        // Update global state
+        selectedRule = instanceRule;
+        instanceUuid = instanceRule.uuid || '';
+        currentRuleType = instanceRule.rule_type || 'line_crossing';
+        detectObjects = instanceRule.detected_object || ['Person'];
+        ruleName = instanceRule.name || '';
+        direction = instanceRule.direction || 'both';
 
-            instanceRule.drawing_object.forEach(shape => {
-                const shapeId = generateShapeId();
-                const baseShape = {
-                    id: shapeId,
-                    type: shape.type,
-                    color: shape.color,
-                    label: shape.label,
-                    detect_objects: instanceRule.detected_object,
-                    direction: instanceRule.direction,
-                    rule_name: instanceRule.name,
-                    instance_uuid: instanceRule.uuid
-                };
+        // Process shapes
+        instanceRule.drawing_object.forEach(shape => {
+            if (!shape || !shape.type) {
+                console.warn('Invalid shape data:', shape);
+                return;
+            }
 
+            const shapeId = generateShapeId();
+            const baseShape = {
+                id: shapeId,
+                type: shape.type,
+                color: shape.color ? [...shape.color] : [255, 0, 0],
+                label: shape.label || `Shape ${shapeId}`,
+                detect_objects: [...detectObjects],
+                direction: direction,
+                rule_name: ruleName,
+                instance_uuid: instanceUuid
+            };
+
+            try {
+                let newShape;
                 if (shape.type === 'line') {
-                    const lineShape = {
+                    newShape = {
                         ...baseShape,
-                        startX: parseFloat(shape.startX),
-                        startY: parseFloat(shape.startY),
-                        endX: parseFloat(shape.endX),
-                        endY: parseFloat(shape.endY),
-                        rotation: parseFloat(shape.rotation)
+                        startX: Number(shape.startX) || 0,
+                        startY: Number(shape.startY) || 0,
+                        endX: Number(shape.endX) || 0,
+                        endY: Number(shape.endY) || 0,
+                        rotation: Number(shape.rotation) || 0
                     };
-                    // Kiểm tra tính hợp lệ của line
-                    if (lineShape.startX !== lineShape.endX || lineShape.startY !== lineShape.endY) {
-                        lines.push(lineShape);
-                        shapes.push(lineShape);
-                    } else {
-                        console.warn('Bỏ qua line không hợp lệ (điểm đầu và cuối trùng nhau):', lineShape);
-                    }
+                    lines.push({...newShape});
+                    window.shapes.push({...newShape});
                 } else if (shape.type === 'rect') {
-                    const rectShape = {
+                    newShape = {
                         ...baseShape,
-                        startX: parseFloat(shape.startX),
-                        startY: parseFloat(shape.startY),
-                        width: parseFloat(shape.width),
-                        height: parseFloat(shape.height)
+                        startX: Number(shape.startX) || 0,
+                        startY: Number(shape.startY) || 0,
+                        width: Number(shape.width) || 0,
+                        height: Number(shape.height) || 0
                     };
-                    // Kiểm tra tính hợp lệ của rect
-                    if (rectShape.width > 0 && rectShape.height > 0) {
-                        zones.push(rectShape);
-                        shapes.push(rectShape);
-                    } else {
-                        console.warn('Bỏ qua rect không hợp lệ (width hoặc height không hợp lệ):', rectShape);
-                    }
+                    zones.push({...newShape});
+                    window.shapes.push({...newShape});
                 } else if (shape.type === 'poly') {
-                    const polyShape = {
+                    newShape = {
                         ...baseShape,
-                        points: Array.isArray(shape.points) ? shape.points.map(point => ({
-                            x: parseFloat(point.x),
-                            y: parseFloat(point.y)
+                        points: shape.points ? shape.points.map(point => ({
+                            x: Number(point.x) || 0,
+                            y: Number(point.y) || 0
                         })) : []
                     };
-                    if (polyShape.points.length >= 3) {
-                        zones.push(polyShape);
-                        shapes.push(polyShape);
-                    } else {
-                        console.warn('Bỏ qua poly không hợp lệ (số điểm < 3):', polyShape);
-                    }
+                    zones.push({...newShape});
+                    window.shapes.push({...newShape});
                 }
-            });
+            } catch (err) {
+                console.error('Error processing shape:', err);
+            }
+        });
 
-            // Loại bỏ các shapes trùng lặp
-            shapes = [...lines, ...zones].filter((shape, index, self) =>
-                index === self.findIndex(s => s.id === shape.id)
-            );
-        } else {
-            console.warn('Không có drawing_object hoặc không phải mảng:', instanceRule.drawing_object);
-        }
+        console.log('Processed shapes:', window.shapes);
 
-        tempShapes = [...shapes];
+        // Đảm bảo canvas và video wrapper sẵn sàng trước khi vẽ
+        const waitForElementsAndDraw = () => {
+            const wrapper = document.getElementById('videoWrapper');
+            const canvas = document.getElementById('canvasOverlay');
+            const video = document.getElementById('videoElement');
+
+            if (!wrapper || !canvas || !video) {
+                console.warn('Waiting for DOM elements...');
+                setTimeout(waitForElementsAndDraw, 100);
+                return;
+            }
+
+            // Resize canvas
+            canvas.width = wrapper.offsetWidth;
+            canvas.height = wrapper.offsetHeight;
+            canvas.style.width = wrapper.offsetWidth + 'px';
+            canvas.style.height = wrapper.offsetHeight + 'px';
+            video.style.width = wrapper.offsetWidth + 'px';
+            video.style.height = wrapper.offsetHeight + 'px';
+
+            // Force redraw
+            setTimeout(() => {
+                if (window.shapes.length > 0) {
+                    redrawAll();
+                    updateShapesList();
+                    updateDrawingModes();
+                }
+            }, 0);
+        };
+
+        waitForElementsAndDraw();
     };
 
     const renderShapesForRule = () => {
@@ -1147,11 +1193,11 @@ let DrawingTool = (function () {
             return;
         }
 
-        instanceUuid = selectedRule.uuid;
-        ruleName = selectedRule.name;
-        detectObjects = selectedRule.detected_object
-        currentRuleType = selectedRule.rule_type
-        direction = selectedRule.direction;
+        instanceUuid = selectedRule.uuid || '';
+        ruleName = selectedRule.name || '';
+        detectObjects = selectedRule.detected_object || ['Person'];
+        currentRuleType = selectedRule.rule_type || 'line_crossing';
+        direction = selectedRule.direction || 'both';
 
         // Cập nhật giao diện người dùng
         document.getElementById('directionSelect').value = direction;
@@ -1227,29 +1273,28 @@ let DrawingTool = (function () {
         `;
         document.head.appendChild(style);
 
-        // Đợi video tải xong trước khi cho phép vẽ
-        if (videoElement.readyState >= 3) { // HAS_ENOUGH_DATA
+        if (videoElement.readyState >= 3) {
             resizeCanvas();
-            if (tempShapes.length > 0) {
-                shapes = [...tempShapes];
+            if (window.tempShapes.length > 0) {
+                shapes = [...window.tempShapes];
                 lines = shapes.filter(s => s.type === 'line');
                 zones = shapes.filter(s => s.type !== 'line');
                 redrawAll();
                 updateShapesList();
             }
-            setActiveMode(currentRuleType === 'Line Crossing' ? 'line' : 'rect');
+            setActiveMode(currentRuleType === 'line_crossing' ? 'line' : 'rect');
             updateDrawingModes();
         } else {
             videoElement.addEventListener('loadeddata', () => {
                 resizeCanvas();
-                if (tempShapes.length > 0) {
-                    shapes = [...tempShapes];
+                if (window.tempShapes.length > 0) {
+                    shapes = [...window.tempShapes];
                     lines = shapes.filter(s => s.type === 'line');
                     zones = shapes.filter(s => s.type !== 'line');
                     redrawAll();
                     updateShapesList();
                 }
-                setActiveMode(currentRuleType === 'Line Crossing' ? 'line' : 'rect');
+                setActiveMode(currentRuleType === 'line_crossing' ? 'line' : 'rect');
                 updateDrawingModes();
             }, {once: true});
         }
@@ -1258,10 +1303,22 @@ let DrawingTool = (function () {
     return {
         open: function (instanceId, uuid, options = {}) {
             instanceUuid = uuid;
-            currentRuleType = options.rule_type || 'Instruction Detection';
+            currentRuleType = options.rule_type;
             detectObjects = options.detect_objects;
             ruleName = options.rule_name;
             shapeIdCounter = 0;
+
+            if (window.tempShapesToSave && window.tempShapes && window.tempShapesToSave.uuid === uuid) {
+                shapes = [...window.tempShapes];
+                lines = shapes.filter(s => s.type === 'line');
+                zones = shapes.filter(s => s.type !== 'line');
+            } else {
+                shapes = [];
+                lines = [];
+                zones = [];
+                points = [];
+                redoShapes = [];
+            }
 
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {confirmButton: 'hidden', popup: 'swal-wide-popup'},
@@ -1335,13 +1392,17 @@ let DrawingTool = (function () {
 
                     setTimeout(() => {
                         init();
-                        renderShapesForRule();
+                        if (selectedRule && selectedRule.drawing_object) {
+                            processShapesFromServer(selectedRule);
+                        } else {
+                            renderShapesForRule();
+                        }
                         document.getElementById('saveBtn').addEventListener('click', () => {
                             saveShapesToServer(instanceId);
                             Swal.close();
                         });
                         document.getElementById('cancelBtn').addEventListener('click', () => {
-                            tempShapes = [...shapes];
+                            window.tempShapes = [...shapes];
                             Swal.close();
                         });
                     }, 100);
@@ -1351,11 +1412,10 @@ let DrawingTool = (function () {
         loadShapesFromServer: processShapesFromServer,
         saveShapes: saveShapesToServer,
         clearTempShapes: () => {
-            tempShapes = [];
+            window.tempShapes = [];
             window.tempShapesToSave = null;
         },
     };
-})
-();
+})();
 
 window.DrawingTool = DrawingTool;
