@@ -15,17 +15,20 @@ class RTAnalyticsRules extends ControllerAbstract
         try {
             $this->row($id);
 
-            $this->deviceCvedixrtInstance((int)$this->request->query('instanceId'));
+            $this->instance((int)$this->request->query('instanceId'));
+
+            if ($this->request->wantsJson()) {
+                $ruleId = $this->request->input('rule_id');
+                if ($ruleId) {
+                    $this->instance($ruleId);
+                }
+
+                return $this->actions();
+            }
         } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
             return redirect()->route('device.index');
-        }
-
-        if ($this->request->wantsJson()) {
-            if ($response = $this->actionPost('updateLines')) {
-                return $response;
-            }
         }
 
         $this->meta('title', __('rt-analytics-rules.meta-title'));
@@ -35,23 +38,66 @@ class RTAnalyticsRules extends ControllerAbstract
 
     protected function data(): array
     {
-        return ServiceController::new($this->request, $this->auth, $this->row, $this->deviceCvedixrtInstance)->dataAnalyticsRule();
+        return ServiceController::new($this->request, $this->auth, $this->row, $this->instance)->dataAnalyticsRule();
     }
 
-    protected function updateLines(): JsonResponse
+    protected function actions(): JsonResponse|false|null
+    {
+        return $this->actionPost('createInstanceRule')
+            ?: $this->actionPost('updateInstanceRule')
+                ?: $this->actionPost('deleteInstanceRule');
+    }
+
+    protected function createInstanceRule(): JsonResponse
     {
         try {
-            $this->deviceCvedixrtInstance = $this->action()->updateLines($this->deviceCvedixrtInstance);
-            $this->sessionMessage('success', __('rt-analytics-update.update-success'));
+            $rule = $this->action()->createInstanceRule();
 
-            return response()->json([
-                'success' => true,
-                'lines' => $this->deviceCvedixrtInstance->lines,
-                'message' => __('rt-analytics-update.update-success')]);
+            return $this->json([
+                'status' => 'success',
+                'data' => $rule,
+                'message' => __('rt-analytics-rules.create-success'),
+            ]);
         } catch (Exception $e) {
-            $this->sessionMessage('error', $e->getMessage());
+            return $this->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
 
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    protected function updateInstanceRule(): JsonResponse
+    {
+        try {
+            $rule = $this->action()->updateInstanceRule();
+
+            return $this->json([
+                'status' => 'success',
+                'data' => $rule,
+                'message' => __('rt-analytics-rules.update-success'),
+            ]);
+        } catch (Exception $e) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    protected function deleteInstanceRule(): JsonResponse
+    {
+        try {
+            $this->action()->deleteInstanceRule();
+
+            return $this->json([
+                'status' => 'true',
+                'message' => __('rt-analytics-rules.delete-success'),
+            ]);
+        } catch (Exception  $e) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
         }
     }
 }

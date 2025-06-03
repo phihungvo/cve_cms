@@ -17,7 +17,7 @@ class DeviceCvedixrtInstance extends ModelAbstract
 
     public const ID = 'id';
 
-    public const FOREIGN_KEY = 'instance_id';
+    public const FOREIGN_KEY = 'device_cvedixrt_instance_id';
 
     protected $fillable = [
         'uuid',
@@ -27,8 +27,6 @@ class DeviceCvedixrtInstance extends ModelAbstract
         'solution_id',
         'group_id',
         'description',
-        'lines',
-        'zones',
     ];
 
     protected $casts = [
@@ -42,8 +40,6 @@ class DeviceCvedixrtInstance extends ModelAbstract
     protected function casts(): array
     {
         return [
-            'zones' => 'array',
-            'lines' => 'array',
         ];
     }
 
