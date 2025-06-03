@@ -225,6 +225,27 @@ class Index extends ControllerAbstract
             ], 500);
         }
     }
+
+    public function unreadCount(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $userId = $this->auth->id;
+            $unreadCount = UserNotification::where('user_id', $userId)
+                ->whereNull('read_at')
+                ->count();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => ['unread_count' => $unreadCount],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching unread notification count: ', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Failed to fetch unread count') . ': ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     protected function redirectResult(array $result, string $route): RedirectResponse
     {
         if ($result['success']) {

@@ -1,24 +1,35 @@
 @php
-    try {
-        $userId = \Illuminate\Support\Facades\Auth::id(); // Lấy ID của user hiện tại
-        $userPermission = session('userPermission_' . $userId, []); // Lấy từ session, mặc định là mảng rỗng nếu không có
-    } catch (\Exception $e) {
-        $userPermission = [];
-    }
+try {
+    $userId = \Illuminate\Support\Facades\Auth::id(); // Lấy ID của user hiện tại
+    $userPermission = session('userPermission_' . $userId, []); // Lấy từ session
+    // Đếm số lượng thông báo chưa đọc
+    $unreadNotifications = \App\Domains\Notification\Model\UserNotification::where('user_id', $userId)
+        ->whereNull('read_at')
+        ->count();
+} catch (\Exception $e) {
+    $userPermission = [];
+    $unreadNotifications = 0; // Đặt mặc định là 0 nếu có lỗi
+}
 
-    $menuGroups = $userPermission['menu'] ?? [];
-    $allPermission = $userPermission['all'] ?? [];
+$menuGroups = $userPermission['menu'] ?? [];
+$allPermission = $userPermission['all'] ?? [];
 @endphp
 
 <ul style="display: block; background-color: transparent;">
     @foreach ($menuGroups as $groupName => $menus)
         @foreach ($menus as $menu)
-            @include('partials.menu-item', ['menu' => $menu, 'ROUTE' => $ROUTE])
+            @include('partials.menu-item', [
+                'menu' => $menu,
+                'ROUTE' => $ROUTE,
+                'unreadNotifications' => $unreadNotifications // Truyền số lượng thông báo chưa đọc
+            ])
         @endforeach
     @endforeach
 
-    @if (isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::ROOT->value]) ||
-            isset($allPermission[App\Domains\User\Role\Enum\RoleEnum::OWNER->value]))
+    @if (
+        isset($allPermission[\App\Domains\User\Role\Enum\RoleEnum::ROOT->value]) ||
+        isset($allPermission[\App\Domains\User\Role\Enum\RoleEnum::OWNER->value])
+    )
         <li>
             <a href="{{ route('configuration.index') }}"
                 class="side-menu {{ str_starts_with($ROUTE, 'configuration.') ? 'side-menu--active' : '' }}">
@@ -44,7 +55,6 @@
         </li>
     @endif
 
-    {{-- Luôn hiển thị nút Logout --}}
     <li>
         <a href="{{ route('user.logout') }}" class="side-menu">
             <div class="side-menu__icon">@icon('toggle-right')</div>
@@ -52,3 +62,54 @@
         </a>
     </li>
 </ul>
+
+@push('scripts')
+    <script>
+        function updateNotificationBadge() {
+            fetch("{{ route('notification.unread-count') }}", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const badge = document.querySelector('.notification-badge');
+                        if (badge) {
+                            badge.innerText = data.data.unread_count;
+                            badge.style.display = data.data.unread_count > 0 ? 'inline-block' : 'none';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching unread count:', error));
+        }
+
+        // Cập nhật badge mỗi 30 giây
+        setInterval(updateNotificationBadge, 30000);
+        // Cập nhật ngay khi tải trang
+        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+    </script>
+@endpush
+
+@push('styles')
+    <style>
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.4em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .badge-danger {
+            color: #fff;
+            background-color: #dc3545;
+        }
+    </style>
+@endpush
