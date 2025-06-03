@@ -56,7 +56,11 @@
         <div class="side-menu__title">
             {{ $menu['menu_name'] }}
             @if ($menu['menu_route_name'] === 'notification.index' && isset($unreadNotifications) && $unreadNotifications > 0)
-                <span class="badge badge-danger ml-2 notification-badge">{{ $unreadNotifications }}</span>
+                <span class="badge badge-danger ml-2 notification-badge"
+                    style="display: {{ $unreadNotifications > 0 ? 'inline-block' : 'none' }}">
+                    {{ $unreadNotifications > 99 ? '99+' : $unreadNotifications }}
+                    <span class="visually-hidden">unread notifications</span>
+                </span>
             @endif
             @if ($hasChildren)
                 <div class="side-menu__sub-icon {{ $isOpenMenu ? 'transform rotate-180' : '' }}"
@@ -73,3 +77,54 @@
         </ul>
     @endif
 </li>
+
+@push('styles')
+    <style>
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.4em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .badge-danger {
+            color: #fff;
+            background-color: #dc3545;
+        }
+    </style>
+@endpush
+
+@push('scripts')
+    <script>
+        function updateNotificationBadge() {
+            fetch("{{ route('notification.unread-count') }}", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const badges = document.querySelectorAll('.notification-badge');
+                        badges.forEach(badge => {
+                            badge.innerText = data.data.unread_count > 99 ? '99+' : data.data.unread_count;
+                            badge.style.display = data.data.unread_count > 0 ? 'inline-block' : 'none';
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching unread count:', error));
+        }
+
+        // Cập nhật ngay khi tải trang
+        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+        // Cập nhật mỗi 30 giây
+        setInterval(updateNotificationBadge, 30000);
+    </script>
+@endpush

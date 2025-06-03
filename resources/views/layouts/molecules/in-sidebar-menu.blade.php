@@ -19,17 +19,17 @@ $allPermission = $userPermission['all'] ?? [];
     @foreach ($menuGroups as $groupName => $menus)
         @foreach ($menus as $menu)
             @include('partials.menu-item', [
-                'menu' => $menu,
-                'ROUTE' => $ROUTE,
-                'unreadNotifications' => $unreadNotifications // Truyền số lượng thông báo chưa đọc
-            ])
+            'menu' => $menu,
+            'ROUTE' => $ROUTE,
+            'unreadNotifications' => $unreadNotifications // Truyền số lượng thông báo chưa đọc
+        ])
         @endforeach
     @endforeach
 
     @if (
-        isset($allPermission[\App\Domains\User\Role\Enum\RoleEnum::ROOT->value]) ||
-        isset($allPermission[\App\Domains\User\Role\Enum\RoleEnum::OWNER->value])
-    )
+    isset($allPermission[\App\Domains\User\Role\Enum\RoleEnum::ROOT->value]) ||
+    isset($allPermission[\App\Domains\User\Role\Enum\RoleEnum::OWNER->value])
+)
         <li>
             <a href="{{ route('configuration.index') }}"
                 class="side-menu {{ str_starts_with($ROUTE, 'configuration.') ? 'side-menu--active' : '' }}">
@@ -69,47 +69,26 @@ $allPermission = $userPermission['all'] ?? [];
             fetch("{{ route('notification.unread-count') }}", {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        const badge = document.querySelector('.notification-badge');
-                        if (badge) {
-                            badge.innerText = data.data.unread_count;
-                            badge.style.display = data.data.unread_count > 0 ? 'inline-block' : 'none';
-                        }
+                        })
+                            .then(re            sponse => response.json())
+                .then(data =            > {
+                    if (data            .status === 'success') {
+                                    const badge = document.querySelector('.notification-badge');
+                                    if (badge) {
+                                        badge.innerText = data.data.unread_count;
+                                        badge.style.display = data.data.unread_count > 0 ? 'inline-block' : 'none';
+                                    }
                     }
-                })
-                .catch(error => console.error('Error fetching unread count:', error));
-        }
+                            })
+                            .catch(error => console.error('Error fetching unread count:', error));
+                    }
 
-        // Cập nhật badge mỗi 30 giây
-        setInterval(updateNotificationBadge, 30000);
+                                // Cập nhật badge mỗi 30 giây
+            setInterval(updateNotificationBadge, 30000);
         // Cập nhật ngay khi tải trang
         document.addEventListener('DOMContentLoaded', updateNotificationBadge);
     </script>
-@endpush
-
-@push('styles')
-    <style>
-        .badge {
-            display: inline-block;
-            padding: 0.25em 0.4em;
-            font-size: 75%;
-            font-weight: 700;
-            line-height: 1;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-            border-radius: 0.25rem;
-        }
-
-        .badge-danger {
-            color: #fff;
-            background-color: #dc3545;
-        }
-    </style>
 @endpush
