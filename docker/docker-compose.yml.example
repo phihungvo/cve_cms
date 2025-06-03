@@ -53,5 +53,6 @@ volumes:
   mysql-data:
   redis-data:
 networks:
-  platform-network:
-    driver: bridge
+    platform-network:
+        name: platform-network
+        driver: bridge
