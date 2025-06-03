@@ -4,7 +4,9 @@
         @if(isset($row))
             <h2 class="text-2xl font-bold">{{ __('Update instance') }}</h2>
             <a href="{{ route('cvedixrt_instance.analytics', ['id' => $row->id]) }}"
-               class="text-blue-800 font-bold hover:underline">
+               class="inline-block text-primary p-2 font-bold"
+               onmouseover="this.style.textDecoration='underline'"
+               onmouseout="this.style.textDecoration='none'">
                 {{ __('Analytic Rule') }}
             </a>
         @else
