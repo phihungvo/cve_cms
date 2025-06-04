@@ -63,7 +63,7 @@ services:
     volumes:
       - ./storage:/app/storage
     build:
-      context: .
+      context: ..
       dockerfile: ./docker/Dockerfile
     networks:
       - platform-network
