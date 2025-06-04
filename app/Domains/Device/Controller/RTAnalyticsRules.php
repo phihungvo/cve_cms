@@ -20,7 +20,7 @@ class RTAnalyticsRules extends ControllerAbstract
             if ($this->request->wantsJson()) {
                 $ruleId = $this->request->input('rule_id');
                 if ($ruleId) {
-                    $this->instance($ruleId);
+                    $this->instanceRule($ruleId);
                 }
 
                 return $this->actions();
@@ -87,7 +87,7 @@ class RTAnalyticsRules extends ControllerAbstract
     protected function deleteInstanceRule(): JsonResponse
     {
         try {
-            $this->action()->deleteInstanceRule();
+            $this->action()->deleteInstanceRule($this->instanceRule);
 
             return $this->json([
                 'status' => 'true',

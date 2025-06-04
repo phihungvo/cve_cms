@@ -1,13 +1,14 @@
 <?php declare(strict_types=1);
 
 namespace App\Domains\Device\Model;
-use App\Domains\CoreApp\Model\ModelAbstract;
 
+use App\Domains\CoreApp\Model\ModelAbstract;
 use App\Domains\Device\Model\Builder\DeviceCvedixInstanceBuilder as Builder;
 use App\Domains\Device\Model\Collection\DeviceCvedixInstanceCollection as Collection;
 use App\Domains\Group\Model\DeviceCvedixrtGroup;
 use App\Domains\Solution\Model\DeviceCvedixrtSolution;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DeviceCvedixrtInstance extends ModelAbstract
 {
@@ -66,6 +67,11 @@ class DeviceCvedixrtInstance extends ModelAbstract
     public function group(): BelongsTo
     {
         return $this->belongsTo(DeviceCvedixrtGroup::class, DeviceCvedixrtGroup::FOREIGN_KEY);
+    }
+
+    public function instanceRules(): HasMany
+    {
+        return $this->hasMany(DeviceCvedixrtInstanceRule::class, self::FOREIGN_KEY);
     }
 
     /**

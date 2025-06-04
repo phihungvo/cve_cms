@@ -46,7 +46,7 @@ class RTAnalyticsCreate extends ControllerAbstract
 
             $this->request->merge($finalData);
 
-            $this->deviceCvedixrtInstance = $this->action()->createInstance();
+            $this->instance = $this->action()->createInstance();
 
             $this->request->session()->forget('stepData');
 
@@ -54,7 +54,7 @@ class RTAnalyticsCreate extends ControllerAbstract
 
             return redirect()->route(
                 'device.runtime-analytics.analytcs-rules',
-                ['id' => $this->row->id, 'instanceId' => $this->deviceCvedixrtInstance->id]
+                ['id' => $this->row->id, 'instanceId' => $this->instance->id]
             );
         } catch (\Exception $exception) {
             $this->sessionMessage('error', $exception->getMessage());

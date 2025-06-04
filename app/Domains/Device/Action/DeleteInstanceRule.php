@@ -2,20 +2,19 @@
 
 namespace App\Domains\Device\Action;
 
-use App\Domains\Device\Model\DeviceCvedixrtInstance;
+use App\Domains\Device\Model\DeviceCvedixrtInstanceRule;
 
 class DeleteInstanceRule extends ActionAbstract
 {
-    protected ?DeviceCvedixrtInstance $instance;
 
-    public function handle(?DeviceCvedixrtInstance $instance): void
+    public function handle(?DeviceCvedixrtInstanceRule $instanceRule): void
     {
-        $this->instance = $instance;
+        $this->instanceRule = $instanceRule;
         $this->delete();
     }
 
     protected function delete(): void
     {
-        $this->instance->delete();
+        $this->instanceRule->delete();
     }
 }

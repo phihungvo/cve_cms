@@ -15,7 +15,7 @@ class DeviceCvedixrtInstanceRule extends ModelAbstract
 
     public const PRIMARY = 'id';
 
-    public const FOREIGN_KEY = 'cvedixrt_instance_rule_id';
+    public const FOREIGN_KEY = 'device_cvedixrt_instance_id';
 
     public $timestamps = true;
 

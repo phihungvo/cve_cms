@@ -6,5 +6,8 @@ use App\Domains\CoreApp\Model\Builder\BuilderAbstract;
 
 class DeviceCvedixInstanceRuleBuilder extends BuilderAbstract
 {
-
+    public function byInstanceId(int $instanceId): self
+    {
+        return $this->where('device_cvedixrt_instance_id', $instanceId);
+    }
 }

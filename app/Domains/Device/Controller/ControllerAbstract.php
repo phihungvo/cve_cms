@@ -6,6 +6,7 @@ use App\Domains\Alarm\Model\Alarm as AlarmModel;
 use App\Domains\AlarmNotification\Model\AlarmNotification as AlarmNotificationModel;
 use App\Domains\Device\Model\Device as Model;
 use App\Domains\Device\Model\DeviceCvedixrtInstance;
+use App\Domains\Device\Model\DeviceCvedixrtInstanceRule;
 use App\Domains\DeviceMessage\Model\DeviceMessage as DeviceMessageModel;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract;
 use App\Exceptions\NotFoundException;
@@ -35,7 +36,12 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     /**
      * @var ?DeviceCvedixrtInstance
      */
-    protected ?DeviceCvedixrtInstance $deviceCvedixrtInstance;
+    protected ?DeviceCvedixrtInstance $instance;
+
+    /**
+     * @var ?DeviceCvedixrtInstanceRule
+     */
+    protected ?DeviceCvedixrtInstanceRule $instanceRule;
 
     /**
      * @param int $id
@@ -100,7 +106,7 @@ abstract class ControllerAbstract extends ControllerWebAbstract
      */
     protected function instance(int $instanceId): DeviceCvedixrtInstance
     {
-        return $this->deviceCvedixrtInstance = DeviceCvedixrtInstance::query()
+        return $this->instance = DeviceCvedixrtInstance::query()
             ->byId($instanceId)
             ->byDeviceId($this->row->id)
             ->firstOr(fn () => $this->exceptionNotFound(__('device.error.not-found')));
@@ -116,9 +122,9 @@ abstract class ControllerAbstract extends ControllerWebAbstract
      */
     protected function instanceRule(int $instanceRuleId): DeviceCvedixrtInstanceRule
     {
-        return DeviceCvedixrtInstanceRule::query()
+        return $this->instanceRule = DeviceCvedixrtInstanceRule::query()
             ->byId($instanceRuleId)
-            ->byDeviceId($this->row->id)
+            ->byInstanceId($this->instance->id)
             ->firstOr(fn () => $this->exceptionNotFound(__('device.error.not-found')));
     }
 }
