@@ -4,8 +4,21 @@ set -e
 echo "Docker Compose version:"
 docker compose version
 
-echo "Checking files..."
-ls -l docker/docker-compose.yml docker/Dockerfile docker/.env.example docker/docker-compose.yml.example || { echo "Missing required files"; exit 1; }
+echo "Checking docker-compose.yml.example..."
+if [ ! -f docker/docker-compose.yml.example ]; then
+    echo "Error: docker/docker-compose.yml.example not found"
+    exit 1
+fi
+ls -l docker/docker-compose.yml.example
+
+echo "Copying docker-compose.yml if not exists..."
+if [ ! -f docker/docker-compose.yml ]; then
+    cp docker/docker-compose.yml.example docker/docker-compose.yml
+    echo "Copied docker-compose.yml.example to docker-compose.yml"
+fi
+
+echo "Checking required files..."
+ls -l docker/docker-compose.yml docker/Dockerfile docker/.env.example || { echo "Missing required files"; exit 1; }
 
 echo "Checking build context..."
 ls -l . | grep composer.json || { echo "Missing composer.json in context"; exit 1; }
@@ -20,14 +33,6 @@ if [ ! -f .env ] && [ -f docker/.env.example ]; then
     cp docker/.env.example .env
 elif [ ! -f docker/.env.example ]; then
     echo "Error: docker/.env.example not found"
-    exit 1
-fi
-
-if [ ! -f docker/docker-compose.yml ] && [ -f docker/docker-compose.yml.example ]; then
-    echo "Copying docker-compose.yml.example to docker-compose.yml..."
-    cp docker/docker-compose.yml.example docker/docker-compose.yml
-elif [ ! -f docker/docker-compose.yml.example ]; then
-    echo "Error: docker/docker-compose.yml.example not found"
     exit 1
 fi
 
