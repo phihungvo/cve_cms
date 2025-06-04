@@ -13,7 +13,11 @@ docker compose version
 
 # Kiểm tra file tồn tại
 echo "Checking files..."
-ls -l docker/docker-compose.yml docker/Dockerfile docker/.env.example docker/docker-compose.yml.example
+ls -l docker/docker-compose.yml docker/Dockerfile docker/.env.example docker/docker-compose.yml.example || { echo "Missing required files"; exit 1; }
+
+# Kiểm tra context
+echo "Checking build context..."
+ls -l .. | grep composer.json || { echo "Missing composer.json in context"; exit 1; }
 
 # Xóa cache Laravel
 if [ -d bootstrap/cache ]; then

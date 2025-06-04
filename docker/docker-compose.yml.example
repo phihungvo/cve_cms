@@ -1,57 +1,76 @@
 version: '3.8'
 services:
-  platform-app:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    container_name: platform-app
-    restart: unless-stopped
-    volumes:
-      - ./../storage:/app/storage
-    depends_on:
-      - platform-mysql
-      - platform-redis
-    networks:
-      - platform-network
-  platform-worker:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    container_name: platform-worker
-    restart: unless-stopped
-    volumes:
-      - ./../storage:/app/storage
-    depends_on:
-      - platform-mysql
-      - platform-redis
-    command: php artisan queue:work
-    networks:
-      - platform-network
   platform-mysql:
     image: mysql:8.0
     container_name: platform-mysql
     restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: platform
-      MYSQL_USER: platform
-      MYSQL_PASSWORD: platform
-      MYSQL_ROOT_PASSWORD: root
     volumes:
-      - mysql-data:/var/lib/mysql
+      - ./../storage/docker/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=platform
+      - MYSQL_PASSWORD=platform
+      - MYSQL_DATABASE=platform
+    command:
+      - --character-set-server=utf8
+      - --collation-server=utf8_unicode_ci
     networks:
       - platform-network
+    healthcheck:
+      test: mysqladmin ping -h localhost --password=root
+      interval: 15s
+      retries: 15
   platform-redis:
     image: redis:7.0
     container_name: platform-redis
     restart: unless-stopped
-    command: redis-server --maxmemory 15gb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis-data:/data
+    command: redis-server --maxmemory 15gb --maxmemory-policy volatile-lru
     networks:
       - platform-network
-volumes:
-  mysql-data:
-  redis-data:
+    healthcheck:
+      test: redis-cli ping
+      interval: 5s
+      retries: 15
+  platform-app:
+    container_name: platform-app
+    restart: unless-stopped
+    depends_on:
+      platform-mysql:
+        condition: service_healthy
+      platform-redis:
+        condition: service_healthy
+    volumes:
+      - ./../storage:/app/storage
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8080:80"
+      - "8091:8091"
+    expose:
+      - "8080"
+      - "8091"
+    networks:
+      - platform-network
+    tty: true
+  platform-worker:
+    container_name: platform-worker
+    restart: unless-stopped
+    depends_on:
+      platform-mysql:
+        condition: service_healthy
+      platform-redis:
+        condition: service_healthy
+    volumes:
+      - ./../storage:/app/storage
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    command: php artisan queue:work
+    networks:
+      - platform-network
+    tty: true
 networks:
   platform-network:
+    name: platform-network
     driver: bridge
