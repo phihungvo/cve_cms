@@ -12,45 +12,35 @@ use Illuminate\Support\Arr;
 
 class UpdateImageReport extends ControllerAbstract
 {
-    /**
-     * @param \Illuminate\Http\Request $request
-     * @param \Illuminate\Contracts\Auth\Authenticatable $auth
-     * @param \App\Domains\Vehicle\Model\Vehicle $row
-     *
-     * @return self
-     */
     public function __construct(protected Request $request, protected Authenticatable $auth, protected Model $rowReport) {}
 
-    /**
-     * @return array
-     */
     public function data(): array
     {
         return [
             'row' => $this->rowReport,
-            'odo' => $this->odoReport(),
+            'odo_by_date' => $this->odoReportByDate(),
             'fpp' => $this->fppReport(),
         ];
     }
 
-    /**
-     * @return \App\Domains\Vehicle\Model\Collection\Vehicle
-     */
-    protected function odoReport(): Collection
+    protected function odoReportByDate(): Collection
     {
-        return $this->cache(
-            fn() => new Collection(
-                Model::query()
-                    ->byVehicleId($this->rowReport->id)
-                    ->where('label', 'odo')
-                    ->get()
-            )
-        );
+        $reports = Model::query()
+            ->byVehicleId($this->rowReport->id)
+            ->where('label', 'odo')
+            ->with(['device']) // Eager-load relationships if needed
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->created_at->format('Y-m-d'); // Nhóm theo ngày (YYYY-MM-DD)
+            })
+            ->map(function ($group) {
+                return new Collection($group); // Wrap each group in custom Collection
+            });
+
+        // Wrap the grouped result in the custom Collection
+        return $this->cache(fn() => new Collection($reports));
     }
 
-    /**
-     * @return \App\Domains\Vehicle\Model\Collection\Vehicle
-     */
     protected function fppReport(): Collection
     {
         return $this->cache(

@@ -9,11 +9,6 @@ use App\Domains\Vehicle\Service\Controller\UpdateImageReport as ControllerServic
 
 class UpdateImageReport extends ControllerAbstract
 {
-    /**
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function __invoke(int $id): Response
     {
         $this->rowReport($id);
@@ -23,9 +18,6 @@ class UpdateImageReport extends ControllerAbstract
         return $this->page('vehicle.update-image-report', $this->data());
     }
 
-    /**
-     * @return array
-     */
     protected function data(): array
     {
         return ControllerService::new($this->request, $this->auth, $this->rowReport)->data();
