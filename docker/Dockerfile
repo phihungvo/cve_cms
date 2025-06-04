@@ -61,22 +61,22 @@ RUN chmod 0600 /etc/cron.d/crontab
 # Set working directory
 WORKDIR /app
 
-# Copy composer.json
-COPY composer.json ./
+# # Copy composer.json
+# COPY composer.json ./
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+# # Install Composer
+# COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
-# Install critical packages individually
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer config --global process-timeout 3600 && \
-    COMPOSER_ALLOW_SUPERUSER=1 composer require --no-update \
-        laravel/framework:"^11.0" \
-        php-mqtt/laravel-client:"*" \
-        phpoffice/phpspreadsheet:"^4.2" \
-        predis/predis:"^2.1.1" \
-        livewire/livewire:"^3.6" \
-        php-ffmpeg/php-ffmpeg:"^1.3" && \
-    COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --no-cache --optimize-autoloader --classmap-authoritative --no-scripts
+# # Install critical packages individually
+# RUN COMPOSER_ALLOW_SUPERUSER=1 composer config --global process-timeout 3600 && \
+#     COMPOSER_ALLOW_SUPERUSER=1 composer require --no-update \
+#         laravel/framework:"^11.0" \
+#         php-mqtt/laravel-client:"*" \
+#         phpoffice/phpspreadsheet:"^4.2" \
+#         predis/predis:"^2.1.1" \
+#         livewire/livewire:"^3.6" \
+#         php-ffmpeg/php-ffmpeg:"^1.3" && \
+#     COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --no-cache --optimize-autoloader --classmap-authoritative --no-scripts
 
 # Copy application code
 COPY  ./ /app
