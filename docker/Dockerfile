@@ -56,7 +56,7 @@ RUN docker-php-ext-install \
 # Copy configuration files
 COPY ./docker/php.ini /usr/local/etc/php/
 COPY ./docker/crontab /etc/cron.d/crontab
-RUN chmod 600 /etc/cron.d/crontab
+RUN chmod 0600 /etc/cron.d/crontab
 
 # Set working directory
 WORKDIR /app
