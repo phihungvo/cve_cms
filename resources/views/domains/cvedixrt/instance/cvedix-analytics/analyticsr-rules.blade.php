@@ -326,6 +326,10 @@
                             updateRuleConfiguration();
                             ruleItemsEl = document.querySelectorAll('.rule-item');
                             document.getElementById('btn-save-rule').innerText = 'Add +';
+
+                            if (window.DrawingTool) {
+                                window.DrawingTool.loadShapesFromServer(null);
+                            }
                         });
                     }
                 })
@@ -553,6 +557,10 @@
 
                     const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Add +';
+
+                    if (window.DrawingTool) {
+                        window.DrawingTool.loadShapesFromServer(null); // Xóa shapes hiện tại
+                    }
                 });
             });
         });

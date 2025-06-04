@@ -185,20 +185,26 @@ let DrawingTool = (function () {
         const closePolyBtn = document.getElementById('closePolyBtn');
         const editBtn = document.getElementById('editBtn');
 
-        if (currentRuleType === 'line_crossing') {
-            lineBtn.style.display = 'inline-block';
-            rectBtn.style.display = 'none';
-            polyBtn.style.display = 'none';
-            closePolyBtn.style.display = 'none';
+        [lineBtn, rectBtn, polyBtn, closePolyBtn, editBtn].forEach(btn => {
+            if (btn) btn.style.display = 'none';
+        });
+
+        if (currentRuleType.toLowerCase() === 'line_crossing') {
+            if (lineBtn) lineBtn.style.display = 'inline-block';
+            if (editBtn) editBtn.style.display = 'inline-block';
             setActiveMode('line');
         } else {
-            lineBtn.style.display = 'inline-block';
-            rectBtn.style.display = 'inline-block';
-            polyBtn.style.display = 'inline-block';
-            closePolyBtn.style.display = currentMode === 'poly' ? 'inline-block' : 'none';
+            if (lineBtn) lineBtn.style.display = 'inline-block';
+            if (rectBtn) rectBtn.style.display = 'inline-block';
+            if (polyBtn) polyBtn.style.display = 'inline-block';
+            if (editBtn) editBtn.style.display = 'inline-block';
+            if (closePolyBtn) {
+                closePolyBtn.style.display = currentMode === 'poly' ? 'inline-block' : 'none';
+            }
             setActiveMode(currentMode === 'line' ? 'rect' : currentMode);
         }
-        editBtn.style.display = 'inline-block';
+
+        updateClosePolyButton();
         redrawAll();
         updateShapesList();
     };
@@ -617,11 +623,24 @@ let DrawingTool = (function () {
                 }
             });
 
+            // Vẽ tất cả các điểm và cạnh của polygon
             if (points.length > 0) {
                 ctx.beginPath();
-                ctx.moveTo(points[points.length - 1].x, points[points.length - 1].y);
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                // Vẽ cạnh tạm thời từ điểm cuối đến vị trí chuột
                 ctx.lineTo(currentX, currentY);
                 ctx.stroke();
+
+                // Vẽ các điểm
+                points.forEach(point => {
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = rgbToHex(currentColor);
+                    ctx.fill();
+                });
             }
         } else if (currentMode === 'line' || currentMode === 'rect') {
             redrawAll();
@@ -1080,11 +1099,18 @@ let DrawingTool = (function () {
 
         if (!instanceRule) {
             console.error('Không có dữ liệu instanceRule được cung cấp');
+            window.shapes = [];
+            lines = [];
+            zones = [];
+            selectedRule = null;
+            window.tempShapes = [];
+            redrawAll();
+            updateShapesList();
+            updateDrawingModes();
             return;
         }
 
         selectedRule = {...instanceRule};
-
         window.shapes = [];
         lines = [];
         zones = [];
@@ -1165,16 +1191,18 @@ let DrawingTool = (function () {
     };
 
     const renderShapesForRule = () => {
-        if (!selectedRule) {
-            console.warn('Không có rule nào được chọn để vẽ');
-            return;
-        }
+        instanceUuid = instanceUuid || null;
+        ruleName = ruleName || '';
+        detectObjects = detectObjects || ['Person'];
+        direction = direction || 'both';
 
-        instanceUuid = selectedRule.uuid;
-        ruleName = selectedRule.name;
-        detectObjects = selectedRule.detected_object
-        currentRuleType = selectedRule.rule_type
-        direction = selectedRule.direction;
+        if (selectedRule) {
+            instanceUuid = selectedRule.uuid;
+            ruleName = selectedRule.name;
+            detectObjects = selectedRule.detected_object
+            currentRuleType = selectedRule.rule_type
+            direction = selectedRule.direction;
+        }
 
         // Cập nhật giao diện người dùng
         document.getElementById('directionSelect').value = direction;
@@ -1251,7 +1279,7 @@ let DrawingTool = (function () {
         document.head.appendChild(style);
 
         // Đợi video tải xong trước khi cho phép vẽ
-        if (videoElement.readyState >= 3) { // HAS_ENOUGH_DATA
+        if (videoElement.readyState >= 3) {
             resizeCanvas();
             if (tempShapes.length > 0) {
                 window.shapes = [...tempShapes];
@@ -1260,7 +1288,7 @@ let DrawingTool = (function () {
                 redrawAll();
                 updateShapesList();
             }
-            setActiveMode(currentRuleType === 'Line Crossing' ? 'line' : 'rect');
+            setActiveMode(currentRuleType.toLowerCase() === 'line_crossing' ? 'line' : 'rect');
             updateDrawingModes();
         } else {
             videoElement.addEventListener('loadeddata', () => {
@@ -1272,7 +1300,7 @@ let DrawingTool = (function () {
                     redrawAll();
                     updateShapesList();
                 }
-                setActiveMode(currentRuleType === 'Line Crossing' ? 'line' : 'rect');
+                setActiveMode(currentRuleType.toLowerCase() === 'line_crossing' ? 'line' : 'rect');
                 updateDrawingModes();
             }, {once: true});
         }
@@ -1281,9 +1309,9 @@ let DrawingTool = (function () {
     return {
         open: function (instanceId, uuid, options = {}) {
             instanceUuid = uuid;
-            currentRuleType = options.rule_type;
-            detectObjects = options.detect_objects;
-            ruleName = options.rule_name;
+            currentRuleType = options.rule_type || 'line_crossing';
+            detectObjects = options.detect_objects || ['Person'];
+            ruleName = options.rule_name || '';
             shapeIdCounter = 0;
 
             const swalWithBootstrapButtons = Swal.mixin({
@@ -1356,18 +1384,17 @@ let DrawingTool = (function () {
                     `;
                     document.head.appendChild(style);
 
-                    setTimeout(() => {
-                        init();
-                        renderShapesForRule();
-                        document.getElementById('saveBtn').addEventListener('click', () => {
-                            saveShapesToServer(instanceId);
-                            Swal.close();
-                        });
-                        document.getElementById('cancelBtn').addEventListener('click', () => {
-                            window.tempShapes = [...shapes];
-                            Swal.close();
-                        });
-                    }, 100);
+                    init();
+                    renderShapesForRule();
+                    document.getElementById('saveBtn').addEventListener('click', () => {
+                        saveShapesToServer(instanceId);
+                        Swal.close();
+                    });
+                    document.getElementById('cancelBtn').addEventListener('click', () => {
+                        window.tempShapes = [...shapes];
+                        Swal.close();
+                    });
+
                 }
             });
         },
