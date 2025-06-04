@@ -31,11 +31,12 @@ class UpdateImageReport extends ControllerAbstract
             ->with(['device'])
             ->get()
             ->groupBy(function ($item) {
-                return \Carbon\Carbon::parse($item->created_at)->addHours(7)->format('Y-m-d'); // Adjust date for +7
+                return \Carbon\Carbon::parse($item->created_at)->addHours(7)->format('Y-m-d'); // Adjust for +7 timezone
             })
             ->map(function ($group) {
                 return new Collection($group);
-            });
+            })
+            ->sortKeysDesc(); // Sort dates in descending order (most recent first)
 
         return $this->cache(fn() => new Collection($reports));
     }
