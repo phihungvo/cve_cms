@@ -4,7 +4,7 @@ services:
     container_name: platform-mysql
     restart: unless-stopped
     volumes:
-      - ./storage/docker/db:/var/lib/mysql
+      - ./../storage/docker/db:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_USER=platform
@@ -23,6 +23,8 @@ services:
     image: redis:7.0
     container_name: platform-redis
     restart: unless-stopped
+    volumes:
+    - ./../storage/docker/redis:/data 
     command: redis-server --maxmemory 15gb --maxmemory-policy volatile-lru
     networks:
       - platform-network
@@ -39,7 +41,7 @@ services:
       platform-redis:
         condition: service_healthy
     volumes:
-      - ./storage:/app/storage
+      - ./../storage:/app/storage
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
@@ -61,7 +63,7 @@ services:
       platform-redis:
         condition: service_healthy
     volumes:
-      - ./storage:/app/storage
+      - ./../storage:/app/storage
     build:
       context: ..
       dockerfile: ./docker/Dockerfile
