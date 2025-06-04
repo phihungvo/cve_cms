@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Kiểm tra Docker Compose v2
 if ! command -v docker compose >/dev/null 2>&1; then
@@ -28,15 +29,20 @@ elif [ ! -f docker/docker-compose.yml.example ]; then
 fi
 
 # Dừng tất cả các container
+echo "Stopping all containers..."
 docker compose -f docker/docker-compose.yml stop || { echo "Failed to stop containers"; exit 1; }
 
 # Xóa tất cả container platform-worker
 echo "Removing all platform-worker containers..."
 docker ps -a --filter "name=platform-worker" -q | xargs -r docker rm -f
 
-# Build và khởi động lại các service
-docker compose -f docker/docker-compose.yml build || { echo "Failed to build images"; exit 1; }
-docker compose -f docker/docker-compose.yml up -d --scale platform-worker=5 || { echo "Failed to start containers"; exit 1; }
+# Build các service
+echo "Building images..."
+docker compose -f docker/docker-compose.yml build platform-app platform-worker || { echo "Failed to build images"; exit 1; }
+
+# Khởi động các service
+echo "Starting containers..."
+docker compose -f docker/docker-compose.yml up -d platform-app platform-worker platform-mysql platform-redis --scale platform-worker=5 || { echo "Failed to start containers"; exit 1; }
 
 echo "Build and deployment completed successfully!"
 echo "Application is running at http://localhost:8080"
