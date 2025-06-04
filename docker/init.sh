@@ -26,6 +26,8 @@ if ! grep -q "^APP_KEY=.*" .env || [ -z "$(grep '^APP_KEY=' .env | cut -d'=' -f2
     php artisan key:generate --verbose 2>&1 | tee -a /tmp/init.log
     if [ $? -eq 0 ]; then
         echo "Tạo khóa thành công" | tee -a /tmp/init.log
+        echo "Nội dung APP_KEY sau khi tạo:" | tee -a /tmp/init.log
+        grep "^APP_KEY=" .env | tee -a /tmp/init.log
     else
         echo "Tạo khóa thất bại" | tee -a /tmp/init.log
         exit 1
