@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   platform-mysql:
     image: mysql:8.0
@@ -54,7 +53,6 @@ services:
       - platform-network
     tty: true
   platform-worker:
-    container_name: platform-worker
     restart: unless-stopped
     command: php artisan queue:work --queue=platform --tries=3 --timeout=120
     depends_on:
