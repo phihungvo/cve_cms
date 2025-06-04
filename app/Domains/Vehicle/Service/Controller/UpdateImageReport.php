@@ -28,16 +28,15 @@ class UpdateImageReport extends ControllerAbstract
         $reports = Model::query()
             ->byVehicleId($this->rowReport->id)
             ->where('label', 'odo')
-            ->with(['device']) // Eager-load relationships if needed
+            ->with(['device'])
             ->get()
             ->groupBy(function ($item) {
-                return $item->created_at->format('Y-m-d'); // Nhóm theo ngày (YYYY-MM-DD)
+                return \Carbon\Carbon::parse($item->created_at)->addHours(7)->format('Y-m-d'); // Adjust date for +7
             })
             ->map(function ($group) {
-                return new Collection($group); // Wrap each group in custom Collection
+                return new Collection($group);
             });
 
-        // Wrap the grouped result in the custom Collection
         return $this->cache(fn() => new Collection($reports));
     }
 

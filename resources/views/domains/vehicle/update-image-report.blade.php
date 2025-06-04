@@ -47,7 +47,9 @@
                                     -
                                 @endif
                             </td>
-                            <td class="text-left">{{ $each->created_at?->format('Y-m-d H:i:s') ?? '-' }}</td>
+                            <td class="text-left">
+                                {{ $each->created_at ? \Carbon\Carbon::parse($each->created_at)->addHours(7)->format('Y-m-d H:i:s') : '-' }}
+                            </td>
                             <td class="text-left">{{ $each->latitude ?? '-' }}</td>
                             <td class="text-left">{{ $each->longitude ?? '-' }}</td>
                             <td class="text-left">{{ $each->device->name ?? '-' }}</td>
