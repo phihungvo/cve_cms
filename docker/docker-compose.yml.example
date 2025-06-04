@@ -41,7 +41,7 @@ services:
     volumes:
       - ./storage:/app/storage
     build:
-      context: .
+      context: ..
       dockerfile: ./docker/Dockerfile
     ports:
       - "8080:80"
