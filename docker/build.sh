@@ -7,13 +7,23 @@ if ! command -v docker compose >/dev/null 2>&1; then
     exit 1
 fi
 
+# Kiểm tra version Docker Compose
+echo "Docker Compose version:"
+docker compose version
+
+# Kiểm tra file tồn tại
+echo "Checking files..."
+ls -l docker/docker-compose.yml docker/Dockerfile docker/.env.example docker/docker-compose.yml.example
+
 # Xóa cache Laravel
 if [ -d bootstrap/cache ]; then
+    echo "Removing Laravel cache..."
     rm -rf bootstrap/cache/*.php
 fi
 
 # Sao chép .env nếu chưa tồn tại
 if [ ! -f .env ] && [ -f docker/.env.example ]; then
+    echo "Copying .env.example to .env..."
     cp docker/.env.example .env
 elif [ ! -f docker/.env.example ]; then
     echo "Error: docker/.env.example not found"
@@ -22,11 +32,16 @@ fi
 
 # Sao chép docker-compose.yml nếu chưa tồn tại
 if [ ! -f docker/docker-compose.yml ] && [ -f docker/docker-compose.yml.example ]; then
+    echo "Copying docker-compose.yml.example to docker-compose.yml..."
     cp docker/docker-compose.yml.example docker/docker-compose.yml
 elif [ ! -f docker/docker-compose.yml.example ]; then
     echo "Error: docker/docker-compose.yml.example not found"
     exit 1
 fi
+
+# Kiểm tra cú pháp docker-compose.yml
+echo "Validating docker-compose.yml..."
+docker compose -f docker/docker-compose.yml config || { echo "Invalid docker-compose.yml"; exit 1; }
 
 # Dừng tất cả các container
 echo "Stopping all containers..."
@@ -37,8 +52,11 @@ echo "Removing all platform-worker containers..."
 docker ps -a --filter "name=platform-worker" -q | xargs -r docker rm -f
 
 # Build các service
-echo "Building images..."
-docker compose -f docker/docker-compose.yml build platform-app platform-worker || { echo "Failed to build images"; exit 1; }
+echo "Building platform-app..."
+docker compose -f docker/docker-compose.yml build platform-app || { echo "Failed to build platform-app"; exit 1; }
+
+echo "Building platform-worker..."
+docker compose -f docker/docker-compose.yml build platform-worker || { echo "Failed to build platform-worker"; exit 1; }
 
 # Khởi động các service
 echo "Starting containers..."
