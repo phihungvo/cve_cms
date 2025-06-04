@@ -63,32 +63,3 @@ $allPermission = $userPermission['all'] ?? [];
     </li>
 </ul>
 
-@push('scripts')
-    <script>
-        function updateNotificationBadge() {
-            fetch("{{ route('notification.unread-count') }}", {
-                method: 'GET',
-                headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-                        })
-                            .then(re            sponse => response.json())
-                .then(data =            > {
-                    if (data            .status === 'success') {
-                                    const badge = document.querySelector('.notification-badge');
-                                    if (badge) {
-                                        badge.innerText = data.data.unread_count;
-                                        badge.style.display = data.data.unread_count > 0 ? 'inline-block' : 'none';
-                                    }
-                    }
-                            })
-                            .catch(error => console.error('Error fetching unread count:', error));
-                    }
-
-                                // Cập nhật badge mỗi 30 giây
-            setInterval(updateNotificationBadge, 30000);
-        // Cập nhật ngay khi tải trang
-        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
-    </script>
-@endpush

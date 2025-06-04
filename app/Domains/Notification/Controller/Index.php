@@ -12,6 +12,7 @@ use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class Index extends ControllerAbstract
 {
@@ -230,9 +231,11 @@ class Index extends ControllerAbstract
     {
         try {
             $userId = $this->auth->id;
-            $unreadCount = UserNotification::where('user_id', $userId)
-                ->whereNull('read_at')
-                ->count();
+            $unreadCount = Cache::remember("unread_notifications_{$userId}", 60, function () use ($userId) {
+                return UserNotification::where('user_id', $userId)
+                    ->whereNull('read_at')
+                    ->count();
+            });
 
             return response()->json([
                 'status' => 'success',

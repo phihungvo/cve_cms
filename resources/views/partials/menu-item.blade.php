@@ -9,11 +9,9 @@
                 $uriPattern = str_replace('{id}', '[0-9]+', $child['menu_route_uri'] ?? '');
                 $uriBase = $child['menu_route_uri'] ? explode('{', $child['menu_route_uri'])[0] : '';
 
-                // Kiểm tra khớp chính xác route name hoặc URI pattern
                 $isChildActive = ($child['menu_route_name'] && $currentRoute === $child['menu_route_name']) ||
                     ($uriPattern && preg_match("#^$uriPattern$#", $currentUri));
 
-                // Nếu không khớp chính xác, kiểm tra URI base nhưng chỉ áp dụng cho child không có children
                 if (!$isChildActive && $uriBase) {
                     $isChildActive = str_starts_with($currentUri, $uriBase) && !$childHasChildren;
                 }
@@ -32,7 +30,6 @@
     $currentRoute = \Illuminate\Support\Facades\Route::currentRouteName();
     $currentUri = request()->path();
 
-    // Logic cho $isActive
     $uriPattern = str_replace('{id}', '[0-9]+', $menu['menu_route_uri'] ?? '');
 
     $isActive = $hasChildren
@@ -55,13 +52,6 @@
         <div class="side-menu__icon">@icon($menu['menu_icon'])</div>
         <div class="side-menu__title">
             {{ $menu['menu_name'] }}
-            @if ($menu['menu_route_name'] === 'notification.index' && isset($unreadNotifications) && $unreadNotifications > 0)
-                <span class="badge badge-danger ml-2 notification-badge"
-                    style="display: {{ $unreadNotifications > 0 ? 'inline-block' : 'none' }}">
-                    {{ $unreadNotifications > 99 ? '99+' : $unreadNotifications }}
-                    <span class="visually-hidden">unread notifications</span>
-                </span>
-            @endif
             @if ($hasChildren)
                 <div class="side-menu__sub-icon {{ $isOpenMenu ? 'transform rotate-180' : '' }}"
                     style="transition: transform 0.3s ease;">@icon('chevron-down')</div>
@@ -78,30 +68,25 @@
     @endif
 </li>
 
-@push('styles')
-    <style>
-        .badge {
-            display: inline-block;
-            padding: 0.25em 0.4em;
-            font-size: 75%;
-            font-weight: 700;
-            line-height: 1;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-            border-radius: 0.25rem;
-        }
-
-        .badge-danger {
-            color: #fff;
-            background-color: #dc3545;
-        }
-    </style>
-@endpush
-
 @push('scripts')
     <script>
         function updateNotificationBadge() {
+            // Tìm thẻ side-menu__title chứa "Notification"
+            const menuTitles = document.querySelectorAll('.side-menu__title');
+            let notificationMenu = null;
+            menuTitles.forEach(title => {
+                if (title.textContent.trim().startsWith('Notification')) {
+                    notificationMenu = title;
+                }
+            });
+
+            if (!notificationMenu) return;
+
+            // Xóa badge cũ nếu có
+            const existingBadge = notificationMenu.querySelector('.notification-badge');
+            if (existingBadge) existingBadge.remove();
+
+            // Gọi API để lấy số thông báo chưa đọc
             fetch("{{ route('notification.unread-count') }}", {
                 method: 'GET',
                 headers: {
@@ -112,19 +97,45 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        const badges = document.querySelectorAll('.notification-badge');
-                        badges.forEach(badge => {
-                            badge.innerText = data.data.unread_count > 99 ? '99+' : data.data.unread_count;
-                            badge.style.display = data.data.unread_count > 0 ? 'inline-block' : 'none';
-                        });
+                        const unreadCount = data.data.unread_count;
+                        if (unreadCount > 0) {
+                            // Tạo badge mới
+                            const badge = document.createElement('span');
+                            badge.className = 'badge badge-danger ml-2 notification-badge';
+                            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+                            badge.style.display = 'inline-block';
+                            notificationMenu.insertBefore(badge, notificationMenu.querySelector('.side-menu__sub-icon'));
+                        }
                     }
                 })
                 .catch(error => console.error('Error fetching unread count:', error));
         }
 
-        // Cập nhật ngay khi tải trang
-        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
-        // Cập nhật mỗi 30 giây
-        setInterval(updateNotificationBadge, 30000);
+        // Thêm style cho badge
+        const style = document.createElement('style');
+        style.textContent = `
+                        .badge {
+                            display: inline-block;
+                            padding: 0.25em 0.4em;
+                            font-size: 75%;
+                            font-weight: 700;
+                            line-height: 1;
+                            text-align: center;
+                            white-space: nowrap;
+                            vertical-align: baseline;
+                            border-radius: 0.25rem;
+                        }
+                        .badge-danger {
+                            color: #fff;
+                            background-color: #dc3545;
+                        }
+                    `;
+        document.head.appendChild(style);
+
+        // Cập nhật khi tải trang và mỗi 60 giây
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNotificationBadge();
+            setInterval(updateNotificationBadge, 60000);
+        });
     </script>
 @endpush
