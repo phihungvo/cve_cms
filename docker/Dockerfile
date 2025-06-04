@@ -1,4 +1,4 @@
-FROM php:8.2
+FROM php:8.3
 
 # Update and install required packages
 RUN apt-get update && apt-get upgrade -y && \
@@ -79,7 +79,7 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 composer config --global process-timeout 3600 && 
     COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --no-cache --optimize-autoloader --classmap-authoritative --no-scripts
 
 # Copy application code
-COPY . ./
+COPY  ./ /app
 
 # Configure vim and git
 RUN echo ":set noshowmode" > /root/.vimrc && \
