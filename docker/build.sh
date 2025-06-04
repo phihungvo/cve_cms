@@ -47,7 +47,7 @@ echo "Building platform-worker..."
 docker compose -f docker/docker-compose.yml build platform-worker || { echo "Failed to build platform-worker"; exit 1; }
 
 echo "Starting containers..."
-docker compose -f docker/docker-compose.yml up -d platform-app platform-worker platform-mysql platform-redis --scale platform-worker=5 || { echo "Failed to start containers"; exit 1; }
+docker compose -f docker/docker-compose.yml up -d platform-app platform-worker platform-mysql platform-redis || { echo "Failed to start containers"; exit 1; }
 
 echo "Build and deployment completed successfully!"
 echo "Application is running at http://localhost:8080"
