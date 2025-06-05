@@ -26,6 +26,10 @@ chown www-data:www-data /app/.env
 echo "Nội dung APP_KEY trước khi tạo:" | tee -a /tmp/init.log
 grep "^APP_KEY=" /app/.env | tee -a /tmp/init.log || echo "Không tìm thấy APP_KEY" | tee -a /tmp/init.log
 
+composer update
+
+composer dump-autoload
+
 # Kiểm tra APP_KEY
 if ! grep -q "^APP_KEY=.*" /app/.env || [ -z "$(grep '^APP_KEY=' /app/.env | cut -d'=' -f2)" ]; then
     echo "Đang tạo APP_KEY" | tee -a /tmp/init.log
@@ -41,6 +45,8 @@ if ! grep -q "^APP_KEY=.*" /app/.env || [ -z "$(grep '^APP_KEY=' /app/.env | cut
 else
     echo "APP_KEY đã được thiết lập, bỏ qua tạo khóa" | tee -a /tmp/init.log
 fi
+
+composer dump-autoload
 
 LOG="/app/storage/logs/deploy/$(date +"%Y/%m")/$(date +"%Y-%m-%d").log"
 echo "Tạo thư mục log deploy" | tee -a /tmp/init.log
