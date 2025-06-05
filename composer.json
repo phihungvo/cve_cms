@@ -19,6 +19,7 @@
         "predis/predis": "^2.1.1",
         "sentry/sentry-laravel": "^4.1",
         "sibyx/phpgpx": "^1.2.1",
+        "phpoffice/phpspreadsheet": "^4.2",
         "spatie/laravel-permission": "*"
     },
     "require-dev": {

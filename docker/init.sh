@@ -62,8 +62,8 @@ echo "Khởi động php artisan serve" | tee -a /tmp/init.log
 # Tạm dừng để gỡ lỗi
 echo "Tạm dừng để gỡ lỗi" | tee -a /tmp/init.log
 sleep 3600
-# while true; do
-#     LOG="/app/storage/logs/serve/$(date +"%Y/%m")/$(date +"%Y-%m-%d").log"
-#     install -d $(dirname "$LOG")
-#     su www-data -s /bin/bash -c "php /app/artisan serve --host=0.0.0.0 --port=80 --no-reload" >> "$LOG" 2>&1
-# done
+while true; do
+    LOG="/app/storage/logs/serve/$(date +"%Y/%m")/$(date +"%Y-%m-%d").log"
+    install -d $(dirname "$LOG")
+    su www-data -s /bin/bash -c "php /app/artisan serve --host=0.0.0.0 --port=80 --no-reload" >> "$LOG" 2>&1
+done

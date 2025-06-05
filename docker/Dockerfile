@@ -65,7 +65,7 @@ WORKDIR /app
 # COPY composer.json ./
 
 # # Install Composer
-# COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # # Install critical packages individually
 # RUN COMPOSER_ALLOW_SUPERUSER=1 composer config --global process-timeout 3600 && \
@@ -85,7 +85,7 @@ COPY  ./ /app
 RUN echo ":set noshowmode" > /root/.vimrc && \
     git config --global safe.directory /app
 
-RUN COMPOSER_ALLOW_SUPERUSER=1 ./composer install --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
+RUN COMPOSER_ALLOW_SUPERUSER=1 ./composer update --no-dev --optimize-autoloader --classmap-authoritative --no-scripts
 
 # Start application
 CMD ["./docker/init.sh"]
