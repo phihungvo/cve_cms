@@ -13,4 +13,5 @@
     'user' => 'User',
     'enterprise' => 'Enterprise',
     'image-report' => 'Odo Reports',
+    'campaign-report' => 'Campaign Reports',
 ];
