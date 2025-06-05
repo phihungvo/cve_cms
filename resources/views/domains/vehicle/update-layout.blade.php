@@ -17,6 +17,9 @@
             <a href="{{ route('vehicle.update.image-report', $row->id) }}"
                 class="p-4 {{ $ROUTE === 'vehicle.update.image-report' ? 'active' : '' }}"
                 role="tab">{{ __('vehicle-update.image-report') }}</a>
+            <a href="{{ route('vehicle.update.campaign-report', $row->id) }}"
+                class="p-4 {{ $ROUTE === 'vehicle.update.image-report' ? 'active' : '' }}"
+                role="tab">{{ __('vehicle-update.campaign-report') }}</a>
         </div>
     </div>
 @endsection
