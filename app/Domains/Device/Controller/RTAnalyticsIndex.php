@@ -15,6 +15,7 @@ class RTAnalyticsIndex extends ControllerAbstract
             $this->row($id);
         } catch (NotFoundException $e) {
             $this->sessionMessage('error', $e->getMessage());
+
             return redirect()->route('device.index');
         }
 
@@ -23,7 +24,7 @@ class RTAnalyticsIndex extends ControllerAbstract
         return $this->page('device.rt-analytics-index', $this->data());
     }
 
-    protected function data():array
+    protected function data(): array
     {
         return ControllerService::new($this->request, $this->auth, $this->row)->data();
     }

@@ -2,9 +2,10 @@
     use App\Domains\Device\Enums\DetectedObject;
     use App\Domains\Device\Enums\RuleType;
 @endphp
-@extends('domains.device.update-layout')
-{{--@dd(get_defined_vars())--}}
-@section('content')
+
+@extends('domains.device.rt-analytics-layout')
+
+@section('content-analytics')
     <div class="intro-y box p-5 mt-5">
         <!-- List rule đã thêm -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -99,7 +100,14 @@
 
         </div>
         <div class="control grid grid-cols-1 md:grid-cols-12 mt-4">
-            <button id="btn-save-rule" class="btn btn-secondary col-start-8" onclick="saveRule()">+ Add</button>
+            <!-- Button Update rule -->
+            <button id="btn-save-rule" class="btn btn-secondary col-start-8 bg-white hover:bg-blue-500
+            hover:text-white transition-colors" onclick="saveRule()">+ Add
+            </button>
+            <!-- Button Cancel -->
+            <a href="{{route('device.runtime-analytics',['id'=> $row->id])}}" class="btn btn-secondary ml-2">
+                {{__('Cancel')}}
+            </a>
         </div>
     </div>
 @stop
@@ -151,8 +159,8 @@
         const ruleList = document.getElementById('ruleList');
         const ruleNameEl = document.getElementById('rule_name');
         const detectedObjectEl = document.querySelectorAll('input[name="detect_objects"]');
-        let ruleItemEl = document.querySelectorAll('.rule-item');
-        const ruleTypeEl = document.querySelectorAll('.ruleType')
+        let ruleItemEls = document.querySelectorAll('.rule-item');
+        const ruleTypeEls = document.querySelectorAll('.ruleType')
         const btnSaveRuleEl = document.getElementById('btn-save-rule');
 
         /**
@@ -186,7 +194,7 @@
          * Handle Sự kiện Click vào các rule đã thêm.
          * Reset các trạng thái active của các rule khác và thêm trạng thái active cho rule được chọn.
          */
-        ruleItemEl.forEach(item => {
+        ruleItemEls.forEach(item => {
             item.addEventListener('click', function () {
                 handleRuleItemClick(this);
             })
@@ -202,7 +210,7 @@
             selectedAddedRule = instanceRules.find(r => r.id === ruleId);
 
             // Xóa trạng thái active của các rule hiện có.
-            ruleItemEl.forEach(el => {
+            ruleItemEls.forEach(el => {
                 el.classList.remove('bg-blue-500', 'text-white');
                 el.classList.add('bg-white');
             });
@@ -217,7 +225,7 @@
             ruleNameEl.value = selectedAddedRule.name;
             // Rule type
             const ruleType = selectedAddedRule.rule_type;
-            ruleTypeEl.forEach(rt => {
+            ruleTypeEls.forEach(rt => {
                 if (rt.getAttribute('data-rule-type') === ruleType) {
                     rt.classList.add('bg-blue-500', 'text-white');
                     rt.classList.remove('bg-white');
@@ -231,6 +239,8 @@
                 const objectType = checkbox.value;
                 checkbox.checked = selectedAddedRule.detected_object.includes(objectType);
             });
+            // Update value button Update rule
+            btnSaveRuleEl.innerHTML = 'Update';
 
         }
 
@@ -238,7 +248,7 @@
          * Xử lý sự kiện khi người dùng click vào một rule type.
          *
          */
-        ruleTypeEl.forEach(item => {
+        ruleTypeEls.forEach(item => {
             item.addEventListener('click', function () {
 
                 // Xử lý UI khi người dùng click vào một rule type.
@@ -256,10 +266,12 @@
                     checkbox.checked = false;
                 });
                 // Clear rule item active
-                ruleItemEl.forEach(el => {
+                ruleItemEls.forEach(el => {
                     el.classList.remove('bg-blue-500', 'text-white');
                     el.classList.add('bg-white');
                 });
+                // Update value button Update rule
+                btnSaveRuleEl.innerHTML = '+ Add';
             })
         })
 
@@ -270,7 +282,7 @@
         function handleRuleTypeClick(item) {
             const ruleType = item.getAttribute('data-rule-type');
             // Xóa trạng thái active của các rule hiện có.
-            ruleTypeEl.forEach(el => {
+            ruleTypeEls.forEach(el => {
                 el.classList.remove('bg-blue-500', 'text-white');
                 el.classList.add('bg-white');
             });
@@ -369,12 +381,12 @@
          * Cập nhật UI rule list sau khi thêm hoặc cập nhật rule.
          * @param newRule
          */
-        function updateUiRuleList(instanceRule){
+        function updateUiRuleList(instanceRule) {
             let exitstingRuleItem = document.queryselector(`.rule-item[data-rule-id="${instanceRule.id}"]`);
 
-            if(exitstingRuleItem){
+            if (exitstingRuleItem) {
                 exitstingRuleItem.textContent = instanceRules.name;
-            } else{
+            } else {
                 // Tạo mới rule item element
                 let instanceRuleEl = document.createElement('div');
                 instanceRuleEl.className = ('flex', 'items-center', 'justify-between');
@@ -389,7 +401,7 @@
                     // Todo: check lại ở domain instance/rule
                 });
 
-               let btnDeleteRuleEl = document.createElement('button');
+                let btnDeleteRuleEl = document.createElement('button');
                 btnDeleteRuleEl.type = 'button';
                 btnDeleteRuleEl.setAttribute('data-rule-id', instanceRule.id);
                 btnDeleteRuleEl.className = 'btn-delete-rule ml-2 px-2 py-1 rounded text-red-500 hover:text-red-700 hover:bg-blue-100';
@@ -469,7 +481,11 @@
                 })
         }
 
-
+        document.addEventListener('DOMContentLoaded', function (){
+            ruleTypeEls[0].classList.remove('bg-white');
+            ruleTypeEls[0].classList.add('bg-blue-500', 'text-white');
+            selectedRuleType= ruleTypeEls[0].getAttribute('data-rule-type');
+        });
         {{--    var initialCanvasData = @json($instance->lines ?? null);--}}
         {{--    const url = '{{ route('device.runtime-analytics.analytcs-rules', ['id' => $row->id,--}}
         {{--'instanceId' => $instance->id]) }}';--}}

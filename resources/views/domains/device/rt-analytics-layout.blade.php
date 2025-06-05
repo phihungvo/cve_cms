@@ -5,7 +5,7 @@
         <!-- List all Instance-->
         <a
             href="{{route('device.runtime-analytics', $row->id ?? $device->id)}}"
-            class="p-4 {{($ROUTE === 'device.runtime-analytics') ? 'active': ''}}">All Instance</a>
+            class="p-4 {{($ROUTE === 'device.runtime-analytics' || $ROUTE === 'device.runtime-analytics.analytcs-rules') ? 'active': ''}}">All Instance</a>
         <!-- List all Solution-->
         <a href="{{route('solution.index')}}?deviceId={{ $row->id ?? $device->id }}"
            class="p-4
