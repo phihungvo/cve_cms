@@ -53,7 +53,7 @@
                     <th class="text-left">{{ __('vehicle-update-image-report.latitude') }}</th>
                     <th class="text-left">{{ __('vehicle-update-image-report.longitude') }}</th>
                     <th class="text-left">{{ __('vehicle-update-image-report.device') }}</th>
-                    <th class="text-left">{{ __('vehicle-update-image-report.source') }}</th>
+                    <th class="text-left">{{ __('vehicle-update-image-report.mediaId') }}</th>
                 </tr>
             </thead>
         </table>
@@ -109,7 +109,9 @@
                                 <td class="text-left">{{ $each->latitude ?? '-' }}</td>
                                 <td class="text-left">{{ $each->longitude ?? '-' }}</td>
                                 <td class="text-left">{{ $each->device->name ?? '-' }}</td>
-                                <td class="text-left">{{ $each->source_type ?? '-' }}</td>
+                                {{-- <td class="text-left">{{ $each->source_type ?? '-' }}</td> --}}
+                                <td class="text-left">
+                                    {{ $each->media_id ?? '-' }}
                             </tr>
                         @endforeach
                     </tbody>

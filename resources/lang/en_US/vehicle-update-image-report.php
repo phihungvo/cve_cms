@@ -8,4 +8,5 @@
     'device' => 'Device',
     'source' => 'Source',
     'type' => 'Type', // Thêm bản dịch cho cột mới
+    'mediaId' => 'Media ID',
 ];
