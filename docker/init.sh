@@ -48,8 +48,10 @@ fi
 
 composer dump-autoload
 
-LOG="/app/storage/logs/deploy/$(date +"%Y/%m")/$(date +"%Y-%m-%d").log"
+LOG="storage/logs/deploy/$(date +"%Y/%m")/$(date +"%Y-%m-%d").log"
+
 echo "Tạo thư mục log deploy" | tee -a /tmp/init.log
+
 install -d $(dirname "$LOG")
 
 echo "Chạy composer deploy-docker" | tee -a /tmp/init.log
@@ -67,7 +69,9 @@ cron
 echo "Khởi động php artisan serve" | tee -a /tmp/init.log
 
 while true; do
-    LOG="/app/storage/logs/serve/$(date +"%Y/%m")/$(date +"%Y-%m-%d").log"
+    LOG="storage/logs/serve/$(date +"%Y/%m")/$(date +"%Y-%m-%d").log"
+
     install -d $(dirname "$LOG")
-    su www-data -s /bin/bash -c "php /app/artisan serve --host=0.0.0.0 --port=80 --no-reload" >> "$LOG" 2>&1
+    
+    php artisan serve --host=0.0.0.0 --port=80 --no-reload >> "$LOG" 2>&1
 done

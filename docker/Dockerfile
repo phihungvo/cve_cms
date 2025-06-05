@@ -25,7 +25,7 @@ RUN apt-get update && apt-get upgrade -y && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Redis via PECL
-RUN pecl install redis && docker-php-ext-enable redis
+RUN pecl install redis
 
 # Install Redis via PECL with fallback
 # RUN pecl channel-update pecl.php.net || true && \
@@ -56,9 +56,12 @@ RUN docker-php-ext-install \
     zip \
     gd
 
+RUN docker-php-ext-enable redis
+
 # Copy configuration files
 COPY ./docker/php.ini /usr/local/etc/php/
 COPY ./docker/crontab /etc/cron.d/crontab
+
 RUN chmod 0600 /etc/cron.d/crontab
 
 # Set working directory
