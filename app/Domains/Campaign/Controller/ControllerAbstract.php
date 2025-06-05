@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CoreApp\Controller;
+namespace App\Domains\Campaign\Controller;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
+use App\Domains\CoreApp\Controller\ControllerWebAbstract;
 
 abstract class ControllerAbstract extends ControllerWebAbstract
 {

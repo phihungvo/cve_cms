@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Model\Traits;
-
+namespace App\Domains\User\Enterprise\Billing\Model\Traits;
 trait Preferences
 {
     /**
@@ -36,7 +35,7 @@ trait Preferences
      */
     public function preferenceSet(string $key, mixed $value): mixed
     {
-        $preferences = (array)$this->preferences;
+        $preferences = (array) $this->preferences;
 
         if (($preferences[$key] ?? null) !== $value) {
             $this->preferences = [$key => $value] + $preferences;

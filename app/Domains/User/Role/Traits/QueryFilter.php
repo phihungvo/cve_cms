@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\User\Role\Model\Traits;
+namespace App\Domains\User\Role\Traits;
 
 trait QueryFilter
 {
