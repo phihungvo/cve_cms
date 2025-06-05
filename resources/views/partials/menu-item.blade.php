@@ -158,11 +158,6 @@
                 }
             `;
         document.head.appendChild(style);
-
-        // Cập nhật khi tải trang và mỗi 10 giây
-        document.addEventListener('DOMContentLoaded', () => {
-            updateNotificationBadge();
-            setInterval(updateNotificationBadge, 10000);
-        });
+        
     </script>
 @endpush
