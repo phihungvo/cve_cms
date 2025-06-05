@@ -71,7 +71,6 @@
 @push('scripts')
     <script>
         function updateNotificationBadge() {
-            // Tìm thẻ side-menu__title chứa "Notification"
             const menuTitles = document.querySelectorAll('.side-menu__title');
             let notificationMenu = null;
             menuTitles.forEach(title => {
@@ -82,11 +81,6 @@
 
             if (!notificationMenu) return;
 
-            // Xóa badge cũ nếu có
-            const existingBadge = notificationMenu.querySelector('.notification-badge');
-            if (existingBadge) existingBadge.remove();
-
-            // Gọi API để lấy số thông báo chưa đọc
             fetch("{{ route('notification.unread-count') }}", {
                 method: 'GET',
                 headers: {
@@ -96,46 +90,79 @@
             })
                 .then(response => response.json())
                 .then(data => {
+                    const existingBadge = notificationMenu.querySelector('.notification-badge');
                     if (data.status === 'success') {
                         const unreadCount = data.data.unread_count;
                         if (unreadCount > 0) {
-                            // Tạo badge mới
+                            if (existingBadge) existingBadge.remove();
                             const badge = document.createElement('span');
                             badge.className = 'badge badge-danger ml-2 notification-badge';
                             badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
                             badge.style.display = 'inline-block';
                             notificationMenu.insertBefore(badge, notificationMenu.querySelector('.side-menu__sub-icon'));
+                        } else if (existingBadge) {
+                            existingBadge.remove();
                         }
                     }
                 })
                 .catch(error => console.error('Error fetching unread count:', error));
         }
 
+        function markNotificationAsRead(notificationId) {
+            fetch("{{ route('notification.read', '') }}/" + notificationId, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        updateNotificationBadge();
+                    }
+                })
+                .catch(error => console.error('Error marking notification as read:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNotificationBadge();
+            setInterval(updateNotificationBadge, 10000);
+
+            // Gắn sự kiện cho các thông báo
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const notificationId = item.dataset.notificationId;
+                    markNotificationAsRead(notificationId);
+                });
+            });
+        });
+
         // Thêm style cho badge
         const style = document.createElement('style');
         style.textContent = `
-                        .badge {
-                            display: inline-block;
-                            padding: 0.25em 0.4em;
-                            font-size: 75%;
-                            font-weight: 700;
-                            line-height: 1;
-                            text-align: center;
-                            white-space: nowrap;
-                            vertical-align: baseline;
-                            border-radius: 0.25rem;
-                        }
-                        .badge-danger {
-                            color: #fff;
-                            background-color: #dc3545;
-                        }
-                    `;
+                .badge {
+                    display: inline-block;
+                    padding: 0.25em 0.4em;
+                    font-size: 75%;
+                    font-weight: 700;
+                    line-height: 1;
+                    text-align: center;
+                    white-space: nowrap;
+                    vertical-align: baseline;
+                    border-radius: 0.25rem;
+                }
+                .badge-danger {
+                    color: #fff;
+                    background-color: #dc3545;
+                }
+            `;
         document.head.appendChild(style);
 
-        // Cập nhật khi tải trang và mỗi 60 giây
+        // Cập nhật khi tải trang và mỗi 10 giây
         document.addEventListener('DOMContentLoaded', () => {
             updateNotificationBadge();
-            setInterval(updateNotificationBadge, 60000);
+            setInterval(updateNotificationBadge, 10000);
         });
     </script>
 @endpush

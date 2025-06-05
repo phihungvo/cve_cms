@@ -25,5 +25,5 @@ Route::group(['middleware' => ['user-auth']], static function () {
     // Route::get('/notification/unread-count', [Index::class, 'unreadCount'])->name('notification.unread-count');
     Route::get('/notification/unread-count', [Index::class, 'unreadCount'])
         ->name('notification.unread-count')
-        ->middleware('throttle:5,1');
+        ->middleware('throttle:10,1');
 });
