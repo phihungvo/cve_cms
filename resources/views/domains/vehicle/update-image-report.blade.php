@@ -39,10 +39,10 @@
             width: 100%;
         }
     </style>
-    <input type="search" class="form-control form-control-lg mt-5"
+    {{-- <input type="search" class="form-control form-control-lg mt-5"
         placeholder="{{ __('vehicle-update-image-report.filter') }}"
         data-table-search=".vehicle-update-image-report-list-table" />
-    <!-- Single Table Header -->
+    <!-- Single Table Header --> --}}
     <div class="overflow-auto scroll-visible header-sticky">
         <table class="table table-report font-medium text-sm text-center whitespace-nowrap">
             <thead>
