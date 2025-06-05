@@ -24,7 +24,8 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pecl install redis
+# Install Redis via PECL
+RUN pecl install redis && docker-php-ext-enable redis
 
 # Install Redis via PECL with fallback
 # RUN pecl channel-update pecl.php.net || true && \
