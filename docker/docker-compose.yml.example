@@ -25,8 +25,8 @@ services:
         container_name: platform-redis
         restart: unless-stopped
         volumes:
-            - ./../storage/docker/redis:/data # Thêm volume để lưu dữ liệu Redis
-        command: redis-server --appendonly yes # Đảm bảo Redis chạy liên tục
+            - ./../storage/docker/redis:/data 
+        command: redis-server --appendonly yes
         networks:
             - platform-network
         healthcheck:
