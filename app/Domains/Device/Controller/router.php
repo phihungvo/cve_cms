@@ -45,6 +45,8 @@ Route::group(['middleware' => ['user-auth']], static function () {
         ->name('device.runtime-analytics.input-source');
     Route::any('/device/{id}/runtime-analytics/analytics-rules', RTAnalyticsRules::class)
         ->name('device.runtime-analytics.analytcs-rules');
+    Route::any('/device/check-rtsp-status', RTAnalyticsCheckRTSPStatus::class)
+        ->name('device.check-rtsp-status');
 });
 
 Route::group(['middleware' => ['user-auth-manager-mode']], static function () {

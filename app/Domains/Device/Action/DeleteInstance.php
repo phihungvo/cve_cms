@@ -8,7 +8,7 @@ class DeleteInstance extends ActionAbstract
 {
     public function handle(?DeviceCvedixrtInstance $instance): void
     {
-        // constructor property promotion
+        $this->instance = $instance;
         $this->delete();
     }
 

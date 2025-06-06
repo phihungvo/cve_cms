@@ -403,6 +403,15 @@
 
                                 // Cập nhật lại ui cho rule list.
                                 updateUiRuleList(data.data);
+
+                                // Update ruleItemEls
+                                ruleItemEls = document.querySelectorAll('.rule-item');
+                                // Xóa trạng thái active của các rule hiện có.
+                                ruleItemEls.forEach(el => {
+                                    el.classList.remove('bg-blue-500', 'text-white');
+                                    el.classList.add('bg-white');
+                                });
+
                                 handleRuleTypeClick();
 
                                 // Reset selectedAddedRule
@@ -415,7 +424,6 @@
                                 detectedObjectEl.forEach(checkbox => {
                                     checkbox.checked = false;
                                 });
-                                // Update
 
                                 if (window.DrawingTool) {
                                     window.DrawingTool.loadShapesFromServer(null);

@@ -4,12 +4,13 @@ namespace App\Domains\Device\Controller;
 
 use App\Domains\Device\Service\Controller\RTAnalyticsIndex as ControllerService;
 use App\Exceptions\NotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 
 class RTAnalyticsIndex extends ControllerAbstract
 {
-    public function __invoke(int $id): Response|RedirectResponse
+    public function __invoke(int $id): Response|RedirectResponse|JsonResponse
     {
         try {
             $this->row($id);
