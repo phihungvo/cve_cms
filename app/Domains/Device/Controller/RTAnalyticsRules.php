@@ -56,7 +56,7 @@ class RTAnalyticsRules extends ControllerAbstract
             return $this->json([
                 'success' => 'true',
                 'data' => $rule,
-                'message' => __('rt-analytics-rules.create-success'),
+                'message' => __('rt-analytics-rules.create.success'),
             ]);
         } catch (Exception $e) {
             return $this->json([
@@ -74,7 +74,7 @@ class RTAnalyticsRules extends ControllerAbstract
             return $this->json([
                 'success' => 'true',
                 'data' => $rule,
-                'message' => __('rt-analytics-rules.update-success'),
+                'message' => __('rt-analytics-rules.update.success'),
             ]);
         } catch (Exception $e) {
             return $this->json([
@@ -91,7 +91,7 @@ class RTAnalyticsRules extends ControllerAbstract
 
             return $this->json([
                 'status' => 'true',
-                'message' => __('rt-analytics-rules.delete-success'),
+                'message' => __('rt-analytics-rules.delete.success'),
             ]);
         } catch (Exception  $e) {
             return $this->json([

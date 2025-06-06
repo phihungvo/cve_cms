@@ -11,7 +11,7 @@
         <!-- List rule đã thêm -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div class="col-span-2 flex flex-col  border border-gray-300 rounded-md p-2">
-                <h3 class="px-4 py-3 font-semibold text-gray-800"> {{__('Added rules') }}</h3>
+                <h3 class="px-4 py-3 font-semibold text-gray-800"> {{__('rt-analytics-rules.added-rules') }}</h3>
                 <ul id="ruleList">
                     @foreach($instance->instanceRules as $rule)
                         <div class="flex items-center justify-between">
@@ -45,7 +45,7 @@
                 <!-- content left -->
                 <div class="w-full h-full flex flex-col border border-gray-300 rounded-md p-2">
                     <!-- rules name -->
-                    <h2 class="text-sm font-bold py-2 w-full">Rule&nbsp;Name</h2>
+                    <h2 class="text-sm font-bold py-2 w-full">{{__('rt-analytics-rules.rule-name')}}</h2>
                     <div class="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-2">
                         <div class="col-span-1">
                             <div>
@@ -59,7 +59,7 @@
                                 </span>
                             </div>
                             <div>
-                                <h3 class="mt-2 py-2 text-sm font-bold py-2 w-full">Object types to detect</h3>
+                                <h3 class="mt-2 py-2 text-sm font-bold py-2 w-full">{{__('rt-analytics-rules.object-types')}}</h3>
                                 <div class="flex flex-col gap-4">
                                     @foreach(DetectedObject::cases() as $type)
                                         <div class="flex items-center gap-2 cursor-pointer">
@@ -79,7 +79,7 @@
                         <!-- view camera -->
                         <div class="col-span-2 border p-2 ">
                             <div class="w-full h-full ">
-                                <h3>live view camera</h3>
+                               <h3>{{ __('rt-analytics-rules.live-view-camera') }}</h3>
                                 <video class="hls-video" width="100%" height="400" controls autoplay>
                                     <source src="{{$instance->input_source}}" type="application/x-mpegURL">
                                     Your browser does not support the video tag.
@@ -397,7 +397,7 @@
                         // Show modal thông báo thành công
                         Swal.fire({
                             icon: 'success',
-                            title: 'Thành công',
+                            title: `{{__('rt-analytics-rules.create.modal.title-success')}}`,
                             text: data.message,
                             timer: 1200,
                             showConfirmButton: false,
@@ -440,8 +440,8 @@
                         // Hiển thị thông báo lỗi nếu có
                         Swal.fire({
                             icon: 'error',
-                            title: 'Lỗi',
-                            text: data.message || 'Đã có lỗi xảy ra khi lưu rule.',
+                            title: `{{__('rt-analytics-rules.create.modal.title-error')}}`,
+                            text: data.message || `{{__('rt-analytics-rules.create.modal.text-error')}}`,
                             timer: 1200,
                             showConfirmButton: false,
                         });
@@ -451,8 +451,8 @@
                     console.error(error)
                     Swal.fire({
                         icon: 'error',
-                        title: 'Lỗi',
-                        text: 'Đã có lỗi xảy ra khi lưu rule.',
+                        title: `{{__('rt-analytics-rules.create.modal.title-error')}}`,
+                        text: `{{__('rt-analytics-rules.create.modal.text-error')}}`,
                         timer: 1200,
                         showConfirmButton: false,
                     });
@@ -572,8 +572,8 @@
 
                                 // Modal thông báo xóa thành công
                                 Swal.fire({
-                                    title: 'Xóa thành công',
-                                    text: 'Rule đã được xóa thành công.',
+                                    title:'{{__("rt-analytics-rules.delete.modal.title-success")}}',
+                                    text: '{{__("rt-analytics-rules.delete.modal.text-error")}}',
                                     icon: 'success',
                                     time: 1200,
                                 });
@@ -581,8 +581,8 @@
                             .catch(error => {
                                 //
                                 Swal.fire({
-                                    title: 'Lỗi',
-                                    text: 'Đã có lỗi xảy ra khi xóa rule.',
+                                    title: '{{__("rt-analytics-rules.delete.modal.title-error")}}',
+                                    text: '{{__("rt-analytics-rules.delete.modal.text-error")}}',
                                     icon: 'error',
                                     time: 1200,
                                 });
