@@ -1,4 +1,5 @@
 @php
+    use Illuminate\Support\Carbon;
     use App\Domains\Device\Enums\DetectedObject;
     use App\Domains\Device\Enums\RuleType;
 @endphp
@@ -27,6 +28,7 @@
                     @endforeach
                 </ul>
             </div>
+            {{-- Sidebar: Rule Types--}}
             <div class="col-span-2">
                 <!-- Content for the first column (1/3) -->
                 <ul class="flex flex-col justify-between gap-1 h-full">
@@ -45,22 +47,33 @@
                     <!-- rules name -->
                     <h2 class="text-sm font-bold py-2 w-full">Rule&nbsp;Name</h2>
                     <div class="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-2">
-
                         <div class="col-span-1">
-                            <input class="border border-gray-300 focous:border-blue-700 rounded-lg w-full p-2 text-sm"
-                                   type="text"
-                                   name="rule_name"
-                                   id="rule_name" placeholder="Enter rules name">
-                            <h3 class="mt-2 py-2 text-sm font-bold">Object types to detect</h3>
-                            <div class="flex flex-col gap-4">
-                                @foreach(DetectedObject::cases() as $type)
-                                    <div class="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" name="detect_objects" id="object_type_{{ $type->value }}"
-                                               value="{{ $type->value }}">
-                                        <label class="cursor-pointer"
-                                               for="object_type_{{ $type->value }}">{{ $type->value }}</label>
-                                    </div>
-                                @endforeach
+                            <div>
+                                <input
+                                    class="border border-gray-300 focous:border-blue-700 rounded-lg w-full p-2 text-sm"
+                                    type="text"
+                                    name="rule_name"
+                                    id="rule_name" placeholder="Enter rules name">
+                                <span id="ruleNameError" class="text-red-500 text-sm hidden">
+                                    Please enter a rule name, it is required.
+                                </span>
+                            </div>
+                            <div>
+                                <h3 class="mt-2 py-2 text-sm font-bold py-2 w-full">Object types to detect</h3>
+                                <div class="flex flex-col gap-4">
+                                    @foreach(DetectedObject::cases() as $type)
+                                        <div class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" name="detect_objects"
+                                                   id="object_type_{{ $type->value }}"
+                                                   value="{{ $type->value }}">
+                                            <label class="cursor-pointer"
+                                                   for="object_type_{{ $type->value }}">{{ $type->value }}</label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <span id="detectObjectCheckboxError" class="text-red-500 text-sm hidden">
+                                    Please select at least one object type to detect.
+                                </span>
                             </div>
                         </div>
                         <!-- view camera -->
@@ -68,14 +81,10 @@
                             <div class="w-full h-full ">
                                 <h3>live view camera</h3>
                                 <video class="hls-video" width="100%" height="400" controls autoplay>
-                                    <source src="{{$instance->input_source}}"
-                                            type="application/x-mpegURL">
+                                    <source src="{{$instance->input_source}}" type="application/x-mpegURL">
                                     Your browser does not support the video tag.
                                 </video>
-                                {{--                                <video class="hls-video" controls autoplay>--}}
-                                {{--                                    <source src="http://localhost:8000/output.m3u8" type="application/vnd.apple.mpegurl">--}}
-                                {{--                                </video>--}}
-                                <button type="button" class="p-2 cursor-pointer" onclick="showUiDraw()">
+                                <button type="button" class="p-2 cursor-pointer" onclick="openDrawingTool()">
                                     <svg fill="#000000" height="16px" width="16px" version="1.1" id="Capa_1"
                                          xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                          viewBox="0 0 469 469" xml:space="preserve">
@@ -97,12 +106,11 @@
                 </div>
             </div>
             <!-- content right -->
-
         </div>
         <div class="control grid grid-cols-1 md:grid-cols-12 mt-4">
             <!-- Button Update rule -->
             <button id="btn-save-rule" class="btn btn-secondary col-start-8 bg-white hover:bg-blue-500
-            hover:text-white transition-colors" onclick="saveRule()">+ Add
+            hover:text-white transition-colors" onclick="saveRule()">+&nbsp;Add
             </button>
             <!-- Button Cancel -->
             <a href="{{route('device.runtime-analytics',['id'=> $row->id])}}" class="btn btn-secondary ml-2">
@@ -114,38 +122,7 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
-    <!-- Thêm HLS.js từ CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    {{--    <script>--}}
-    {{--        document.addEventListener('DOMContentLoaded', function () {--}}
-    {{--            const videos = document.querySelectorAll('.hls-video');--}}
-
-    {{--            videos.forEach((video, index) => {--}}
-    {{--                const source = video.querySelector('source');--}}
-    {{--                if (!source) return;--}}
-
-    {{--                const hlsUrl = source.src;--}}
-
-    {{--                if (Hls.isSupported()) {--}}
-    {{--                    const hls = new Hls();--}}
-    {{--                    hls.loadSource(hlsUrl);--}}
-    {{--                    hls.attachMedia(video);--}}
-    {{--                    hls.on(Hls.Events.ERROR, function (event, data) {--}}
-    {{--                        if (data.fatal) {--}}
-    {{--                            console.error(`HLS Error for video ${index}:`, data);--}}
-    {{--                            hls.destroy(); // optional: cleanup--}}
-    {{--                        }--}}
-    {{--                    });--}}
-    {{--                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {--}}
-    {{--                    // Safari (native support)--}}
-    {{--                    video.src = hlsUrl;--}}
-    {{--                } else {--}}
-    {{--                    console.warn(`HLS is not supported in this browser for video ${index}`);--}}
-    {{--                }--}}
-    {{--            });--}}
-    {{--        });--}}
-    {{--    </script>--}}
+    <script src="{{ asset('/js/drawing-tool.js') }}"></script>
     <script>
         // Define Global variables
         const id = {{ $row->id }}; // device id
@@ -189,6 +166,50 @@
             return loadRules
         })();
 
+        function openDrawingTool() {
+            const detectObjects = Array.from(detectObjectsCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+
+            const ruleName = ruleNameEl.value.trim();
+
+            const ruleNameError = document.getElementById('ruleNameError');
+            const detectObjectCheckboxError = document.getElementById('detectObjectCheckboxError');
+            [ruleNameError, detectObjectCheckboxError].forEach(el => el.classList.add('hidden'));
+
+            if (!ruleName || detectObjects.length === 0) {
+                if (!ruleName) {
+                    ruleNameError.classList.remove('hidden');
+                }
+                if (detectObjects.length === 0) {
+                    detectObjectCheckboxError.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (window.DrawingTool) {
+                window.DrawingTool.open(instanceId, instanceUuid, {
+                    rule_type: selectedRuleType,
+                    detect_objects: detectObjects,
+                    rule_name: ruleName
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '{{ __('cvedixt-analytic.error_drawing_tool') }}'
+                });
+            }
+        }
+
+        if (!ruleName || detectObjects.length === 0) {
+            if (!ruleName) {
+                ruleNameError.classList.remove('hidden');
+            }
+            if (detectObjects.length === 0) {
+                detectObjectCheckboxError.classList.remove('hidden');
+            }
+            return;
+        }
 
         /**
          * Handle Sự kiện Click vào các rule đã thêm.
@@ -277,6 +298,14 @@
                 });
                 // Update value button Update rule
                 btnSaveRuleEl.innerHTML = '+ Add';
+
+                window.tempShapesToSave = null;
+                window.shapes = [];
+                window.tempShapes = [];
+
+                if (window.DrawingTool) {
+                    window.DrawingTool.loadShapesFromServer(null); // Xóa shapes hiện tại
+                }
             })
         })
 
@@ -305,6 +334,10 @@
 
         }
 
+        /**
+         * Hàm xử lý button khi người dùng nhấn vào
+         * Có 2 trường hợp xảy ra là create vs update
+         */
         function saveRule() {
             if (selectedAddedRule) {
 
@@ -316,8 +349,9 @@
                 .map(cb => cb.value);
             const rule_type = selectedRuleType;
             const rule_id = selectedAddedRule ? selectedAddedRule.id : null;
-            const drawing_object = window.tempShapeToSave?.drawing_object || selectedAddedRule?.drawing_object || [];
-            const direction = 'both'; // Mặc định là 'both', có thể thay đổi sau này nếu cần.
+            const drawing_object = window.tempShapesToSave?.drawing_object
+                || selectedAddedRule?.drawing_object || [];
+            const direction = window.tempShapesToSave?.direction || selectedAddedRule.direction;
 
             const requestData = {
                 _action,
@@ -337,7 +371,7 @@
             fetch(window.location.href, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'Application/json',
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
@@ -353,7 +387,6 @@
                     }
                 })
                 .then(data => {
-                    console.log(data)
                     if (data.success) {
                         // Cập nhật instanceRules
                         if (_action === 'createInstanceRule') {
@@ -374,11 +407,10 @@
                             showConfirmButton: false,
                         })
                             .then(() => {
-                                //  window.DrawingTool.clearTempShape();
+                                window.shapes = [];
+                                window.tempShapes = [];
+                                window.tempShapesToSave = null;
 
-                                // Update rule list UI
-
-                                //window.tempShapeToSave = null;
                                 // Cập nhật lại ui cho rule list.
                                 updateUiRuleList(data.data);
                                 handleRuleTypeClick();
@@ -395,9 +427,9 @@
                                 });
                                 // Update
 
-                                window.shapes = [];
-                                window.tempShapes = [];
-
+                                if (window.DrawingTool) {
+                                    window.DrawingTool.loadShapesFromServer(null);
+                                }
                             })
                         ;
                     } else {
@@ -459,7 +491,6 @@
                 ruleList.appendChild(instanceRuleEl);
 
             }
-
         }
 
         /**
@@ -467,8 +498,8 @@
          */
         function deleteRule(ruleId) {
             Swal.fire({
-                title: 'Xác nhận xóa?',
-                text: 'Bạn có chắc chắn muốn xóa rule này?',
+                title: 'Xác nhận xóa',
+                text: 'Bạn có chắc muốn xóa rule này?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Xóa',
@@ -550,7 +581,4 @@
             selectedRuleType = ruleTypeEls[0].getAttribute('data-rule-type');
         });
     </script>
-
-
-    <script src="{{ asset('js/rt-analytics-rule.js') }}"></script>
 @endpush
