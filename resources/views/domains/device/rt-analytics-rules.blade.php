@@ -21,7 +21,7 @@
                             </li>
                             <button type="button" data-rule-id="{{ $rule->id }}" onclick="deleteRule({{ $rule->id }})"
                                     class="btn-delete-rule ml-2 px-2 py-1
-                            rounded text-red-500 hover:text-red-700 hover:bg-blue-100">x
+                            rounded text-red-500 hover:text-red-700 hover:bg-blue-100">&times;
                             </button>
                         </div>
                     @endforeach
@@ -51,7 +51,7 @@
                                    type="text"
                                    name="rule_name"
                                    id="rule_name" placeholder="Enter rules name">
-                            <h3 class="py-2">Object types to detect</h3>
+                            <h3 class="mt-2 py-2 text-sm font-bold">Object types to detect</h3>
                             <div class="flex flex-col gap-4">
                                 @foreach(DetectedObject::cases() as $type)
                                     <div class="flex items-center gap-2 cursor-pointer">
@@ -255,16 +255,21 @@
                 handleRuleTypeClick(this);
                 // clear form chuẩn bị cho create rule mới.
 
+                if (selectedAddedRule) {
+                    // Clear rule name input
+                    ruleNameEl.value = '';
+                    // Clear detected object checkboxes
+                    detectedObjectEl.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                }
+
                 // Reset selectedAddedRule
                 selectedAddedRule = null;
+
                 // Update value selectedAddedRule
                 selectedRuleType = this.getAttribute('data-rule-type');
-                // Clear rule name input
-                ruleNameEl.value = '';
-                // Clear detected object checkboxes
-                detectedObjectEl.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
+
                 // Clear rule item active
                 ruleItemEls.forEach(el => {
                     el.classList.remove('bg-blue-500', 'text-white');
@@ -279,17 +284,25 @@
          * Xử lý UI khi người dùng click vào một rule type.
          * @param item
          */
-        function handleRuleTypeClick(item) {
-            const ruleType = item.getAttribute('data-rule-type');
+        function handleRuleTypeClick(item = null) {
             // Xóa trạng thái active của các rule hiện có.
             ruleTypeEls.forEach(el => {
                 el.classList.remove('bg-blue-500', 'text-white');
                 el.classList.add('bg-white');
             });
 
-            // Thêm trạng thái active cho rule được chọn.
-            item.classList.add('bg-blue-500', 'text-white');
-            item.classList.remove('bg-white');
+            if (item) {
+                // Thêm trạng thái active cho rule được chọn.
+                item.classList.add('bg-blue-500', 'text-white');
+                item.classList.remove('bg-white');
+            } else {
+                // Nếu không có item được truyền vào, chọn rule type đầu tiên.
+                const firstRuleTypeEl = ruleTypeEls[0];
+                firstRuleTypeEl.classList.add('bg-blue-500', 'text-white');
+                firstRuleTypeEl.classList.remove('bg-white');
+            }
+
+
         }
 
         function saveRule() {
@@ -297,27 +310,28 @@
 
             }
             const _action = selectedAddedRule ? 'updateInstanceRule' : 'createInstanceRule';
-            const rule_name = ruleNameEl.value.trim();
-            const detected_objects = Array.from(detectedObjectEl)
+            const name = ruleNameEl.value.trim();
+            const detected_object = Array.from(detectedObjectEl)
                 .filter(cb => cb.checked)
                 .map(cb => cb.value);
             const rule_type = selectedRuleType;
             const rule_id = selectedAddedRule ? selectedAddedRule.id : null;
-            const uuid = window.tempShapeToSave?.uuid || selectedAddedRule?.uuid || instanceUuid;
             const drawing_object = window.tempShapeToSave?.drawing_object || selectedAddedRule?.drawing_object || [];
+            const direction = 'both'; // Mặc định là 'both', có thể thay đổi sau này nếu cần.
 
             const requestData = {
                 _action,
-                rule_name,
-                detected_objects,
+                name,
+                detected_object,
                 rule_type,
                 rule_id,
-                uuid,
                 drawing_object,
-                cvedixrt_instance_id: instanceId,
+                device_cvedixrt_instance_id: instanceId,
+                direction
             }
             if (_action === 'updateInstanceRule') {
                 requestData.rule_id = rule_id;
+                requestData.uuid = selectedAddedRule.uuid;
             }
 
             fetch(window.location.href, {
@@ -331,10 +345,15 @@
             })
                 .then(response => {
                     if (response.ok) {
-                        response.json();
+                        return response.json();
+                    } else {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || 'Network response was not ok');
+                        });
                     }
                 })
                 .then(data => {
+                    console.log(data)
                     if (data.success) {
                         // Cập nhật instanceRules
                         if (_action === 'createInstanceRule') {
@@ -355,25 +374,52 @@
                             showConfirmButton: false,
                         })
                             .then(() => {
-                                window.DrawingTool.clearTempShape();
+                                //  window.DrawingTool.clearTempShape();
 
                                 // Update rule list UI
 
-                                window.tempShapeToSave = null;
+                                //window.tempShapeToSave = null;
                                 // Cập nhật lại ui cho rule list.
                                 updateUiRuleList(data.data);
+                                handleRuleTypeClick();
 
                                 // Reset selectedAddedRule
                                 selectedAddedRule = null;
                                 // reset btn save rule với giá trị hiển thị là  "+ Add"
                                 btnSaveRuleEl.innerHTML = '+ Add';
+                                // Reset rule name input
+                                ruleNameEl.value = '';
+                                // Reset detected object checkboxes
+                                detectedObjectEl.forEach(checkbox => {
+                                    checkbox.checked = false;
+                                });
+                                // Update
 
                                 window.shapes = [];
                                 window.tempShapes = [];
 
                             })
                         ;
+                    } else {
+                        // Hiển thị thông báo lỗi nếu có
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: data.message || 'Đã có lỗi xảy ra khi lưu rule.',
+                            timer: 1200,
+                            showConfirmButton: false,
+                        });
                     }
+                })
+                .catch(error => {
+                    console.error(error)
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: 'Đã có lỗi xảy ra khi lưu rule.',
+                        timer: 1200,
+                        showConfirmButton: false,
+                    });
                 })
         }
 
@@ -382,14 +428,14 @@
          * @param newRule
          */
         function updateUiRuleList(instanceRule) {
-            let exitstingRuleItem = document.queryselector(`.rule-item[data-rule-id="${instanceRule.id}"]`);
+            let exitstingRuleItem = document.querySelector(`.rule-item[data-rule-id="${instanceRule.id}"]`);
 
             if (exitstingRuleItem) {
-                exitstingRuleItem.textContent = instanceRules.name;
+                exitstingRuleItem.textContent = instanceRule.name;
             } else {
                 // Tạo mới rule item element
                 let instanceRuleEl = document.createElement('div');
-                instanceRuleEl.className = ('flex', 'items-center', 'justify-between');
+                instanceRuleEl.className = 'flex items-center justify-between';
 
                 let liEl = document.createElement('li');
                 liEl.className = 'rule-item px-2 py-1 rounded font-medium text-sm bg-white hover:bg-blue-100 cursor-pointer w-full overflow-hidden text-ellipsis whitespace-normal line-clamp-2';
@@ -405,7 +451,7 @@
                 btnDeleteRuleEl.type = 'button';
                 btnDeleteRuleEl.setAttribute('data-rule-id', instanceRule.id);
                 btnDeleteRuleEl.className = 'btn-delete-rule ml-2 px-2 py-1 rounded text-red-500 hover:text-red-700 hover:bg-blue-100';
-                btnDeleteRuleEl.textContent = 'x';
+                btnDeleteRuleEl.innerHTML = '&times;';
                 btnDeleteRuleEl.setAttribute('onclick', `deleteRule(${instanceRule.id})`);
 
                 instanceRuleEl.appendChild(liEl);
@@ -457,8 +503,25 @@
                                 instanceRules = instanceRules.filter(rule => rule.id !== ruleId);
                                 // Reset selectedAddedRule
                                 selectedAddedRule = null;
-                                // Reset form chuẩn bị cho create rule mới.
+                                //// Reset form chuẩn bị cho create rule mới.
+                                // Reset rule name
+                                ruleNameEl.value = '';
+                                // Reset detected object checkboxes
+                                detectedObjectEl.forEach(checkbox => {
+                                    checkbox.checked = false;
+                                });
+                                // Reset rule type
+                                ruleTypeEls.forEach(rt => {
+                                    rt.classList.remove('bg-blue-500', 'text-white');
+                                    rt.classList.add('bg-white');
+                                });
+                                ruleTypeEls[0].classList.remove('bg-white');
+                                ruleTypeEls[0].classList.add('bg-blue-500', 'text-white');
 
+                                // Reset btn save rule với giá trị hiển thị là  "+ Add"
+                                btnSaveRuleEl.innerHTML = '+ Add';
+                                // Reset selectedAddedRule
+                                selectedAddedRule = null;
 
                                 // Modal thông báo xóa thành công
                                 Swal.fire({
@@ -481,16 +544,11 @@
                 })
         }
 
-        document.addEventListener('DOMContentLoaded', function (){
+        document.addEventListener('DOMContentLoaded', function () {
             ruleTypeEls[0].classList.remove('bg-white');
             ruleTypeEls[0].classList.add('bg-blue-500', 'text-white');
-            selectedRuleType= ruleTypeEls[0].getAttribute('data-rule-type');
+            selectedRuleType = ruleTypeEls[0].getAttribute('data-rule-type');
         });
-        {{--    var initialCanvasData = @json($instance->lines ?? null);--}}
-        {{--    const url = '{{ route('device.runtime-analytics.analytcs-rules', ['id' => $row->id,--}}
-        {{--'instanceId' => $instance->id]) }}';--}}
-
-
     </script>
 
 

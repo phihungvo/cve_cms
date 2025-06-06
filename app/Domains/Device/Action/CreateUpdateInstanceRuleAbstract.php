@@ -3,14 +3,15 @@
 namespace App\Domains\Device\Action;
 
 use App\Domains\Device\Model\DeviceCvedixrtInstance;
+use App\Domains\Device\Model\DeviceCvedixrtInstanceRule;
 
 abstract class CreateUpdateInstanceRuleAbstract extends ActionAbstract
 {
-    abstract protected function save();
+    abstract protected function save(): DeviceCvedixrtInstanceRule;
 
-    public function handle(?DeviceCvedixrtInstance $_instance = null): DeviceCvedixrtInstance
+    public function handle(?DeviceCvedixrtInstanceRule $_instanceRule = null): DeviceCvedixrtInstanceRule
     {
-        $this->instance = $_instance;
+        $this->instanceRule = $_instanceRule;
         $this->data();
         $this->check();
 
@@ -19,7 +20,9 @@ abstract class CreateUpdateInstanceRuleAbstract extends ActionAbstract
 
     protected function data(): void
     {
-        $this->dataUuid();
+        if ($this->instanceRule === null) { // Nếu đang tạo mới
+            $this->dataUuid();
+        }
         $this->dataName();
         $this->dataDetectedObject();
         $this->dataRuleType();
@@ -34,10 +37,12 @@ abstract class CreateUpdateInstanceRuleAbstract extends ActionAbstract
 
     protected function dataUuid(): void
     {
+        $this->data['uuid'] = helper()->uuid();
     }
 
     protected function dataName(): void
     {
+        $this->data['name'] = trim($this->request->input('name'));
     }
 
     protected function dataDetectedObject()
@@ -53,6 +58,10 @@ abstract class CreateUpdateInstanceRuleAbstract extends ActionAbstract
     }
 
     protected function dataInstanceId()
+    {
+    }
+
+    protected function dataRuleType()
     {
     }
 }

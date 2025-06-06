@@ -18,9 +18,9 @@ class CreateInstanceRule extends CreateUpdateInstanceRuleAbstract
     protected function save(): DeviceCvedixrtInstanceRule
     {
         try {
-            $this->instance = DeviceCvedixrtInstanceRule::query()->create($this->data);
+            $this->instanceRule = DeviceCvedixrtInstanceRule::query()->create($this->data);
 
-            return $this->instance;
+            return $this->instanceRule;
         } catch (QueryException $e) {
             if (str_contains($e->getMessage(), 'for key \'uuid\'')) {
                 throw new Exception(__('rt-analytics-create.error.uuid_exists'));

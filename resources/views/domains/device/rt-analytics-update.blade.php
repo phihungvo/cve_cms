@@ -1,6 +1,6 @@
-@extends('domains.device.update-layout')
+@extends('domains.device.rt-analytics-layout')
 
-@section('content')
+@section('content-analytics')
     <div class="intro-y box p-5 mt-5">
         <div class="flex  justify-between items-center px-5">
             <h2 class="text-lg font-medium mb-5">{{ __('rt-analytics-create.update-instance') }}</h2>

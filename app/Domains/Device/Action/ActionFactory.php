@@ -109,8 +109,6 @@ class ActionFactory extends ActionFactoryAbstract
 
     public function createInstanceRule(): InstanceRuleModel
     {
-        $this->instanceRule = $instanceRule;
-
         return $this->actionHandle(CreateInstanceRule::class, $this->validate()->createInstanceRule());
     }
 

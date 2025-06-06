@@ -54,7 +54,7 @@ class RTAnalyticsRules extends ControllerAbstract
             $rule = $this->action()->createInstanceRule();
 
             return $this->json([
-                'status' => 'success',
+                'success' => 'true',
                 'data' => $rule,
                 'message' => __('rt-analytics-rules.create-success'),
             ]);
@@ -69,10 +69,10 @@ class RTAnalyticsRules extends ControllerAbstract
     protected function updateInstanceRule(): JsonResponse
     {
         try {
-            $rule = $this->action()->updateInstanceRule();
+            $rule = $this->action()->updateInstanceRule($this->instanceRule);
 
             return $this->json([
-                'status' => 'success',
+                'success' => 'true',
                 'data' => $rule,
                 'message' => __('rt-analytics-rules.update-success'),
             ]);

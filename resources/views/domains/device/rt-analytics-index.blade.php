@@ -65,8 +65,7 @@
                         <th class="text-center">{{ __('rt-analytics-index.instance-id') }}</th>
                         <th class="text-center">{{ __('rt-analytics-index.name') }}</th>
                         <th class="text-center">{{ __('rt-analytics-index.source') }}</th>
-                        <th class="text-center">{{ __('rt-analytics-index.zones') }}</th>
-                        <th class="text-center">{{ __('rt-analytics-index.lines') }}</th>
+                        <th class="text-center">{{ __('rt-analytics-index.status') }}</th>
                         <th class="text-center">{{ __('rt-analytics-index.solutions') }}</th>
                         <th class="text-center">{{ __('rt-analytics-index.groups') }}</th>
                     </tr>
@@ -109,12 +108,15 @@
                                    style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
                                    title="{{$instance->input_source ?? '-'}}"
                                    class="block text-ellipsis">{{$instance->input_source ?? '-'}}</a></td>
-                            <!-- Zones -->
+                            <!-- Status -->
                             <td><a href="{{$link}}?instanceId={{$instance->id}}"
-                                   class="block">{{$instance->instance_zones ?? '-'}}</a></td>
-                            <!-- Lines -->
-                            <td><a href="{{$link}}?instanceId={{$instance->id}}"
-                                   class="block">{{$instance->instance_lines ?? '-'}}</a></td>
+                                   class="block">
+                                  @if($instance->status == 0)
+                                        <span class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">Offine</span>
+                                    @elseif($instance->status == 1)
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">Online</span>
+                                    @endif
+                                </a></td>
                             <!-- Solutions -->
                             <td><a href="{{$link}}?instanceId={{$instance->id}}"
                                    class="block">{{$instance->solution->solution_name ?? '-'}}</a></td>

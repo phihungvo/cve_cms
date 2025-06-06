@@ -16,11 +16,11 @@ class UpdateInstanceRule extends CreateUpdateInstanceRuleAbstract
      */
     protected function save(): DeviceCvedixrtInstanceRule
     {
-        $ruleId = $this->request->input('rule_id');
-        $this->instanceRule = DeviceCvedixrtInstanceRule::query()->findOrFail($ruleId);
+       // $ruleId = $this->request->input('rule_id');
+       // $this->instanceRule = DeviceCvedixrtInstanceRule::query()->findOrFail($ruleId);
 
         try {
-            $this->instance->update($this->data);
+            $this->instanceRule->update($this->data);
 
             return $this->instanceRule;
         } catch (QueryException $exception) {
