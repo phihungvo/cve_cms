@@ -167,7 +167,7 @@
         })();
 
         function openDrawingTool() {
-            const detectObjects = Array.from(detectObjectsCheckboxes)
+            const detectObjects = Array.from(detectedObjectEl)
                 .filter(cb => cb.checked)
                 .map(cb => cb.value);
 
@@ -199,16 +199,6 @@
                     title: '{{ __('cvedixt-analytic.error_drawing_tool') }}'
                 });
             }
-        }
-
-        if (!ruleName || detectObjects.length === 0) {
-            if (!ruleName) {
-                ruleNameError.classList.remove('hidden');
-            }
-            if (detectObjects.length === 0) {
-                detectObjectCheckboxError.classList.remove('hidden');
-            }
-            return;
         }
 
         /**
