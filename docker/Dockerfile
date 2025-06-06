@@ -9,7 +9,7 @@ RUN apt-get update && apt-get upgrade -y && \
         libbz2-dev \
         libicu-dev \
         libgd-dev \
-        libjpeg62-turbo-dev \  # Added for JPEG support
+        libjpeg62-turbo-dev \
         libonig-dev \
         libxslt-dev \
         libzip-dev \
@@ -26,11 +26,12 @@ RUN apt-get update && apt-get upgrade -y && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Redis via PECL
-RUN pecl install redis
+RUN pecl install redis && \
+    docker-php-ext-enable redis
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-jpeg \  # Configure GD with JPEG support
-    && docker-php-ext-install \
+RUN docker-php-ext-configure gd --with-jpeg && \
+    docker-php-ext-install \
         bcmath \
         bz2 \
         intl \
@@ -42,8 +43,6 @@ RUN docker-php-ext-configure gd --with-jpeg \  # Configure GD with JPEG support
         xsl \
         zip \
         gd
-
-RUN docker-php-ext-enable redis
 
 # Copy configuration files
 COPY ./docker/php.ini /usr/local/etc/php/
@@ -65,7 +64,7 @@ RUN echo ":set noshowmode" > /root/.vimrc && \
     git config --global safe.directory /app
 
 # Install dependencies
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --optimize-autoloader --classmap-authoritative
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --classmap-authoritative
 
 # Start application
 CMD ["./docker/init.sh"]
