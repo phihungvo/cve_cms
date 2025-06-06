@@ -253,6 +253,10 @@
             // Update value button Update rule
             btnSaveRuleEl.innerHTML = 'Update';
 
+            // Load shapes for the selected rule into the drawing tool
+            if (window.DrawingTool && selectedAddedRule) {
+                window.DrawingTool.loadShapesFromServer(selectedAddedRule);
+            }
         }
 
         /**
@@ -342,6 +346,8 @@
             const drawing_object = window.tempShapesToSave?.drawing_object
                 || selectedAddedRule?.drawing_object || [];
             const direction = window.tempShapesToSave?.direction || selectedAddedRule.direction;
+
+            if (drawing_object.length === 0) return;
 
             const requestData = {
                 _action,
@@ -455,7 +461,7 @@
 
         /**
          * Cập nhật UI rule list sau khi thêm hoặc cập nhật rule.
-         * @param newRule
+         * @param instanceRule
          */
         function updateUiRuleList(instanceRule) {
             let exitstingRuleItem = document.querySelector(`.rule-item[data-rule-id="${instanceRule.id}"]`);
@@ -474,7 +480,17 @@
                 liEl.addEventListener('click', function () {
                     handleRuleItemClick(this);
 
-                    // Todo: check lại ở domain instance/rule
+                    ruleItemEls.forEach(el => {
+                        el.classList.remove('bg-blue-500', 'text-white');
+                        el.classList.add('bg-white');
+                    });
+
+                    btnSaveRuleEl.innerText = 'Update +';
+
+                    if (window.DrawingTool) {
+                        window.DrawingTool.loadShapesFromServer(selectedAddedRule);
+                    }
+
                 });
 
                 let btnDeleteRuleEl = document.createElement('button');
@@ -488,6 +504,8 @@
                 instanceRuleEl.appendChild(btnDeleteRuleEl);
                 ruleList.appendChild(instanceRuleEl);
 
+                // Cập nhật ruleItemEls để bao gồm mục quy tắc mới
+                ruleItemEls = document.querySelectorAll('.rule-item');
             }
         }
 
