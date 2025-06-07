@@ -575,16 +575,20 @@
                     btn.classList.add('bg-blue-500', 'text-white');
                     selectedRuleType = btn.dataset.ruleType;
 
-                    selectedAddedRule = null;
+                    if(selectedAddedRule){
+                        // Reset form và UI state
+                        ruleNameEl.value = '';
+                        detectObjectsCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                    }
+
                     window.shapes = [];
                     window.tempShapes = [];
                     window.DrawingTool.clearTempShapes();
 
-                    // Reset form và UI state
-                    ruleNameEl.value = '';
-                    detectObjectsCheckboxes.forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
+                    selectedAddedRule = null;
+
                     ruleItemsEl.forEach(el => {
                         el.classList.remove('bg-blue-500', 'text-white');
                         el.classList.add('bg-white');
