@@ -20,7 +20,7 @@ class PlaylistBuilder extends BuilderAbstract
 
     public function roleOwner()
     {
-        if (auth()->user()?->isOwner()) {
+        if (auth()->user()?->isOwner() || auth()->user()?->enterprise_id) {
             return $this->where('enterprise_id', auth()->user()->enterprise_id);
         }
 

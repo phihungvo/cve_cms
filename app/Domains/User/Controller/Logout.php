@@ -11,7 +11,7 @@ class Logout extends ControllerAbstract
      */
     public function __invoke(): RedirectResponse
     {
-        $this->action($this->auth)->logout();
+        $this->action(row:$this->auth)->logout();
 
         return redirect()->route('user.auth.credentials');
     }

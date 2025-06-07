@@ -27,10 +27,6 @@
 
                         <div class="box  p-5 mt-5">
                             <div class="text-right">
-{{--                                <!--Btn Apply -->--}}
-{{--                                <a href="{{route('device.runtime-analytics.input-source',['id'=>$row->id])}}" class="btn btn-outline-success ml-2">--}}
-{{--                                    {{__('rt-analytics-create.btn-apply')}}--}}
-{{--                                </a>--}}
                                 <!--Btn Next -->
                                 <button type="submit"
                                         class="btn btn-primary ml-2">{{__('rt-analytics-create.btn-next')}}</button>

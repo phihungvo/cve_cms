@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class RTAnalyticsCreate extends RTAnalyticsCreateUpdateAbstract
 {
-
     public function __construct(protected Request $request, protected Authenticatable $auth, protected Model $row)
     {
         $this->request();
@@ -18,9 +17,7 @@ class RTAnalyticsCreate extends RTAnalyticsCreateUpdateAbstract
     {
         // lấy data chung + data riêng
         return $this->dataCreateUpdate() + [
-                'uuid' => ($this->input['uuid'] ?? helper()->uuid()),
+            'uuid' => ($this->input['uuid'] ?? helper()->uuid()),
         ];
     }
-
-
 }
