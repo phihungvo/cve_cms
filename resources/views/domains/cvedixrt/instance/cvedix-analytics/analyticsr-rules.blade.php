@@ -559,6 +559,9 @@
             buttons.forEach(btn => {
                 btn.addEventListener('click', e => {
                     e.preventDefault();
+                    // Reset trạng thái rule đã chọn
+                    selectedAddedRule = null;
+
                     buttons.forEach(b => {
                         b.classList.remove('bg-blue-500', 'text-white');
                         b.classList.add('bg-white');
@@ -567,20 +570,13 @@
                     btn.classList.add('bg-blue-500', 'text-white');
                     selectedRuleType = btn.dataset.ruleType;
 
-                    if(selectedAddedRule){
-                        // Reset form và UI state
-                        ruleNameEl.value = '';
-                        detectObjectsCheckboxes.forEach(checkbox => {
-                            checkbox.checked = false;
-                        });
-                    }
+                    // Reset form và UI state
+                    ruleNameEl.value = '';
+                    detectObjectsCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
 
-                    window.shapes = [];
-                    window.tempShapes = [];
-                    window.DrawingTool.clearTempShapes();
-
-                    selectedAddedRule = null;
-
+                    // Reset trạng thái active của các rule items
                     ruleItemsEl.forEach(el => {
                         el.classList.remove('bg-blue-500', 'text-white');
                         el.classList.add('bg-white');
@@ -589,8 +585,12 @@
                     const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Add +';
 
+                    // Xóa shapes trong canvas
+                    window.shapes = [];
+                    window.tempShapes = [];
+                    window.tempShapesToSave = null;
                     if (window.DrawingTool) {
-                        window.DrawingTool.loadShapesFromServer(null); // Xóa shapes hiện tại
+                        window.DrawingTool.loadShapesFromServer(null);
                     }
                 });
             });
