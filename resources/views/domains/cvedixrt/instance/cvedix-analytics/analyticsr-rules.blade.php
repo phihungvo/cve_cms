@@ -115,18 +115,22 @@
         const ruleTypeButtons = document.querySelectorAll('.btn.form-control-lg');
         let ruleItemsEl = document.querySelectorAll('.rule-item');
 
-        @foreach($row->instanceRules as $rule)
-        instanceRules.push({
-            id: {{ $rule->id }},
-            uuid: '{{ $rule->uuid }}',
-            name: '{{ $rule->name }}',
-            detected_object: @json($rule->detected_object),
-            rule_type: '{{ $rule->rule_type }}',
-            drawing_object: @json($rule->drawing_object),
-            direction: '{{ $rule->direction }}',
-            cvedixrt_instance_id: {{ $rule->cvedixrt_instance_id }},
-        });
-        @endforeach
+        function loadInstanceRules() {
+            @foreach($row->instanceRules as $rule)
+            instanceRules.push({
+                id: {{ $rule->id }},
+                uuid: '{{ $rule->uuid }}',
+                name: '{{ $rule->name }}',
+                detected_object: @json($rule->detected_object),
+                rule_type: '{{ $rule->rule_type }}',
+                drawing_object: @json($rule->drawing_object),
+                direction: '{{ $rule->direction }}',
+                cvedixrt_instance_id: {{ $rule->cvedixrt_instance_id }},
+            });
+            @endforeach
+        }
+
+        loadInstanceRules();
 
         function openDrawingTool() {
             if (!instanceId || !instanceUuid) {
@@ -137,12 +141,15 @@
                 return;
             }
 
+            // Lấy danh sách đối tượng phát hiện
             const detectObjects = Array.from(detectObjectsCheckboxes)
                 .filter(cb => cb.checked)
                 .map(cb => cb.value);
 
+            // Lấy tên quy tắc
             const ruleName = ruleNameEl.value.trim();
 
+            // Hiển thị thông báo lỗi
             const ruleNameError = document.getElementById('ruleNameError');
             const detectObjectsError = document.getElementById('detectObjectsError');
             [ruleNameError, detectObjectsError].forEach(el => el.classList.add('hidden'));
@@ -202,6 +209,7 @@
          * Cập nhật lại các element trên UI
          */
         function updateElement(addedRule) {
+            // Cập nhật danh sách rule đã thêm
             instanceRules.push({
                 id: addedRule.id,
                 uuid: addedRule.uuid,
@@ -228,10 +236,15 @@
                 selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
                 console.log(selectedAddedRule)
 
+                // Xóa trạng thái active của các rule khác
                 ruleItemsEl.forEach(el => {
                     el.classList.remove('bg-blue-500', 'text-white');
                     el.classList.add('bg-white');
                 });
+
+                // Thêm trạng thái active cho rule được chọn
+                this.classList.remove('bg-white');
+                this.classList.add('bg-blue-500', 'text-white');
 
                 const btnSaveRule = document.getElementById('btn-save-rule');
                 btnSaveRule.innerText = 'Update +';
@@ -302,6 +315,7 @@
                 })
                 .then(data => {
                     if (data.status) {
+                        // Cập nhật instanceRules
                         if (action === 'createInstanceRule') {
                             instanceRules.push(data.data);
                         } else {
@@ -325,12 +339,15 @@
                             updateRuleList(data.data);
                             updateRuleConfiguration();
                             ruleItemsEl = document.querySelectorAll('.rule-item');
+                            selectedAddedRule = null;
                             document.getElementById('btn-save-rule').innerText = 'Add +';
 
                             if (window.DrawingTool) {
                                 window.DrawingTool.loadShapesFromServer(null);
                             }
                         });
+                    } else {
+                        throw new Error(data.message || 'Không thể lưu rule');
                     }
                 })
                 .catch(error => {
@@ -345,15 +362,21 @@
         ruleItemsEl.forEach(item => {
             item.addEventListener('click', function () {
                 let ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
+                // gọi hàm
+                handleRuleItemClick(ruleId);
 
-                handleRuleItemClick(ruleId)
+                // Thêm trạng thái active cho rule được chọn
+                this.classList.remove('bg-white');
+                this.classList.add('bg-blue-500', 'text-white');
 
                 const btnSaveRule = document.getElementById('btn-save-rule');
                 btnSaveRule.innerText = 'Update +';
 
-                updateRuleConfiguration(selectedAddedRule);
-
-                window.DrawingTool.loadShapesFromServer(selectedAddedRule);
+                selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
+                if (selectedAddedRule && window.DrawingTool) {
+                    // Đảm bảo selectedAddedRule có drawing_object trước khi load
+                    window.DrawingTool.loadShapesFromServer(selectedAddedRule);
+                }
             });
         });
 
@@ -367,49 +390,52 @@
             if (existingRuleItem) {
                 existingRuleItem.textContent = instanceRule.name;
             } else {
-                let instanceRuleEL = document.createElement('div');
-                instanceRuleEL.className = 'flex items-center justify-between';
+            let instanceRuleEL = document.createElement('div');
+            instanceRuleEL.className = 'flex items-center justify-between';
 
-                let li = document.createElement('li');
-                li.className = 'rule-item block px-2 py-1 rounded font-medium text-sm bg-white hover:bg-blue-100 cursor-pointer w-full';
-                li.setAttribute('data-rule-id', instanceRule.id);
-                li.textContent = instanceRule.name;
+            let li = document.createElement('li');
+            li.className = 'rule-item block px-2 py-1 rounded font-medium text-sm bg-white hover:bg-blue-100 cursor-pointer w-full';
+            li.setAttribute('data-rule-id', instanceRule.id);
+            li.textContent = instanceRule.name;
 
-                li.addEventListener('click', function () {
-                    const ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
-                    handleRuleItemClick(ruleId)
-                    selectedAddedRule = instanceRules.find(r => r.id === ruleId);
+            li.addEventListener('click', function () {
+                const ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
+                handleRuleItemClick(ruleId)
+                selectedAddedRule = instanceRules.find(r => r.id === ruleId);
 
-                    document.querySelectorAll('.rule-item').forEach(el => {
-                        el.classList.remove('bg-blue-500', 'text-white');
-                        el.classList.add('bg-white');
-                    });
-
-                    const btnSaveRule = document.getElementById('btn-save-rule');
-                    btnSaveRule.innerText = 'Update +';
-
-                    updateRuleConfiguration(selectedAddedRule);
-                    console.log('Selected rule:', selectedAddedRule);
-
-                    if (window.DrawingTool) {
-                        window.DrawingTool.loadShapesFromServer(selectedAddedRule);
-                    }
+                document.querySelectorAll('.rule-item').forEach(el => {
+                    el.classList.remove('bg-blue-500', 'text-white');
+                    el.classList.add('bg-white');
                 });
 
-                let deleteBtn = document.createElement('button');
-                deleteBtn.type = 'button';
-                deleteBtn.setAttribute('data-rule-id', instanceRule.id);
-                deleteBtn.className = 'btn-delete-rule ml-2 px-2 py-1 rounded text-red-500 hover:text-red-700 hover:bg-blue-100';
-                deleteBtn.textContent = '×';
+                this.classList.remove('bg-white');
+                this.classList.add('bg-blue-500', 'text-white');
 
-                deleteBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteRule(parseInt(deleteBtn.dataset.ruleId));
-                });
+                const btnSaveRule = document.getElementById('btn-save-rule');
+                btnSaveRule.innerText = 'Update +';
 
-                instanceRuleEL.appendChild(li);
-                instanceRuleEL.appendChild(deleteBtn);
-                ruleList.appendChild(instanceRuleEL);
+                updateRuleConfiguration(selectedAddedRule);
+
+                if (window.DrawingTool) {
+                    window.DrawingTool.loadShapesFromServer(selectedAddedRule);
+                }
+
+            });
+
+            let deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.setAttribute('data-rule-id', instanceRule.id);
+            deleteBtn.className = 'btn-delete-rule ml-2 px-2 py-1 rounded text-red-500 hover:text-red-700 hover:bg-blue-100';
+            deleteBtn.textContent = '×';
+
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteRule(parseInt(deleteBtn.dataset.ruleId));
+            });
+
+            instanceRuleEL.appendChild(li);
+            instanceRuleEL.appendChild(deleteBtn);
+            ruleList.appendChild(instanceRuleEL);
             }
         }
 
@@ -445,11 +471,12 @@
                 })
             } else {
                 ruleNameEl.value = '';
-                // Reset checkbox DetectedObject
+                // Reset các checkbox của DetectedObject
                 detectObjectsCheckboxes.forEach(checkbox => {
                     checkbox.checked = false;
                 });
 
+                // Cập nhật rule type
                 ruleTypeButtons.forEach(btn => {
                     btn.classList.remove('bg-blue-500', 'text-white');
                     btn.classList.add('bg-white');
@@ -540,15 +567,19 @@
                     btn.classList.add('bg-blue-500', 'text-white');
                     selectedRuleType = btn.dataset.ruleType;
 
-                    ruleNameEl.value = '';
-                    selectedAddedRule = null;
-                    window.tempShapesToSave = null;
+                    if(selectedAddedRule){
+                        // Reset form và UI state
+                        ruleNameEl.value = '';
+                        detectObjectsCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                    }
+
                     window.shapes = [];
                     window.tempShapes = [];
+                    window.DrawingTool.clearTempShapes();
 
-                    detectObjectsCheckboxes.forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
+                    selectedAddedRule = null;
 
                     ruleItemsEl.forEach(el => {
                         el.classList.remove('bg-blue-500', 'text-white');
