@@ -27,6 +27,7 @@ class Update extends CreateUpdateAbstract
         $previousCameraSupported = $this->row->camera_supported;
         $this->row->camera_supported = $this->data['camera_supported'] ?? 0;
         $this->row->camera_maximum = $this->data['camera_maximum'] ?? 1;
+        $this->row->instance_maximum = $this->data['instance_maximum'];
 
         $this->row->save();
 

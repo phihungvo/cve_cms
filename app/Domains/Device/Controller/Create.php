@@ -9,7 +9,7 @@ use App\Domains\Device\Service\Controller\Create as ControllerService;
 class Create extends ControllerAbstract
 {
     /**
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function __invoke(): Response|RedirectResponse
     {
@@ -31,7 +31,7 @@ class Create extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function create(): RedirectResponse
     {

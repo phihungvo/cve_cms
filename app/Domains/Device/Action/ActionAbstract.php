@@ -5,6 +5,7 @@ namespace App\Domains\Device\Action;
 use App\Domains\Device\Model\Device as Model;
 use App\Domains\CoreApp\Action\ActionAbstract as ActionAbstractCore;
 use App\Domains\Device\Model\DeviceCvedixrtInstance;
+use App\Domains\Device\Model\DeviceCvedixrtInstanceRule;
 
 abstract class ActionAbstract extends ActionAbstractCore
 {
@@ -14,4 +15,6 @@ abstract class ActionAbstract extends ActionAbstractCore
     protected ?Model $row;
 
     protected ?DeviceCvedixrtInstance $instance;
+
+    protected ?DeviceCvedixrtInstanceRule $instanceRule;
 }

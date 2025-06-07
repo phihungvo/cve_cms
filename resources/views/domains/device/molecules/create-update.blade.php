@@ -85,18 +85,27 @@
                value="{{ old('camera_maximum', isset($row) ? $row->camera_maximum : 1) }}"
                min="1" step="1" {{ isset($row) && $row->camera_supported ? '' : 'disabled' }}>
     </div>
+
     <!-- Enable AI -->
     {{--    auth()->user()->isRoleRoot()--}}
     @if (auth()->user()->isRoleRoot())
         <div class="p-2">
             <div class="form-check">
-                <input type="checkbox" name="enable_ai" id="device-enable_ai" value="1"
-                       class="form-check-switch"
+                <input type="hidden" name="instance_maximum" value="0"/>
+                <!-- checkbox chinhs, gửi giá trị 1 khi được chọn -->
+                <input type="checkbox" name="enable_ai" id="device-enable_ai" value="1" class="form-check-switch"
                     {{old('enable_ai', isset($row) ? $row->enable_ai : false) ? 'checked' : ''}} />
                 <label for="device-enable_ai" class="form-check-label">{{__('device-create.enable-ai')}}</label>
             </div>
         </div>
-
+        <!--Trường nhập số lượng instance_maximum , mặc định ẩn-->
+        <div class="p-2" id="instance-maximum-field" style="display: none;">
+            <label for="device-instance-maximum" class="form-label">{{ __('device-create.instance-maximum') }}</label>
+            <input type="number" name="instance_maximum" class="form-control form-control-lg"
+                   id="instance-maximum"
+                   value="{{ old('instance_maximum', isset($row) ? $row->instance_maximum : 0) }}" min="0" step="1"
+                   required>
+        </div>
         <div class="p-2">
             <div class="form-check">
                 <input type="checkbox" name="enabled" value="1" class="form-check-switch"
@@ -120,7 +129,8 @@
             <input type="checkbox" name="shared_public" value="1" class="form-check-switch"
                    id="device-shared_public" {{ old('shared_public', isset($row) ? $row->shared_public : false) ? 'checked' : '' }}
             / >
-            <label for="device-shared_public" class="form-check-label">{{ __('device-create.shared_public') }}</label>
+            <label for="device-shared_public"
+                   class="form-check-label">{{ __('device-create.shared_public') }}</label>
         </div>
     </div>
 
@@ -129,7 +139,7 @@
     <!-- input device_group_id -->
     <h3 class="text-lg font-bold mt-2">Device Group</h3>
     @if(isset($deviceGroups) && $deviceGroups->count() <= 0)
-    <p>No groups available</p>
+        <p>No groups available</p>
     @endif
     @foreach($deviceGroups as $item)
         <div class="p-2">
@@ -171,6 +181,29 @@
                     cameraMaximumField.value = '';
                     cameraMaximumField.removeAttribute('required');
                     cameraMaximumField.setAttribute('disabled', 'disabled');
+                }
+            });
+
+            const cbxEnableAI = document.getElementById('device-enable_ai');
+            const instanceMaximumField = document.getElementById('instance-maximum-field');
+
+            // Kiểm tra trạng thái ban đầu của checkbox
+            if (cbxEnableAI.checked) {
+                instanceMaximumField.style.display = 'block';
+            }
+            const instanceMaximumInput = document.getElementById('instance-maximum');
+            // Thêm sự kiện khi checkbox thay đổi
+            cbxEnableAI.addEventListener('change', function () {
+                if (this.checked) {
+                    instanceMaximumField.style.display = 'block';
+                    instanceMaximumInput.setAttribute('required', 'required');
+                    instanceMaximumInput.removeAttribute('disabled');
+                    instanceMaximumInput.value = '{{ $REQUEST->input('instance_maximum', isset($row) ? $row->instance_maximum : 0) }}';
+                } else {
+                    instanceMaximumField.style.display = 'none';
+                    instanceMaximumInput.value = '';
+                    instanceMaximumInput.removeAttribute('required');
+                    instanceMaximumInput.setAttribute('disabled', 'disabled');
                 }
             });
         });

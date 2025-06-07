@@ -28,6 +28,7 @@
         "lodash.template": "^4.5.0",
         "mem": "^10.0.0",
         "merge2": "^1.4.1",
+        "mozjpeg": "^8.0.0",
         "nth-check": "^2.1.1",
         "optipng-bin": "^9.0.0",
         "path-parse": "^1.0.7",

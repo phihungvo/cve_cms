@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 namespace App\Domains\Device\Service\Controller;
 
 use App\Domains\Device\Model\Device;
@@ -30,5 +29,13 @@ class RTAnalyticsUpdate extends RTAnalyticsCreateUpdateAbstract
     protected function camerasExisting(): Collection
     {
         return $this->row->cameras()->get();
+    }
+
+    public function dataAnalyticsRule(): array
+    {
+        return [
+            'row' => $this->row, // device
+            'instance' => $this->deviceCvedixrtInstance, // DeviceCvedixrtInstance
+        ];
     }
 }

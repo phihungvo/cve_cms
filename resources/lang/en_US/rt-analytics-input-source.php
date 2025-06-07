@@ -10,4 +10,5 @@
     'btn-cancel' => 'Cancel',
     'input-source-type' => 'New input source type',
     'add_new_input_source' => 'Add New Input Source',
+    'rules' => 'Rules',
 ];
