@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Permission\Model;
+namespace App\Domains\User\Enterprise\EService\Model;
+use App\Domains\User\Permission\Model\Permission;
 
 use Illuminate\Database\Eloquent\Model;
 

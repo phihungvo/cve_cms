@@ -184,6 +184,47 @@ class Index extends ControllerAbstract
         }
     }
 
+    public function deviceStatus($id): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $user = $this->auth;
+
+            // Kiểm tra quyền truy cập (chỉ root hoặc người gửi thông báo)
+            if (!$user->hasRole('root') && $user->id !== Notification::findOrFail($id)->sender_id) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => __('notification-show.no-permission'),
+                ], 403);
+            }
+
+            // Lấy thông báo
+            $notification = Notification::with(['devices'])->findOrFail($id);
+
+            // Lấy danh sách thiết bị liên quan từ bảng display
+            $displays = \App\Domains\Display\Model\Display::where('notification_id', $id)->get();
+
+            // Đếm số lượng thiết bị đã gửi và đã đọc
+            $totalSent = $displays->count();
+            $totalRead = $displays->where('notification_published', 1)->count(); // Giả sử notification_published = 1 là đã đọc
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'total_sent' => $totalSent,
+                    'total_read' => $totalRead,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching device status: ', [
+                'notification_id' => $id,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Failed to load device stats') . ': ' . $e->getMessage(),
+            ], 500);
+        }
+    }
     protected function redirectResult(array $result, string $route): RedirectResponse
     {
         if ($result['success']) {

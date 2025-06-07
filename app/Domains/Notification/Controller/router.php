@@ -21,4 +21,5 @@ Route::group(['middleware' => ['user-auth']], static function () {
 
     Route::post('/notification/push-message-all-devices', PushMessageController::class)->name('notification.push-message');
     Route::post('/notification/push-message-to-devices', PushMessageToDevicesController::class)->name('notification.push-message-to-devices');
+    Route::get('/notification/{id}/device-status', [Index::class, 'deviceStatus'])->name('notification.device-status');
 });
