@@ -103,9 +103,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('/js/drawing-tool.js') }}"></script>
     <script>
-        // Khởi tạo các biến toàn cục
-        const instanceId = {{ $row->id ?? 'null' }};
-        const instanceUuid = '{{ $row->uuid ?? '' }}';
+        const instanceId = {{ $row->id }};
+        const instanceUuid = '{{ $row->uuid }}';
         let selectedRuleType = 'line_crossing';
         let selectedAddedRule = null;
         let instanceRules = [];
@@ -153,21 +152,18 @@
             // Hiển thị thông báo lỗi
             const ruleNameError = document.getElementById('ruleNameError');
             const detectObjectsError = document.getElementById('detectObjectsError');
+            [ruleNameError, detectObjectsError].forEach(el => el.classList.add('hidden'));
 
-            ruleNameError.classList.add('hidden');
-            detectObjectsError.classList.add('hidden');
-
-            if (!ruleName) {
-                ruleNameError.classList.remove('hidden');
+            if (!ruleName || detectObjects.length === 0) {
+                if (!ruleName) {
+                    ruleNameError.classList.remove('hidden');
+                }
+                if (detectObjects.length === 0) {
+                    detectObjectsError.classList.remove('hidden');
+                }
                 return;
             }
 
-            if (detectObjects.length === 0) {
-                detectObjectsError.classList.remove('hidden');
-                return;
-            }
-
-            // DrawingTool.clearTempShapes();
             if (window.DrawingTool) {
                 window.DrawingTool.open(instanceId, instanceUuid, {
                     rule_type: selectedRuleType,
@@ -189,7 +185,6 @@
          */
         function handleRuleItemClick(ruleId) {
             selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
-            console.log(selectedAddedRule);
 
             // Xóa trạng thái active của các rule khác
             ruleItemsEl.forEach(el => {
@@ -228,7 +223,6 @@
 
             // Gọi lại hàm render thẻ li
             const ruleList = document.querySelector('.rule-item');
-            console.log('Rule List', ruleList);
             const newRuleItemContainer = document.createElement('div');
             newRuleItemContainer.className = 'flex items-center justify-between';
 
@@ -321,7 +315,6 @@
                 })
                 .then(data => {
                     if (data.status) {
-
                         // Cập nhật instanceRules
                         if (action === 'createInstanceRule') {
                             instanceRules.push(data.data);
@@ -339,16 +332,19 @@
                             timer: 1200,
                             showConfirmButton: false
                         }).then(() => {
-                            window.DrawingTool.clearTempShapes();
-
-                            updateRuleList(data.data);
+                            window.shapes = [];
+                            window.tempShapes = [];
                             window.tempShapesToSave = null;
+                            selectedAddedRule = null;
+                            updateRuleList(data.data);
                             updateRuleConfiguration();
                             ruleItemsEl = document.querySelectorAll('.rule-item');
                             selectedAddedRule = null;
                             document.getElementById('btn-save-rule').innerText = 'Add +';
-                            window.shapes = [];
-                            window.tempShapes= [];
+
+                            if (window.DrawingTool) {
+                                window.DrawingTool.loadShapesFromServer(null);
+                            }
                         });
                     } else {
                         throw new Error(data.message || 'Không thể lưu rule');
@@ -391,11 +387,9 @@
         function updateRuleList(instanceRule) {
             let existingRuleItem = document.querySelector(`.rule-item[data-rule-id="${instanceRule.id}"]`);
 
-            if(existingRuleItem){
+            if (existingRuleItem) {
                 existingRuleItem.textContent = instanceRule.name;
             } else {
-
-
             let instanceRuleEL = document.createElement('div');
             instanceRuleEL.className = 'flex items-center justify-between';
 
@@ -421,7 +415,6 @@
                 btnSaveRule.innerText = 'Update +';
 
                 updateRuleConfiguration(selectedAddedRule);
-                console.log('Selected rule:', selectedAddedRule);
 
                 if (window.DrawingTool) {
                     window.DrawingTool.loadShapesFromServer(selectedAddedRule);
@@ -451,7 +444,7 @@
          * @param dataCurrentRule
          */
         function updateRuleConfiguration(dataCurrentRule = null) {
-            if(dataCurrentRule){
+            if (dataCurrentRule) {
                 ruleNameEl.value = dataCurrentRule.name;
                 detectObjectsCheckboxes.forEach(checkbox => {
                     checkbox.checked = dataCurrentRule.detected_object.includes(checkbox.value);
@@ -468,7 +461,7 @@
                 });
 
                 ruleItemsEl.forEach(item => {
-                    if( item.dataset.ruleId === String(dataCurrentRule.id)) {
+                    if (item.dataset.ruleId === String(dataCurrentRule.id)) {
                         item.classList.remove('bg-white');
                         item.classList.add('bg-blue-500', 'text-white');
                     } else {
@@ -476,7 +469,7 @@
                         item.classList.add('bg-white');
                     }
                 })
-            } else{
+            } else {
                 ruleNameEl.value = '';
                 // Reset các checkbox của DetectedObject
                 detectObjectsCheckboxes.forEach(checkbox => {
@@ -537,7 +530,6 @@
 
                             selectedAddedRule = null;
                             instanceRules = instanceRules.filter(rule => rule.id !== ruleId);
-
                             updateRuleConfiguration(selectedAddedRule);
 
                             Swal.fire({
@@ -596,7 +588,10 @@
 
                     const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Add +';
-                    window.tempShapesToSave = null;
+
+                    if (window.DrawingTool) {
+                        window.DrawingTool.loadShapesFromServer(null); // Xóa shapes hiện tại
+                    }
                 });
             });
         });
