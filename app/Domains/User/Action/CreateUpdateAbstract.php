@@ -40,8 +40,10 @@ abstract class CreateUpdateAbstract extends ActionAbstract
         $this->dataPreferences();
         $this->dataLanguageId();
         $this->dataTimezoneId();
+        $this->dataEnterpriseId();
         $this->dataRoleIds();
         $this->dataGroup();
+
     }
 
     /**
@@ -175,20 +177,20 @@ abstract class CreateUpdateAbstract extends ActionAbstract
             ->value('id');
     }
 
-    protected function dataRoleIds(): void
-    {
-        if ($this->auth->enterprise_id == $this->row->enterprise_id) {
-            # co quyen sua
-            if ($this->request->input('roles')) {
-                $this->data['roles'] = $this->request->input('roles');
-            } else {
-                $this->data['roles'] = [];
-            }
-        } else {
-            # khong co quyen sua
-            $this->data['roles'] = null;
-        }
-    }
+    protected abstract function dataRoleIds(): void;
+//    {
+//        if ($this->row && $this->auth->enterprise_id == $this->row->enterprise_id) {
+//            // Có quyền sửa
+//            if ($this->request->input('roles')) {
+//                $this->data['roles'] = $this->request->input('roles');
+//            } else {
+//                $this->data['roles'] = [];
+//            }
+//        } else {
+//            // Không có quyền sửa hoặc row chưa tồn tại
+//            $this->data['roles'] = null;
+//        }
+//    }
 
     /**
      * @return void
@@ -334,5 +336,14 @@ abstract class CreateUpdateAbstract extends ActionAbstract
     protected function dataGroup(): void
     {
         $this->data['groups'] = $this->request->get('groups') ?? [];
+    }
+
+    protected function dataEnterpriseId(): void
+    {
+        if (isset($this->data['enterprise_id'])) {
+            $this->data['enterprise_id'] = $this->data['enterprise_id'];
+        } else {
+            $this->data['enterprise_id'] = $this->row?->enterprise_id ?? $this->auth?->enterprise_id;
+        }
     }
 }

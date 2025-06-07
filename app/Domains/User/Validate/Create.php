@@ -33,6 +33,7 @@ class Create extends ValidateAbstract
 
             'language_id' => ['bail', 'nullable', 'integer'],
             'timezone_id' => ['bail', 'nullable', 'integer'],
+            'enterprise_id' => ['bail', 'nullable', 'integer'],
         ];
     }
 }

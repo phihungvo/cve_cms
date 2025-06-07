@@ -130,7 +130,8 @@
                     <div class="form-check">
                         <input type="checkbox" name="roles[]" value="{{$item->id}}" class="form-check-switch"
                                    id="user-role-{{$item->id}}"
-                            {{isset($row) && auth()->user()->enterprise_id == $row->enterprise_id ? '' : 'disabled' }}
+{{--                            {{$ROUTE == 'user.create' || isset($row) && auth()->user()->enterprise_id == $row->enterprise_id ? '' : 'disabled' }}--}}
+                            {{auth()->user()->enterprise_id == $item->enterprise_id ? '' : 'disabled' }}
                             {{ isset($assignedRoles) && in_array($item->id, $assignedRoles->pluck('id')->toArray()) ? 'checked' : '' }}
                             {{$REQUEST->input('roles') && in_array($item->id, $REQUEST->input('roles')) ? 'checked' : '' }}>
                         <label for="user-role-{{$item->id}}" class="form-check-label">{{$item->name}}</label>
