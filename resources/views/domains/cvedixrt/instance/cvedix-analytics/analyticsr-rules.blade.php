@@ -9,7 +9,7 @@
     <div class="flex rounded shadow bg-white min-h-[600px]">
         <!-- List Rule đã thêm -->
         <div class="w-1/3 flex flex-col bg-gray-50 border-r">
-            <h3 class="px-4 py-3 font-semibold text-gray-800">{{ __('Added rules') }}</h3>
+            <h3 class="px-4 py-3 font-semibold text-gray-800">{{ __('cvedixt-analytic.added_rule') }}</h3>
             <ul id="ruleList" class="flex-1 py-4 px-2 space-y-1 overflow-y-auto max-h-[32rem]">
                 @foreach($row->instanceRules as $rule)
                     <div class="flex items-center justify-between">

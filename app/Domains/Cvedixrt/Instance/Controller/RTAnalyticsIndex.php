@@ -54,7 +54,7 @@ class RTAnalyticsIndex extends ControllerAbstract
             return $this->json([
                 'status' => true,
                 'data' => $rule,
-                'message' => __('cvedixrt-instance-analytics.create-success'),
+                'message' => __('cvedixt-analytic.create_success'),
             ]);
         } catch (Exception $e) {
             return $this->json([
@@ -73,7 +73,7 @@ class RTAnalyticsIndex extends ControllerAbstract
             return $this->json([
                 'status' => true,
                 'data' => $rule,
-                'message' => __('cvedixrt-instance-analytics.update-success'),
+                'message' => __('cvedixt-analytic.update_success'),
             ]);
         } catch (Exception $e) {
             return $this->json([
@@ -94,7 +94,7 @@ class RTAnalyticsIndex extends ControllerAbstract
 
             return $this->json([
                 'status' => true,
-                'message' => __('cvedixrt-instance-analytics.delete-success'),
+                'message' => __('cvedixt-analytic.delete_success'),
             ]);
         } catch (Exception $e) {
             return $this->json([
