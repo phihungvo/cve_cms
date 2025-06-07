@@ -1,0 +1,56 @@
+<?php return [
+    'meta-title' => 'Cvedixrt-Group > Update',
+    'btn-delete' => 'Delete',
+    'btn-save' => 'Save',
+    'btn-cancel' => 'Cancel',
+    'error' => [
+        'not-found' => 'Cvedixrt Group not found.',
+        'name-required' => 'The name field is required.',
+        'name-string' => 'The name must be a string.',
+        'name-max' => 'The name may not be greater than 100 characters.',
+        'description-string' => 'The description must be a string.',
+        'description-max' => 'The description may not be greater than 255 characters.',
+        'unauthorized' => 'You are not authorized to perform this action. :message',
+        'connection' => 'Database connection error.',
+        'query' => 'Database query error.',
+        'validation' => 'Validation error.',
+        'unexpected' => 'Unexpected error: :message',
+    ],
+    'modal' => [
+        'delete' => [
+            'title' => 'Delete Cvedixrt Group',
+            'message' => 'Are you sure you want to delete this Cvedixrt Group? This action cannot be undone.',
+        ],
+        'update' => [
+            'success' => 'Cvedixrt Group updated successfully.',
+            'error' => [
+                'not-found' => 'Update failed: Cvedixrt Group not found.',
+                'unauthorized' => 'Update failed: You are not authorized to update this group.',
+                'validation' => 'Update failed: Validation error.',
+                'query' => 'Update failed: Database query error: :message',
+                'connection' => 'Update failed: Database connection error.',
+                'unexpected' => 'Update failed: Unexpected error: :message',
+            ],
+        ],
+    ],
+    'delete' => [
+        'success' => 'Cvedixrt Group deleted successfully.',
+        'error' => [
+            'in-use' => 'Cannot delete this Cvedixrt Group because it is still in use.',
+            'model-not-found' => 'Delete failed: Model not found.',
+            'unauthorized' => 'Delete failed: You are not authorized to delete this group. :message',
+            'query-error' => 'Delete failed: Database query error: :message',
+            'query' => 'Delete failed: Database query error.',
+            'connection' => 'Delete failed: Database connection error.',
+            'unexpected-error' => 'Delete failed: Unexpected error: :message',
+            'unexpected' => 'Delete failed: Unexpected error: :message',
+        ],
+    ],
+    'update' => [
+        'success' => 'Cvedixrt Group updated successfully.',
+        'database-error' => 'Update failed: Database query error: :message',
+        'validation-error' => 'Update failed: Validation error: :message',
+        'type-error' => 'Update failed: Type error: :message',
+        'error' => 'Update failed: Unexpected error: :message',
+    ],
+];
