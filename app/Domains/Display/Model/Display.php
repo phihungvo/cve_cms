@@ -35,14 +35,19 @@ class Display extends ModelAbstract
         'location_id',
         'device_id',
         'schedule_id',
+        'notification_id',
         'playlist_published',
         'schedule_published',
         'playlist_id',
+        'notification_published',
+        'read_at',
     ];
 
     protected $casts = [
         'playlist_published' => 'integer',
         'schedule_published' => 'integer',
+        'notification_published' => 'integer',
+        'read_at' => 'datetime',
     ];
 
     public function device(): BelongsTo
@@ -99,5 +104,10 @@ class Display extends ModelAbstract
     public function newEloquentBuilder($query): DisplayBuilder
     {
         return new DisplayBuilder($query);
+    }
+
+    public function notification(): BelongsTo
+    {
+        return $this->belongsTo(\App\Domains\Notification\Model\Notification::class, 'notification_id');
     }
 }

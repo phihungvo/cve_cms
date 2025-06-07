@@ -3,7 +3,8 @@
 namespace App\Domains\Device\Action;
 
 use App\Domains\Device\Model\Device as Model;
-use App\Domains\Device\Model\DeviceCvedixrtInstance;
+use App\Domains\Device\Model\DeviceCvedixrtInstance as InstanceModel;
+use App\Domains\Device\Model\DeviceCvedixrtInstanceRule as InstanceRuleModel;
 use App\Domains\DeviceMessage\Model\DeviceMessage as DeviceMessageModel;
 use App\Domains\Core\Action\ActionFactoryAbstract;
 
@@ -14,7 +15,9 @@ class ActionFactory extends ActionFactoryAbstract
      */
     protected ?Model $row;
 
-    protected ?DeviceCvedixrtInstance $instance;
+    protected ?InstanceModel $instance;
+
+    protected ?InstanceRuleModel $instanceRule;
 
     /**
      * @return Model
@@ -88,19 +91,36 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(DeleteCamera::class);
     }
 
-    public function createInstance(): void
+    public function createInstance(): InstanceModel
     {
-        $this->actionHandle(CreateInstance::class, $this->validate()->createInstance());
+        return $this->actionHandle(CreateInstance::class, $this->validate()->createInstance());
     }
 
-    public function updateInstance(DeviceCvedixrtInstance $instance):void
+    public function updateInstance(InstanceModel $instance): void
     {
         $this->instance = $instance;
         $this->actionHandle(UpdateInstance::class, $this->validate()->updateInstance(), $instance);
     }
 
-    public function deleteInstance(): void
+    public function deleteInstance(InstanceModel $instance): void
     {
-        $this->actionHandle(DeleteInstance::class);
+        $this->actionHandle(DeleteInstance::class, [], $instance);
+    }
+
+    public function createInstanceRule(): InstanceRuleModel
+    {
+        return $this->actionHandle(CreateInstanceRule::class, $this->validate()->createInstanceRule());
+    }
+
+    public function updateInstanceRule(InstanceRuleModel $instanceRule): InstanceRuleModel
+    {
+        $this->instanceRule = $instanceRule;
+
+        return $this->actionHandle(UpdateInstanceRule::class, $this->validate()->updateInstanceRule(), $instanceRule);
+    }
+
+    public function deleteInstanceRule(InstanceRuleModel $instanceRule): void
+    {
+        $this->actionHandle(DeleteInstanceRule::class, [], $instanceRule);
     }
 }

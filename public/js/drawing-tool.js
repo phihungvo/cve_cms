@@ -909,7 +909,6 @@ let DrawingTool = (function () {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (!shapes.length) {
-            console.warn('Mảng shapes rỗng, không có shape nào để vẽ.');
             return;
         }
 
@@ -1098,7 +1097,6 @@ let DrawingTool = (function () {
     const processShapesFromServer = (instanceRule) => {
 
         if (!instanceRule) {
-            console.error('Không có dữ liệu instanceRule được cung cấp');
             window.shapes = [];
             lines = [];
             zones = [];

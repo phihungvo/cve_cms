@@ -19,6 +19,7 @@
         "predis/predis": "^2.1.1",
         "sentry/sentry-laravel": "^4.1",
         "sibyx/phpgpx": "^1.2.1",
+        "phpoffice/phpspreadsheet": "^4.2",
         "spatie/laravel-permission": "*"
     },
     "require-dev": {
@@ -49,9 +50,6 @@
         }
     },
     "autoload": {
-        "classmap": [
-            "database/migrations"
-        ],
         "psr-4": {
             "App\\": "app/",
             "Database\\": "database/"
@@ -93,7 +91,6 @@
             "git checkout .",
             "git pull",
             "@composer install --no-dev --optimize-autoloader --classmap-authoritative --ansi",
-            "@php artisan migrate --force --ansi",
             "@php artisan db:seed --force --ansi --class=\"Database\\Seeders\\Database\"",
             "@php artisan tool:manifest:generate",
             "@php artisan queue:restart --ansi",
@@ -103,7 +100,6 @@
             "Composer\\Config::disableProcessTimeout",
             "rm -f bootstrap/cache/*.php",
             "@composer install --optimize-autoloader --classmap-authoritative --ansi",
-            "@php artisan migrate --force --ansi",
             "@php artisan db:seed --class=\"Database\\Seeders\\Database\"",
             "@php artisan tool:manifest:generate",
             "@composer artisan-cache-clear",
@@ -114,7 +110,6 @@
             "Composer\\Config::disableProcessTimeout",
             "rm -f bootstrap/cache/*.php",
             "@composer install --no-dev --optimize-autoloader --classmap-authoritative --ansi",
-            "@php artisan migrate --force --ansi",
             "@php artisan db:seed --class=\"Database\\Seeders\\Database\" --force",
             "@php artisan tool:manifest:generate",
             "@php artisan queue:restart --ansi",

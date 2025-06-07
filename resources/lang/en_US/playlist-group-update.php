@@ -1,4 +1,21 @@
 <?php return [
+    'force-delete-button' => 'force delete',
+    'soft-delete-button' => 'Delete',
+    'restore-button' => 'Restore',
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'success' => 'The playlist group has been saved.',
+    'meta-title' => 'Fpp/Playlist-Group>Update',
+    'delete-title' => 'Delete playlist',
+    'delete-message' => 'The playlist has been deleted.',
+    'delete-success' => 'The playlist has been deleted.',
+    'restore-title' => 'Restore Playlist',
+    'restore-message' => 'Are you sure restore playlist group',
+    'restore-success' => 'The playlist group has been retored',
+    'force-delete-title' => 'Force Delete Playlist Group',
+    'force-delete-message' => 'Are you sure you want to force delete this playlist group? This action cannot be undone.',
+    'force-delete-success' => 'The playlist group has been permanently deleted.',
+
     'error' => [
         'unauthorized' => 'You are not authorized to perform this action: :message',
         'in-use' => 'This playlist group is currently in use and cannot be deleted.',

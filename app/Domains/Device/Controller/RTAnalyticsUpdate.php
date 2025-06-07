@@ -13,7 +13,7 @@ class RTAnalyticsUpdate extends ControllerAbstract
         try {
             $this->row($id);
             $instanceId = (int)$this->request->query('instanceId');
-            $this->deviceCvedixrtInstance($instanceId);
+            $this->instance($instanceId);
         } catch (NotFoundException $e) {
             $this->sessionMessage('error', $e->getMessage());
             $route = isset($instanceId) ? 'device.runtime-analytics' : 'device.index';
@@ -32,7 +32,7 @@ class RTAnalyticsUpdate extends ControllerAbstract
 
     protected function data(): array
     {
-        return ServiceController::new($this->request, $this->auth, $this->row, $this->deviceCvedixrtInstance)->data();
+        return ServiceController::new($this->request, $this->auth, $this->row, $this->instance)->data();
     }
 
     protected function actions()
@@ -49,7 +49,7 @@ class RTAnalyticsUpdate extends ControllerAbstract
     protected function update(): RedirectResponse
     {
         try {
-            $this->action()->updateInstance($this->deviceCvedixrtInstance);
+            $this->action()->updateInstance($this->instance);
             $this->sessionMessage('success', __(__('rt-analytics-update.update-success')));
 
             return redirect()->route('device.runtime-analytics', $this->row->id);
@@ -68,7 +68,7 @@ class RTAnalyticsUpdate extends ControllerAbstract
     protected function delete(): RedirectResponse
     {
         try {
-            $this->action()->deleteInstance();
+            $this->action()->deleteInstance($this->instance);
             $this->sessionMessage('success', __('Delete Instance Success'));
 
             return redirect()->route('device.runtime-analytics', $this->row->id);

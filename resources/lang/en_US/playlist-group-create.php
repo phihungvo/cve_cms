@@ -4,6 +4,7 @@
     'select-enterprise' => '-- select Enterprise --',
     'name' => 'Name',
     'description' => 'Description',
+    'success' => 'Playlist Group created successfully.',
     'error' => [
         'unauthorized' => 'You are not authorized to create a playlist group: :message',
         'database' => 'A database error occurred: :message',

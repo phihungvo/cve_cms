@@ -2,19 +2,19 @@
 
 namespace App\Domains\Device\Action;
 
+use App\Domains\Device\Model\DeviceCvedixrtInstance;
 use Exception;
 
 class UpdateInstance extends CreateUpdateInstanceAbstract
 {
-
     /**
      * @throws Exception
      *
-     * @return void
+     * @return DeviceCvedixrtInstance
      *
      * @overide
      */
-    protected function save(): void
+    protected function save(): DeviceCvedixrtInstance
     {
         $this->instance->update([
             'uuid' => $this->data['uuid'],
@@ -24,6 +24,6 @@ class UpdateInstance extends CreateUpdateInstanceAbstract
             'input_source' => $this->data['input_source'],
             'description' => $this->data['description'],
         ]);
+        return $this->instance;
     }
 }
-

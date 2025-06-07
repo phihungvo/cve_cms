@@ -30,6 +30,7 @@ class Create extends CreateUpdateAbstract
             'camera_supported' => $this->data['camera_supported'] ?? 0,
             'camera_maximum' => $this->data['camera_maximum'] ?? 1,
             'enable_ai' => $this->data['enable_ai'],
+            'instance_maximum' => $this->data['instance_maximum'],
         ]);
 
         $deviceStatus = DeviceStatus::query()->create([
@@ -38,7 +39,7 @@ class Create extends CreateUpdateAbstract
             // 'error' => $this->data['error'] ?? null,
         ]);
 
-       // Đồng bộ các nhóm thiết bị (device_group)
+        // Đồng bộ các nhóm thiết bị (device_group)
         $this->row->deviceGroups()->sync($this->data['device_groups']);
 
         // Log the creation of the device

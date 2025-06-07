@@ -10,7 +10,7 @@ use App\Domains\Device\Model\Device;
 use App\Domains\Display\Model\Display;
 use App\Domains\Playlist\Model\Builder\PlaylistBuilder;
 use App\Domains\Playlist\Model\Collection\PlaylistCollection;
-use App\Domains\PlaylistGroup\Model\PlaylistGroupModel;
+use App\Domains\Playlist\PlaylistGroup\Model\PlaylistGroupModel;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Domains\Device\Action;
 
@@ -8,12 +8,13 @@ abstract class CreateUpdateInstanceAbstract extends ActionAbstract
 {
     abstract protected function save();
 
-    public function handle(?DeviceCvedixrtInstance $_instance = null):void
+    public function handle(?DeviceCvedixrtInstance $_instance = null): DeviceCvedixrtInstance
     {
         $this->instance = $_instance;
         $this->data();
         $this->check();
-        $this->save();
+
+        return $this->save();
     }
 
     protected function data(): void
@@ -23,7 +24,7 @@ abstract class CreateUpdateInstanceAbstract extends ActionAbstract
         $this->inputDescriptionData();
     }
 
-    protected function check():void
+    protected function check(): void
     {
     }
 
@@ -36,7 +37,7 @@ abstract class CreateUpdateInstanceAbstract extends ActionAbstract
     {
         if (isset($this->data['uri'])) {
             $this->data['input_source'] = $this->data['uri'];
-        } else if (isset($this->data['input_source_text'])) {
+        } elseif (isset($this->data['input_source_text'])) {
             $this->data['input_source'] = $this->data['input_source_text'];
         } else {
             $this->data['input_source'] = null;

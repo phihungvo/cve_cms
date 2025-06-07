@@ -38,6 +38,7 @@ use App\Domains\User\Enterprise\Model\Enterprise;
  * @property int $shared_public
  * @property int|null $vehicle_id
  * @property int $enable_ai
+ * @property int $instance_maximum
  */
 class Device extends ModelAbstract
 {

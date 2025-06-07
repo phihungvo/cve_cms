@@ -1,3 +1,9 @@
+@php
+    if (!isset($notification) || !$notification) {
+        return redirect()->route('notification.index')->with('error', __('notification-show.not-found'));
+    }
+@endphp
+
 @extends('layouts.in')
 
 @section('title', __('notification-show.title'))
@@ -57,12 +63,126 @@
                 <strong>{{ __('notification-show.read-stats') }}:</strong>
                 {{ $notification['read_count'] }}/{{ $notification['total_count'] }}
             </div>
+            <div class="mb-4">
+                <strong>{{ __('notification-show.device-stats') }}:</strong>
+                <span id="device-stats">Loading...</span>
+            </div>
         @endif
 
         <div class="mt-6">
             <a href="{{ route('notification.index') }}" class="btn btn-secondary mr-2">
                 {{ __('Back to List') }}
             </a>
+            @if(auth()->check() && (auth()->user()->isRoot() || auth()->user()->id === $notification['sender_id']))
+                <button id="push-notification" class="btn btn-primary mr-2">
+                    {{ __('notification-show.push-to-devices') }}
+                </button>
+                <button id="resend-notification" class="btn btn-warning mr-2" disabled>
+                    {{ __('notification-show.resend') }}
+                </button>
+            @endif
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Lấy trạng thái thiết bị
+                fetch("{{ route('notification.device-status', $notification['id']) }}", {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const { total_sent, total_read } = data.data;
+                            document.getElementById('device-stats').innerText = `${total_read}/${total_sent} devices read`;
+
+                            if (total_read < total_sent) {
+                                document.getElementById('resend-notification').disabled = false;
+                            }
+                        } else {
+                            throw new Error(data.message || 'Failed to load device stats');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading device stats:', error);
+                        document.getElementById('device-stats').innerText = 'Failed to load stats: ' + error.message;
+                    });
+
+                // Xử lý gửi thông báo
+                document.getElementById('push-notification').addEventListener('click', function () {
+                    fetch("{{ route('notification.push-message') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            notification_id: {{ $notification['id'] }},
+                        })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Notification pushed to ' + data.data.sent_devices.length + ' devices');
+                                location.reload();
+                            } else {
+                                throw new Error(data.message || 'Failed to push notification');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error pushing notification:', error);
+                            alert('Failed to push notification: ' + error.message);
+                        });
+                });
+
+                // Xử lý gửi lại thông báo
+                document.getElementById('resend-notification').addEventListener('click', function () {
+                    fetch("{{ route('notification.push-message-to-devices') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            notification_id: {{ $notification['id'] }},
+                            device_ids: [], // Gửi lại cho tất cả thiết bị chưa đọc
+                        })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Notification resent to ' + data.data.sent_devices.length + ' devices');
+                                location.reload();
+                            } else {
+                                throw new Error(data.message || 'Failed to resend notification');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error resending notification:', error);
+                            alert('Failed to resend notification: ' + error.message);
+                        });
+                });
+            });
+        </script>
+    @endpush
 @endsection
