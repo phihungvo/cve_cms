@@ -12,6 +12,7 @@ use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class Index extends ControllerAbstract
 {
@@ -78,7 +79,6 @@ class Index extends ControllerAbstract
         try {
             $user = $this->auth;
 
-            // Root không được phép đánh dấu đã đọc
             if ($user->hasRole('root')) {
                 $this->sessionMessage('error', __('notification-read.no-permission-root'));
                 return redirect()->route('notification.index');
@@ -100,6 +100,8 @@ class Index extends ControllerAbstract
             }
 
             $userNotification->update(['read_at' => now()]);
+            // Xóa cache sau khi đánh dấu đã đọc
+            Cache::forget("unread_notifications_{$userId}");
 
             $this->sessionMessage('success', __('notification-read.success'));
             return redirect()->route('notification.index');
@@ -113,7 +115,7 @@ class Index extends ControllerAbstract
     {
         try {
             $user = $this->auth;
-            $notification = Notification::withTrashed() // Hiển thị cả thông báo đã soft delete cho Root
+            $notification = Notification::withTrashed()
                 ->with([
                     'sender',
                     'enterprise',
@@ -146,6 +148,8 @@ class Index extends ControllerAbstract
             $userNotification = $notification->userNotifications->firstWhere('user_id', $user->id);
             if ($userNotification && !$userNotification->read_at && !$user->hasRole('root')) {
                 $userNotification->update(['read_at' => now()]);
+                // Xóa cache sau khi đánh dấu đã đọc
+                Cache::forget("unread_notifications_{$user->id}");
             }
 
             // Lấy danh sách user không phải Root
@@ -153,7 +157,6 @@ class Index extends ControllerAbstract
                 return !$userNotification->user || !$userNotification->user->hasRole('root');
             });
 
-            // Đếm số lượng user không phải Root đã đọc và tổng số user không phải Root nhận thông báo
             $totalUsers = $nonRootUsers->count();
             $readUsers = $nonRootUsers->whereNotNull('read_at')->count();
 
@@ -222,6 +225,29 @@ class Index extends ControllerAbstract
             return response()->json([
                 'status' => 'error',
                 'message' => __('Failed to load device stats') . ': ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function unreadCount(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $userId = $this->auth->id;
+            $unreadCount = Cache::remember("unread_notifications_{$userId}", 60, function () use ($userId) {
+                return UserNotification::where('user_id', $userId)
+                    ->whereNull('read_at')
+                    ->count();
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => ['unread_count' => $unreadCount],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching unread notification count: ', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Failed to fetch unread count') . ': ' . $e->getMessage(),
             ], 500);
         }
     }

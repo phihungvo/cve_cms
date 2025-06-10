@@ -30,6 +30,35 @@
     @include ('layouts.molecules.footer')
     @livewireScripts
     @stack('scripts') <!-- Thêm dòng này -->
+
+    @push('scripts')
+        <script>
+            function updateNotificationBadge() {
+                fetch("{{ route('notification.unread-count') }}", {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const badges = document.querySelectorAll('.notification-badge');
+                            badges.forEach(badge => {
+                                badge.innerText = data.data.unread_count > 99 ? '99+' : data.data.unread_count;
+                                badge.style.display = data.data.unread_count > 0 ? 'inline-block' : 'none';
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error fetching unread count:', error));
+            }
+
+            // Cập nhật ngay khi tải trang
+            document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+
+        </script>
+    @endpush
 </body>
 
 </html>
