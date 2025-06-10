@@ -36,5 +36,4 @@ class RTAnalyticsIndex extends RTAnalyticsCreateUpdateAbstract
             ->with(['group:id,group_name', 'solution:id,solution_name'])
             ->get();
     }
-
 }

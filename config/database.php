@@ -49,9 +49,9 @@ return [
             'engine' => null,
             'timezone' => '+00:00',
             'options' => [],
-            'log' => (bool)env('DB_LOG', false),
-            'log_backtrace' => (bool)env('DB_LOG_BACKTRACE', true),
-            'log_time' => (bool)env('DB_LOG_TIME', true),
+            'log' => (bool) env('DB_LOG', false),
+            'log_backtrace' => (bool) env('DB_LOG_BACKTRACE', true),
+            'log_time' => (bool) env('DB_LOG_TIME', true),
         ],
 
         'test' => [
@@ -115,6 +115,9 @@ return [
             'password' => env('REDIS_PASSWORD', null),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_DB', '0'),
+            'timeout' => 5.0, // Tăng thời gian chờ
+            'retry_interval' => 200, // Khoảng thời gian thử lại (ms)
+            'max_attempts' => 10, // Số lần thử lại
         ],
 
         'cache' => [

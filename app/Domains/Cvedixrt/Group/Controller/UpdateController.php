@@ -1,0 +1,102 @@
+<?php declare(strict_types=1);
+
+namespace App\Domains\Cvedixrt\Group\Controller;
+
+use Exception;
+use App\Domains\Cvedixrt\Group\Service\Controller\UpdateService as ControllerService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+
+class UpdateController extends ControllerAbstract
+{
+    /**
+     * @param int $id
+     *
+     * @return Response|RedirectResponse
+     */
+    public function __invoke(int $id): Response|RedirectResponse
+    {
+        try {
+            $this->row($id);
+        } catch (\Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('cvedixrt_group.index');
+        }
+
+        if ($response = $this->actions()) {
+            return $response;
+        }
+
+        $this->meta('title', __('cvedixrt-group-update.meta-title'));
+
+        return $this->page('cvedixrt.group.update', $this->data());
+    }
+
+    /**
+     * @return array
+     */
+    protected function data(): array
+    {
+        return ControllerService::new($this->request, $this->auth, $this->row)
+            ->data();
+    }
+
+    /**
+     * @return RedirectResponse|false|null
+     */
+    protected function actions(): RedirectResponse|false|null
+    {
+        $strategies = [
+            'update' => fn () => $this->update(),
+            'delete' => fn () => $this->delete(),
+
+        ];
+
+        foreach ($strategies as $action => $callback) {
+            if ($this->actionPost($action)) {
+                return $callback();
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return RedirectResponse
+     */
+    protected function update(): RedirectResponse
+    {
+        try {
+            $this->action($this->row, 'Cvedixrt\Group')->update();
+
+            $this->sessionMessage('success', __('cvedixrt-group-update.update.success'));
+
+            return redirect()->route('cvedixrt_group.index');
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('cvedixrt_group.index');
+        }
+    }
+
+    /**
+     * Hard delete
+     *
+     * @return RedirectResponse
+     */
+    protected function delete(): RedirectResponse
+    {
+        try {
+            $this->action($this->row, 'Cvedixrt\Group')->delete();
+
+            $this->sessionMessage('success', __('cvedixrt-group-update.delete.success'));
+        } catch (Exception $e) {
+            $this->sessionMessage('error', $e->getMessage());
+
+            return redirect()->route('cvedixrt_group.index');
+        } finally {
+            return redirect()->route('cvedixrt_group.index');
+        }
+    }
+}

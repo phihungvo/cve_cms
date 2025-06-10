@@ -8,7 +8,6 @@ class ScheduleGroupBuilder extends BuilderAbstract
 {
     # Khởi tạo các phương thức tuỳ chỉnh có Eloquent Builder
 
-
     public function whenEnterprise(?int $enterprise_id): self
     {
         return $this->when($enterprise_id, fn ($q) => $q->where('enterprise_id', $enterprise_id));
@@ -25,10 +24,11 @@ class ScheduleGroupBuilder extends BuilderAbstract
 
     public function roleOwner(): self
     {
-        if (auth()->user()->isOwner()) {
+        if (auth()->user()?->isOwner() || auth()->user()?->enterprise_id) {
             return $this->where('enterprise_id', auth()->user()->enterprise_id)
                 ->withTrashed();
         }
+
         return $this;
     }
 }

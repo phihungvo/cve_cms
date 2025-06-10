@@ -80,6 +80,7 @@ class User extends ModelAbstract implements Authenticatable
         'api_key',
         'api_key_prefix',
         'api_key_enabled',
+        'api_key_full',
         'preferences',
         'admin',
         'admin_mode',

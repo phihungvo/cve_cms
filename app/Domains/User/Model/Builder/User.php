@@ -92,10 +92,13 @@ class User extends BuilderAbstract
 
     public function filterByUserPermission(string $alias): self
     {
-        if (auth()->user()->hasPermission($alias)) {
+        if (auth()->user()->isRoleRoot()) {
+            return $this;
+        } elseif (auth()->user()->hasPermission($alias)) {
             return $this->where('enterprise_id', auth()->user()->enterprise_id);
 
         }
+
         return $this->where('id', 0);
 
     }
