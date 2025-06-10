@@ -24,7 +24,7 @@ let DrawingTool = (function () {
     let detectObjects = ['Person'];
     let ruleName = '';
     let direction = 'both';
-    const defaultWidth = 3;
+    const defaultWidth = 1;
     let shapeIdCounter = 0;
     window.tempShapes = [];
     let selectedRule = null;
@@ -938,11 +938,15 @@ let DrawingTool = (function () {
                 ctx.restore();
             } else if (shape.type === 'rect') {
                 ctx.rect(shape.startX, shape.startY, shape.width, shape.height);
+                ctx.fillStyle = rgbToRgba(shape.color, 0.12);
+                ctx.fill();
                 ctx.stroke();
             } else if (shape.type === 'poly' && shape.points.length > 0) {
                 ctx.moveTo(shape.points[0].x, shape.points[0].y);
                 shape.points.slice(1).forEach(point => ctx.lineTo(point.x, point.y));
                 ctx.closePath();
+                ctx.fillStyle = rgbToRgba(shape.color, 0.12);
+                ctx.fill();
                 ctx.stroke();
             }
 
