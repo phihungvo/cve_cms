@@ -33,8 +33,8 @@ class MqttService
         $this->port = env('MQTT_PORT', 1883);
         $this->clientId = 'cvedix-publisher-'.uniqid();
 
-        $this->connectionSettings = (new ConnectionSettings)
-            ->setUseTls(true)
+        $this->connectionSettings = (new ConnectionSettings())
+            ->setUseTls($this->port == 8883) // Sử dụng TLS nếu port là 8883
             ->setTlsVerifyPeer(false)
             ->setTlsVerifyPeerName(false);
 

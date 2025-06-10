@@ -1,5 +1,5 @@
 <?php return [
-    'meta-title' => 'User>Groups',
+    'meta-title' => 'Device_Groups>Index',
     'no' => 'No',
     'name' => 'Name',
     'description' => 'Description',

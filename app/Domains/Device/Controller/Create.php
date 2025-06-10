@@ -2,6 +2,7 @@
 
 namespace App\Domains\Device\Controller;
 
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use App\Domains\Device\Service\Controller\Create as ControllerService;
@@ -9,7 +10,7 @@ use App\Domains\Device\Service\Controller\Create as ControllerService;
 class Create extends ControllerAbstract
 {
     /**
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function __invoke(): Response|RedirectResponse
     {
@@ -31,19 +32,20 @@ class Create extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function create(): RedirectResponse
     {
-        try{
+        try {
             $this->row = $this->action()->create();
 
             $this->sessionMessage('success', __('device-create.success'));
 
             // return redirect()->route('device.update', $this->row->id);
             return redirect()->route('device.index')->with('success', __('device-create.success'));
-        }catch (\Exception $e){
+        } catch (Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
+
             return redirect()->back()->withInput();
         }
     }

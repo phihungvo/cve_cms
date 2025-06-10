@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\User\Permission\Controller;
+namespace App\Domains\User\Permission\Feature\Controller;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use App\Domains\User\Permission\Model\Permission as Model;
-use App\Domains\User\Permission\Model\Collection\Permission as Collection;
-use App\Domains\User\Permission\Service\Controller\Index as ControllerService;
+use App\Domains\User\Permission\Feature\Model\Feature as Model;
+use App\Domains\User\Permission\Feature\Model\Collection\Feature as Collection;
+use App\Domains\User\Permission\Feature\Service\Controller\Index as ControllerService;
 
 class Index extends ControllerAbstract
 {

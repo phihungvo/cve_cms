@@ -14,9 +14,9 @@ abstract class ActionFactoryAbstract
     use Factory;
 
     /**
-     * @param ?\Illuminate\Http\Request $request = null
-     * @param ?\Illuminate\Contracts\Auth\Authenticatable $auth = null
-     * @param ?\App\Domains\Core\Model\ModelAbstract $row = null
+     * @param ?Request $request = null
+     * @param ?Authenticatable $auth = null
+     * @param ?ModelAbstract $row = null
      * @param array $data = []
      *
      * @return self
@@ -36,7 +36,7 @@ abstract class ActionFactoryAbstract
      * @param string $class
      * @param ?array $data = []
      *
-     * @return \App\Domains\Core\Action\ActionAbstract
+     * @return ActionAbstract
      */
     final protected function action(string $class, ?array $data = []): ActionAbstract
     {

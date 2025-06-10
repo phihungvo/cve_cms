@@ -12,7 +12,7 @@ class Update extends ControllerAbstract
     /**
      * @param int $id
      *
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @return Response|RedirectResponse
      */
     public function __invoke(int $id): Response|RedirectResponse
     {
@@ -41,7 +41,7 @@ class Update extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse|false|null
+     * @return RedirectResponse|false|null
      */
     protected function actions(): RedirectResponse|false|null
     {
@@ -50,7 +50,7 @@ class Update extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function update(): RedirectResponse
     {
@@ -65,7 +65,7 @@ class Update extends ControllerAbstract
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     protected function delete(): RedirectResponse
     {
