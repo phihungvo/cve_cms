@@ -34,7 +34,7 @@ class PlaylistGroupBuilder extends BuilderAbstract
     public function whereByOwner(): self
     {
         if (auth()->user()->isOwner()) {
-            return $this->where(Enterprise::FOREIGN, auth()->user()->enterprise_id);
+            return $this->where(Enterprise::FOREIGN_KEY, auth()->user()->enterprise_id);
         }
 
         return $this;
@@ -46,13 +46,13 @@ class PlaylistGroupBuilder extends BuilderAbstract
             return $this;
         }
 
-        return $this->where(Enterprise::FOREIGN, auth()->user()->enterprise_id);
+        return $this->where(Enterprise::FOREIGN_KEY, auth()->user()->enterprise_id);
     }
 
     public function filterByEnterpriseId(?int $enterpriseId): self
     {
         if ($enterpriseId) {
-            return $this->where(Enterprise::FOREIGN, $enterpriseId);
+            return $this->where(Enterprise::FOREIGN_KEY, $enterpriseId);
         }
 
         return $this;

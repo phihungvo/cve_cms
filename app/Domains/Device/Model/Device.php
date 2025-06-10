@@ -3,12 +3,14 @@
 namespace App\Domains\Device\Model;
 
 use App\Domains\Campaign\Schedule\Model\Schedule;
+use App\Domains\DeviceGroup\Model\DeviceGroupMap;
 use App\Domains\DeviceGroup\Model\DeviceGroupModel;
 use App\Domains\Display\Model\Display;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Domains\CoreApp\Model\ModelAbstract;
 use App\Domains\Device\Model\Builder\Device as Builder;
@@ -39,6 +41,8 @@ use App\Domains\User\Enterprise\Model\Enterprise;
  * @property int|null $vehicle_id
  * @property int $enable_ai
  * @property int $instance_maximum
+ * @property Collection $instances
+ * @property Collection $allInstanceRules
  */
 class Device extends ModelAbstract
 {
@@ -57,16 +61,12 @@ class Device extends ModelAbstract
     /**
      * @const string
      */
-    public const PRIMARY = 'id';
+    public const PRIMARY_KEY = 'id';
 
     /**
      * @const string
      */
-    public const FOREIGN = 'device_id';
-
-    /**
-     * @var array<string, string>
-     */
+    public const FOREIGN_KEY = 'device_id';
 
     /**
      * @var array
@@ -82,7 +82,7 @@ class Device extends ModelAbstract
     /**
      * @param array $models
      *
-     * @return \App\Domains\Device\Model\Collection\Device
+     * @return Collection
      */
     public function newCollection(array $models = []): Collection
     {
@@ -92,7 +92,7 @@ class Device extends ModelAbstract
     /**
      * @param \Illuminate\Database\Query\Builder $query
      *
-     * @return \App\Domains\Device\Model\Builder\Device
+     * @return Builder
      */
     public function newEloquentBuilder($query): Builder
     {
@@ -100,7 +100,7 @@ class Device extends ModelAbstract
     }
 
     /**
-     * @return \App\Domains\Device\Test\Factory\Device
+     * @return TestFactory
      */
     protected static function newFactory(): TestFactory
     {
@@ -112,15 +112,15 @@ class Device extends ModelAbstract
      */
     public function positions(): HasMany
     {
-        return $this->hasMany(PositionModel::class, static::FOREIGN);
+        return $this->hasMany(PositionModel::class, static::FOREIGN_KEY);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function positionLast(): HasOne
     {
-        return $this->hasOne(PositionModel::class, static::FOREIGN)
+        return $this->hasOne(PositionModel::class, static::FOREIGN_KEY)
             ->ofMany(['date_utc_at' => 'MAX'], fn ($q) => $q->withoutGlobalScope('selectPointAsLatitudeLongitude'))
             ->selectOnlyLatitudeLongitude();
     }
@@ -130,33 +130,33 @@ class Device extends ModelAbstract
      */
     public function messages(): HasMany
     {
-        return $this->hasMany(DeviceMessageModel::class, static::FOREIGN);
+        return $this->hasMany(DeviceMessageModel::class, static::FOREIGN_KEY);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function tripLast(): HasOne
     {
-        return $this->hasOne(TripModel::class, static::FOREIGN)
+        return $this->hasOne(TripModel::class, static::FOREIGN_KEY)
             ->ofMany(['end_utc_at' => 'MAX']);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function tripLastShared(): HasOne
     {
-        return $this->hasOne(TripModel::class, static::FOREIGN)
+        return $this->hasOne(TripModel::class, static::FOREIGN_KEY)
             ->ofMany(['endutc_at' => 'MAX'], fn ($q) => $q->whereShared());
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function tripLastSharedPublic(): HasOne
     {
-        return $this->hasOne(TripModel::class, static::FOREIGN)
+        return $this->hasOne(TripModel::class, static::FOREIGN_KEY)
             ->ofMany(['end_utc_at' => 'MAX'], fn ($q) => $q->whereSharedPublic());
     }
 
@@ -165,11 +165,13 @@ class Device extends ModelAbstract
      */
     public function trips(): HasMany
     {
-        return $this->hasMany(TripModel::class, static::FOREIGN);
+        return $this->hasMany(TripModel::class, static::FOREIGN_KEY);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Quan hệ device n-1 với user
+     *
+     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -177,63 +179,114 @@ class Device extends ModelAbstract
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Quan hệ device n-1 với vehicle
+     *
+     * @return BelongsTo
      */
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(VehicleModel::class, VehicleModel::FOREIGN);
     }
 
-    public function deviceStatus()
+    public function deviceStatus(): HasOne|Device
     {
         return $this->hasOne(DeviceStatus::class, 'serial', 'serial');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Quan hệ device n-1 với device_type
+     *
+     * @return BelongsTo
      */
     public function deviceType(): BelongsTo
     {
-        return $this->belongsTo(DeviceType::class, 'device_type_id');
-    }
-
-    // quan hệ giữ device n-n schedule
-    public function schedules(): BelongsToMany
-    {
-        return $this->belongsToMany(Schedule::class, 'display', Device::FOREIGN, Schedule::FOREIGN);
-    }
-
-    public function displays(): HasMany
-    {
-        return $this->hasMany(Display::class, self::FOREIGN);
+        return $this->belongsTo(DeviceType::class, DeviceType::FOREIGN_KEY);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Quan hệ device n-n với schedule
+     *
+     * @return BelongsToMany
+     */
+    public function schedules(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Schedule::class,
+            Display::TABLE,
+            Device::FOREIGN_KEY,
+            Schedule::FOREIGN
+        );
+    }
+
+    /**
+     * Quan hệ device 1-n với display
+     *
+     * @return HasMany
+     */
+    public function displays(): HasMany
+    {
+        return $this->hasMany(Display::class, self::FOREIGN_KEY);
+    }
+
+    /**
+     * Quan hệ device n-1 với enterprise
+     *
+     * @return BelongsTo
      */
     public function enterprise(): BelongsTo
     {
-        return $this->belongsTo(Enterprise::class, 'enterprise_id');
+        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN_KEY);
     }
 
     /**
+     * Quan hệ device 1-n với camera
+     *
      * @return HasMany
      */
     public function cameras(): HasMany
     {
-        return $this->hasMany(Camera::class, 'device_id');
+        return $this->hasMany(Camera::class, self::FOREIGN_KEY);
     }
 
     /**
+     * Quan hệ device n-n với device_group
+     *
      * @return BelongsToMany
      */
     public function deviceGroups(): BelongsToMany
     {
         return $this->belongsToMany(
             DeviceGroupModel::class,
-            'device_group_map',
-            'device_id',
-            'device_group_id'
+            DeviceGroupMap::TABLE,
+            self::FOREIGN_KEY,
+            DeviceGroupModel::FOREIGN_KEY
+        );
+    }
+
+    /**
+     * Quan hệ device 1-n với device_cvedixrt_instance
+     *
+     * @return HasMany
+     */
+    public function instances(): HasMany
+    {
+        return $this->hasMany(DeviceCvedixrtInstance::class, self::FOREIGN_KEY);
+    }
+
+    /**
+     * Get all instance rules through instances (device 1-n instance 1-n instance_rule)
+     *
+     * @return HasManyThrough
+     */
+    public function allInstanceRules(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            DeviceCvedixrtInstanceRule::class,
+            DeviceCvedixrtInstance::class,
+            self::FOREIGN_KEY, // Foreign key on DeviceCvedixrtInstance table...
+            DeviceCvedixrtInstanceRule::FOREIGN_KEY, // Foreign key on DeviceCvedixrtInstanceRule table...
+            self::PRIMARY_KEY, // Local key on Device table...
+            DeviceCvedixrtInstance::PRIMARY_KEY // Local key on DeviceCvedixrtInstance table...
         );
     }
 }

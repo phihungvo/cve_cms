@@ -102,12 +102,13 @@
                             </td>
                             <!-- Name -->
                             <td class="text-left"><a href="{{$link}}?instanceId={{$instance->id}}"
-                                   class="block">{{$instance->instance_name}}</a></td>
+                                                     class="block">{{$instance->instance_name}}</a></td>
                             <!-- Source -->
                             <td class="text-left"><a href="{{$link}}?instanceId={{$instance->id}}"
-                                   style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                                   title="{{$instance->input_source ?? '-'}}"
-                                   class="input-source block text-ellipsis">{{$instance->input_source ?? '-'}}</a></td>
+                                                     style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                                     title="{{$instance->input_source ?? '-'}}"
+                                                     class="input-source block text-ellipsis">{{$instance->input_source ?? '-'}}</a>
+                            </td>
                             <!-- Status -->
                             <td>
                                 <a href="{{$link}}?instanceId={{$instance->id}}" class="block">
@@ -119,10 +120,11 @@
                             </td>
                             <!-- Solutions -->
                             <td class="text-left"><a href="{{$link}}?instanceId={{$instance->id}}"
-                                   class="block">{{$instance->solution->solution_name ?? '-'}}</a></td>
+                                                     class="block">{{$instance->solution->solution_name ?? '-'}}</a>
+                            </td>
                             <!-- Groups -->
                             <td class="text-left"><a href="{{$link}}?instanceId={{$instance->id}}"
-                                   class="block">{{$instance->group->group_name ?? '-'}}</a></td>
+                                                     class="block">{{$instance->group->group_name ?? '-'}}</a></td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -138,7 +140,7 @@
     </div>
 @endsection
 @push('styles')
-    <style>
+<style>
         .status-indicator {
             display: inline-block;
             padding: 2px 8px;

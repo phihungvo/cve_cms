@@ -52,7 +52,7 @@ class Display extends ModelAbstract
 
     public function device(): BelongsTo
     {
-        return $this->belongsTo(Device::class, Device::FOREIGN);
+        return $this->belongsTo(Device::class, Device::FOREIGN_KEY);
     }
 
     public function schedule(): BelongsTo

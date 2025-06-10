@@ -228,7 +228,7 @@ class User extends ModelAbstract implements Authenticatable
      */
     public function enterprise(): BelongsTo
     {
-        return $this->belongsTo(EnterpriseModel::class, EnterpriseModel::FOREIGN);
+        return $this->belongsTo(EnterpriseModel::class, EnterpriseModel::FOREIGN_KEY);
     }
 
     /**

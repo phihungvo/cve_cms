@@ -7,7 +7,7 @@ import Litepicker from 'litepicker';
         const options = {
             autoApply: true,
             format: 'YYYY-MM-DD',
-            lang: 'es-ES',
+            lang: 'en-US',
             dropdowns: {
                 months: true,
                 years: true,

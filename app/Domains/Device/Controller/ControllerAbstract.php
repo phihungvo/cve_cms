@@ -19,12 +19,12 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     protected ?Model $row;
 
     /**
-     * @var ?\App\Domains\Alarm\Model\Alarm
+     * @var ?AlarmModel
      */
     protected ?AlarmModel $alarm;
 
     /**
-     * @var ?\App\Domains\AlarmNotification\Model\AlarmNotification
+     * @var ?AlarmNotificationModel
      */
     protected ?AlarmNotificationModel $alarmNotification;
 
@@ -61,7 +61,9 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     /**
      * @param int $alarm_id
      *
-     * @return \App\Domains\Alarm\Model\Alarm
+     * @throws NotFoundException
+     *
+     * @return AlarmModel
      */
     protected function alarm(int $alarm_id): AlarmModel
     {
@@ -74,7 +76,9 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     /**
      * @param int $alarm_notification_id
      *
-     * @return \App\Domains\AlarmNotification\Model\AlarmNotification
+     * @throws NotFoundException
+     *
+     * @return AlarmNotificationModel
      */
     protected function alarmNotification(int $alarm_notification_id): AlarmNotificationModel
     {
@@ -87,7 +91,9 @@ abstract class ControllerAbstract extends ControllerWebAbstract
     /**
      * @param int $device_message_id
      *
-     * @return \App\Domains\DeviceMessage\Model\DeviceMessage
+     * @return DeviceMessageModel
+     *
+     * @throws NotFoundException
      */
     protected function message(int $device_message_id): DeviceMessageModel
     {
@@ -118,7 +124,6 @@ abstract class ControllerAbstract extends ControllerWebAbstract
      * @throws NotFoundException
      *
      * @return DeviceCvedixrtInstanceRule
-     *
      */
     protected function instanceRule(int $instanceRuleId): DeviceCvedixrtInstanceRule
     {

@@ -29,7 +29,7 @@
 
     @include ('layouts.molecules.footer')
     @livewireScripts
-    @stack('scripts') <!-- Thêm dòng này -->
+@stack('scripts') <!-- Thêm dòng này -->
 </body>
 
 </html>
