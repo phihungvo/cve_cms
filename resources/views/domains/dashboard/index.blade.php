@@ -13,17 +13,20 @@
             const chartData = @json($chart_data);
             if (ctx && chartData.labels && chartData.labels.length > 0 && chartData.datasets && chartData.datasets
                 .length > 0) {
+                const maxValue = Math.max(...chartData.datasets.flatMap(dataset => dataset.data));
+                const chartHeight = ctx.canvas.height;
+                const targetPosition = chartHeight * 0.66;
+
                 new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: chartData.labels,
                         datasets: chartData.datasets.map(dataset => ({
                             ...dataset,
-                            borderWidth: 4, // Thicker lines
-                            pointRadius: 6, // Larger points
-                            pointHoverRadius: 8, // Larger points on hover
-                            pointBackgroundColor: dataset
-                                .borderColor, // Match point color to line
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            pointBackgroundColor: dataset.borderColor,
                         }))
                     },
                     options: {
@@ -31,7 +34,9 @@
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true,
+                                beginAtZero: false,
+                                suggestedMin: 0,
+                                suggestedMax: maxValue + (maxValue * 0.5),
                                 title: {
                                     display: true,
                                     text: 'Số lượng',
@@ -43,7 +48,8 @@
                                 ticks: {
                                     font: {
                                         size: 14
-                                    }
+                                    },
+                                    stepSize: Math.max(10, maxValue / 10)
                                 }
                             },
                             x: {
@@ -102,25 +108,47 @@
                     document.getElementById('no-data-message').style.display = 'block';
                 }
             }
+
+            // Thêm sự kiện để reload khi form thay đổi
+            const form = document.querySelector('form[method="GET"]');
+            if (form) {
+                form.addEventListener('change', function(e) {
+                    if (e.target.name === 'start_date' || e.target.name === 'end_date' || e.target.name ===
+                        'enterprise_id') {
+                        form.submit();
+                    }
+                });
+            }
         });
     </script>
 
-    <div class="container mx-auto px-4 py-8 h-screen">
-        <!-- Enterprise Filter -->
-        @if (method_exists($auth, 'isRoot') && $auth->isRoot())
-            <div class="flex justify-center mb-10">
-                <form method="GET" class="w-full max-w-3xl">
-                    <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
-                        placeholder="{{ __('dashboard-index.all_enterprises') }}" data-change-submit></x-select>
-                </form>
-            </div>
-        @endif
+    <div class="container mx-auto px-4 py-6 h-screen">
+        <div class="flex flex-col md:flex-row gap-6 h-full">
+            <!-- Enterprise Filter and Date Filter Card -->
+            @if (method_exists($auth, 'isRoot') && $auth->isRoot())
+                <div class="flex-1 bg-white p-4 rounded-lg shadow">
+                    <form method="GET" class="w-full flex flex-col md:flex-row gap-4">
+                        <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
+                            placeholder="{{ __('dashboard-index.all_enterprises') }}" class="w-full md:w-auto"></x-select>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <input type="date" name="start_date"
+                                class="border border-gray-300 rounded-lg p-2 w-full md:w-auto"
+                                value="{{ request('start_date') }}">
+                            <input type="date" name="end_date"
+                                class="border border-gray-300 rounded-lg p-2 w-full md:w-auto"
+                                value="{{ request('end_date') }}">
+                            <button type="submit"
+                                class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 w-full md:w-auto">
+                                Lọc
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @endif
 
-        <!-- Single Chart -->
-        <div class="w-full h-full">
-            <div class="bg-white shadow-xl rounded-2xl p-8 border border-gray-200 h-full">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">{{ __('dashboard-index.metrics_trend') }}</h2>
-                <div class="w-full h-full">
+            <!-- Single Chart Card -->
+            <div class="flex-1 bg-white p-6 rounded-lg shadow h-full">
+                <div class="w-full h-full mt-6">
                     <canvas id="metrics-chart"></canvas>
                     <p id="no-data-message" class="hidden text-center text-gray-600 text-lg mt-4">
                         {{ __('dashboard-index.no_data_available') }}</p>
