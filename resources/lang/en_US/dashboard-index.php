@@ -8,4 +8,5 @@
     'media' => 'Media',
     'playlists' => 'Playlists',
     'schedules' => 'Schedules',
+    'metrics_trend' => 'Metrics & Trends',
 ];
