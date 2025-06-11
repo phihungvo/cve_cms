@@ -52,7 +52,7 @@ class RTAnalyticsEvent extends ControllerAbstract
         return $this->row->instances->map(
             fn ($instance) => [
                 'id' => $instance->id,
-                'name' => $instance->name,
+                'name' => $instance->instance_name,
             ]
         );
     }

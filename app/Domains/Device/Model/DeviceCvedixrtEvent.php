@@ -18,6 +18,7 @@ class DeviceCvedixrtEvent extends ModelAbstract
     protected $fillable = [
         'uuid',
         'image_url',
+        'video_url',
         'detected_object',
         'event_name',
         'event_value',

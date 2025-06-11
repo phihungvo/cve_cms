@@ -26,7 +26,7 @@
         <a href="{{route('device.runtime-analytics.event', $row->id)}}"
            class="p-4
            {{(Str::is('device.runtime-analytics.event', $ROUTE)) ? 'active': ''}}
-           ">Event</a>
+           ">Events</a>
     </div>
 @endsection
 

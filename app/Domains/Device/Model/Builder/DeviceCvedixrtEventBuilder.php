@@ -13,7 +13,7 @@ class DeviceCvedixrtEventBuilder extends BuilderAbstract
      *
      * Thêm điều kiện whereHas để chỉ lấy các bản ghi liên quan đến instance ID được truyền vào.
      *
-     * @param int $instanceId ID của instance cần lọc
+     * @param int|null $instanceId ID của instance cần lọc
      *
      * @return $this
      */
@@ -33,7 +33,7 @@ class DeviceCvedixrtEventBuilder extends BuilderAbstract
      *
      * Thêm điều kiện whereHas để chỉ lấy các bản ghi liên quan đến rule ID được truyền vào.
      *
-     * @param int $ruleId ID của rule cần lọc
+     * @param int|null $ruleId ID của rule cần lọc
      *
      * @return $this
      */
@@ -53,18 +53,25 @@ class DeviceCvedixrtEventBuilder extends BuilderAbstract
      *
      * Thêm điều kiện whereHas để chỉ lấy các bản ghi liên quan đến rule_type được truyền vào.
      *
-     * @param string $ruleType rule_type cần lọc
+     * @param string|null $ruleType rule_type cần lọc
      *
      * @return $this
      */
     public function byRuleType(?string $ruleType): self
     {
+        //        if ($ruleType) {
+        //            $ruleTypeEnum = RuleType::tryFrom($ruleType);
+        //            if ($ruleTypeEnum) {
+        //                $this->whereHas('instanceRule', function ($q) use ($ruleTypeEnum) {
+        //                    $q->where('rule_type', $ruleTypeEnum->value);
+        //                });
+        //            }
+        //        }
+
         if ($ruleType) {
             $ruleTypeEnum = RuleType::tryFrom($ruleType);
             if ($ruleTypeEnum) {
-                $this->whereHas('instanceRule', function ($q) use ($ruleTypeEnum) {
-                    $q->where('rule_type', $ruleTypeEnum->value);
-                });
+                $this->where('event_type', $ruleTypeEnum->value);
             }
         }
 
@@ -76,7 +83,7 @@ class DeviceCvedixrtEventBuilder extends BuilderAbstract
      *
      * Thêm điều kiện where để chỉ lấy các bản ghi có detected_object tương ứng.
      *
-     * @param string $detectedObject detected_object cần lọc
+     * @param string|null $detectedObject detected_object cần lọc
      *
      * @return $this
      */
@@ -94,7 +101,7 @@ class DeviceCvedixrtEventBuilder extends BuilderAbstract
      *
      * Thêm điều kiện where để chỉ lấy các bản ghi có created_at lớn hơn hoặc bằng ngày bắt đầu.
      *
-     * @param string $startAt Ngày bắt đầu (định dạng 'Y-m-d')
+     * @param string|null $startAt Ngày bắt đầu (định dạng 'Y-m-d')
      *
      * @return $this
      */
@@ -113,7 +120,7 @@ class DeviceCvedixrtEventBuilder extends BuilderAbstract
      *
      * Thêm điều kiện where để chỉ lấy các bản ghi có created_at nhỏ hơn hoặc bằng ngày kết thúc.
      *
-     * @param string $endAt Ngày kết thúc (định dạng 'Y-m-d')
+     * @param string|null $endAt Ngày kết thúc (định dạng 'Y-m-d')
      *
      * @return $this
      */
