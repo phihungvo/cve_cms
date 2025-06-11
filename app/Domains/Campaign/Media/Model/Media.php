@@ -134,7 +134,6 @@ class Media extends ModelAbstract
         'duration',
         'campaign_id',
         'enterprise_id',
-        'thumbnail_url'
     ];
 
     protected $dates = ['deleted_at'];
