@@ -72,16 +72,16 @@
                 <div class="w-1/2 pl-4">
                     <div class="mb-2 font-medium">{{ __('cvedixt-analytic.live_camera') }}</div>
                     <div
-                        class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black">
+                        class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black relative overflow-hidden">
                         <div id="videoWrapperOutside" class="w-full h-full relative">
                             <video id="videoElementOutside"
-                                   class="absolute top-0 left-0 w-full h-full object-contain"
+                                   class="absolute top-0 w-full h-full object-contain"
                                    style="z-index: 0;" autoplay loop muted playsinline>
                                 <source
                                     src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
                                     type="video/mp4">
                             </video>
-                            <canvas id="canvasOverlayOutside" class="absolute top-0 left-0"
+                            <canvas id="canvasOverlayOutside" class="absolute inset-0 h-full"
                                     style="z-index: 10; pointer-events: none;"></canvas>
                         </div>
                     </div>
@@ -138,7 +138,7 @@
         let ruleItemsEl = document.querySelectorAll('.rule-item');
 
         let videoWrapperOutside, videoElementOutside, canvasOverlayOutside, ctxOutside;
-        const SHAPE_SCALE_FACTOR = 1.5; // Tăng kích thước shape lên 1.5 lần
+        const SHAPE_SCALE_FACTOR = 1.2; // Tăng kích thước shape lên 1.2 lần
 
         /**
          * Resize canvas khớp kích thước video ngoài và vẽ lại shapes cho rule đã chọn.
@@ -232,10 +232,13 @@
                     const midY = (shape.startY + shape.endY) / 2;
 
                     ctxOutside.save();
-                    ctxOutside.translate((midX * scale * SHAPE_SCALE_FACTOR) + offsetX, (midY * scale * SHAPE_SCALE_FACTOR) + offsetY);
+                    ctxOutside.translate((midX * scale * SHAPE_SCALE_FACTOR)
+                        + offsetX, (midY * scale * SHAPE_SCALE_FACTOR) + offsetY);
                     ctxOutside.rotate(rotation);
-                    ctxOutside.moveTo((shape.startX - midX) * scale * SHAPE_SCALE_FACTOR, (shape.startY - midY) * scale * SHAPE_SCALE_FACTOR);
-                    ctxOutside.lineTo((shape.endX - midX) * scale * SHAPE_SCALE_FACTOR, (shape.endY - midY) * scale * SHAPE_SCALE_FACTOR);
+                    ctxOutside.moveTo((shape.startX - midX) * scale * SHAPE_SCALE_FACTOR,
+                        (shape.startY - midY) * scale * SHAPE_SCALE_FACTOR);
+                    ctxOutside.lineTo((shape.endX - midX) * scale * SHAPE_SCALE_FACTOR,
+                        (shape.endY - midY) * scale * SHAPE_SCALE_FACTOR);
                     ctxOutside.stroke();
                     ctxOutside.restore();
                 } else if (shape.type === 'rect') {
@@ -248,8 +251,10 @@
                     ctxOutside.fill();
                     ctxOutside.stroke();
                 } else if (shape.type === 'poly' && shape.points && shape.points.length > 0) {
-                    ctxOutside.moveTo((shape.points[0].x * scale * SHAPE_SCALE_FACTOR) + offsetX, (shape.points[0].y * scale * SHAPE_SCALE_FACTOR) + offsetY);
-                    shape.points.slice(1).forEach(point => ctxOutside.lineTo((point.x * scale * SHAPE_SCALE_FACTOR) + offsetX, (point.y * scale * SHAPE_SCALE_FACTOR) + offsetY));
+                    ctxOutside.moveTo((shape.points[0].x * scale * SHAPE_SCALE_FACTOR)
+                        + offsetX, (shape.points[0].y * scale * SHAPE_SCALE_FACTOR) + offsetY);
+                    shape.points.slice(1).forEach(point => ctxOutside.lineTo((point.x * scale * SHAPE_SCALE_FACTOR)
+                        + offsetX, (point.y * scale * SHAPE_SCALE_FACTOR) + offsetY));
                     ctxOutside.closePath();
                     ctxOutside.fill();
                     ctxOutside.stroke();
