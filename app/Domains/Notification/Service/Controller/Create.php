@@ -14,19 +14,24 @@ class Create
     protected $request;
     protected $auth;
 
-    public function __construct($request, ?User $auth) // Cập nhật kiểu thành ?User
+    public function __construct($request, ?User $auth)
     {
         $this->request = $request;
         $this->auth = $auth;
     }
 
-    public static function new($request, ?User $auth): self // Cập nhật kiểu thành ?User
+    public static function new($request, ?User $auth): self
     {
         return new self($request, $auth);
     }
 
     public function create(): array
     {
+        // Kiểm tra quyền tạo thông báo
+        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$this->auth->hasPermission('access-notification-create')) {
+            throw new \Exception(__('notification-create.no-permission'));
+        }
+
         // Lấy danh sách enterprise
         $enterprises = $this->auth->isRoot()
             ? Enterprise::all()->pluck('id')->toArray()
@@ -65,11 +70,6 @@ class Create
         // Đảm bảo enterprise_id được gán cho Owner
         if ($this->auth->isOwner()) {
             $data['enterprise_id'] = $this->auth->enterprise_id;
-        }
-
-        // Kiểm tra quyền root hoặc owner
-        if (!$this->auth->isRoot() && !$this->auth->isOwner()) {
-            throw new \Exception(__('notification-create.no-permission'));
         }
 
         // Gọi action để tạo thông báo

@@ -35,7 +35,14 @@ class Index extends ControllerAbstract
             $this->sessionMessage('error', __('notification-delete.invalid-id'));
             return redirect()->route('notification.index');
         }
-        $notificationId = (int) $notificationId; // Ép kiểu thành int
+        $notificationId = (int) $notificationId;
+
+        // Kiểm tra quyền xóa
+        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$this->auth->hasPermission('access-notification-delete')) {
+            $this->sessionMessage('error', __('notification-delete.no-permission'));
+            return redirect()->route('notification.index');
+        }
+
         $action = new Delete();
         $result = $action->handle($notificationId, $this->auth);
 
@@ -45,10 +52,9 @@ class Index extends ControllerAbstract
     public function restore($id): RedirectResponse
     {
         try {
-            $user = $this->auth;
-
-            if (!$user->hasRole('root') && !$user->isOwner()) {
-                $this->sessionMessage('error', __('notification-restore.no-permission-owner'));
+            // Kiểm tra quyền khôi phục
+            if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$this->auth->hasPermission('access-notification-restore')) {
+                $this->sessionMessage('error', __('notification-restore.no-permission'));
                 return redirect()->route('notification.index');
             }
 
@@ -66,8 +72,15 @@ class Index extends ControllerAbstract
             return redirect()->route('notification.index');
         }
     }
+
     public function forceDelete($id): RedirectResponse
     {
+        // Kiểm tra quyền xóa vĩnh viễn
+        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$this->auth->hasPermission('access-notification-delete')) {
+            $this->sessionMessage('error', __('notification-delete.no-permission'));
+            return redirect()->route('notification.index');
+        }
+
         $action = new Delete();
         $result = $action->forceDelete((int) $id, $this->auth);
 
@@ -84,9 +97,8 @@ class Index extends ControllerAbstract
                 return redirect()->route('notification.index');
             }
 
-            $userId = $user->id;
             $userNotification = UserNotification::where('notification_id', $id)
-                ->where('user_id', $userId)
+                ->where('user_id', $user->id)
                 ->first();
 
             if (!$userNotification) {
@@ -100,8 +112,7 @@ class Index extends ControllerAbstract
             }
 
             $userNotification->update(['read_at' => now()]);
-            // Xóa cache sau khi đánh dấu đã đọc
-            Cache::forget("unread_notifications_{$userId}");
+            Cache::forget("unread_notifications_{$user->id}");
 
             $this->sessionMessage('success', __('notification-read.success'));
             return redirect()->route('notification.index');
@@ -130,13 +141,14 @@ class Index extends ControllerAbstract
                 return redirect()->route('notification.index');
             }
 
-            // Kiểm tra quyền truy cập
+            // Kiểm tra quyền xem thông báo
             $hasAccess = $user->hasRole('root') || (
                 $notification->userNotifications->where('user_id', $user->id)->isNotEmpty() ||
                 ($notification->notification_type === 'system' && (
                     !$notification->target_group || in_array($notification->target_group, $user->roles->pluck('name')->toArray())
                 )) ||
-                ($notification->notification_type === 'enterprise' && $notification->enterprise_id === $user->enterprise_id)
+                ($notification->notification_type === 'enterprise' && $notification->enterprise_id === $user->enterprise_id) ||
+                $user->hasPermission('access-notification-list')
             );
 
             if (!$hasAccess) {
@@ -148,11 +160,9 @@ class Index extends ControllerAbstract
             $userNotification = $notification->userNotifications->firstWhere('user_id', $user->id);
             if ($userNotification && !$userNotification->read_at && !$user->hasRole('root')) {
                 $userNotification->update(['read_at' => now()]);
-                // Xóa cache sau khi đánh dấu đã đọc
                 Cache::forget("unread_notifications_{$user->id}");
             }
 
-            // Lấy danh sách user không phải Root
             $nonRootUsers = $notification->userNotifications->filter(function ($userNotification) {
                 return !$userNotification->user || !$userNotification->user->hasRole('root');
             });
@@ -192,23 +202,19 @@ class Index extends ControllerAbstract
         try {
             $user = $this->auth;
 
-            // Kiểm tra quyền truy cập (chỉ root hoặc người gửi thông báo)
-            if (!$user->hasRole('root') && $user->id !== Notification::findOrFail($id)->sender_id) {
+            // Kiểm tra quyền truy cập (chỉ root, người gửi thông báo hoặc có quyền access-notification-list)
+            if (!$user->hasRole('root') && $user->id !== Notification::findOrFail($id)->sender_id && !$user->hasPermission('access-notification-list')) {
                 return response()->json([
                     'status' => 'error',
                     'message' => __('notification-show.no-permission'),
                 ], 403);
             }
 
-            // Lấy thông báo
             $notification = Notification::with(['devices'])->findOrFail($id);
-
-            // Lấy danh sách thiết bị liên quan từ bảng display
             $displays = \App\Domains\Display\Model\Display::where('notification_id', $id)->get();
 
-            // Đếm số lượng thiết bị đã gửi và đã đọc
             $totalSent = $displays->count();
-            $totalRead = $displays->where('notification_published', 1)->count(); // Giả sử notification_published = 1 là đã đọc
+            $totalRead = $displays->where('notification_published', 1)->count();
 
             return response()->json([
                 'status' => 'success',
@@ -251,6 +257,7 @@ class Index extends ControllerAbstract
             ], 500);
         }
     }
+
     protected function redirectResult(array $result, string $route): RedirectResponse
     {
         if ($result['success']) {

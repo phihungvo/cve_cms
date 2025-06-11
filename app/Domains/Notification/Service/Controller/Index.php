@@ -42,21 +42,14 @@ class Index
             $query->withTrashed(); // Root và Owner thấy cả thông báo đã soft delete
         }
 
+        // Áp dụng filter quyền truy cập danh sách thông báo
+        // $query->filterByPermission('access-notification-list');
+
         $query->with([
             'sender',
             'userNotifications',
             'userNotifications.user'
         ]);
-
-        if (!$user->hasRole('root')) {
-            // Owner và user thường chỉ thấy thông báo của enterprise của họ
-            if ($user->isOwner() || !$user->isOwner()) {
-                $query->where(function ($q) use ($enterpriseId) {
-                    $q->whereNull('enterprise_id')
-                        ->orWhere('enterprise_id', $enterpriseId);
-                });
-            }
-        }
 
         if ($search = $this->request->get('search')) {
             $query->where(function ($q) use ($search) {

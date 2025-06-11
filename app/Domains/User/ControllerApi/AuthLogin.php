@@ -182,6 +182,7 @@ class AuthLogin extends Controller
                             'created_at' => $media->created_at->toDateTimeString(),
                             'updated_at' => $media->updated_at->toDateTimeString(),
                             'device_count' => $deviceCount,
+                            'thumbnail_url' => $$media->thumbnail_url,
                         ];
                     })->all(),
                 ];

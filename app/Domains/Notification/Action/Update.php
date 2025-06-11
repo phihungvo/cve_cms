@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 class Update extends ActionAbstract
 {
     protected array $data;
-    protected ?Notification $row; // Cho phép null
+    protected ?Notification $row;
     protected ?Authenticatable $auth;
 
     public function handle(Notification $notification, array $data, ?Authenticatable $auth): Notification
@@ -90,10 +90,10 @@ class Update extends ActionAbstract
             throw new \Exception(__('notification-update.unauthorized'));
         }
 
-        $user = $this->auth; // Gán vào biến tạm với kiểu User
+        $user = $this->auth;
 
-        // Chỉ người gửi hoặc root được phép cập nhật
-        if ($this->row->sender_id !== $user->getAuthIdentifier() && !$user->isRoot()) {
+        // Root, người gửi, hoặc user có quyền access-notification-update được phép cập nhật
+        if (!$user->isRoot() && $this->row->sender_id !== $user->getAuthIdentifier() && !$user->hasPermission('access-notification-update')) {
             throw new \Exception(__('notification-update.unauthorized'));
         }
 
@@ -102,8 +102,8 @@ class Update extends ActionAbstract
             throw new \Exception(__('notification-update.unauthorized-system'));
         }
 
-        // Nếu thông báo là enterprise, kiểm tra enterprise_id với owner
-        if ($this->data['notification_type'] === 'enterprise' && $user->isOwner()) {
+        // Nếu thông báo là enterprise, kiểm tra enterprise_id với owner hoặc user có quyền
+        if ($this->data['notification_type'] === 'enterprise' && ($user->isOwner() || $user->hasPermission('access-notification-update'))) {
             if ($this->row->enterprise_id !== $user->enterprise_id) {
                 throw new \Exception(__('notification-update.owner-enterprise-mismatch'));
             }

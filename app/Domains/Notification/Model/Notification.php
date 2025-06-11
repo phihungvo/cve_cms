@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\Notification\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
+use App\Domains\Notification\Model\Builder\NotificationBuilder;
 use App\Domains\User\Model\User;
 use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,11 +33,24 @@ class Notification extends ModelAbstract
         'target_group',
         'created_at',
     ];
+
     protected $dates = ['deleted_at'];
+
     protected $casts = [
         'notification_type' => 'string',
         'created_at' => 'datetime',
     ];
+
+    /**
+     * Get a new query builder instance for the model.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @return NotificationBuilder
+     */
+    public function newQueryBuilder($query): NotificationBuilder
+    {
+        return new NotificationBuilder($query);
+    }
 
     public function sender(): BelongsTo
     {
