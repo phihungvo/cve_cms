@@ -47,11 +47,11 @@ class Index extends ControllerAbstract
             ? (int) $this->request->input('enterprise_id')
             : ($isRoot ? null : ($this->auth->enterprise_id ? (int) $this->auth->enterprise_id : null));
 
-        Log::info('Dashboard data params', [
-            'isRoot' => $isRoot,
-            'enterpriseId' => $enterpriseId,
-            'userId' => $this->auth->id,
-        ]);
+        // Log::info('Dashboard data params', [
+        //     'isRoot' => $isRoot,
+        //     'enterpriseId' => $enterpriseId,
+        //     'userId' => $this->auth->id,
+        // ]);
 
         $counts = [
             'devices' => $this->getCount(DeviceModel::query(), $isRoot, $enterpriseId, 'devices'),
@@ -65,9 +65,9 @@ class Index extends ControllerAbstract
 
         $chartData = $this->getChartData($isRoot, $enterpriseId);
 
-        Log::info('Chart data returned', [
-            'chartData' => $chartData,
-        ]);
+        // Log::info('Chart data returned', [
+        //     'chartData' => $chartData,
+        // ]);
 
         return [
             'auth' => $this->auth,
@@ -106,10 +106,10 @@ class Index extends ControllerAbstract
         $table = $query->getModel()->getTable();
         $cacheKey = "count_{$modelClass}_{$modelKey}_" . ($isRoot ? 'root_' : 'nonroot_') . ($enterpriseId ?? 'all') . '_user_' . $this->auth->id;
 
-        Log::info('Cache key generated', [
-            'modelKey' => $modelKey,
-            'cacheKey' => $cacheKey,
-        ]);
+        // Log::info('Cache key generated', [
+        //     'modelKey' => $modelKey,
+        //     'cacheKey' => $cacheKey,
+        // ]);
 
         $usesSoftDeletes = in_array(
             \Illuminate\Database\Eloquent\SoftDeletes::class,
@@ -139,18 +139,18 @@ class Index extends ControllerAbstract
 
         $count = $countResult ? (int) $countResult->count : 0;
 
-        Log::info('getCount query', [
-            'modelKey' => $modelKey,
-            'table' => $table,
-            'sql' => $countQuery->toSql(),
-            'bindings' => $countQuery->getBindings(),
-            'count' => $count,
-            'enterpriseId' => $enterpriseId,
-            'isRoot' => $isRoot,
-            'userId' => $this->auth->id,
-            'hasEnterpriseIdColumn' => $hasEnterpriseIdColumn,
-            'usesSoftDeletes' => $usesSoftDeletes,
-        ]);
+        // Log::info('getCount query', [
+        //     'modelKey' => $modelKey,
+        //     'table' => $table,
+        //     'sql' => $countQuery->toSql(),
+        //     'bindings' => $countQuery->getBindings(),
+        //     'count' => $count,
+        //     'enterpriseId' => $enterpriseId,
+        //     'isRoot' => $isRoot,
+        //     'userId' => $this->auth->id,
+        //     'hasEnterpriseIdColumn' => $hasEnterpriseIdColumn,
+        //     'usesSoftDeletes' => $usesSoftDeletes,
+        // ]);
 
         return $count;
     }
@@ -164,12 +164,12 @@ class Index extends ControllerAbstract
 
         $count = $countResult ? (int) $countResult->count : 0;
 
-        Log::info('getEnterpriseCount query', [
-            'sql' => $countQuery->toSql(),
-            'bindings' => $countQuery->getBindings(),
-            'count' => $count,
-            'userId' => $this->auth->id,
-        ]);
+        // Log::info('getEnterpriseCount query', [
+        //     'sql' => $countQuery->toSql(),
+        //     'bindings' => $countQuery->getBindings(),
+        //     'count' => $count,
+        //     'userId' => $this->auth->id,
+        // ]);
 
         return $count;
     }
@@ -177,49 +177,38 @@ class Index extends ControllerAbstract
     protected function getChartData(bool $isRoot, ?int $enterpriseId): array
     {
         try {
-            $startDate = Carbon::now()->subDays(30);
-            $endDate = Carbon::now();
+            // Lấy start_date và end_date từ request, nếu không có thì dùng mặc định 30 ngày
+            $startDate = $this->request->input('start_date')
+                ? Carbon::parse($this->request->input('start_date'))
+                : Carbon::now()->subDays(30);
+            $endDate = $this->request->input('end_date')
+                ? Carbon::parse($this->request->input('end_date'))
+                : Carbon::now();
+            if ($startDate > $endDate) {
+                $temp = $startDate;
+                $startDate = $endDate;
+                $endDate = $temp;
+            }
+
+            // Log::info('Chart date filter parameters', [
+            //     'start_date' => $startDate->format('Y-m-d'),
+            //     'end_date' => $endDate->format('Y-m-d'),
+            //     'request' => $this->request->all(),
+            // ]);
+
             $dates = collect();
-            for ($date = $startDate; $date <= $endDate; $date->addDay()) {
+            for ($date = clone $startDate; $date <= $endDate; $date->addDay()) {
                 $dates->push($date->format('Y-m-d'));
             }
 
             $models = [
-                'users' => [
-                    'model' => UserModel::class,
-                    'label' => __('dashboard-index.users'),
-                    'color' => '#1f2937', // Dark gray
-                ],
-                'devices' => [
-                    'model' => DeviceModel::class,
-                    'label' => __('dashboard-index.devices'),
-                    'color' => '#3b82f6', // Blue
-                ],
-                'campaigns' => [
-                    'model' => CampaignModel::class,
-                    'label' => __('dashboard-index.campaigns'),
-                    'color' => '#10b981', // Green
-                ],
-                'media' => [
-                    'model' => MediaModel::class,
-                    'label' => __('dashboard-index.media'),
-                    'color' => '#f59e0b', // Yellow
-                ],
-                'playlists' => [
-                    'model' => PlaylistModel::class,
-                    'label' => __('dashboard-index.playlists'),
-                    'color' => '#ef4444', // Red
-                ],
-                'schedules' => [
-                    'model' => ScheduleModel::class,
-                    'label' => __('dashboard-index.schedules'),
-                    'color' => '#8b5cf6', // Purple
-                ],
-                'enterprises' => [
-                    'model' => EnterpriseModel::class,
-                    'label' => __('dashboard-index.enterprises'),
-                    'color' => '#ec4899', // Pink
-                ],
+                'users' => ['model' => UserModel::class, 'label' => __('dashboard-index.users'), 'color' => '#1f2937'],
+                'devices' => ['model' => DeviceModel::class, 'label' => __('dashboard-index.devices'), 'color' => '#3b82f6'],
+                'campaigns' => ['model' => CampaignModel::class, 'label' => __('dashboard-index.campaigns'), 'color' => '#10b981'],
+                'media' => ['model' => MediaModel::class, 'label' => __('dashboard-index.media'), 'color' => '#f59e0b'],
+                'playlists' => ['model' => PlaylistModel::class, 'label' => __('dashboard-index.playlists'), 'color' => '#ef4444'],
+                'schedules' => ['model' => ScheduleModel::class, 'label' => __('dashboard-index.schedules'), 'color' => '#8b5cf6'],
+                'enterprises' => ['model' => EnterpriseModel::class, 'label' => __('dashboard-index.enterprises'), 'color' => '#ec4899'],
             ];
 
             $chartData = [
@@ -232,11 +221,11 @@ class Index extends ControllerAbstract
                 $table = (new $config['model'])->getTable();
                 $hasEnterpriseIdColumn = Schema::hasColumn($table, 'enterprise_id');
 
-                Log::debug('Processing chart data for model', [
-                    'key' => $key,
-                    'table' => $table,
-                    'hasEnterpriseIdColumn' => $hasEnterpriseIdColumn,
-                ]);
+                // Log::debug('Processing chart data for model', [
+                //     'key' => $key,
+                //     'table' => $table,
+                //     'hasEnterpriseIdColumn' => $hasEnterpriseIdColumn,
+                // ]);
 
                 if ($hasEnterpriseIdColumn && $enterpriseId !== null && ($isRoot && $this->request->filled('enterprise_id') || !$isRoot)) {
                     $query->where('enterprise_id', $enterpriseId);
@@ -252,44 +241,52 @@ class Index extends ControllerAbstract
 
                 $counts = [];
                 foreach ($dates as $date) {
-                    $countQuery = (clone $query)->whereDate('created_at', '<=', $date);
+                    $countQuery = (clone $query)
+                        ->whereDate('created_at', '>=', $startDate->format('Y-m-d'))
+                        ->whereDate('created_at', '<=', $date);
                     $count = $countQuery->count();
-                    $counts[] = $count;
 
-                    Log::debug('Count for date', [
-                        'key' => $key,
-                        'date' => $date,
-                        'sql' => $countQuery->toSql(),
-                        'bindings' => $countQuery->getBindings(),
-                        'count' => $count,
-                    ]);
+                    // Debug chi tiết để kiểm tra dữ liệu
+                    $rawData = $countQuery->get()->toArray();
+                    // Log::debug('Count for date', [
+                    //     'key' => $key,
+                    //     'date' => $date,
+                    //     'sql' => $countQuery->toSql(),
+                    //     'bindings' => $countQuery->getBindings(),
+                    //     'count' => $count,
+                    //     'raw_data_count' => count($rawData),
+                    //     'raw_data_sample' => array_slice($rawData, 0, 2), // Lấy 2 bản ghi đầu để kiểm tra
+                    // ]);
+
+                    $counts[] = $count;
                 }
 
                 $chartData['datasets'][] = [
                     'label' => $config['label'],
                     'data' => $counts,
                     'borderColor' => $config['color'],
-                    'backgroundColor' => $config['color'] . '33', // Add transparency
+                    'backgroundColor' => $config['color'] . '33',
                     'fill' => true,
                     'tension' => 0.4,
                 ];
             }
 
-            Log::info('Chart data prepared', [
-                'labels_count' => count($chartData['labels']),
-                'datasets_count' => count($chartData['datasets']),
-                'labels' => $chartData['labels'],
-                'datasets' => array_map(function ($dataset) {
-                    return ['label' => $dataset['label'], 'data_count' => count($dataset['data'])];
-                }, $chartData['datasets']),
-            ]);
+            // Log::info('Chart data prepared', [
+            //     'labels_count' => count($chartData['labels']),
+            //     'datasets_count' => count($chartData['datasets']),
+            //     'labels' => $chartData['labels'],
+            //     'datasets' => array_map(function ($dataset) {
+            //         return ['label' => $dataset['label'], 'data_count' => count($dataset['data'])];
+            //     }, $chartData['datasets']),
+            // ]);
 
             return $chartData;
         } catch (\Exception $e) {
-            Log::error('Error generating chart data', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+            // Log::error('Error generating chart data', [
+            //     'error' => $e->getMessage(),
+            //     'trace' => $e->getTraceAsString(),
+            //     'request' => $this->request->all(),
+            // ]);
 
             return [
                 'labels' => [],

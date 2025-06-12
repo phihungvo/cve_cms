@@ -24,9 +24,10 @@
                         datasets: chartData.datasets.map(dataset => ({
                             ...dataset,
                             borderWidth: 2,
-                            pointRadius: 3,
-                            pointHoverRadius: 5,
+                            pointRadius: 0, // Giữ nguyên để bỏ dấu chấm
+                            pointHoverRadius: 0, // Giữ nguyên để bỏ dấu chấm khi hover
                             pointBackgroundColor: dataset.borderColor,
+                            fill: false, // Bỏ nền màu, chỉ giữ đường kẻ
                         }))
                     },
                     options: {
@@ -116,7 +117,15 @@
                     if (e.target.name === 'start_date' || e.target.name === 'end_date' || e.target.name ===
                         'enterprise_id') {
                         form.submit();
+                        console.log('Form submitted with:', new FormData(form));
                     }
+                });
+
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Ngăn submit mặc định để debug
+                    const formData = new FormData(form);
+                    console.log('Form data on submit:', Object.fromEntries(formData));
+                    form.submit(); // Submit lại sau khi log
                 });
             }
         });
