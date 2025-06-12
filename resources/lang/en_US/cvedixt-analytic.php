@@ -1,7 +1,8 @@
 <?php
 
 return [
-    'analytics_rules' => 'Analytics Rules',
+    'general_settings' => 'General Settings',
+    'analytics_rules' => 'Analytics',
     'rule_name' => 'Rule Name',
     'object_detection' => 'Detected Objects',
     'live_camera' => 'Live Camera View',
