@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Domains\Vehicle\Service\Controller;
 
@@ -53,12 +55,12 @@ class Index extends ControllerAbstract
     protected function list(): Collection
     {
         return $this->cache(
-            fn () => Model::query()
+            fn() => Model::query()
                 ->whenUserId($this->user()?->id)
                 ->whenEnterprise((int)$this->request->input('enterprise_id'))
                 ->when(
                     (int)$this->request->input('vehicle_group_id'),
-                    fn ($query, $vehicleGroupId) => $query->byVehicleGroupId($vehicleGroupId)
+                    fn($query, $vehicleGroupId) => $query->byVehicleGroupId($vehicleGroupId)
                 )
                 ->withAlarmsCount()
                 ->withAlarmsNotificationsCount()
@@ -66,6 +68,7 @@ class Index extends ControllerAbstract
                 ->withDevicesCount()
                 ->withTimezone()
                 ->withUser()
+                ->with(['latestImageReport' => fn($query) => $query->orderBy('created_at', 'desc')->first()]) // Fetch the latest image report
                 ->list()
                 ->get()
         );
@@ -74,7 +77,7 @@ class Index extends ControllerAbstract
     protected function enterprises()
     {
         return $this->cache(
-            fn () => Enterprise::query()
+            fn() => Enterprise::query()
                 ->get()
         );
     }
@@ -82,7 +85,7 @@ class Index extends ControllerAbstract
     protected function bookmarkGroups()
     {
         return $this->cache(
-            fn () => VehicleGroupModel::query()
+            fn() => VehicleGroupModel::query()
                 ->whenEnterprise((int)$this->request->input('enterprise_id'))
                 ->roleRoot()
                 ->roleOwner()

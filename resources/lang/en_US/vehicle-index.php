@@ -16,4 +16,6 @@
     'select-group' => '-- select Group --',
     'list-bookmark' => 'List Bookmark',
     'bookmark-group' => 'Bookmark Group',
+    'no-image' => 'No image',
+    'image-report' => 'Image Report',
 ];
