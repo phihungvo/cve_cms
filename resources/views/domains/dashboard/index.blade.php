@@ -143,20 +143,21 @@
             <!-- Enterprise Filter and Date Filter Card -->
             @if (method_exists($auth, 'isRoot') && $auth->isRoot())
                 <div class="flex-1 bg-white p-4 rounded-lg shadow">
-                    <form method="GET" class="w-full flex flex-col md:flex-row gap-4">
+                    <form method="GET" class="w-full flex flex-row gap-2 items-center">
+                        <!-- Thay flex-col md:flex-row thành flex-row -->
                         <x-select name="enterprise_id" :options="$enterprises" value="id" text="name"
                             placeholder="{{ __('dashboard-index.all_enterprises') }}" class="w-full md:w-auto"></x-select>
-                        <div class="flex gap-2 w-full md:w-auto">
+                        <div class="flex gap-1 items-center w-full md:w-auto">
                             <input type="date" name="start_date"
                                 class="border border-gray-300 rounded-lg p-2 w-full md:w-auto"
                                 value="{{ request('start_date') }}">
                             <input type="date" name="end_date"
                                 class="border border-gray-300 rounded-lg p-2 w-full md:w-auto"
                                 value="{{ request('end_date') }}">
-                            <button type="submit"
+                            {{-- <button type="submit"
                                 class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 w-full md:w-auto">
-                                Lọc
-                            </button>
+                                Filter
+                            </button> --}}
                         </div>
                     </form>
                 </div>
