@@ -31,7 +31,7 @@
         <div class="w-1/3 bg-white flex flex-col">
             <a id="generalSettingBtn"
                onmousedown="if(event.detail > 1) event.preventDefault();"
-               class="btn form-control-lg mb-3 border-2 border-primary text-sm text-left justify-start
+               class="btn mb-3 border-2 border-primary text-sm text-left justify-start
                        bg-white hover:bg-blue-100 focus:text-white transition-colors cursor-pointer
                         ml-3 px-4 mt-5 font-semibold text-gray-800">
                 {{ __('cvedixt-analytic.general_settings') }}
@@ -108,8 +108,7 @@
         <div id="generalSetting" class="w-full p-6">
             <div>
                 <h3 class="text-lg font-semibold mb-4">{{ __('cvedixt-analytic.general_settings') }}</h3>
-
-                <div class="grid grid-cols-2 gap-x-6 gap-y-6 items-start">
+                <div class="gap-x-6 gap-y-6 items-start">
                     <div class="space-y-6">
                         <div class="flex flex-row mb-3">
                             <label for="auto-start" class="w-1/3 font-medium block mb-2">Auto Start</label>
