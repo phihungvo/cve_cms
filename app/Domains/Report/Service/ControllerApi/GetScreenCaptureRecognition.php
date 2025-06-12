@@ -4,44 +4,58 @@ namespace App\Domains\Report\Service\ControllerApi;
 
 use App\Domains\Report\Model\ViewLog as ViewLogModel;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 /**
  * Class GetScreenCaptureRecognition
  *
- * Service to handle the logic for extracting screen capture reports based on provided parameters.
- * Returns reports as an array or a single object based on get_latest.
+ * Service để xử lý logic truy xuất báo cáo chụp màn hình dựa trên các tham số cung cấp.
+ * Trả về báo cáo dưới dạng mảng hoặc một object tùy thuộc vào get_latest.
  */
 class GetScreenCaptureRecognition
 {
     /**
-     * Handle the extraction of screen capture reports.
+     * Xử lý truy xuất báo cáo nhận diện chụp màn hình.
      *
-     * @param array $params Associative array of optional parameters:
-     *                      - device_id (string, optional)
-     *                      - serial (string, optional)
-     *                      - media_filename (string, optional)
-     *                      - date (string, optional, YYYY-MM-DD format)
-     *                      - get_latest (bool, optional, default false)
-     * @return array|object Reports as an array (if get_latest is false or not provided) or a single object (if get_latest is true)
+     * @param array $params Mảng chứa các tham số tùy chọn:
+     *                      - device_id (string, tùy chọn)
+     *                      - serial (string, tùy chọn)
+     *                      - media_filename (string, tùy chọn)
+     *                      - date (string, tùy chọn, định dạng YYYY-MM-DD)
+     *                      - get_latest (bool, tùy chọn, mặc định false)
+     *                      - system_time (string, tùy chọn, thời gian hệ thống để so sánh khi get_latest=true)
+     *                      - filter_frame_data (bool, tùy chọn, lọc frame_data không null/rỗng)
+     * @return array|object Báo cáo dưới dạng mảng (nếu get_latest=false) hoặc một object (nếu get_latest=true)
      */
     public function getScreenCaptureRecognition(array $params)
     {
-        // Extract parameters with defaults
+        // Lấy tham số với giá trị mặc định
         $deviceId = $params['device_id'] ?? null;
         $serial = $params['serial'] ?? null;
         $mediaFilename = $params['media_filename'] ?? null;
         $date = $params['date'] ?? null;
         $getLatest = isset($params['get_latest']) ? filter_var($params['get_latest'], FILTER_VALIDATE_BOOLEAN) : false;
+        $filterFrameData = isset($params['filter_frame_data']) ? filter_var($params['filter_frame_data'], FILTER_VALIDATE_BOOLEAN) : false;
+        $systemTime = isset($params['system_time']) ? Carbon::parse($params['system_time']) : Carbon::now();
 
-        // Log::info('GetScreenCaptureRecognitionService: Starting getScreenCaptureRecognition method', [
-        //     'params' => $params,
-        // ]);
+        Log::debug('GetScreenCaptureRecognitionService: Bắt đầu xử lý', [
+            'params' => $params,
+            'system_time' => $systemTime->toDateTimeString(),
+        ]);
 
-        // Initialize query
+        // Khởi tạo truy vấn
         $startTime = microtime(true);
-        $query = ViewLogModel::query();
+        $query = ViewLogModel::query()->select([
+            'id',
+            'device_id',
+            'serial',
+            'media_filename',
+            'view_count',
+            'frame_data',
+            'created_at',
+        ]);
 
-        // Apply filters based on provided parameters
+        // Áp dụng các bộ lọc
         if ($deviceId) {
             $query->where('device_id', $deviceId);
         }
@@ -54,57 +68,67 @@ class GetScreenCaptureRecognition
             $query->where('media_filename', $mediaFilename);
         }
 
-        // Handle date filter
         if ($date) {
             $query->whereDate('created_at', $date);
         }
 
-        // Handle get_latest logic
-        if ($getLatest) {
-            // Sử dụng orderBy để chắc chắn sắp xếp theo thứ tự giảm dần
-            $query->orderBy('created_at', 'DESC')->limit(1);
+        // Lọc frame_data không null và không rỗng
+        if ($filterFrameData || $getLatest) {
+            $query->whereNotNull('frame_data')->where('frame_data', '!=', '');
         }
 
-        // Fetch reports
-        $reports = $query->get([
-            'id',
-            'device_id',
-            'serial',
-            'media_filename',
-            'view_count',
-            'frame_data',
-            'created_at', // Thêm trường created_at để kiểm tra
+        // Ghi log truy vấn
+        Log::debug('GetScreenCaptureRecognitionService: Truy vấn SQL', [
+            'query' => $query->toSql(),
+            'bindings' => $query->getBindings(),
         ]);
 
-        // Initialize result
+        // Xử lý logic get_latest
+        $report = null;
+        if ($getLatest) {
+            // Sắp xếp theo độ gần với system_time, chỉ lấy bản ghi có frame_data hợp lệ
+            $query->orderByRaw('ABS(TIMESTAMPDIFF(SECOND, created_at, ?)) ASC', [$systemTime]);
+            $report = $query->first();
+        } else {
+            $report = $query->get();
+        }
+
+        // Khởi tạo kết quả
         $result = [];
+        $fetchTime = microtime(true) - $startTime;
 
-        // Process reports
-        if ($reports->isNotEmpty()) {
-            foreach ($reports as $report) {
-                $reportData = [
-                    'report_id' => $report->id,
-                    'device_id' => $report->device_id,
-                    'serial' => $report->serial,
-                    'media_filename' => $report->media_filename,
-                    'view_count' => $report->view_count,
-                    'frame_data' => $report->frame_data,
-                    'created_at' => $report->created_at, // Thêm created_at vào kết quả để kiểm tra
+        // Xử lý kết quả
+        if ($getLatest && $report) {
+            $reportData = [
+                'report_id' => $report->id,
+                'device_id' => $report->device_id,
+                'serial' => $report->serial,
+                'media_filename' => $report->media_filename,
+                'view_count' => $report->view_count,
+                'frame_data' => $report->frame_data,
+                'created_at' => $report->created_at->toDateTimeString(),
+            ];
+            $result = $reportData;
+        } elseif (!$getLatest && $report->isNotEmpty()) {
+            foreach ($report as $item) {
+                $result[] = [
+                    'report_id' => $item->id,
+                    'device_id' => $item->device_id,
+                    'serial' => $item->serial,
+                    'media_filename' => $item->media_filename,
+                    'view_count' => $item->view_count,
+                    'frame_data' => $item->frame_data,
+                    'created_at' => $item->created_at->toDateTimeString(),
                 ];
-
-                $result[] = $reportData;
             }
         }
 
-        $fetchTime = microtime(true) - $startTime;
-        // Log::info('GetScreenCaptureRecognitionService: Reports fetched', [
-        //     'report_count' => count($result),
-        //     'fetch_time_seconds' => $fetchTime,
-        // ]);
+        Log::debug('GetScreenCaptureRecognitionService: Kết quả truy vấn', [
+            'report_count' => $getLatest ? ($result ? 1 : 0) : count($result),
+            'fetch_time_seconds' => $fetchTime,
+            'result' => $result,
+        ]);
 
-        // Log::info('GetScreenCaptureRecognitionService: Method completed successfully');
-
-        // Return single object if get_latest is true, otherwise return array
-        return $getLatest && !empty($result) ? $result[0] : $result;
+        return $result;
     }
 }
