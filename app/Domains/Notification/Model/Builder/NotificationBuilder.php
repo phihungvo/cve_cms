@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 namespace App\Domains\Notification\Model\Builder;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Domains\CoreApp\Model\Builder\BuilderAbstract;
 use Illuminate\Support\Facades\Auth;
 
-class NotificationBuilder extends Builder
+class NotificationBuilder extends BuilderAbstract
 {
-    public function filterByPermission(Builder $query, string $alias): Builder
+    public function filterByPermission(string $alias): self
     {
-        $user = Auth::user();
+        if (auth()->user()->isRoleRoot()) {
+            return $this;
+        } elseif (auth()->user()->hasPermission($alias)) {
+            return $this->where('enterprise_id', auth()->user()->enterprise_id);
 
-        if ($user && $user->isRoleRoot()) {
-            return $query;
-        } elseif ($user && ($user->isOwner() || $user->hasPermission($alias))) {
-            return $query->where(function ($q) use ($user) {
-                $q->where('enterprise_id', $user->enterprise_id)
-                    ->orWhereNull('enterprise_id');
-            });
         }
 
-        return $query->where('id', 0);
+        return $this->where('id', 0);
+
     }
 }

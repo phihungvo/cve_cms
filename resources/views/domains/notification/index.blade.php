@@ -29,7 +29,7 @@ $allPermission = $userPermission['all'] ?? [];
                                        placeholder="{{ __('notification-index.filter') }}"
                                        data-table-search="#notification-list-table" value="{{ request('search') }}" />
                             </div>
-                            @if(auth()->check() && (auth()->user()->isRoot() || auth()->user()->isOwner() || auth()->user()->hasPermission('access-notification-create')))
+                            @if(auth()->check() && (auth()->user()->hasRole('root') || auth()->user()->hasRole('owner') || auth()->user()->hasPermission('access-notification-create')))
                                 <div class="sm:ml-4 mt-2 sm:mt-0 bg-white">
                                     <a href="{{ route('notification.create') }}" class="btn btn-primary form-control-lg whitespace-nowrap">
                                         {{ __('notification-create.title') }}
@@ -53,7 +53,7 @@ $allPermission = $userPermission['all'] ?? [];
                                     <th>{{ __('Target Group') }}</th>
                                     <th>{{ __('Sender') }}</th>
                                     <th>{{ __('Created At') }}</th>
-                                    <th>{{ __('Read Status') }}</th>
+                                    <th>{{ __('Read') }}</th>
                                     <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
@@ -61,7 +61,7 @@ $allPermission = $userPermission['all'] ?? [];
                                 @forelse($notifications as $key => $item)
                                     <tr class="{{ !$item['read_at'] && ($item['total_count'] == 0 || $item['read_count'] !== $item['total_count']) ? 'bg-red-100' : '' }}">
                                         <td class="w-1">
-                                            @if(auth()->check() && (auth()->user()->isRoot() || (auth()->user()->isOwner() && $item['enterprise_id'] === auth()->user()->enterprise_id) || auth()->user()->hasPermission('access-notification-update')))
+                                            @if(auth()->check() && (auth()->user()->hasRole('root') || auth()->id() === $item['sender_id']))
                                                 <a href="{{ route('notification.update', $item['id']) }}"
                                                    class="block">{{ $key + 1 }}</a>
                                             @else
@@ -101,31 +101,31 @@ $allPermission = $userPermission['all'] ?? [];
                                             @else
                                                 <span class="text-danger">{{ __('Unread') }}</span>
                                             @endif
-                                            @if(auth()->check() && (auth()->user()->isRoot() || auth()->user()->id === $item['sender_id']))
+                                            @if(auth()->check() && (auth()->user()->hasRole('root') || auth()->id() === $item['sender_id']))
                                                 <br>
                                                 <span>{{ $item['read_count'] }}/{{ $item['total_count'] }} {{ __('notification-index.read-stats') }}</span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if(auth()->check() && (auth()->user()->isRoot() || (auth()->user()->isOwner() && $item['enterprise_id'] === auth()->user()->enterprise_id) || auth()->user()->hasPermission('access-notification-update')))
+                                            @if(auth()->check() && (auth()->user()->hasRole('root') || auth()->id() === $item['sender_id']))
                                                 <a href="{{ route('notification.update', $item['id']) }}" class="btn btn-primary form-control-lg whitespace-nowrap">
                                                     {{ __('notification-update.title') }}
                                                 </a>
                                             @endif
-                                            @if(auth()->check() && !$item['deleted_at'] && (auth()->user()->isRoot() || (auth()->user()->isOwner() && $item['enterprise_id'] === auth()->user()->enterprise_id) || auth()->user()->hasPermission('access-notification-delete')))
+                                            @if(auth()->check() && !$item['deleted_at'] && (auth()->user()->hasRole('root') || (auth()->user()->hasRole('owner') && $item['enterprise_id'] === auth()->user()->enterprise_id) || auth()->user()->hasPermission('access-notification-delete')))
                                                 <a href="javascript:;" data-toggle="modal" data-target="#delete-modal"
                                                    onclick="document.getElementById('delete-notification-id').value = '{{ $item['id'] }}'; document.getElementById('delete-notification-name').innerText = '{{ addslashes($item['title'] ?? '-') }}'; document.getElementById('delete-modal').querySelector('form').action = '{{ route('notification.delete', $item['id']) }}';"
                                                    class="btn btn-danger form-control-lg whitespace-nowrap">
                                                     {{ __('Delete') }}
                                                 </a>
                                             @endif
-                                            @if(auth()->check() && $item['deleted_at'] && (auth()->user()->isRoot() || (auth()->user()->isOwner() && $item['enterprise_id'] === auth()->user()->enterprise_id) || auth()->user()->hasPermission('access-notification-restore')))
+                                            @if(auth()->check() && $item['deleted_at'] && (auth()->user()->hasRole('root') || (auth()->user()->hasRole('owner') && $item['enterprise_id'] === auth()->user()->enterprise_id) || auth()->user()->hasPermission('access-notification-restore')))
                                                 <form action="{{ route('notification.restore', $item['id']) }}" method="POST" class="inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-success form-control-lg whitespace-nowrap">{{ __('Restore') }}</button>
                                                 </form>
                                             @endif
-                                            @if(auth()->check() && auth()->user()->isRoot() && $item['deleted_at'])
+                                            @if(auth()->check() && auth()->user()->hasRole('root') && $item['deleted_at'])
                                                 <form action="{{ route('notification.force-delete', $item['id']) }}" method="POST" class="inline">
                                                     @csrf
                                                     @method('DELETE')

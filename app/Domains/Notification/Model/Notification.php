@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Domains\Device\Model\Device;
+use Illuminate\Database\Eloquent\Builder;
+use App\Domains\Notification\Model\UserNotification;
 
 class Notification extends ModelAbstract
 {
@@ -41,17 +43,6 @@ class Notification extends ModelAbstract
         'created_at' => 'datetime',
     ];
 
-    /**
-     * Get a new query builder instance for the model.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @return NotificationBuilder
-     */
-    public function newQueryBuilder($query): NotificationBuilder
-    {
-        return new NotificationBuilder($query);
-    }
-
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
@@ -70,5 +61,51 @@ class Notification extends ModelAbstract
     public function devices(): HasMany
     {
         return $this->hasMany(Device::class, 'enterprise_id', 'enterprise_id');
+    }
+
+    /**
+     * Tạo một instance của NotificationBuilder
+     */
+    public function newEloquentBuilder($query): NotificationBuilder
+    {
+        return new NotificationBuilder($query);
+    }
+
+    /**
+     * Scope cho vai trò Root
+     */
+    public function scopeRoleRoot(Builder $query): Builder
+    {
+        if (auth()->user()->hasRole('root')) {
+            return $query; // Không thêm điều kiện lọc cho Root
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope cho vai trò Owner
+     */
+    public function scopeRoleOwner(Builder $query): Builder
+    {
+        if (auth()->user()->isOwner()) {
+            return $query->where('enterprise_id', auth()->user()->enterprise_id);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope để lọc theo quyền của người dùng
+     */
+    public function scopeFilterByPermission(Builder $query, string $alias): Builder
+    {
+        if (auth()->user()->hasRole('root')) {
+            return $query;
+        } elseif (auth()->user()->hasPermission($alias)) {
+            return $query->where('enterprise_id', auth()->user()->enterprise_id);
+        }
+
+        return $query->where('id', 0);
     }
 }

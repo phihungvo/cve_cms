@@ -31,10 +31,12 @@ class Update
     public function data(): array
     {
         $enterpriseId = $this->auth->enterprise_id ?? null;
-        $roles = Role::where('enterprise_id', $enterpriseId)
-            ->orWhereNull('enterprise_id')
-            ->pluck('name')
-            ->toArray();
+        $rolesQuery = Role::query();
+        if (!$this->auth->hasRole('root')) {
+            $rolesQuery->filterByPermission('access-notification-update-any')
+                ->where('enterprise_id', $enterpriseId);
+        }
+        $roles = $rolesQuery->pluck('name')->toArray();
 
         return [
             'notification' => $this->notification,
@@ -45,6 +47,14 @@ class Update
 
     public function update(): Notification
     {
+        // Kiểm tra quyền cập nhật thông báo
+        $query = Notification::query()->newQuery();
+        $query->filterByPermission('access-notification-update-any')
+            ->where('id', $this->notification->id);
+        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$query->exists()) {
+            throw new \Exception(__('notification-update.no-permission'));
+        }
+
         // Xác thực dữ liệu
         $data = $this->request->validate([
             'title' => 'required|string|max:255',

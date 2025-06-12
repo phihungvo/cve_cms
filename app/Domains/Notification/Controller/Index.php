@@ -38,7 +38,10 @@ class Index extends ControllerAbstract
         $notificationId = (int) $notificationId;
 
         // Kiểm tra quyền xóa
-        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$this->auth->hasPermission('access-notification-delete')) {
+        $query = Notification::query()->newQuery();
+        $query->filterByPermission('access-notification-delete')
+            ->where('id', $notificationId);
+        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$query->exists()) {
             $this->sessionMessage('error', __('notification-delete.no-permission'));
             return redirect()->route('notification.index');
         }
@@ -53,7 +56,10 @@ class Index extends ControllerAbstract
     {
         try {
             // Kiểm tra quyền khôi phục
-            if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$this->auth->hasPermission('access-notification-restore')) {
+            $query = Notification::query()->newQuery();
+            $query->filterByPermission('access-notification-restore')
+                ->where('id', $id);
+            if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$query->exists()) {
                 $this->sessionMessage('error', __('notification-restore.no-permission'));
                 return redirect()->route('notification.index');
             }
@@ -76,7 +82,10 @@ class Index extends ControllerAbstract
     public function forceDelete($id): RedirectResponse
     {
         // Kiểm tra quyền xóa vĩnh viễn
-        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$this->auth->hasPermission('access-notification-delete')) {
+        $query = Notification::query()->newQuery();
+        $query->filterByPermission('access-notification-force-delete')
+            ->where('id', $id);
+        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$query->exists()) {
             $this->sessionMessage('error', __('notification-delete.no-permission'));
             return redirect()->route('notification.index');
         }
@@ -126,14 +135,16 @@ class Index extends ControllerAbstract
     {
         try {
             $user = $this->auth;
-            $notification = Notification::withTrashed()
+            $notificationQuery = Notification::query()->newQuery();
+            $notificationQuery->filterByPermission('access-notification-list')
+                ->where('id', $id);
+            $notification = $notificationQuery->withTrashed()
                 ->with([
                     'sender',
                     'enterprise',
                     'userNotifications',
                     'userNotifications.user'
                 ])
-                ->where('id', $id)
                 ->first();
 
             if (!$notification) {
@@ -202,8 +213,11 @@ class Index extends ControllerAbstract
         try {
             $user = $this->auth;
 
-            // Kiểm tra quyền truy cập (chỉ root, người gửi thông báo hoặc có quyền access-notification-list)
-            if (!$user->hasRole('root') && $user->id !== Notification::findOrFail($id)->sender_id && !$user->hasPermission('access-notification-list')) {
+            // Kiểm tra quyền truy cập
+            $query = Notification::query()->newQuery();
+            $query->filterByPermission('access-notification-list')
+                ->where('id', $id);
+            if (!$user->hasRole('root') && $user->id !== Notification::findOrFail($id)->sender_id && !$query->exists()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => __('notification-show.no-permission'),

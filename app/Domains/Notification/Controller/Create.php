@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\Notification\Controller;
 
 use App\Domains\Notification\Service\Controller\Create as CreateService;
+use App\Domains\Notification\Model\Notification;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,8 @@ class Create extends ControllerAbstract
     public function __invoke(Request $request): View|RedirectResponse
     {
         // Kiểm tra quyền tạo thông báo
+        $query = Notification::query();
+        $query->filterByPermission('access-notification-create');
         if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$this->auth->hasPermission('access-notification-create')) {
             $this->sessionMessage('error', __('notification-create.no-permission'));
             return redirect()->route('notification.index');
