@@ -27,7 +27,7 @@
                             pointRadius: 0, // Giữ nguyên để bỏ dấu chấm
                             pointHoverRadius: 0, // Giữ nguyên để bỏ dấu chấm khi hover
                             pointBackgroundColor: dataset.borderColor,
-                            fill: false, // Bỏ nền màu, chỉ giữ đường kẻ
+                            fill: false, // Giữ nguyên để bỏ nền màu
                         }))
                     },
                     options: {
@@ -65,7 +65,14 @@
                                 ticks: {
                                     font: {
                                         size: 14
-                                    }
+                                    },
+                                    callback: function(value, index, values) {
+                                        return index % 8 === 0 ? chartData.labels[value] :
+                                            ''; // Giữ nhãn thưa
+                                    },
+                                    maxRotation: 5, // Đặt góc xoay tối đa là 0 độ
+                                    minRotation: 0, // Đặt góc xoay tối thiểu là 0 độ
+                                    padding: 10 // Thêm khoảng cách để tránh chồng lấn
                                 }
                             }
                         },
