@@ -1359,6 +1359,7 @@ let DrawingTool = (function () {
                     <div class="relative w-full bg-black" style="height: 400px;">
                         <div id="videoWrapper" class="w-full h-full relative">
                             <video id="videoElement" class="absolute top-0 left-0 w-full h-full object-contain" style="z-index: 0;" autoplay loop muted playsinline>
+                                <!--  Video source can be replaced with your own video URL-->
                                 <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4">
                             </video>
                             <canvas id="canvasOverlay" class="absolute top-0 left-0" style="z-index: 10; pointer-events: auto;"></canvas>
@@ -1393,7 +1394,7 @@ let DrawingTool = (function () {
                         Swal.close();
                     });
                     document.getElementById('cancelBtn').addEventListener('click', () => {
-                        window.tempShapes = [...shapes];
+                        window.shapes = [];
                         Swal.close();
                     });
 

@@ -4,7 +4,7 @@ return [
     'analytics_rules' => 'Analytics Rules',
     'rule_name' => 'Rule Name',
     'object_detection' => 'Detected Objects',
-    'live_camera' => 'Live Camera',
+    'live_camera' => 'Live Camera View',
     'click_to_draw' => 'Click to draw Analytics Rules',
     'add' => 'Add +',
     'ok' => 'OK',

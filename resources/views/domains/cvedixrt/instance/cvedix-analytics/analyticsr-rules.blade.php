@@ -8,18 +8,19 @@
 @section('body')
     <div class="flex rounded shadow bg-white min-h-[600px]">
         <!-- List Rule đã thêm -->
-        <div class="w-1/3 flex flex-col bg-gray-50 border-r">
+        <div class="w-1/3 flex flex-col border-r">
             <h3 class="px-4 py-3 font-semibold text-gray-800">{{ __('cvedixt-analytic.added_rule') }}</h3>
-            <ul id="ruleList" class="flex-1 py-4 px-2 space-y-1 overflow-y-auto max-h-[32rem]">
+            <ul id="ruleList" class="flex-1 px-2 space-y-1 overflow-y-auto max-h-80"
+                style="scrollbar-width: thin; scrollbar-color: #a0aec0 transparent;">
                 @foreach($row->instanceRules as $rule)
                     <div class="flex items-center justify-between">
                         <li data-rule-id="{{$rule->id}}"
                             class="rule-item block px-2 py-1 rounded font-medium text-sm
-                            bg-white hover:bg-blue-100 focus:bg-blue-500 focus:text-white transition-colors cursor-pointer w-full">
+                    bg-white hover:bg-blue-100 focus:bg-blue-500 focus:text-white transition-colors cursor-pointer w-full">
                             {{$rule->name}}
                         </li>
                         <button type="button" data-rule-id="{{$rule->id}}" class="btn-delete-rule ml-2 px-2 py-1
-                            rounded text-red-500 hover:text-red-700 hover:bg-blue-100"
+                    rounded text-red-500 hover:text-red-700 hover:bg-blue-100"
                                 onclick="deleteRule({{ $rule->id }})">
                             ×
                         </button>
@@ -47,7 +48,7 @@
                 <!-- Left column: Rule name + Object types -->
                 <div class="w-1/2 pr-4">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1">{{ __('cvedixt-analytic.rule_name') }}</label>
+                        <h3 class="text-sm font-bold w-full mb-1">{{__('rt-analytics-rules.rule-name')}}</h3>
                         <input type="text" id="ruleNameInput" value="{{ old('name') }}"
                                class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
                         <div id="ruleNameError"
@@ -55,13 +56,15 @@
                     </div>
                     <div class="mb-4">
                         <div class="mb-2 font-medium">{{ __('cvedixt-analytic.object_detection') }}</div>
-                        <div class="space-y-2">
+                        <div class="flex flex-col">
                             @foreach(DetectedObject::cases() as $type)
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="detect_objects" value="{{ $type->value }}"
-                                           class="accent-blue-500 cursor-pointer">
-                                    <span class="text-blue-600 cursor-pointer">{{ $type->value }}</span>
-                                </label>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" name="detect_objects"
+                                           id="object_type_{{ $type->value }}"
+                                           value="{{ $type->value }}">
+                                    <label class="cursor-pointer flex-grow hover:font-bold py-1"
+                                           for="object_type_{{ $type->value }}">{{ $type->value }}</label>
+                                </div>
                             @endforeach
                         </div>
                         <div id="detectObjectsError"
@@ -70,16 +73,16 @@
                 </div>
                 <!-- Right column: Camera live -->
                 <div class="w-1/2 pl-4">
-                    <div class="mb-2 font-medium">{{ __('cvedixt-analytic.live_camera') }}</div>
+                    <h3 class="text-sm font-bold mb-1">{{ __('rt-analytics-rules.live-view-camera') }}</h3>
                     <div
-                        class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black relative overflow-hidden">
+                            class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black relative overflow-hidden">
                         <div id="videoWrapperOutside" class="w-full h-full relative">
                             <video id="videoElementOutside"
                                    class="absolute top-0 w-full h-full object-contain"
                                    style="z-index: 0;" autoplay loop muted playsinline>
                                 <source
-                                    src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
-                                    type="video/mp4">
+                                        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+                                        type="video/mp4">
                             </video>
                             <canvas id="canvasOverlayOutside" class="absolute inset-0 h-full"
                                     style="z-index: 10; pointer-events: none;"></canvas>
