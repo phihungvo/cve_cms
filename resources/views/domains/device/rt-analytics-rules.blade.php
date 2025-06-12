@@ -9,15 +9,16 @@
 @section('content-analytics')
     <div class="intro-y box p-5 mt-5">
         <!-- List rule đã thêm -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-            <div class="col-span-2 flex flex-col  border border-gray-300 rounded-md p-2">
-                <h3 class="px-4 py-3 font-semibold text-gray-800"> {{__('rt-analytics-rules.added-rules') }}</h3>
-                <ul id="ruleList">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 border-r">
+            <div class="col-span-2 flex flex-col rounded-md p-2">
+                <h3 class="px-4 py-1 font-semibold text-gray-800"> {{__('rt-analytics-rules.added-rules') }}</h3>
+                <ul id="ruleList" class="flex-1 px-2 space-y-1 overflow-y-auto max-h-80"
+                    style="scrollbar-width: thin; scrollbar-color: #a0aec0 transparent;">
                     @foreach($instance->instanceRules as $rule)
                         <div class="flex items-center justify-between">
                             <li data-rule-id="{{$rule->id}}" class="rule-item px-2 py-1 rounded font-medium text-sm
-                     bg-white hover:bg-blue-100 focus:bg-blue-500 focus:text-white transition-colors
-                     cursor-pointer w-full overflow-hidden text-ellipsis whitespace-normal line-clamp-2">
+                             bg-white hover:bg-blue-100 focus:bg-blue-500 focus:text-white transition-colors
+                                cursor-pointer w-full overflow-hidden text-ellipsis whitespace-normal line-clamp-2">
                                 {{ $rule->name }}
                             </li>
                             <button type="button" data-rule-id="{{ $rule->id }}" onclick="deleteRule({{ $rule->id }})"
@@ -45,9 +46,9 @@
                 <!-- content left -->
                 <div class="w-full h-full flex flex-col border border-gray-300 rounded-md p-2">
                     <!-- rules name -->
-                    <h2 class="text-sm font-bold py-2 w-full">{{__('rt-analytics-rules.rule-name')}}</h2>
-                    <div class="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-2">
-                        <div class="col-span-1">
+                    <div class="w-full flex p-1">
+                        <div class="w-2/5 pr-4">
+                            <h3 class="text-sm font-bold w-full mb-1">{{__('rt-analytics-rules.rule-name')}}</h3>
                             <div>
                                 <input
                                     class="border border-gray-300 focous:border-blue-700 rounded-lg w-full p-2 text-sm"
@@ -59,14 +60,14 @@
                                 </span>
                             </div>
                             <div>
-                                <h3 class="mt-2 py-2 text-sm font-bold py-2 w-full">{{__('rt-analytics-rules.object-types')}}</h3>
-                                <div class="flex flex-col gap-4">
+                                <h3 class="text-sm font-bold pt-2 w-full">{{__('rt-analytics-rules.object-types')}}</h3>
+                                <div class="flex flex-col">
                                     @foreach(DetectedObject::cases() as $type)
-                                        <div class="flex items-center gap-2 cursor-pointer">
+                                        <div class="flex items-center gap-2">
                                             <input type="checkbox" name="detect_objects"
                                                    id="object_type_{{ $type->value }}"
                                                    value="{{ $type->value }}">
-                                            <label class="cursor-pointer"
+                                            <label class="cursor-pointer flex-grow hover:font-bold py-1"
                                                    for="object_type_{{ $type->value }}">{{ $type->value }}</label>
                                         </div>
                                     @endforeach
@@ -77,17 +78,28 @@
                             </div>
                         </div>
                         <!-- view camera -->
-                        <div class="col-span-2 border p-2 ">
-                            <div class="w-full h-full ">
-                               <h3>{{ __('rt-analytics-rules.live-view-camera') }}</h3>
-                                <video class="hls-video" width="100%" height="400" controls autoplay>
-                                    <source src="{{$instance->input_source}}" type="application/x-mpegURL">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <button type="button" class="p-2 cursor-pointer" onclick="openDrawingTool()">
-                                    <svg fill="#000000" height="16px" width="16px" version="1.1" id="Capa_1"
-                                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                         viewBox="0 0 469 469" xml:space="preserve">
+                        <div class="w-3/5 pl-4">
+                            <h3 class="text-sm font-bold mb-1">{{ __('rt-analytics-rules.live-view-camera') }}</h3>
+                            <div
+                                class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black relative overflow-hidden">
+                                <div id="videoWrapperOutside" class="w-full h-full relative">
+                                    <video id="videoElementOutside"
+                                           class="absolute top-0 w-full h-full object-contain px-auto"
+                                           style="z-index: 0;" autoplay loop muted playsinline>
+                                        {{--  Video source can be replaced with your own video URL--}}
+                                        <source
+                                            src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+                                            type="video/mp4">
+                                    </video>
+                                    <canvas id="canvasOverlayOutside" class="absolute inset-0 h-full"
+                                            style="z-index: 10; pointer-events: none;">
+                                    </canvas>
+                                </div>
+                            </div>
+                            <button type="button" class="p-2 cursor-pointer" onclick="openDrawingTool()">
+                                <svg fill="#000000" height="16px" width="16px" version="1.1" id="Capa_1"
+                                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                     viewBox="0 0 469 469" xml:space="preserve">
                                         <g>
                                             <g>
                                                 <path d="M455.5,0h-442C6,0,0,6,0,13.5v211.9c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5V27h415v415H242.4c-7.5,0-13.5,6-13.5,13.5
@@ -99,24 +111,24 @@
                                             </g>
                                         </g>
                                 </svg>
-                                </button>
-                            </div>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- content right -->
         </div>
-        <div class="control grid grid-cols-1 md:grid-cols-12 mt-4">
-            <!-- Button Update rule -->
-            <button id="btn-save-rule" class="btn btn-secondary col-start-8 bg-white hover:bg-blue-500
+        <!-- content right -->
+    </div>
+    <div class="control grid grid-cols-1 md:grid-cols-12 mt-4">
+        <!-- Button Update rule -->
+        <button id="btn-save-rule" class="btn btn-secondary col-start-8 bg-white hover:bg-blue-500
             hover:text-white transition-colors" onclick="saveRule()">+&nbsp;Add
-            </button>
-            <!-- Button Cancel -->
-            <a href="{{route('device.runtime-analytics',['id'=> $row->id])}}" class="btn btn-secondary ml-2">
-                {{__('Cancel')}}
-            </a>
-        </div>
+        </button>
+        <!-- Button Cancel -->
+        <a href="{{route('device.runtime-analytics',['id'=> $row->id])}}" class="btn btn-secondary ml-2">
+            {{__('Cancel')}}
+        </a>
+    </div>
     </div>
 @stop
 
@@ -139,6 +151,158 @@
         let ruleItemEls = document.querySelectorAll('.rule-item');
         const ruleTypeEls = document.querySelectorAll('.ruleType')
         const btnSaveRuleEl = document.getElementById('btn-save-rule');
+
+        let videoWrapperOutside, videoElementOutside, canvasOverlayOutside, ctxOutside;
+        const SHAPE_SCALE_FACTOR = 1.2; // Tăng kích thước shape lên 1.2 lần
+
+        /**
+         * Resize canvas khớp kích thước video ngoài và vẽ lại shapes cho rule đã chọn.
+         * - Nếu thiếu element hoặc video chưa sẵn sàng thì thử lại.
+         * - Tính tỉ lệ scale, đặt lại kích thước và vị trí canvas.
+         * - Vẽ shapes nếu có, ngược lại clear canvas.
+         */
+        function resizeCanvasWithRuleId(ruleId) {
+            videoWrapperOutside = document.getElementById('videoWrapperOutside');
+            videoElementOutside = document.getElementById('videoElementOutside');
+            canvasOverlayOutside = document.getElementById('canvasOverlayOutside');
+            ctxOutside = canvasOverlayOutside.getContext('2d');
+
+            if (!videoWrapperOutside || !videoElementOutside || !canvasOverlayOutside) {
+                console.warn('Missing required elements for canvas resize');
+                setTimeout(() => resizeCanvasWithRuleId(ruleId), 200);
+                return false;
+            }
+
+            if (!videoElementOutside.videoWidth || !videoElementOutside.videoHeight) {
+                videoElementOutside.addEventListener('loadedmetadata', () => resizeCanvasWithRuleId(ruleId), {once: true});
+                return false;
+            }
+
+            // Lấy kích thước wrapper và video gốc
+            const wrapperWidth = videoWrapperOutside.offsetWidth;
+            const wrapperHeight = videoWrapperOutside.offsetHeight;
+            const videoWidth = videoElementOutside.videoWidth;
+            const videoHeight = videoElementOutside.videoHeight;
+
+            if (wrapperWidth === 0 || wrapperHeight === 0) {
+                console.warn('Wrapper dimensions are zero, retrying...');
+                setTimeout(() => resizeCanvasWithRuleId(ruleId), 200);
+                return false;
+            }
+
+            // Tính tỷ lệ scale giống như trong DrawingTool
+            const scale = Math.min(wrapperWidth / videoWidth, wrapperHeight / videoHeight);
+            const scaledWidth = videoWidth * scale;
+            const scaledHeight = videoHeight * scale;
+
+            // Đặt kích thước canvas khớp với kích thước video hiển thị
+            canvasOverlayOutside.width = scaledWidth;
+            canvasOverlayOutside.height = scaledHeight;
+            canvasOverlayOutside.style.width = `${scaledWidth}px`;
+            canvasOverlayOutside.style.height = `${scaledHeight}px`;
+
+            // Đặt kích thước và vị trí video
+            videoElementOutside.style.width = `${scaledWidth}px`;
+            videoElementOutside.style.height = `${scaledHeight}px`;
+
+            // Căn giữa video và canvas trong wrapper
+            const offsetX = (wrapperWidth - scaledWidth) / 2;
+            const offsetY = (wrapperHeight - scaledHeight) / 2;
+            videoElementOutside.style.position = 'absolute';
+            videoElementOutside.style.left = `${offsetX}px`;
+            videoElementOutside.style.top = `${offsetY}px`;
+            canvasOverlayOutside.style.position = 'absolute';
+            canvasOverlayOutside.style.left = `${offsetX}px`;
+            canvasOverlayOutside.style.top = `${offsetY}px`;
+
+            // Vẽ lại shapes với scale và offset
+            selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
+            if (selectedAddedRule && selectedAddedRule.drawing_object) {
+                drawShapesOnOutsideCanvas(selectedAddedRule.drawing_object, scale, offsetX, offsetY);
+            } else {
+                ctxOutside.clearRect(0, 0, canvasOverlayOutside.width, canvasOverlayOutside.height);
+            }
+
+            return true;
+        }
+
+        /**
+         * Vẽ các shape (line, rect, poly) lên canvas ngoài theo tỉ lệ.
+         * @param {Array} drawingObjects - Danh sách shape để vẽ.
+         * @param {number} scale - Tỉ lệ khớp với video.
+         */
+        function drawShapesOnOutsideCanvas(drawingObjects, scale, offsetX, offsetY) {
+            ctxOutside.clearRect(0, 0, canvasOverlayOutside.width, canvasOverlayOutside.height);
+            if (!drawingObjects || !Array.isArray(drawingObjects)) return;
+
+            drawingObjects.forEach(shape => {
+                ctxOutside.beginPath();
+                ctxOutside.strokeStyle = rgbToHex(shape.color || [255, 0, 0]);
+                ctxOutside.fillStyle = rgbToRgba(shape.color || [255, 0, 0], 0.12);
+                ctxOutside.lineWidth = 1; // Tăng độ dày đường viền
+
+                if (shape.type === 'line') {
+                    const rotation = shape.rotation || 0;
+                    const midX = (shape.startX + shape.endX) / 2;
+                    const midY = (shape.startY + shape.endY) / 2;
+
+                    ctxOutside.save();
+                    ctxOutside.translate((midX * scale * SHAPE_SCALE_FACTOR)
+                        + offsetX, (midY * scale * SHAPE_SCALE_FACTOR) + offsetY);
+                    ctxOutside.rotate(rotation);
+                    ctxOutside.moveTo((shape.startX - midX) * scale * SHAPE_SCALE_FACTOR,
+                        (shape.startY - midY) * scale * SHAPE_SCALE_FACTOR);
+                    ctxOutside.lineTo((shape.endX - midX) * scale * SHAPE_SCALE_FACTOR,
+                        (shape.endY - midY) * scale * SHAPE_SCALE_FACTOR);
+                    ctxOutside.stroke();
+                    ctxOutside.restore();
+                } else if (shape.type === 'rect') {
+                    ctxOutside.rect(
+                        (shape.startX * scale * SHAPE_SCALE_FACTOR) + offsetX,
+                        (shape.startY * scale * SHAPE_SCALE_FACTOR) + offsetY,
+                        shape.width * scale * SHAPE_SCALE_FACTOR,
+                        shape.height * scale * SHAPE_SCALE_FACTOR
+                    );
+                    ctxOutside.fill();
+                    ctxOutside.stroke();
+                } else if (shape.type === 'poly' && shape.points && shape.points.length > 0) {
+                    ctxOutside.moveTo((shape.points[0].x * scale * SHAPE_SCALE_FACTOR)
+                        + offsetX, (shape.points[0].y * scale * SHAPE_SCALE_FACTOR) + offsetY);
+                    shape.points.slice(1).forEach(point => ctxOutside.lineTo((point.x * scale * SHAPE_SCALE_FACTOR)
+                        + offsetX, (point.y * scale * SHAPE_SCALE_FACTOR) + offsetY));
+                    ctxOutside.closePath();
+                    ctxOutside.fill();
+                    ctxOutside.stroke();
+                }
+            });
+        }
+
+        /**
+         * Chuyển một mảng RGB \[r, g, b\] thành chuỗi màu hex (ví dụ: "#ff0000").
+         * Trả về "#000000" nếu đầu vào không hợp lệ.
+         * @param {number[]} rgb - Mảng gồm 3 số đại diện cho giá trị RGB.
+         * @returns {string} Chuỗi màu hex.
+         */
+        function rgbToHex(rgb) {
+            if (!Array.isArray(rgb) || rgb.length !== 3 || rgb.some(x => typeof x !== 'number')) {
+                return '#000000';
+            }
+            return `#${rgb.map(x => ('0' + x.toString(16)).slice(-2)).join('')}`;
+        }
+
+        /**
+         * Chuyển một mảng RGB \[r, g, b\] và giá trị alpha thành chuỗi màu rgba() CSS.
+         * Trả về 'rgba(0,0,0,0.2)' nếu đầu vào không hợp lệ.
+         * @param {number[]} rgb - Mảng gồm 3 số đại diện cho giá trị RGB.
+         * @param {number} [alpha=0.2] - Giá trị alpha cho độ trong suốt.
+         * @returns {string} Chuỗi màu RGBA.
+         */
+        function rgbToRgba(rgb, alpha = 0.2) {
+            if (!Array.isArray(rgb) || rgb.length !== 3 || rgb.some(x => typeof x !== 'number')) {
+                return 'rgba(0, 0, 0, 0.2)';
+            }
+            return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
+        }
 
         /**
          * Khai báo và thực thi hàm loadRules để nạp các quy tắc từ server.
@@ -191,7 +355,8 @@
                 window.DrawingTool.open(instanceId, instanceUuid, {
                     rule_type: selectedRuleType,
                     detect_objects: detectObjects,
-                    rule_name: ruleName
+                    rule_name: ruleName,
+                    // direction: selectedAddedRule?.direction,
                 });
             } else {
                 Swal.fire({
@@ -256,6 +421,7 @@
             // Load shapes for the selected rule into the drawing tool
             if (window.DrawingTool && selectedAddedRule) {
                 window.DrawingTool.loadShapesFromServer(selectedAddedRule);
+                resizeCanvasWithRuleId(ruleId);
             }
         }
 
@@ -299,6 +465,7 @@
 
                 if (window.DrawingTool) {
                     window.DrawingTool.loadShapesFromServer(null); // Xóa shapes hiện tại
+                    resizeCanvasWithRuleId(null); // Clear canvas khi chuyển rule type
                 }
             })
         })
@@ -314,6 +481,13 @@
                 el.classList.add('bg-white');
             });
 
+            ruleNameEl.value = '';
+            detectedObjectEl.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+
+            resizeCanvasWithRuleId(null); // Clear canvas khi chuyển rule type
+
             if (item) {
                 // Thêm trạng thái active cho rule được chọn.
                 item.classList.add('bg-blue-500', 'text-white');
@@ -324,7 +498,6 @@
                 firstRuleTypeEl.classList.add('bg-blue-500', 'text-white');
                 firstRuleTypeEl.classList.remove('bg-white');
             }
-
 
         }
 
@@ -506,6 +679,8 @@
 
                 // Cập nhật ruleItemEls để bao gồm mục quy tắc mới
                 ruleItemEls = document.querySelectorAll('.rule-item');
+
+                resizeCanvasWithRuleId(null); // Clear canvas khi thêm rule mới
             }
         }
 
@@ -572,7 +747,7 @@
 
                                 // Modal thông báo xóa thành công
                                 Swal.fire({
-                                    title:'{{__("rt-analytics-rules.delete.modal.title-success")}}',
+                                    title: '{{__("rt-analytics-rules.delete.modal.title-success")}}',
                                     text: '{{__("rt-analytics-rules.delete.modal.text-error")}}',
                                     icon: 'success',
                                     time: 1200,
@@ -592,9 +767,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            ruleTypeEls[0].classList.remove('bg-white');
-            ruleTypeEls[0].classList.add('bg-blue-500', 'text-white');
-            selectedRuleType = ruleTypeEls[0].getAttribute('data-rule-type');
+            if (ruleTypeEls.length > 0) {
+                ruleTypeEls[0].classList.remove('bg-white');
+                ruleTypeEls[0].classList.add('bg-blue-500', 'text-white');
+            }
         });
     </script>
 @endpush
