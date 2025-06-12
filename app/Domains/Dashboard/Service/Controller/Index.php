@@ -22,7 +22,7 @@ use App\Domains\Campaign\Media\Model\Media as MediaModel;
 use App\Domains\Playlist\Model\PlaylistModel as PlaylistModel;
 use App\Domains\Campaign\Schedule\Model\Schedule as ScheduleModel;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+// use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
@@ -180,7 +180,7 @@ class Index extends ControllerAbstract
             // Lấy start_date và end_date từ request, nếu không có thì dùng mặc định 30 ngày
             $startDate = $this->request->input('start_date')
                 ? Carbon::parse($this->request->input('start_date'))
-                : Carbon::now()->subDays(30);
+                : Carbon::now()->subDays(90);
             $endDate = $this->request->input('end_date')
                 ? Carbon::parse($this->request->input('end_date'))
                 : Carbon::now();
