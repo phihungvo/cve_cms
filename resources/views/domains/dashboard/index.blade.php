@@ -139,7 +139,7 @@
     </script>
 
     <div class="container mx-auto px-4 py-6 h-screen">
-        <div class="flex flex-col md:flex-row gap-6 h-full">
+        <div class="flex flex-col md:flex-row gap-2 h-full">
             <!-- Enterprise Filter and Date Filter Card -->
             @if (method_exists($auth, 'isRoot') && $auth->isRoot())
                 <div class="flex-1 bg-white p-4 rounded-lg shadow">
