@@ -356,7 +356,7 @@
                 });
             }
 
-            // Logic chọn media
+            // Logic chọn media và hover video
             const mediaGallery = document.getElementById('media-gallery');
             if (mediaGallery) {
                 function updateMediaItemStyle(mediaItem) {
@@ -368,8 +368,10 @@
                     }
                 }
 
-                mediaGallery.querySelectorAll('.media-item').forEach(mediaItem => {
+                function setupMediaItem(mediaItem) {
                     updateMediaItemStyle(mediaItem);
+
+                    // Click to select
                     mediaItem.addEventListener('click', function(event) {
                         if (!event.target.classList.contains('media-checkbox')) {
                             const checkbox = mediaItem.querySelector('.media-checkbox');
@@ -381,7 +383,24 @@
                     mediaItem.querySelector('.media-checkbox').addEventListener('change', function() {
                         updateMediaItemStyle(mediaItem);
                     });
-                });
+
+                    // Hover to play video
+                    const video = mediaItem.querySelector('video');
+                    if (video) {
+                        mediaItem.addEventListener('mouseenter', function() {
+                            video.play().catch(error => {
+                                console.error('Error playing video:', error);
+                            });
+                        });
+
+                        mediaItem.addEventListener('mouseleave', function() {
+                            video.pause();
+                            video.currentTime = 0; // Reset to start
+                        });
+                    }
+                }
+
+                mediaGallery.querySelectorAll('.media-item').forEach(setupMediaItem);
             }
 
             @if ($isRoot)
@@ -440,23 +459,8 @@
                                             </div>`;
                                     });
 
-                                    mediaGallery.querySelectorAll('.media-item').forEach(mediaItem => {
-                                        updateMediaItemStyle(mediaItem);
-                                        mediaItem.addEventListener('click', function(event) {
-                                            if (!event.target.classList.contains(
-                                                    'media-checkbox')) {
-                                                const checkbox = mediaItem
-                                                    .querySelector('.media-checkbox');
-                                                checkbox.checked = !checkbox.checked;
-                                                updateMediaItemStyle(mediaItem);
-                                            }
-                                        });
-
-                                        mediaItem.querySelector('.media-checkbox')
-                                            .addEventListener('change', function() {
-                                                updateMediaItemStyle(mediaItem);
-                                            });
-                                    });
+                                    mediaGallery.querySelectorAll('.media-item').forEach(
+                                    setupMediaItem);
                                 })
                                 .catch(error => {
                                     console.error('Error fetching media:', error);
