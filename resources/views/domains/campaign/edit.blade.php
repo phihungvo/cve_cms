@@ -3,6 +3,19 @@
 @section('body')
     <div class="tab-content">
         <div class="tab-pane active" role="tabpanel">
+            <!-- Thông báo thành công hoặc lỗi -->
+            @if (session()->has('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session()->get('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @elseif (session()->has('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session()->get('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Form Upload Media -->
             <form method="POST" action="{{ route('fpp.media.create') }}" enctype="multipart/form-data" id="upload-form">
                 @csrf
@@ -19,7 +32,7 @@
                     <!-- Name, Enterprise, User -->
                     <div class="row align-items-start">
                         <div class="col-md-4">
-                            <div class="form-group mb-3">
+                            <div class="form-group mb-3 highlight-name">
                                 <label class="form-label">{{ __('campaign-index.name') }}</label>
                                 <input type="text" name="name" class="form-control"
                                     value="{{ old('name', $campaign['name']) }}" required>
@@ -87,7 +100,8 @@
                                             class="mr-2 media-checkbox"
                                             {{ in_array($mediaItem->id, old('media_ids', $campaign['media_ids'] ?? [])) ? 'checked' : '' }}>
                                         <span class="text-sm truncate">{{ $mediaItem->name }}
-                                            ({{ $mediaItem->type }})</span>
+                                            ({{ $mediaItem->type }})
+                                        </span>
                                     </div>
                                     <div class="media-preview">
                                         @if ($isVideo)
@@ -103,9 +117,9 @@
                         </div>
                     </div>
 
-                    <!-- Start Time và End Time -->
-                    <div class="row">
-                        <div class="col-md-6">
+                    <!-- Start Time, End Time, Reach, Impression, Distance -->
+                    <div class="row align-items-start">
+                        <div class="col-md-2">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.start_time') }}</label>
                                 <input type="datetime-local" name="start_time" class="form-control"
@@ -113,7 +127,7 @@
                                     required>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-2">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.end_time') }}</label>
                                 <input type="datetime-local" name="end_time" class="form-control"
@@ -121,10 +135,6 @@
                                     required>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Reach, Impression, Distance, Device, Budget, CPM, Location -->
-                    <div class="row align-items-start">
                         <div class="col-md-2">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.reach') }}</label>
@@ -146,14 +156,18 @@
                                     value="{{ old('distance', $campaign['distance']) }}" min="0" required>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                    </div>
+
+                    <!-- Device, Budget, CPM, Location -->
+                    <div class="row align-items-start">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.no_device') }}</label>
                                 <input type="number" name="no_device" class="form-control"
                                     value="{{ old('no_device', $campaign['no_device']) }}" min="0" required>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.budget') }}</label>
                                 <input type="number" name="budget" class="form-control"
@@ -161,14 +175,14 @@
                                     required>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group mb-3">
+                        <div class="col-md-3">
+                            <div class="form-group mb-3 highlight-cpm">
                                 <label class="form-label">{{ __('campaign-index.cpm') }}</label>
                                 <input type="number" name="cpm" class="form-control"
                                     value="{{ old('cpm', $campaign['cpm']) }}" min="0" required>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.location') }}</label>
                                 <select name="location_id" class="form-control select2" required>
@@ -239,7 +253,8 @@
         }
 
         .row .col-md-4,
-        .row .col-md-2 {
+        .row .col-md-2,
+        .row .col-md-3 {
             padding-left: 5px !important;
             padding-right: 5px !important;
         }
@@ -250,14 +265,20 @@
         }
 
         .row .col-md-2 {
-            flex: 0 0 14.2857% !important;
-            max-width: 14.2857% !important;
+            flex: 0 0 20% !important;
+            max-width: 20% !important;
+        }
+
+        .row .col-md-3 {
+            flex: 0 0 25% !important;
+            max-width: 25% !important;
         }
 
         @media (max-width: 767.98px) {
 
             .row .col-md-4,
-            .row .col-md-2 {
+            .row .col-md-2,
+            .row .col-md-3 {
                 flex: 0 0 100% !important;
                 max-width: 100% !important;
             }
@@ -281,6 +302,49 @@
             margin: 2px !important;
             padding: 2px 5px !important;
         }
+
+        /* Làm nổi bật ô Name và CPM */
+        /* .highlight-name, */
+        .highlight-cpm {
+            background-color: #fff3cd !important;
+            /* Màu vàng nhạt */
+            border: 2px solid #ffeb3b !important;
+            /* Viền vàng */
+            border-radius: 4px !important;
+            padding: 10px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            /* Đổ bóng nhẹ */
+        }
+
+        /* .highlight-name .form-control, */
+        .highlight-cpm .form-control {
+            background-color: #fff3cd !important;
+            border-color: #ffeb3b !important;
+        }
+
+        /* Style cho thông báo */
+        .alert {
+            margin-bottom: 15px !important;
+            padding: 10px !important;
+            border-radius: 4px !important;
+        }
+
+        .alert-success {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724 !important;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24 !important;
+        }
+
+        .btn-close {
+            padding: 0.25rem 0.5rem !important;
+            line-height: 1 !important;
+        }
     </style>
 @stop
 
@@ -292,7 +356,7 @@
                 placeholder: "Select a User",
                 allowClear: true,
                 width: '100%',
-                dropdownParent: $('#user-select').parent() // Đảm bảo dropdown hiển thị đúng
+                dropdownParent: $('#user-select').parent()
             });
             $('select[name="location_id"]').select2({
                 placeholder: "Select Location",
@@ -408,7 +472,7 @@
                                     if (!response.ok) {
                                         throw new Error(
                                             `Media API error: ${response.status} ${response.statusText}`
-                                            );
+                                        );
                                     }
                                     return response.json();
                                 })
@@ -445,7 +509,7 @@
                                     });
 
                                     mediaGallery.querySelectorAll('.media-item').forEach(
-                                    setupMediaItem);
+                                        setupMediaItem);
                                 })
                                 .catch(error => {
                                     console.error('Error fetching media:', error);
@@ -465,7 +529,7 @@
                                     if (!response.ok) {
                                         throw new Error(
                                             `Users API error: ${response.status} ${response.statusText}`
-                                            );
+                                        );
                                     }
                                     return response.json();
                                 })
@@ -479,7 +543,7 @@
                                         data.data.forEach(user => {
                                             $('#user-select').append(
                                                 `<option value="${user.id}">${user.name} (${user.email})</option>`
-                                                );
+                                            );
                                         });
                                     }
                                     $('#user-select').val(@json(old('user_ids', $campaign['user_ids'] ?? []))).trigger(
