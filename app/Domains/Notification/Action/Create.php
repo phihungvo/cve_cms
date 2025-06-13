@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 class Create extends ActionAbstract
 {
     protected array $data;
-    protected ?Authenticatable $auth; // Giữ kiểu theo lớp cha
+    protected ?Authenticatable $auth;
     protected ?Notification $row;
 
     public function handle(array $data, ?Authenticatable $auth): array
@@ -70,7 +70,7 @@ class Create extends ActionAbstract
     }
 
     /**
-     * Kiểm tra quyền root hoặc owner
+     * Kiểm tra quyền root, owner hoặc người có quyền access-notification-create
      *
      * @throws \Exception
      */
@@ -80,12 +80,13 @@ class Create extends ActionAbstract
             throw new \Exception(__('notification-create.no-permission'));
         }
 
-        $user = $this->auth; // Ép kiểu thành User
-        if (!$user->isRoot() && !$user->isOwner()) {
+        $user = $this->auth;
+
+        if (!$user->hasRole('root') && !$user->isOwner() && !$user->hasPermission('access-notification-create')) {
             throw new \Exception(__('notification-create.no-permission'));
         }
 
-        if ($user->isOwner()) {
+        if ($user->isOwner() || $user->hasPermission('access-notification-create')) {
             if ($this->data['enterprise_id'] !== $user->enterprise_id) {
                 throw new \Exception(__('notification-create.owner-enterprise-mismatch'));
             }
@@ -104,7 +105,7 @@ class Create extends ActionAbstract
         $user = $this->auth;
 
         // TH1: Người tạo là Root
-        if ($user->isRoot()) {
+        if ($user->hasRole('root')) {
             // Nếu không chọn enterprise_id (system notification), hoặc enterprise_id là null
             if (is_null($notification->enterprise_id)) {
                 // Gửi đến tất cả user thông thường (không phải Root)
@@ -145,11 +146,11 @@ class Create extends ActionAbstract
             }
         }
 
-        // TH2: Người tạo là Owner
-        if ($user->isOwner()) {
+        // TH2: Người tạo là Owner hoặc có quyền access-notification-create
+        if ($user->isOwner() || $user->hasPermission('access-notification-create')) {
             $usersQuery->where('enterprise_id', $notification->enterprise_id);
 
-            // Owner không gửi đến user là Root hoặc Owner
+            // Owner hoặc người có quyền không gửi đến user là Root hoặc Owner
             $usersQuery->whereDoesntHave('roles', function ($q) {
                 $q->whereIn('name', ['root', 'owner']);
             });
