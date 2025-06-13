@@ -5,5 +5,6 @@
     'location' => 'Location',
     'save' => 'save',
     'users' => 'User',
+    'success' => 'Campaign created successfully.',
 
 ];
