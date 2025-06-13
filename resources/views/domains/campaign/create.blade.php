@@ -8,10 +8,6 @@
                 @csrf
                 <input type="file" name="media_files[]" id="media-files" class="hidden" accept="video/mp4" multiple
                     required>
-                <button type="button" class="upload-btn" id="upload-button"
-                    onclick="document.getElementById('media-files').click();" title="{{ __('media-index.create') }}">
-                    <span>{{ __('Upload') }}</span>
-                </button>
             </form>
 
             <!-- Form chính -->
@@ -19,7 +15,7 @@
                 @csrf
                 <div class="box p-5">
                     <!-- Name -->
-                    <div class="row">
+                    <div class="row justify-between">
                         <div class="col-md-12">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.name') }}</label>
@@ -56,7 +52,7 @@
                         </div>
                     </div>
 
-                    <!-- Users (Quan hệ nhiều-nhiều với select box) -->
+                    <!-- Users -->
                     <div class="form-group mb-3">
                         <label class="form-label">{{ __('campaign-index.users') }}</label>
                         <select id="user-select" class="form-control">
@@ -85,55 +81,39 @@
 
                     <!-- Media -->
                     <div class="form-group mb-3">
-                        <label class="form-label">{{ __('campaign-index.media') }}</label>
-                        <div id="upload-form-container"></div>
-                        <select id="media-select" class="form-control" multiple>
-                            <option value="">Select a Media</option>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="form-label">{{ __('campaign-index.media') }}</label>
+                            <a href="#" id="upload-link" class="text-blue-600 hover:underline"
+                                onclick="document.getElementById('media-files').click();">{{ __('Upload') }}</a>
+                        </div>
+                        <div id="media-gallery" class="grid grid-cols-6 gap-4">
                             @foreach ($media as $mediaItem)
-                                <option value="{{ $mediaItem->id }}" data-name="{{ $mediaItem->name }}"
-                                    data-type="{{ $mediaItem->type }}" data-url="{{ $mediaItem->media_url }}">
-                                    {{ $mediaItem->name }} ({{ $mediaItem->type }})
-                                </option>
+                                @php
+                                    $type = strtolower($mediaItem->type);
+                                    $isVideo = str_contains($type, 'video') || in_array($type, ['mp4']);
+                                @endphp
+                                <div class="media-item border rounded p-2 cursor-pointer" data-id="{{ $mediaItem->id }}"
+                                    data-name="{{ $mediaItem->name }}" data-type="{{ $mediaItem->type }}"
+                                    data-url="{{ $mediaItem->media_url }}">
+                                    <div class="flex items-center mb-2">
+                                        <input type="checkbox" name="media_ids[]" value="{{ $mediaItem->id }}"
+                                            class="mr-2 media-checkbox"
+                                            {{ in_array($mediaItem->id, old('media_ids', [])) ? 'checked' : '' }}>
+                                        <span class="text-sm truncate">{{ $mediaItem->name }}
+                                            ({{ $mediaItem->type }})
+                                        </span>
+                                    </div>
+                                    <div class="media-preview">
+                                        @if ($isVideo)
+                                            <video src="{{ $mediaItem->media_url }}" class="w-full h-24 object-cover"
+                                                muted></video>
+                                        @else
+                                            <a href="{{ $mediaItem->media_url }}" target="_blank"
+                                                class="text-blue-600 hover:underline text-sm">{{ __('View File') }}</a>
+                                        @endif
+                                    </div>
+                                </div>
                             @endforeach
-                        </select>
-                        <div id="selected-media"
-                            class="mt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                            @if (old('media_ids'))
-                                @foreach (old('media_ids') as $mediaId)
-                                    @php
-                                        $mediaItem = $media->find($mediaId);
-                                    @endphp
-                                    @if ($mediaItem)
-                                        @php
-                                            $type = strtolower($mediaItem->type);
-                                            $isVideo = str_contains($type, 'video') || in_array($type, ['mp4']);
-                                        @endphp
-                                        <div class="card mb-3 media bg-white selected-media" data-id="{{ $mediaItem->id }}"
-                                            onmouseover="this.style.backgroundColor='#f0f0f0';"
-                                            onmouseout="this.style.backgroundColor='white';">
-                                            <div class="shadow-md rounded-lg overflow-hidden">
-                                                <div class="p-4 flex flex-col items-center">
-                                                    <h5 class="text-lg font-bold text-center mb-2">{{ $mediaItem->name }}
-                                                    </h5>
-                                                    <p class="text-gray-500 mb-2">{{ $mediaItem->type }}</p>
-                                                    <div class="media-preview mb-2">
-                                                        @if ($isVideo)
-                                                            <video src="{{ $mediaItem->media_url }}" controls
-                                                                style="max-width: 150px; max-height: 150px;"></video>
-                                                        @else
-                                                            <a href="{{ $mediaItem->media_url }}"
-                                                                target="_blank">{{ __('View File') }}</a>
-                                                        @endif
-                                                    </div>
-                                                    <button type="button"
-                                                        class="btn btn-danger btn-sm remove-media">X</button>
-                                                    <input type="hidden" name="media_ids[]" value="{{ $mediaItem->id }}">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endforeach
-                            @endif
                         </div>
                     </div>
 
@@ -155,7 +135,7 @@
                         </div>
                     </div>
 
-                    <!-- Reach, Impression, Distance, No Device, Budget -->
+                    <!-- Reach, Impression, Distance, No Device -->
                     <div class="row justify-between">
                         <div class="col-md-3">
                             <div class="form-group mb-3">
@@ -199,7 +179,7 @@
                     </div>
 
                     <!-- CPM -->
-                    <div class="row">
+                    <div class="row justify-between">
                         <div class="col-md-12">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.cpm') }}</label>
@@ -210,7 +190,7 @@
                     </div>
 
                     <!-- Location -->
-                    <div class="row">
+                    <div class="row justify-between">
                         <div class="col-md-12">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.location') }}</label>
@@ -228,69 +208,49 @@
                     </div>
                 </div>
 
-                <div class="box p-5 mt-5">
-                    <div class="text-right">
-                        <button type="submit" class="btn btn-primary">{{ __('campaign-create.save') }}</button>
-                        <a href="{{ route('campaign.index') }}" class="btn btn-secondary ml-2">{{ __('Cancel') }}</a>
-                    </div>
+                <div class="box p-5 mt-5 text-right">
+                    <button type="submit" class="btn btn-primary">{{ __('campaign-create.save') }}</button>
+                    <a href="{{ route('campaign.index') }}" class="btn btn-secondary ml-2">{{ __('Cancel') }}</a>
                 </div>
             </form>
         </div>
     </div>
 
     <style>
-        .selected-user,
-        .selected-media {
+        .selected-user {
             margin: 5px 0;
         }
 
-        .selected-user .remove-user,
-        .selected-media .remove-media {
-            margin-left: 10px;
+        .selected-user .remove-user {
             margin-top: 8px;
             background-color: #1F2A44;
             border-color: #1F2A44;
         }
 
-        .selected-user .remove-user:hover,
-        .selected-media .remove-media:hover {
+        .selected-user .remove-user:hover {
             background-color: #2E3B5A;
             border-color: #2E3B5A;
         }
 
-        .upload-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #1F2A44;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
+        .media-item {
+            transition: transform 0.2s;
         }
 
-        .upload-btn:hover {
-            background-color: #2E3B5A;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        .media-item:hover {
+            transform: scale(1.02);
         }
 
-        .upload-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .media-item.selected {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3);
         }
 
-        .upload-btn span {
-            margin-left: 8px;
+        .media-preview video {
+            border-radius: 4px;
         }
 
-        #media-select {
-            height: 150px;
+        .grid-cols-6 {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
         }
     </style>
 @stop
@@ -304,8 +264,8 @@
                 uploadFormContainer.appendChild(uploadForm);
             }
 
-            var forms = document.querySelectorAll('.needs-validation');
-            Array.prototype.slice.call(forms).forEach(function(form) {
+            const forms = document.querySelectorAll('.needs-validation');
+            forms.forEach(function(form) {
                 form.addEventListener('submit', function(event) {
                     if (!form.checkValidity()) {
                         event.preventDefault();
@@ -379,67 +339,56 @@
                 });
             }
 
-            // Logic chọn media (hỗ trợ chọn nhiều)
-            const mediaSelect = document.getElementById('media-select');
-            const selectedMediaDiv = document.getElementById('selected-media');
+            // Logic chọn media và hover video
+            const mediaGallery = document.getElementById('media-gallery');
+            if (mediaGallery) {
+                function updateMediaItemStyle(mediaItem) {
+                    const checkbox = mediaItem.querySelector('.media-checkbox');
+                    if (checkbox.checked) {
+                        mediaItem.classList.add('selected');
+                    } else {
+                        mediaItem.classList.remove('selected');
+                    }
+                }
 
-            if (mediaSelect && selectedMediaDiv) {
-                mediaSelect.addEventListener('change', function() {
-                    const selectedOptions = Array.from(this.selectedOptions);
+                function setupMediaItem(mediaItem) {
+                    updateMediaItemStyle(mediaItem);
 
-                    selectedOptions.forEach(option => {
-                        const mediaId = option.value;
-                        const mediaName = option.dataset.name;
-                        const mediaType = option.dataset.type;
-                        const mediaUrl = option.dataset.url;
-                        const isVideo = mediaType && (mediaType.toLowerCase().includes('video') ||
-                            mediaType === 'mp4');
-
-                        if (mediaId && !selectedMediaDiv.querySelector(`[data-id="${mediaId}"]`)) {
-                            const mediaDiv = document.createElement('div');
-                            mediaDiv.className = 'card mb-3 media bg-white selected-media';
-                            mediaDiv.dataset.id = mediaId;
-                            mediaDiv.setAttribute('onmouseover',
-                                "this.style.backgroundColor='#f0f0f0';");
-                            mediaDiv.setAttribute('onmouseout',
-                                "this.style.backgroundColor='white';");
-                            mediaDiv.innerHTML = `
-                                <div class="shadow-md rounded-lg overflow-hidden">
-                                    <div class="p-4 flex flex-col items-center">
-                                        <h5 class="text-lg font-bold text-center mb-2">${mediaName || 'Unnamed Media'}</h5>
-                                        <p class="text-gray-500 mb-2">${mediaType || 'Unknown'}</p>
-                                        <div class="media-preview mb-2">
-                                            ${isVideo ?
-                                                `<video src="${mediaUrl}" controls style="max-width: 150px; max-height: 150px;"></video>` :
-                                                `<a href="${mediaUrl}" target="_blank">View File</a>`}
-                                        </div>
-                                        <button type="button" class="btn btn-danger btn-sm remove-media">X</button>
-                                        <input type="hidden" name="media_ids[]" value="${mediaId}">
-                                    </div>
-                                </div>
-                            `;
-                            selectedMediaDiv.appendChild(mediaDiv);
-
-                            mediaDiv.querySelector('.remove-media').addEventListener('click',
-                                function() {
-                                    mediaDiv.remove();
-                                });
+                    // Click to select
+                    mediaItem.addEventListener('click', function(event) {
+                        if (!event.target.classList.contains('media-checkbox')) {
+                            const checkbox = mediaItem.querySelector('.media-checkbox');
+                            checkbox.checked = !checkbox.checked;
+                            updateMediaItemStyle(mediaItem);
                         }
                     });
 
-                    this.selectedIndex = -1;
-                });
-
-                selectedMediaDiv.querySelectorAll('.remove-media').forEach(button => {
-                    button.addEventListener('click', function() {
-                        this.closest('.selected-media').remove();
+                    mediaItem.querySelector('.media-checkbox').addEventListener('change', function() {
+                        updateMediaItemStyle(mediaItem);
                     });
-                });
+
+                    // Hover to play video
+                    const video = mediaItem.querySelector('video');
+                    if (video) {
+                        mediaItem.addEventListener('mouseenter', function() {
+                            video.play().catch(error => {
+                                console.error('Error playing video:', error);
+                            });
+                        });
+
+                        mediaItem.addEventListener('mouseleave', function() {
+                            video.pause();
+                            video.currentTime = 0; // Reset to start
+                        });
+                    }
+                }
+
+                mediaGallery.querySelectorAll('.media-item').forEach(setupMediaItem);
             }
 
             @if ($isRoot)
                 const enterpriseSelect = document.querySelector('select[name="enterprise_id"]');
-                if (enterpriseSelect && mediaSelect && selectedMediaDiv && userSelect) {
+                if (enterpriseSelect && mediaGallery && userSelect) {
                     enterpriseSelect.addEventListener('change', function() {
                         const enterpriseId = this.value;
                         if (enterpriseId) {
@@ -460,28 +409,46 @@
                                     return response.json();
                                 })
                                 .then(data => {
-                                    mediaSelect.innerHTML = '<option value="">Select a Media</option>';
-                                    selectedMediaDiv.innerHTML = '';
+                                    mediaGallery.innerHTML = '';
                                     if (!data.data || data.data.length === 0) {
-                                        mediaSelect.innerHTML +=
-                                            '<option value="">No media available</option>';
+                                        mediaGallery.innerHTML =
+                                            '<div class="col-span-full p-2 text-gray-500">No media available</div>';
                                         return;
                                     }
 
                                     data.data.forEach(media => {
-                                        mediaSelect.innerHTML += `
-                                            <option value="${media.id}"
+                                        const isChecked = @json(old('media_ids', [])).includes(
+                                                media.id) ?
+                                            'checked' :
+                                            '';
+                                        const isVideo = media.type && (media.type.toLowerCase()
+                                            .includes('video') || media.type === 'mp4');
+                                        mediaGallery.innerHTML += `
+                                            <div class="media-item border rounded p-2 cursor-pointer"
+                                                data-id="${media.id}"
                                                 data-name="${media.name}"
                                                 data-type="${media.type}"
                                                 data-url="${media.media_url}">
-                                                ${media.name} (${media.type})
-                                            </option>`;
+                                                <div class="flex items-center mb-2">
+                                                    <input type="checkbox" name="media_ids[]" value="${media.id}"
+                                                        class="mr-2 media-checkbox" ${isChecked}>
+                                                    <span class="text-sm truncate">${media.name} (${media.type})</span>
+                                                </div>
+                                                <div class="media-preview">
+                                                    ${isVideo
+                                                        ? `<video src="${media.media_url}" class="w-full h-24 object-cover" muted></video>`
+                                                        : `<a href="${media.media_url}" target="_blank" class="text-blue-600 hover:underline text-sm">View File</a>`}
+                                                </div>
+                                            </div>`;
                                     });
+
+                                    mediaGallery.querySelectorAll('.media-item').forEach(
+                                        setupMediaItem);
                                 })
                                 .catch(error => {
                                     console.error('Error fetching media:', error);
-                                    mediaSelect.innerHTML =
-                                        '<option value="">Error loading media</option>';
+                                    mediaGallery.innerHTML =
+                                        '<div class="col-span-full p-2 text-gray-500">Error loading media</div>';
                                 });
 
                             fetch(`/campaign/users-by-enterprise/${enterpriseId}`, {
@@ -519,8 +486,8 @@
                                         error.message + '</option>';
                                 });
                         } else {
-                            mediaSelect.innerHTML = '<option value="">Select a Media</option>';
-                            selectedMediaDiv.innerHTML = '';
+                            mediaGallery.innerHTML =
+                                '<div class="col-span-full p-2 text-gray-500">No media available</div>';
                             userSelect.innerHTML = '<option value="">Select a User</option>';
                         }
                     });
