@@ -60,13 +60,24 @@
                             </div>
                             <div>
                                 <h3 class="mt-2 py-2 text-sm font-bold py-2 w-full">{{__('rt-analytics-rules.object-types')}}</h3>
-                                <div class="flex flex-col gap-4">
+                                <div class="flex flex-col w-full">
                                     @foreach(DetectedObject::cases() as $type)
-                                        <div class="flex items-center gap-2 cursor-pointer">
-                                            <input type="checkbox" name="detect_objects"
+                                        <div
+                                            x-data
+                                            @mouseover="
+                                                const label = $refs['objectTypeLabel_{{ $type->value }}'];
+                                                if (label) label.classList.add('font-bold');
+                                            "
+                                            @mouseleave="
+                                                const label = $refs['objectTypeLabel_{{ $type->value }}'];
+                                                if (label) label.classList.remove('font-bold');
+                                            "
+                                            class="flex items-center gap-2 cursor-pointer hover:scale-105 duration-100 p-4 w-full">
+                                            <input type="checkbox" name="detect_objects" x-data
                                                    id="object_type_{{ $type->value }}"
                                                    value="{{ $type->value }}">
-                                            <label class="cursor-pointer"
+                                            <label class="cursor-pointer flex-grow ml-1"
+                                                   x-ref="objectTypeLabel_{{ $type->value }}"
                                                    for="object_type_{{ $type->value }}">{{ $type->value }}</label>
                                         </div>
                                     @endforeach
@@ -572,7 +583,7 @@
 
                                 // Modal thông báo xóa thành công
                                 Swal.fire({
-                                    title:'{{__("rt-analytics-rules.delete.modal.title-success")}}',
+                                    title: '{{__("rt-analytics-rules.delete.modal.title-success")}}',
                                     text: '{{__("rt-analytics-rules.delete.modal.text-error")}}',
                                     icon: 'success',
                                     time: 1200,

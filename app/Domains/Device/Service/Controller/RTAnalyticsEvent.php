@@ -2,10 +2,7 @@
 
 namespace App\Domains\Device\Service\Controller;
 
-use App\Domains\Device\Enums\DetectedObject;
-use App\Domains\Device\Enums\RuleType;
 use App\Domains\Device\Model\Device;
-use App\Domains\Device\Model\DeviceCvedixrtEvent;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -37,7 +34,7 @@ class RTAnalyticsEvent extends ControllerAbstract
 
     protected function events(): Collection
     {
-        return DeviceCvedixrtEvent::query()
+        return $this->row->events()
             ->byInstance((int)$this->request->input('instance_id'))
             ->byRule((int)$this->request->input('rule_id'))
             ->byRuleType($this->request->input('rule_type'))
@@ -57,28 +54,66 @@ class RTAnalyticsEvent extends ControllerAbstract
         );
     }
 
-    protected function rules()
+    protected function rules(): Collection
     {
-        return $this->row->allInstanceRules->map(
-            fn ($rule) => [
-                'id' => $rule->id,
-                'name' => $rule->name,
-            ]
-        );
+        $instanceId = $this->request->input('instance_id');
+        $query = $this->row->instances();
+
+        if ($instanceId) {
+            $query->whereHas('instanceRules', fn ($q) => $q->where('device_cvedixrt_instance_id', (int)$instanceId));
+        }
+
+        return $query->get()->flatMap(function ($instance) {
+            $instanceRules = $instance->instanceRules ?? collect();
+
+            return collect($instanceRules)->map(function ($rule) {
+                return [
+                    'id' => $rule->id,
+                    'name' => $rule->name,
+                ];
+            });
+        });
     }
 
     protected function ruleTypes(): Collection
     {
-        return collect(RuleType::cases())->map(function ($case) {
-            return ['name' => $case->value, 'value' => ucfirst(str_replace('_', ' ', $case->value))];
-        });
+        // lấy trực tiếp giá trị 'event_type' trong event
+        $instanceId = $this->request->input('instance_id');
+        $ruleId = $this->request->input('rule_id');
+        $query = $this->row->events()
+            ->byInstance((int)$instanceId)
+            ->byRule((int)$ruleId);
+
+        return $query->get()
+            ->unique('event_type')
+            ->map(function ($rule) {
+                return [
+                    'name' => $rule->event_type,
+                    'value' => ucfirst(str_replace('_', ' ', $rule->event_type)),
+                ];
+            });
+
     }
 
     protected function detectedObjects(): Collection
     {
-        return collect(DetectedObject::cases())->map(fn ($case) => [
-            'name' => $case->value,
-            'value' => ucfirst(str_replace('_', ' ', $case->value)),
-        ]);
+        // lấy trực tiếp giá trị 'detected_object' trong event
+        $instanceId = $this->request->input('instance_id');
+        $ruleId = $this->request->input('rule_id');
+        $ruleType = $this->request->input('rule_type');
+
+        $query = $this->row->events()
+            ->byInstance((int)$instanceId)
+            ->byRule((int)$ruleId)
+            ->byRuleType($ruleType);
+
+        return $query->get()
+            ->unique('detected_object')
+            ->map(function ($event) {
+                return [
+                    'name' => $event->detected_object,
+                    'value' => ucfirst(str_replace('_', ' ', $event->detected_object)),
+                ];
+            });
     }
 }

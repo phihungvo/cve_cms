@@ -289,4 +289,9 @@ class Device extends ModelAbstract
             DeviceCvedixrtInstance::PRIMARY_KEY // Local key on DeviceCvedixrtInstance table...
         );
     }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(DeviceCvedixrtEvent::class, self::FOREIGN_KEY);
+    }
 }

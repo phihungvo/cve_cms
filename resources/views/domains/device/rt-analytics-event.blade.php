@@ -3,9 +3,7 @@
 @endphp
 @extends('domains.device.rt-analytics-layout')
 @section('content-analytics')
-
     <div class=" intro-y box p-5 mt-5">
-
         <form method="get" class="mb-5">
             <div class="lg:flex lg:space-x-4">
                 <!-- Select Instance -->
@@ -66,7 +64,7 @@
                     ? Carbon::parse($item->created_at)->setTimezone('Asia/Ho_Chi_Minh') : 'N/A';
                 @endphp
                 <div class="flex flex-col justify-center p-2 border border-gray-500 rounded-sm bg-white
-                shadow-md hover:shadow-xl hover:scale-105 duration-200">
+                shadow-md hover:shadow-xl">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex gap-1 items-center">
                             @if($item->detected_object == DetectedObject::PERSON->value)
@@ -121,7 +119,7 @@
 
                     <div class="overflow-hidden mb-2" style="aspect-ratio: 1/1; width: 100%;">
                         <img onclick="showModalVideo('{{$item->video_url}}')"
-                             class="w-full h-full object-cover mb-2 cursor-pointer"
+                             class="w-full h-full object-cover mb-2 cursor-pointer hover:scale-105 duration-200"
                              src="{{$item->image_url}}" alt="Hình ảnh"/>
                     </div>
                     <div class="">
@@ -300,6 +298,16 @@
         }
 
         function showModalVideo(videoUrl) {
+            if (!videoUrl) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No video available',
+                    text: 'Video URL is missing or invalid.',
+                    confirmButtonText: 'Close',
+                    confirmButtonColor: '#0d6efd',
+                });
+                return;
+            }
             Swal.fire({
                 html: `
                     <video controls autoplay class="w-full h-full object-cover">
@@ -316,7 +324,5 @@
                 confirmButtonColor: '#0d6efd',
             });
         }
-
-
     </script>
 @endpush
