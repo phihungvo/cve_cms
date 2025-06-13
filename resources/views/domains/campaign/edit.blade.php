@@ -89,7 +89,7 @@
                             <a href="#" id="upload-link" class="text-blue-600 hover:underline"
                                 onclick="document.getElementById('media-files').click();">{{ __('Upload') }}</a>
                         </div>
-                        <div id="media-gallery" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div id="media-gallery" class="grid grid-cols-6 gap-4">
                             @foreach ($media as $mediaItem)
                                 @php
                                     $type = strtolower($mediaItem->type);
@@ -254,20 +254,8 @@
             border-radius: 4px;
         }
 
-        .grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .md\:grid-cols-3 {
-            @media (min-width: 768px) {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
-
-        .lg\:grid-cols-4 {
-            @media (min-width: 1024px) {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-            }
+        .grid-cols-6 {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
         }
     </style>
 @stop
