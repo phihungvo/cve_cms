@@ -173,7 +173,7 @@ return [
         App\Providers\Debug::class,
         App\Providers\Route::class,
         App\Providers\View::class,
-
+        App\Domains\Mail\Providers\MailServiceProvider::class,
     ],
 
     /*
