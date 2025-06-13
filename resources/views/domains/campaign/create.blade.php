@@ -3,6 +3,19 @@
 @section('body')
     <div class="tab-content">
         <div class="tab-pane active" role="tabpanel">
+            <!-- Thông báo thành công hoặc lỗi -->
+            @if (session()->has('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session()->get('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @elseif (session()->has('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session()->get('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Form Upload Media -->
             <form method="POST" action="{{ route('fpp.media.create') }}" enctype="multipart/form-data" id="upload-form">
                 @csrf
@@ -14,20 +27,16 @@
             <form method="POST" action="{{ route('campaign.store') }}" class="needs-validation" novalidate>
                 @csrf
                 <div class="box p-5">
-                    <!-- Name -->
-                    <div class="row justify-between">
-                        <div class="col-md-12">
+                    <!-- Name, Enterprise, User -->
+                    <div class="row align-items-start">
+                        <div class="col-md-4">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.name') }}</label>
                                 <input type="text" name="name" class="form-control" value="{{ old('name') }}"
                                     required>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Enterprise -->
-                    <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-4">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.enterprise') }}</label>
                                 @php
@@ -50,32 +59,18 @@
                                 @endif
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Users -->
-                    <div class="form-group mb-3">
-                        <label class="form-label">{{ __('campaign-index.users') }}</label>
-                        <select id="user-select" class="form-control">
-                            <option value="">Select a User</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                            @endforeach
-                        </select>
-                        <div id="selected-users" class="mt-2">
-                            @if (old('user_ids'))
-                                @foreach (old('user_ids') as $userId)
-                                    @php
-                                        $user = $users->find($userId);
-                                    @endphp
-                                    @if ($user)
-                                        <div class="selected-user" data-id="{{ $user->id }}">
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label class="form-label">{{ __('campaign-index.users') }}</label>
+                                <select id="user-select" name="user_ids[]" class="form-control select2" multiple required>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->id }}"
+                                            {{ in_array($user->id, old('user_ids', [])) ? 'selected' : '' }}>
                                             {{ $user->name }} ({{ $user->email }})
-                                            <button type="button" class="btn btn-danger btn-sm remove-user">X</button>
-                                            <input type="hidden" name="user_ids[]" value="{{ $user->id }}">
-                                        </div>
-                                    @endif
-                                @endforeach
-                            @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -117,47 +112,47 @@
                         </div>
                     </div>
 
-                    <!-- Start Time và End Time -->
-                    <div class="row justify-between">
-                        <div class="col-md-6">
+                    <!-- Start Time, End Time, Reach, Impression, Distance -->
+                    <div class="row align-items-start">
+                        <div class="col-md-2">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.start_time') }}</label>
                                 <input type="datetime-local" name="start_time" class="form-control"
                                     value="{{ old('start_time') }}" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-2">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.end_time') }}</label>
                                 <input type="datetime-local" name="end_time" class="form-control"
                                     value="{{ old('end_time') }}" required>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Reach, Impression, Distance, No Device -->
-                    <div class="row justify-between">
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.reach') }}</label>
                                 <input type="number" name="reach" class="form-control" value="{{ old('reach') }}"
                                     min="0" required>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.impression') }}</label>
                                 <input type="number" name="impression" class="form-control"
                                     value="{{ old('impression') }}" min="0" required>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.distance') }}</label>
                                 <input type="number" name="distance" class="form-control"
                                     value="{{ old('distance') }}" min="0" required>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Device, Budget, CPM, Location -->
+                    <div class="row align-items-start">
                         <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.no_device') }}</label>
@@ -165,36 +160,24 @@
                                     value="{{ old('no_device') }}" min="0" required>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Budget -->
-                    <div class="row justify-between">
-                        <div class="col-md-12">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.budget') }}</label>
                                 <input type="number" name="budget" class="form-control" value="{{ old('budget') }}"
                                     step="0.01" min="0" required>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- CPM -->
-                    <div class="row justify-between">
-                        <div class="col-md-12">
-                            <div class="form-group mb-3">
+                        <div class="col-md-3">
+                            <div class="form-group mb-3 highlight-cpm">
                                 <label class="form-label">{{ __('campaign-index.cpm') }}</label>
                                 <input type="number" name="cpm" class="form-control" value="{{ old('cpm') }}"
                                     min="0" required>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Location -->
-                    <div class="row justify-between">
-                        <div class="col-md-12">
+                        <div class="col-md-3">
                             <div class="form-group mb-3">
                                 <label class="form-label">{{ __('campaign-index.location') }}</label>
-                                <select name="location_id" class="form-control" required>
+                                <select name="location_id" class="form-control select2" required>
                                     <option value="">Select Location</option>
                                     @foreach ($locations as $location)
                                         <option value="{{ $location->id }}"
@@ -217,21 +200,6 @@
     </div>
 
     <style>
-        .selected-user {
-            margin: 5px 0;
-        }
-
-        .selected-user .remove-user {
-            margin-top: 8px;
-            background-color: #1F2A44;
-            border-color: #1F2A44;
-        }
-
-        .selected-user .remove-user:hover {
-            background-color: #2E3B5A;
-            border-color: #2E3B5A;
-        }
-
         .media-item {
             transition: transform 0.2s;
         }
@@ -252,12 +220,123 @@
         .grid-cols-6 {
             grid-template-columns: repeat(6, minmax(0, 1fr));
         }
+
+        /* Đảm bảo layout ngang và loại bỏ khoảng trắng thừa */
+        .row {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            margin-left: -5px !important;
+            margin-right: -5px !important;
+        }
+
+        .row .col-md-4,
+        .row .col-md-2,
+        .row .col-md-3 {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+
+        .row .col-md-4 {
+            flex: 0 0 33.3333% !important;
+            max-width: 33.3333% !important;
+        }
+
+        .row .col-md-2 {
+            flex: 0 0 20%quiet !important;
+            max-width: 20% !important;
+        }
+
+        .row .col-md-3 {
+            flex: 0 0 25% !important;
+            max-width: 25% !important;
+        }
+
+        @media (max-width: 767.98px) {
+
+            .row .col-md-4,
+            .row .col-md-2,
+            .row .col-md-3 {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+            }
+        }
+
+        /* Đảm bảo Select2 không phá vỡ layout */
+        .select2-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .select2-container .select2-selection--multiple,
+        .select2-container .select2-selection--single {
+            height: auto !important;
+            min-height: 38px !important;
+            padding: 0 !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            margin: 2px !important;
+            padding: 2px 5px !important;
+        }
+
+        /* Làm nổi bật ô CPM */
+        .highlight-cpm {
+            background-color: #fff3cd !important;
+            border: 2px solid #ffeb3b !important;
+            border-radius: 4px !important;
+            padding: 10px !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .highlight-cpm .form-control {
+            background-color: #fff3cd !important;
+            border-color: #ffeb3b !important;
+        }
+
+        /* Style cho thông báo */
+        .alert {
+            margin-bottom: 15px !important;
+            padding: 10px !important;
+            border-radius: 4px !important;
+        }
+
+        .alert-success {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724 !important;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24 !important;
+        }
+
+        .btn-close {
+            padding: 0.25rem 0.5rem !important;
+            line-height: 1 !important;
+        }
     </style>
 @stop
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Khởi tạo Select2 cho User và Location
+            $('#user-select').select2({
+                placeholder: "Select a User",
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#user-select').parent()
+            });
+            $('select[name="location_id"]').select2({
+                placeholder: "Select Location",
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('select[name="location_id"]').parent()
+            });
+
             const uploadFormContainer = document.getElementById('upload-form-container');
             const uploadForm = document.getElementById('upload-form');
             if (uploadFormContainer && uploadForm) {
@@ -304,42 +383,6 @@
                 });
             }
 
-            // Logic chọn user
-            const userSelect = document.getElementById('user-select');
-            const selectedUsersDiv = document.getElementById('selected-users');
-
-            if (userSelect && selectedUsersDiv) {
-                userSelect.addEventListener('change', function() {
-                    const userId = this.value;
-                    const userText = this.options[this.selectedIndex].text;
-
-                    if (userId && !selectedUsersDiv.querySelector(`[data-id="${userId}"]`)) {
-                        const userDiv = document.createElement('div');
-                        userDiv.className = 'selected-user';
-                        userDiv.dataset.id = userId;
-                        userDiv.innerHTML = `
-                            ${userText}
-                            <button type="button" class="btn btn-danger btn-sm remove-user">X</button>
-                            <input type="hidden" name="user_ids[]" value="${userId}">
-                        `;
-                        selectedUsersDiv.appendChild(userDiv);
-
-                        userDiv.querySelector('.remove-user').addEventListener('click', function() {
-                            userDiv.remove();
-                        });
-                    }
-
-                    this.value = '';
-                });
-
-                selectedUsersDiv.querySelectorAll('.remove-user').forEach(button => {
-                    button.addEventListener('click', function() {
-                        this.parentElement.remove();
-                    });
-                });
-            }
-
-            // Logic chọn media và hover video
             const mediaGallery = document.getElementById('media-gallery');
             if (mediaGallery) {
                 function updateMediaItemStyle(mediaItem) {
@@ -353,8 +396,6 @@
 
                 function setupMediaItem(mediaItem) {
                     updateMediaItemStyle(mediaItem);
-
-                    // Click to select
                     mediaItem.addEventListener('click', function(event) {
                         if (!event.target.classList.contains('media-checkbox')) {
                             const checkbox = mediaItem.querySelector('.media-checkbox');
@@ -367,7 +408,6 @@
                         updateMediaItemStyle(mediaItem);
                     });
 
-                    // Hover to play video
                     const video = mediaItem.querySelector('video');
                     if (video) {
                         mediaItem.addEventListener('mouseenter', function() {
@@ -378,7 +418,7 @@
 
                         mediaItem.addEventListener('mouseleave', function() {
                             video.pause();
-                            video.currentTime = 0; // Reset to start
+                            video.currentTime = 0;
                         });
                     }
                 }
@@ -388,7 +428,7 @@
 
             @if ($isRoot)
                 const enterpriseSelect = document.querySelector('select[name="enterprise_id"]');
-                if (enterpriseSelect && mediaGallery && userSelect) {
+                if (enterpriseSelect && mediaGallery && $('#user-select').length) {
                     enterpriseSelect.addEventListener('change', function() {
                         const enterpriseId = this.value;
                         if (enterpriseId) {
@@ -418,9 +458,7 @@
 
                                     data.data.forEach(media => {
                                         const isChecked = @json(old('media_ids', [])).includes(
-                                                media.id) ?
-                                            'checked' :
-                                            '';
+                                            media.id) ? 'checked' : '';
                                         const isVideo = media.type && (media.type.toLowerCase()
                                             .includes('video') || media.type === 'mp4');
                                         mediaGallery.innerHTML += `
@@ -468,27 +506,31 @@
                                     return response.json();
                                 })
                                 .then(data => {
-                                    userSelect.innerHTML = '<option value="">Select a User</option>';
+                                    $('#user-select').empty();
+                                    $('#user-select').append('<option value="">Select a User</option>');
                                     if (!data.data || data.data.length === 0) {
-                                        userSelect.innerHTML +=
-                                            '<option value="">No users available</option>';
-                                        return;
+                                        $('#user-select').append(
+                                            '<option value="">No users available</option>');
+                                    } else {
+                                        data.data.forEach(user => {
+                                            $('#user-select').append(
+                                                `<option value="${user.id}">${user.name} (${user.email})</option>`
+                                            );
+                                        });
                                     }
-
-                                    data.data.forEach(user => {
-                                        userSelect.innerHTML += `
-                                            <option value="${user.id}">${user.name} (${user.email})</option>`;
-                                    });
+                                    $('#user-select').val(@json(old('user_ids', []))).trigger(
+                                        'change');
                                 })
                                 .catch(error => {
                                     console.error('Error fetching users:', error);
-                                    userSelect.innerHTML = '<option value="">Error loading users: ' +
-                                        error.message + '</option>';
+                                    $('#user-select').html('<option value="">Error loading users: ' +
+                                        error.message + '</option>');
                                 });
                         } else {
                             mediaGallery.innerHTML =
                                 '<div class="col-span-full p-2 text-gray-500">No media available</div>';
-                            userSelect.innerHTML = '<option value="">Select a User</option>';
+                            $('#user-select').empty().append('<option value="">Select a User</option>')
+                                .trigger('change');
                         }
                     });
 
