@@ -12,4 +12,6 @@
     'success' => 'The device has been successfully updated',
     'user' => 'User',
     'enterprise' => 'Enterprise',
+    'image-report' => 'Odo Reports',
+    'campaign-report' => 'Campaign Reports',
 ];
