@@ -36,8 +36,15 @@ class Create extends CreateUpdateAbstract
                 $this->row->groups()->sync($this->data['groups']);
             });
         } catch (Throwable $e) {
-            logger()->error('Lỗi khi tạo User: ' . $e->getMessage());
+            logger()->error('Lỗi khi tạo User: '.$e->getMessage());
             throw new RuntimeException('Error creating User: '.$e->getMessage(), 0, $e);
         }
+    }
+
+    protected function dataRoleIds(): void
+    {
+        info('Test function info');
+        echo 'Test function echo';
+        $this->data['roles'] = $this->request->input('roles');
     }
 }

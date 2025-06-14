@@ -31,6 +31,7 @@ class Create extends ValidateAbstract
             'shared' => ['bail', 'boolean'],
             'shared_public' => ['bail', 'boolean'],
             'enable_ai' => ['bail', 'nullable', 'boolean'],
+            'instance_maximum' => ['bail', 'nullable', 'integer', 'min:0'],
         ];
     }
 }

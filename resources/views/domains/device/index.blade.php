@@ -56,11 +56,12 @@
                           placeholder="{{ __('device-index.select_vehicle') }}" data-change-submit></x-select>
             </div>
 
-                <div class="flex-grow mt-2 lg:mt-0">
-                    <x-select name="device_group_id" :options="$device_groups" value="id" text="name"
-                              class="cursor-pointer"
-                              placeholder="{{ __('device-group-index.select-device-group') }}" data-change-submit></x-select>
-                </div>
+            <div class="flex-grow mt-2 lg:mt-0">
+                <x-select name="device_group_id" :options="$device_groups" value="id" text="name"
+                          class="cursor-pointer"
+                          placeholder="{{ __('device-group-index.select-device-group') }}"
+                          data-change-submit></x-select>
+            </div>
         </div>
     </form>
 

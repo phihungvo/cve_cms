@@ -9,16 +9,15 @@ use Illuminate\Database\QueryException;
 class CreateInstance extends CreateUpdateInstanceAbstract
 {
     /**
+     * @return DeviceCvedixrtInstance
+     *
      * @throws Exception
-     *
-     * @return void
-     *
      * @overide
      */
-    protected function save(): void
+    protected function save(): DeviceCvedixrtInstance
     {
         try {
-            DeviceCvedixrtInstance::query()->create([
+         return  DeviceCvedixrtInstance::query()->create([
                 'uuid' => $this->data['uuid'],
                 'instance_name' => $this->data['instance_name'],
                 'device_id' => $this->row->id,

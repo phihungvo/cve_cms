@@ -1,3 +1,6 @@
+@php
+    use Illuminate\Support\Str;
+@endphp
 @extends('domains.device.update-layout')
 
 @section('nav-inner')
@@ -5,18 +8,19 @@
         <!-- List all Instance-->
         <a
             href="{{route('device.runtime-analytics', $row->id ?? $device->id)}}"
-            class="p-4 {{($ROUTE === 'device.runtime-analytics') ? 'active': ''}}">All Instance</a>
+            class="p-4
+            {{(Str::is('device.runtime-analytics*', $ROUTE)) ? 'active': ''}}">
+            All Instance
+        </a>
         <!-- List all Solution-->
         <a href="{{route('solution.index')}}?deviceId={{ $row->id ?? $device->id }}"
            class="p-4
-{{--           {{($ROUTE === 'solution.index') ? 'active': ''}}--}}
-           {{(Illuminate\Support\Str::is('solution.*', $ROUTE)) ? 'active': ''}}
+           {{(Str::is('solution.*', $ROUTE)) ? 'active': ''}}
            ">All Solution</a>
         <!-- List all Group-->
         <a href="{{route('group.index')}}?deviceId={{ $row->id ?? $device->id}}"
            class="p-4
-{{--           {{($ROUTE === 'group.index') ? 'active': ''}}--}}
-           {{(Illuminate\Support\Str::is('group.*', $ROUTE)) ? 'active': ''}}
+           {{(Str::is('group.*', $ROUTE)) ? 'active': ''}}
            ">All Group</a>
     </div>
 @endsection

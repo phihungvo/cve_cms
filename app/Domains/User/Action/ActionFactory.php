@@ -8,12 +8,12 @@ use App\Domains\User\Model\User as Model;
 class ActionFactory extends ActionFactoryAbstract
 {
     /**
-     * @var ?\App\Domains\User\Model\User
+     * @var ?Model
      */
     protected ?Model $row;
 
     /**
-     * @return \App\Domains\User\Model\User
+     * @return Model
      */
     public function authApi(): Model
     {
@@ -21,7 +21,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\User\Model\User
+     * @return Model
      */
     public function authCredentials(): Model
     {
@@ -30,7 +30,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\User\Model\User
+     * @return Model
      */
     public function authModel(): Model
     {
@@ -38,7 +38,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\User\Model\User
+     * @return Model
      */
     public function create(): Model
     {
@@ -62,7 +62,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\User\Model\User
+     * @return Model
      */
     public function request(): Model
     {
@@ -70,7 +70,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\User\Model\User
+     * @return Model
      */
     public function set(): Model
     {
@@ -78,7 +78,7 @@ class ActionFactory extends ActionFactoryAbstract
     }
 
     /**
-     * @return \App\Domains\User\Model\User
+     * @return Model
      */
     public function update(): Model
     {

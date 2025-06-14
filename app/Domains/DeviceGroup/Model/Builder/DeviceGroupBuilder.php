@@ -20,7 +20,7 @@ class DeviceGroupBuilder extends BuilderAbstract
 
     public function roleOwner(): self
     {
-        if (auth()->user()->isOwner()) {
+        if (auth()->user()?->isOwner() || auth()->user()?->enterprise_id) {
             return $this->where('enterprise_id', auth()->user()->enterprise_id)
                 ->withTrashed();
         }

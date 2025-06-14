@@ -9,6 +9,7 @@ RUN apt-get update && apt-get upgrade -y && \
         libbz2-dev \
         libicu-dev \
         libgd-dev \
+        libjpeg62-turbo-dev \
         libonig-dev \
         libxslt-dev \
         libzip-dev \
@@ -40,18 +41,19 @@ RUN pecl channel-update pecl.php.net || true && \
     docker-php-ext-enable redis
 
 # Install PHP extensions
-RUN docker-php-ext-install \
-    bcmath \
-    bz2 \
-    intl \
-    mbstring \
-    opcache \
-    pdo_mysql \
-    pcntl \
-    sockets \
-    xsl \
-    zip \
-    gd
+RUN docker-php-ext-configure gd --with-jpeg && \
+    docker-php-ext-install \
+        bcmath \
+        bz2 \
+        intl \
+        mbstring \
+        opcache \
+        pdo_mysql \
+        pcntl \
+        sockets \
+        xsl \
+        zip \
+        gd
 
 # Copy configuration files
 COPY ./docker/php.ini /usr/local/etc/php/

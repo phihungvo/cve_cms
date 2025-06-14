@@ -31,8 +31,23 @@ class Update extends CreateUpdateAbstract
                 $this->row->groups()->sync($this->data['groups']);
             });
         } catch (Throwable $e) {
-            logger()->error('Lỗi khi cập nhật User: ' . $e->getMessage());
+            logger()->error('Lỗi khi cập nhật User: '.$e->getMessage());
             throw new RuntimeException('Error updating User: '.$e->getMessage(), 0, $e);
+        }
+    }
+
+    protected function dataRoleIds(): void
+    {
+        if ($this->auth->enterprise_id == $this->row->enterprise_id) {
+            # co quyen sua
+            if ($this->request->input('roles')) {
+                $this->data['roles'] = $this->request->input('roles');
+            } else {
+                $this->data['roles'] = [];
+            }
+        } else {
+            # khong co quyen sua
+            $this->data['roles'] = null;
         }
     }
 }

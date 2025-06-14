@@ -12,6 +12,7 @@ use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class Index extends ControllerAbstract
 {
@@ -34,7 +35,17 @@ class Index extends ControllerAbstract
             $this->sessionMessage('error', __('notification-delete.invalid-id'));
             return redirect()->route('notification.index');
         }
-        $notificationId = (int) $notificationId; // Ép kiểu thành int
+        $notificationId = (int) $notificationId;
+
+        // Kiểm tra quyền xóa
+        $query = Notification::query()->newQuery();
+        $query->filterByPermission('access-notification-delete')
+            ->where('id', $notificationId);
+        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$query->exists()) {
+            $this->sessionMessage('error', __('notification-delete.no-permission'));
+            return redirect()->route('notification.index');
+        }
+
         $action = new Delete();
         $result = $action->handle($notificationId, $this->auth);
 
@@ -44,10 +55,12 @@ class Index extends ControllerAbstract
     public function restore($id): RedirectResponse
     {
         try {
-            $user = $this->auth;
-
-            if (!$user->hasRole('root') && !$user->isOwner()) {
-                $this->sessionMessage('error', __('notification-restore.no-permission-owner'));
+            // Kiểm tra quyền khôi phục
+            $query = Notification::query()->newQuery();
+            $query->filterByPermission('access-notification-restore')
+                ->where('id', $id);
+            if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$query->exists()) {
+                $this->sessionMessage('error', __('notification-restore.no-permission'));
                 return redirect()->route('notification.index');
             }
 
@@ -65,8 +78,18 @@ class Index extends ControllerAbstract
             return redirect()->route('notification.index');
         }
     }
+
     public function forceDelete($id): RedirectResponse
     {
+        // Kiểm tra quyền xóa vĩnh viễn
+        $query = Notification::query()->newQuery();
+        $query->filterByPermission('access-notification-force-delete')
+            ->where('id', $id);
+        if (!$this->auth->hasRole('root') && !$this->auth->isOwner() && !$query->exists()) {
+            $this->sessionMessage('error', __('notification-delete.no-permission'));
+            return redirect()->route('notification.index');
+        }
+
         $action = new Delete();
         $result = $action->forceDelete((int) $id, $this->auth);
 
@@ -78,15 +101,13 @@ class Index extends ControllerAbstract
         try {
             $user = $this->auth;
 
-            // Root không được phép đánh dấu đã đọc
             if ($user->hasRole('root')) {
                 $this->sessionMessage('error', __('notification-read.no-permission-root'));
                 return redirect()->route('notification.index');
             }
 
-            $userId = $user->id;
             $userNotification = UserNotification::where('notification_id', $id)
-                ->where('user_id', $userId)
+                ->where('user_id', $user->id)
                 ->first();
 
             if (!$userNotification) {
@@ -100,6 +121,7 @@ class Index extends ControllerAbstract
             }
 
             $userNotification->update(['read_at' => now()]);
+            Cache::forget("unread_notifications_{$user->id}");
 
             $this->sessionMessage('success', __('notification-read.success'));
             return redirect()->route('notification.index');
@@ -113,14 +135,16 @@ class Index extends ControllerAbstract
     {
         try {
             $user = $this->auth;
-            $notification = Notification::withTrashed() // Hiển thị cả thông báo đã soft delete cho Root
+            $notificationQuery = Notification::query()->newQuery();
+            $notificationQuery->filterByPermission('access-notification-list')
+                ->where('id', $id);
+            $notification = $notificationQuery->withTrashed()
                 ->with([
                     'sender',
                     'enterprise',
                     'userNotifications',
                     'userNotifications.user'
                 ])
-                ->where('id', $id)
                 ->first();
 
             if (!$notification) {
@@ -128,13 +152,14 @@ class Index extends ControllerAbstract
                 return redirect()->route('notification.index');
             }
 
-            // Kiểm tra quyền truy cập
+            // Kiểm tra quyền xem thông báo
             $hasAccess = $user->hasRole('root') || (
                 $notification->userNotifications->where('user_id', $user->id)->isNotEmpty() ||
                 ($notification->notification_type === 'system' && (
                     !$notification->target_group || in_array($notification->target_group, $user->roles->pluck('name')->toArray())
                 )) ||
-                ($notification->notification_type === 'enterprise' && $notification->enterprise_id === $user->enterprise_id)
+                ($notification->notification_type === 'enterprise' && $notification->enterprise_id === $user->enterprise_id) ||
+                $user->hasPermission('access-notification-list')
             );
 
             if (!$hasAccess) {
@@ -146,14 +171,13 @@ class Index extends ControllerAbstract
             $userNotification = $notification->userNotifications->firstWhere('user_id', $user->id);
             if ($userNotification && !$userNotification->read_at && !$user->hasRole('root')) {
                 $userNotification->update(['read_at' => now()]);
+                Cache::forget("unread_notifications_{$user->id}");
             }
 
-            // Lấy danh sách user không phải Root
             $nonRootUsers = $notification->userNotifications->filter(function ($userNotification) {
                 return !$userNotification->user || !$userNotification->user->hasRole('root');
             });
 
-            // Đếm số lượng user không phải Root đã đọc và tổng số user không phải Root nhận thông báo
             $totalUsers = $nonRootUsers->count();
             $readUsers = $nonRootUsers->whereNotNull('read_at')->count();
 
@@ -189,23 +213,22 @@ class Index extends ControllerAbstract
         try {
             $user = $this->auth;
 
-            // Kiểm tra quyền truy cập (chỉ root hoặc người gửi thông báo)
-            if (!$user->hasRole('root') && $user->id !== Notification::findOrFail($id)->sender_id) {
+            // Kiểm tra quyền truy cập
+            $query = Notification::query()->newQuery();
+            $query->filterByPermission('access-notification-list')
+                ->where('id', $id);
+            if (!$user->hasRole('root') && $user->id !== Notification::findOrFail($id)->sender_id && !$query->exists()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => __('notification-show.no-permission'),
                 ], 403);
             }
 
-            // Lấy thông báo
             $notification = Notification::with(['devices'])->findOrFail($id);
-
-            // Lấy danh sách thiết bị liên quan từ bảng display
             $displays = \App\Domains\Display\Model\Display::where('notification_id', $id)->get();
 
-            // Đếm số lượng thiết bị đã gửi và đã đọc
             $totalSent = $displays->count();
-            $totalRead = $displays->where('notification_published', 1)->count(); // Giả sử notification_published = 1 là đã đọc
+            $totalRead = $displays->where('notification_published', 1)->count();
 
             return response()->json([
                 'status' => 'success',
@@ -225,6 +248,30 @@ class Index extends ControllerAbstract
             ], 500);
         }
     }
+
+    public function unreadCount(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $userId = $this->auth->id;
+            $unreadCount = Cache::remember("unread_notifications_{$userId}", 60, function () use ($userId) {
+                return UserNotification::where('user_id', $userId)
+                    ->whereNull('read_at')
+                    ->count();
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => ['unread_count' => $unreadCount],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching unread notification count: ', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Failed to fetch unread count') . ': ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     protected function redirectResult(array $result, string $route): RedirectResponse
     {
         if ($result['success']) {
