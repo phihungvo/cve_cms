@@ -15,7 +15,7 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
     /**
      * @const string
      */
-    const PRIMARY = 'id';
+    const PRIMARY_KEY = 'id';
 
     /**
      * @var string
@@ -30,7 +30,7 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
     /**
      * @const string
      */
-    public const FOREIGN = 'cvedixrt_instance_rule_id';
+    public const FOREIGN_KEY = 'instance_rule_id';
 
     public $timestamps = true;
 

@@ -28,4 +28,12 @@ class CvedixrtInstanceBuilder extends BuilderAbstract
 
         return $this->where('group_id', $groupId);
     }
+
+    /**
+     * @return self
+     */
+    public function listSimple(): self
+    {
+        return $this->select('id', 'name')->orderBy('name', 'ASC');
+    }
 }
