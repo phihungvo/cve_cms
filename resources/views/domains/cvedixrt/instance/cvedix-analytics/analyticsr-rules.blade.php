@@ -515,9 +515,10 @@
                             rule_id: ruleId,
                         })
                     })
-                        .then(response => {
+                        .then(async response => {
                             if (!response.ok) {
-                                throw new Error('Network response was not ok');
+                                const data = await response.json();
+                                throw new Error(data.message || 'Không thể xóa rule');
                             }
                             return response.json();
                         })
@@ -536,13 +537,17 @@
                                 icon: 'success',
                                 title: 'Thành công',
                                 text: 'Đã xóa rule',
-                                timer: 1200
+                                timer: 1200,
+                                showConfirmButton: false
                             });
                         })
                         .catch(error => {
                             Swal.fire({
                                 icon: 'error',
-                                title: '{{ __('cvedixt-analytic.error_deleting_rule') }}',
+                                title: "Delete Rule Error",
+                                text: error.message,
+                                timer: 1200,
+                                showConfirmButton: false
                             });
                         });
                 }
@@ -559,8 +564,6 @@
             buttons.forEach(btn => {
                 btn.addEventListener('click', e => {
                     e.preventDefault();
-                    // Reset trạng thái rule đã chọn
-                    selectedAddedRule = null;
 
                     buttons.forEach(b => {
                         b.classList.remove('bg-blue-500', 'text-white');
@@ -570,28 +573,34 @@
                     btn.classList.add('bg-blue-500', 'text-white');
                     selectedRuleType = btn.dataset.ruleType;
 
-                    // Reset form và UI state
-                    ruleNameEl.value = '';
-                    detectObjectsCheckboxes.forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
+                    if(selectedAddedRule != null){
+                        // Reset form và UI state
+                        ruleNameEl.value = '';
+                        detectObjectsCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                        // Reset trạng thái active của các rule items
+                        ruleItemsEl.forEach(el => {
+                            el.classList.remove('bg-blue-500', 'text-white');
+                            el.classList.add('bg-white');
+                        });
 
-                    // Reset trạng thái active của các rule items
-                    ruleItemsEl.forEach(el => {
-                        el.classList.remove('bg-blue-500', 'text-white');
-                        el.classList.add('bg-white');
-                    });
+                        // Xóa shapes trong canvas
+                        window.shapes = [];
+                        window.tempShapes = [];
+                        window.tempShapesToSave = null;
+                        if (window.DrawingTool) {
+                            window.DrawingTool.loadShapesFromServer(null);
+                        }
+                    }
+
+                    // Reset trạng thái rule đã chọn
+                    selectedAddedRule = null;
 
                     const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Add +';
 
-                    // Xóa shapes trong canvas
-                    window.shapes = [];
-                    window.tempShapes = [];
-                    window.tempShapesToSave = null;
-                    if (window.DrawingTool) {
-                        window.DrawingTool.loadShapesFromServer(null);
-                    }
+
                 });
             });
         });

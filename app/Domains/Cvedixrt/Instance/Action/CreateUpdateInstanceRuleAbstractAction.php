@@ -6,7 +6,7 @@ use App\Domains\Cvedixrt\Instance\Model\CvedixrtInstanceRuleModel as InstanceRul
 
 abstract class CreateUpdateInstanceRuleAbstractAction extends ActionAbstract
 {
-    abstract protected function save(): InstanceRule;
+    abstract protected function save(): void;
 
     public function handle(): InstanceRule
     {

@@ -1,8 +1,10 @@
 @php
-    use App\Domains\Device\Enums\DetectedObject;use Carbon\Carbon;
+    use Illuminate\Support\Carbon;
+    use App\Domains\Cvedixrt\Instance\Enums\DetectedObject;
 @endphp
-@extends('domains.device.rt-analytics-layout')
-@section('content-analytics')
+@extends('layouts.in')
+
+@section('body')
     <div class=" intro-y box p-5 mt-5">
         <form method="get" class="mb-5">
             <div class="lg:flex lg:space-x-4">
@@ -10,27 +12,27 @@
                 <div class="flex-grow mt-5 lg:mt-0">
                     <x-select name="instance_id" :options="$instances" value="id" text="name"
                               class="form-control form-control-lg cursor-pointer hover:border-gray-600 duration-200"
-                              placeholder="{{__('--Select Instance --')}}" data-change-submit></x-select>
+                              placeholder="{{__('cvedixrt-event-index.select-instance')}}" data-change-submit></x-select>
                 </div>
                 <!-- Select Rule -->
                 <div class="flex-grow mt-5 lg:mt-0">
                     <x-select name="rule_id" :options="$rules" value="id" text="name"
                               class="form-control form-control-lg cursor-pointer hover:border-gray-600 duration-200"
-                              placeholder="{{__('--Select Rule --')}}" data-change-submit></x-select>
+                              placeholder="{{__('cvedixrt-event-index.select-rule')}}" data-change-submit></x-select>
                 </div>
 
                 <!-- Select Rule Type -->
                 <div class="flex-grow mt-5 lg:mt-0">
                     <x-select name="rule_type" :options="$ruleTypes" value="name" text="value"
                               class="form-control form-control-lg cursor-pointer hover:border-gray-600 duration-200"
-                              placeholder="{{__('--Select Rule Type --')}}" data-change-submit></x-select>
+                              placeholder="{{__('cvedixrt-event-index.select-rule-type')}}" data-change-submit></x-select>
                 </div>
 
                 <!-- Select Detected Object -->
                 <div class="flex-grow mt-5 lg:mt-0">
                     <x-select name="detected_object" :options="$detectedObjects" value="name" text="value"
                               class="form-control form-control-lg cursor-pointer hover:border-gray-600 duration-200"
-                              placeholder="{{__('--Select Detected Object --')}}" data-change-submit></x-select>
+                              placeholder="{{__('cvedixrt-event-index.select-detected-object')}}" data-change-submit></x-select>
                 </div>
 
                 <!-- Input start date -->
@@ -58,27 +60,31 @@
         </form>
 
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-5 lg:mt-0">
-            @foreach($events as $item)
+            @foreach($list as $row)
                 @php
-                    $createdAt = isset($item->created_at)
-                    ? Carbon::parse($item->created_at)->setTimezone('Asia/Ho_Chi_Minh') : 'N/A';
+                    $createdAt = isset($row->created_at)
+                    ? Carbon::parse($row->created_at)->setTimezone('Asia/Ho_Chi_Minh') : 'N/A';
                 @endphp
                 <div class="flex flex-col justify-center p-2 border border-gray-500 rounded-sm bg-white
                 shadow-md hover:shadow-xl">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex gap-1 items-center">
-                            @if($item->detected_object == DetectedObject::PERSON->value)
+                            @if($row->detected_object == DetectedObject::PERSON->value)
                                 {{--                            icon person--}}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-bounding-box" viewBox="0 0 16 16">
-                                    <path d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5M.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-person-bounding-box" viewBox="0 0 16 16">
+                                    <path
+                                        d="M1.5 1a.5.5 0 0 0-.5.5v3a.5.5 0 0 1-1 0v-3A1.5 1.5 0 0 1 1.5 0h3a.5.5 0 0 1 0 1zM11 .5a.5.5 0 0 1 .5-.5h3A1.5 1.5 0 0 1 16 1.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 1-.5-.5M.5 11a.5.5 0 0 1 .5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 1 0 1h-3A1.5 1.5 0 0 1 0 14.5v-3a.5.5 0 0 1 .5-.5m15 0a.5.5 0 0 1 .5.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a.5.5 0 0 1 0-1h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 1 .5-.5"/>
                                     <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                                 </svg>
-                            @elseif($item->detected_object == DetectedObject::VEHICLE->value)
+                            @elseif($row->detected_object == DetectedObject::VEHICLE->value)
                                 {{--                                icon vehicle--}}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bus-front-fill" viewBox="0 0 16 16">
-                                    <path d="M16 7a1 1 0 0 1-1 1v3.5c0 .818-.393 1.544-1 2v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5V14H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2a2.5 2.5 0 0 1-1-2V8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1V2.64C1 1.452 1.845.408 3.064.268A44 44 0 0 1 8 0c2.1 0 3.792.136 4.936.268C14.155.408 15 1.452 15 2.64V4a1 1 0 0 1 1 1zM3.552 3.22A43 43 0 0 1 8 3c1.837 0 3.353.107 4.448.22a.5.5 0 0 0 .104-.994A44 44 0 0 0 8 2c-1.876 0-3.426.109-4.552.226a.5.5 0 1 0 .104.994M8 4c-1.876 0-3.426.109-4.552.226A.5.5 0 0 0 3 4.723v3.554a.5.5 0 0 0 .448.497C4.574 8.891 6.124 9 8 9s3.426-.109 4.552-.226A.5.5 0 0 0 13 8.277V4.723a.5.5 0 0 0-.448-.497A44 44 0 0 0 8 4m-3 7a1 1 0 1 0-2 0 1 1 0 0 0 2 0m8 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m-7 0a1 1 0 0 0 1 1h2a1 1 0 1 0 0-2H7a1 1 0 0 0-1 1"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-bus-front-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="M16 7a1 1 0 0 1-1 1v3.5c0 .818-.393 1.544-1 2v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5V14H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2a2.5 2.5 0 0 1-1-2V8a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1V2.64C1 1.452 1.845.408 3.064.268A44 44 0 0 1 8 0c2.1 0 3.792.136 4.936.268C14.155.408 15 1.452 15 2.64V4a1 1 0 0 1 1 1zM3.552 3.22A43 43 0 0 1 8 3c1.837 0 3.353.107 4.448.22a.5.5 0 0 0 .104-.994A44 44 0 0 0 8 2c-1.876 0-3.426.109-4.552.226a.5.5 0 1 0 .104.994M8 4c-1.876 0-3.426.109-4.552.226A.5.5 0 0 0 3 4.723v3.554a.5.5 0 0 0 .448.497C4.574 8.891 6.124 9 8 9s3.426-.109 4.552-.226A.5.5 0 0 0 13 8.277V4.723a.5.5 0 0 0-.448-.497A44 44 0 0 0 8 4m-3 7a1 1 0 1 0-2 0 1 1 0 0 0 2 0m8 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m-7 0a1 1 0 0 0 1 1h2a1 1 0 1 0 0-2H7a1 1 0 0 0-1 1"/>
                                 </svg>
-                            @elseif($item->detected_object == DetectedObject::ANIMAL->value)
+                            @elseif($row->detected_object == DetectedObject::ANIMAL->value)
                                 {{--                            icon animal--}}
                                 <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none"
                                      xmlns="http://www.w3.org/2000/svg">
@@ -103,23 +109,23 @@
                                     <circle cx="12.0212" cy="17.2707" r="0.91897" fill="#200E32"/>
                                 </svg>
                             @endif
-                            <span>{{$item->detected_object}}</span>
+                            <span>{{$row->detected_object}}</span>
                         </div>
                         <span>{{$createdAt}}</span>
                     </div>
                     <div class="flex justify-between items-center mb-2">
-                        <span class="text-lg ">{{ $item->event_type }}</span>
-                        <span class="text-lg ">{{ $item->instanceRule->name }}</span>
+                        <span class="text-lg ">{{ $row->event_type }}</span>
+                        <span class="text-lg ">{{ $row->instanceRule->name }}</span>
                     </div>
 
                     <div class="overflow-hidden mb-2" style="aspect-ratio: 1/1; width: 100%;">
-                        <img onclick="showModalVideo('{{$item->video_url}}')"
+                        <img onclick="showModalVideo('{{$row->video_url}}')"
                              class="w-full h-full object-cover mb-2 cursor-pointer hover:scale-105 duration-200"
-                             src="{{$item->image_url}}" alt="Hình ảnh"/>
+                             src="{{$row->image_url}}" alt="Hình ảnh"/>
                     </div>
                     <div class="">
-                        <span class="text-lg">{{$item->event_name}}</span>
-                        <p>{{$item->event_value}}</p>
+                        <span class="text-lg">{{$row->event_name}}</span>
+                        <p>{{$row->event_value}}</p>
                     </div>
 
                 </div>

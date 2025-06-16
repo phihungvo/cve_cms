@@ -27,29 +27,32 @@ class DeleteInstance extends ActionAbstract
     {
         try {
             $this->instance->delete();
-        } catch (QueryException $exception) {
+        } catch (QueryException $e) {
+            if (str_contains($e->getMessage(), 'foreign key constraint fails')) {
+                throw new Exception(__('rt-analytics-update.error.in_use'), 0, $e);
+            }
             throw new Exception(
                 __('rt-analytics-update.error.database'),
                 0,
-                $exception
+                $e
             );
-        } catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException $e) {
             throw new Exception(
                 __('rt-analytics-update.error.not_found', ['id' => $this->instance->id]),
                 0,
-                $exception
+                $e
             );
-        } catch (TypeError $exception) {
+        } catch (TypeError $e) {
             throw new Exception(
                 __('rt-analytics-update.error.type'),
                 0,
-                $exception
+                $e
             );
-        } catch (Throwable $exception) {
+        } catch (Throwable $e) {
             throw new Exception(
                 __('rt-analytics-update.error.unknown'),
                 0,
-                $exception
+                $e
             );
         }
     }

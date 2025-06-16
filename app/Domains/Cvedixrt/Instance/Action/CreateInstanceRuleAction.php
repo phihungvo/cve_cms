@@ -15,16 +15,14 @@ class CreateInstanceRuleAction extends CreateUpdateInstanceRuleAbstractAction
     /**
      * Create CvedixrtInstanceRule
      *
-     * @return InstanceRule
+     * @return void
      *
      * @override
      */
-    protected function save(): InstanceRule
+    protected function save(): void
     {
         try {
             $this->instanceRule = InstanceRule::query()->create($this->data);
-
-            return $this->instanceRule;
         } catch (AuthorizationException $e) {
             throw new RuntimeException(
                 __('cvedixrt-instance-create.error.unauthorized', ['message' => $e->getMessage()]),

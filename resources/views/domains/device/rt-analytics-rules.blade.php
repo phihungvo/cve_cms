@@ -546,10 +546,13 @@
                                 rule_id: ruleId,
                             })
                         })
-                            .then(response => {
-                                if (response.ok) {
-                                    return response.json();
+                            .then(async response => {
+                                if (!response.ok) {
+                                    const data = await response.json();
+                                    throw new Error(data.message || 'Không thể xóa rule');
                                 }
+                                return response.json();
+
                             })
                             .then(data => {
                                 const parentRuleItemEl = document.querySelector(`.rule-item[data-rule-id="${ruleId}"]`)
@@ -584,18 +587,20 @@
                                 // Modal thông báo xóa thành công
                                 Swal.fire({
                                     title: '{{__("rt-analytics-rules.delete.modal.title-success")}}',
-                                    text: '{{__("rt-analytics-rules.delete.modal.text-error")}}',
+                                    text: data.message || '{{__("rt-analytics-rules.delete.modal.text-success")}}',
                                     icon: 'success',
-                                    time: 1200,
+                                    timer: 1200,
+                                    showConfirmButton: false,
                                 });
                             })
                             .catch(error => {
                                 //
                                 Swal.fire({
                                     title: '{{__("rt-analytics-rules.delete.modal.title-error")}}',
-                                    text: '{{__("rt-analytics-rules.delete.modal.text-error")}}',
+                                    text: error.message || '{{__("rt-analytics-rules.delete.modal.text-error")}}',
                                     icon: 'error',
-                                    time: 1200,
+                                    timer: 1200,
+                                    showConfirmButton: false,
                                 });
                             })
                     }
