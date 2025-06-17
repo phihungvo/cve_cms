@@ -1,20 +1,22 @@
-name: Docker Image CI
+name: Build and Publish image to Docker Hub
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up executable permissions for scripts
-      run: chmod +x ./docker/build.sh ./docker/run.sh
-    - name: Build the Docker image
-      run: ./docker/build.sh
-    - name: Run the Docker container
-      run: ./docker/run.sh
+      - uses: actions/checkout@v4
+      - name: Set up executable permissions for scripts
+        run: chmod +x ./docker/build.sh ./docker/run.sh
+      - name: Build Docker Image and Run the Docker container
+        run: ./docker/build.sh
+      - name: Log in to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_HUB_USER }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Push Docker Image
+        run: docker push ${{ secrets.DOCKER_HUB_USER }}/cms-platform-app:latest
