@@ -2,7 +2,7 @@
 
 namespace App\Domains\Cvedixrt\Event\Controller;
 
-use App\Domains\Cvedixrt\Event\Model\EventModel as Model;
+use App\Domains\Cvedixrt\Event\Model\CvedixrtEventModel as Model;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract;
 use App\Exceptions\NotFoundException;
 
