@@ -35,6 +35,8 @@
     'user' => 'User',
     'vehicle' => 'Bookmark',
     'export' => 'Export',
+    'btn-export' => 'Export',
+    'btn-cancel' => 'Cancel',
     'select-export-type' => 'Select Export Type',
     'export-type' => 'Export Type',
     'by-user' => 'Group by User',
@@ -42,4 +44,5 @@
     'by-device' => 'Group by Device',
     'by-day' => 'Group by Day',
     'by-month' => 'Group by Month',
+    'select-at-least-one-row' => 'Please select at least one trip to export',
 ];
