@@ -11,14 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Set up executable permissions for scripts
         run: chmod +x ./docker/build.sh ./docker/run.sh
+
       - name: Build Docker Image and Run the Docker container
         run: ./docker/build.sh
-      - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USER }}/cms-platform-app:latest -f docker/Dockerfile ..
+
+      - name: Retag image for Docker Hub
+        run: docker tag docker-platform-app:latest ${{ secrets.DOCKER_HUB_USER }}/cms-platform-app:latest
+
       - name: Log in to Docker Hub
-        run: docker login -u ${{ secrets.DOCKER_HUB_USER }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
-      - name: Push Docker Image
+        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+
+      - name: Push Docker Image to Docker Hub
         run: docker push ${{ secrets.DOCKER_HUB_USER }}/cms-platform-app:latest
