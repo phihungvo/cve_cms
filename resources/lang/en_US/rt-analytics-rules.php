@@ -2,8 +2,8 @@
     'meta-title' => 'Runtime Analytics Rules',
     'added-rules' => 'Added Rules',
     'rule-name' => 'Rule Name',
-    'object-types' => 'Object types to detect',
-    'live-view-camera' => 'live view camera',
+    'object-types' => 'Detected Objects',
+    'live-view-camera' => 'Live Camera View',
 
     'create' => [
         'success' => 'The rule has been created successfully.',

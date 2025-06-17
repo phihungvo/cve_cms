@@ -19,7 +19,7 @@ class ViewLog extends Model
     protected $keyType = 'int';
 
     // Tự động quản lý timestamps (created_at, updated_at)
-    public $timestamps = false;
+    public $timestamps = true;
 
     // Các cột được phép gán hàng loạt
     protected $fillable = [
@@ -29,5 +29,11 @@ class ViewLog extends Model
         'view_count',
         'frame_data',
         'created_at',
+    ];
+
+    // Nếu cần, khai báo casts để đảm bảo created_at là Carbon
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 }

@@ -7,6 +7,7 @@ namespace App\Domains\Notification\Service\Controller;
 use App\Domains\Notification\Model\Notification;
 use App\Domains\Notification\Model\UserNotification;
 use App\Domains\User\Model\User;
+use App\Domains\Notification\Model\Builder\NotificationBuilder;
 
 class Index
 {
@@ -37,27 +38,49 @@ class Index
         $enterpriseId = $user->enterprise_id ?? null;
         $userRoles = $user->roles->pluck('name')->toArray();
 
+        // Khởi tạo query với NotificationBuilder
         $query = Notification::query();
-        if ($user->hasRole('root') || $user->isOwner()) {
-            $query->withTrashed(); // Root và Owner thấy cả thông báo đã soft delete
+
+        // Áp dụng logic cho Root và Owner
+        if ($user->hasRole('root')) {
+            $query->roleRoot()->withTrashed();
+
+        } else {
+            // Áp dụng filter cho user không phải Root
+            $query->where(function ($q) use ($user, $userRoles, $enterpriseId) {
+                $q->whereHas('userNotifications', function ($subQ) use ($user) {
+                    $subQ->where('user_id', $user->id);
+                })
+                    ->orWhere(function ($subQ) use ($userRoles) {
+                        $subQ->where('notification_type', 'system')
+                            ->where(function ($q) use ($userRoles) {
+                                $q->whereNull('target_group')
+                                    ->orWhereIn('target_group', $userRoles);
+                            });
+                    })
+                    ->orWhere(function ($subQ) use ($enterpriseId, $userRoles) {
+                        $subQ->where('notification_type', 'enterprise')
+                            ->where('enterprise_id', $enterpriseId)
+                            ->where(function ($q) use ($userRoles) {
+                                $q->whereNull('target_group')
+                                    ->orWhereIn('target_group', $userRoles)
+                                    ->orWhere('target_group', 'all');
+                            });
+                    });
+            });
         }
 
+        // Áp dụng filter theo quyền
+        $query->filterByPermission('access-notification-list');
+
+        // Load các quan hệ
         $query->with([
             'sender',
             'userNotifications',
             'userNotifications.user'
         ]);
 
-        if (!$user->hasRole('root')) {
-            // Owner và user thường chỉ thấy thông báo của enterprise của họ
-            if ($user->isOwner() || !$user->isOwner()) {
-                $query->where(function ($q) use ($enterpriseId) {
-                    $q->whereNull('enterprise_id')
-                        ->orWhere('enterprise_id', $enterpriseId);
-                });
-            }
-        }
-
+        // Xử lý tìm kiếm
         if ($search = $this->request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
@@ -65,9 +88,12 @@ class Index
             });
         }
 
+
+        // Sắp xếp theo created_at
         $query->orderBy('created_at', 'desc');
         $notifications = $query->get();
 
+        // Ánh xạ dữ liệu
         return $notifications->map(function ($notification) use ($user) {
             $userNotification = $notification->userNotifications->firstWhere('user_id', $user->id);
 
@@ -94,7 +120,7 @@ class Index
                 'enterprise_id' => $notification->enterprise_id,
                 'sender_id' => $notification->sender_id,
                 'sender_name' => $notification->sender ? $notification->sender->name : null,
-                'target_group' => $notification->target_group,
+                'target_group' => $notification->target_group ?? 'All',
                 'created_at' => $notification->created_at->timestamp,
                 'read_at' => $effectiveReadAt,
                 'read_count' => $readUsers,

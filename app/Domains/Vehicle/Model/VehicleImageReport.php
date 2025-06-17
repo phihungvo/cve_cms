@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Domains\Campaign\Media\Model\Media;
 use App\Domains\Device\Model\Device;
 use App\Domains\User\Enterprise\Model\Enterprise;
-
+use App\Domains\CoreApp\Model\ModelAbstract;
 use App\Domains\Vehicle\Model\Vehicle;
 
-class VehicleImageReport extends Model
+class VehicleImageReport extends ModelAbstract
 {
     use SoftDeletes;
 
@@ -45,6 +45,11 @@ class VehicleImageReport extends Model
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
+
+    public function scopeByVehicleId($query, int $vehicleId)
+    {
+        return $query->where('vehicle_id', $vehicleId);
+    }
 
     public function media()
     {

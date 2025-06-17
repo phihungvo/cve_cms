@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 class Update extends ActionAbstract
 {
     protected array $data;
-    protected ?Notification $row; // Cho phép null
+    protected ?Notification $row;
     protected ?Authenticatable $auth;
 
     public function handle(Notification $notification, array $data, ?Authenticatable $auth): Notification
@@ -39,13 +39,8 @@ class Update extends ActionAbstract
             // Kiểm tra quyền
             $this->checkAuthorization();
 
-            // Kiểm tra dữ liệu hợp lệ
-            if (empty($this->data['title']) || empty($this->data['content'])) {
-                throw new \Exception(__('notification-update.invalid-data'));
-            }
-
             // Kiểm tra target_group (nếu có) có hợp lệ không
-            if (!empty($this->data['target_group'])) {
+            if (!empty($this->data['target_group']) && $this->data['target_group'] !== 'all') {
                 $roleExists = Role::where('name', $this->data['target_group'])
                     ->where('enterprise_id', $this->row->enterprise_id ?? null)
                     ->exists();
@@ -59,6 +54,7 @@ class Update extends ActionAbstract
                 'title' => $this->data['title'],
                 'content' => $this->data['content'],
                 'notification_type' => $this->data['notification_type'],
+                'enterprise_id' => $this->data['enterprise_id'] ?? null,
                 'target_group' => $this->data['target_group'] ?? null,
             ];
 
@@ -90,23 +86,25 @@ class Update extends ActionAbstract
             throw new \Exception(__('notification-update.unauthorized'));
         }
 
-        $user = $this->auth; // Gán vào biến tạm với kiểu User
+        $user = $this->auth;
 
-        // Chỉ người gửi hoặc root được phép cập nhật
-        if ($this->row->sender_id !== $user->getAuthIdentifier() && !$user->isRoot()) {
-            throw new \Exception(__('notification-update.unauthorized'));
-        }
-
-        // Nếu thông báo là system, chỉ root được phép cập nhật
-        if ($this->data['notification_type'] === 'system' && !$user->isRoot()) {
-            throw new \Exception(__('notification-update.unauthorized-system'));
-        }
-
-        // Nếu thông báo là enterprise, kiểm tra enterprise_id với owner
-        if ($this->data['notification_type'] === 'enterprise' && $user->isOwner()) {
-            if ($this->row->enterprise_id !== $user->enterprise_id) {
-                throw new \Exception(__('notification-update.owner-enterprise-mismatch'));
+        // Root hoặc người gửi (sender) được phép cập nhật
+        if ($user->hasRole('root') || $this->row->sender_id === $user->getAuthIdentifier()) {
+            // Nếu thông báo là system, chỉ root được phép cập nhật
+            if ($this->data['notification_type'] === 'system' && !$user->hasRole('root')) {
+                throw new \Exception(__('notification-update.unauthorized-system'));
             }
+
+            // Nếu thông báo là enterprise, kiểm tra enterprise_id
+            if ($this->data['notification_type'] === 'enterprise' && !is_null($this->data['enterprise_id'])) {
+                if ($this->data['enterprise_id'] !== $user->enterprise_id && !$user->hasRole('root')) {
+                    throw new \Exception(__('notification-update.owner-enterprise-mismatch'));
+                }
+            }
+
+            return;
         }
+
+        throw new \Exception(__('notification-update.unauthorized'));
     }
 }

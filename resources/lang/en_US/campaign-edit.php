@@ -25,4 +25,5 @@
     'search' => 'Search',
     'save' => 'Save',
     'users' => 'User',
+    'success' => 'Campaign updated successfully.',
 ];

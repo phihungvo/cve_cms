@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Domains\Vehicle\Model;
 
@@ -48,6 +50,22 @@ class Vehicle extends ModelAbstract
         'timezone_auto' => 'boolean',
         'enabled' => 'boolean',
     ];
+
+    /**
+     * @return HasMany
+     */
+    public function imageReports(): HasMany
+    {
+        return $this->hasMany(VehicleImageReport::class, 'vehicle_id');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function latestImageReport(): HasOne
+    {
+        return $this->hasOne(VehicleImageReport::class, 'vehicle_id')->latestOfMany();
+    }
 
     /**
      * @param array $models
@@ -115,7 +133,7 @@ class Vehicle extends ModelAbstract
     public function positionLast(): HasOne
     {
         return $this->hasOne(PositionModel::class, static::FOREIGN)
-            ->ofMany(['date_utc_at' => 'MAX'], fn ($q) => $q->withoutGlobalScope('selectPointAsLatitudeLongitude'))
+            ->ofMany(['date_utc_at' => 'MAX'], fn($q) => $q->withoutGlobalScope('selectPointAsLatitudeLongitude'))
             ->selectOnlyLatitudeLongitude();
     }
 

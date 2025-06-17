@@ -22,4 +22,8 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::post('/notification/push-message-all-devices', PushMessageController::class)->name('notification.push-message');
     Route::post('/notification/push-message-to-devices', PushMessageToDevicesController::class)->name('notification.push-message-to-devices');
     Route::get('/notification/{id}/device-status', [Index::class, 'deviceStatus'])->name('notification.device-status');
+    // Route::get('/notification/unread-count', [Index::class, 'unreadCount'])->name('notification.unread-count');
+    Route::get('/notification/unread-count', [Index::class, 'unreadCount'])
+        ->name('notification.unread-count')
+        ->middleware('throttle:10,1');
 });

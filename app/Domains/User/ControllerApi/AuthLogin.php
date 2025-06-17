@@ -9,6 +9,9 @@ use App\Domains\User\Model\User as UserModel;
 use App\Domains\User\Action\ActionFactory;
 use Illuminate\Support\Facades\Log;
 use App\Domains\Display\Model\Display;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\QueryException;
+use PDOException;
 
 class AuthLogin extends Controller
 {
@@ -21,18 +24,31 @@ class AuthLogin extends Controller
 
     public function __invoke(Request $request): JsonResponse
     {
-        $username = $request->input('email/phone'); // Lấy từ body
-        $password = $request->input('password'); // Lấy từ body
-        $this->validateInput($username, $password);
-        $user = $this->authenticate($username, $password);
-        $data = $this->prepareResponseData($user);
-        return response()->json($data);
+        try {
+            $username = $request->input('email/phone');
+            $password = $request->input('password');
+            $this->validateInput($username, $password);
+            $user = $this->authenticate($username, $password);
+            $data = $this->prepareResponseData($user);
+            return response()->json($data, 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Authentication failed: ' . $e->getMessage());
+            return response()->json([
+                'message' => $e->getMessage(),
+                'error' => 'Authentication failed',
+            ], $e->getCode() ?: 401); // Mặc định trả về 401 trừ khi có mã lỗi cụ thể
+        }
     }
 
     protected function validateInput(?string $username, ?string $password): void
     {
         $validator = \Illuminate\Support\Facades\Validator::make(
-            $this->request->all(), // Validate toàn bộ body
+            $this->request->all(),
             [
                 'email/phone' => [
                     'required',
@@ -53,16 +69,28 @@ class AuthLogin extends Controller
 
     protected function authenticate(string $username, string $password): UserModel
     {
-        $this->request->merge([
-            'email' => $username,
-            'password' => $password,
-        ]);
-        $factory = new ActionFactory($this->request, null);
         try {
+            // Kiểm tra xem username là email hay số điện thoại
+            $user = UserModel::where('email', $username)
+                ->orWhere('phone', $username)
+                ->first();
+
+            // Kiểm tra xem user có tồn tại và mật khẩu có khớp không
+            if (!$user || !Hash::check($password, $user->password)) {
+                throw new \Exception('Kiểm tra thông tin và trả về phản hồi 401', 401);
+            }
+
+            // Nếu thông tin đúng, gọi ActionFactory để xử lý thêm nếu cần
+            $this->request->merge([
+                'email' => $username,
+                'password' => $password,
+            ]);
+            $factory = new ActionFactory($this->request, null);
             return $factory->authCredentials();
-        } catch (\Exception $e) {
-            Log::error('Authentication failed: ' . $e->getMessage());
-            throw $e;
+        } catch (QueryException | PDOException $e) {
+            // Xử lý lỗi kết nối cơ sở dữ liệu
+            Log::error('Database connection failed: ' . $e->getMessage());
+            throw new \Exception('Lỗi kết nối cơ sở dữ liệu. Vui lòng thử lại sau.', 500);
         }
     }
 
@@ -74,20 +102,17 @@ class AuthLogin extends Controller
                 $query->with([
                     'performance',
                     'media' => function ($query) {
-                        $query->with('playlists'); // Load playlists liên quan đến media
+                        $query->with('playlists');
                     }
                 ]);
             },
-            'devices.vehicle', // Load devices và vehicle liên quan
-            'devices.displays', // Load displays liên quan đến devices
+            'devices.vehicle',
+            'devices.displays',
         ]);
 
         $roleAliases = $user->roles->pluck('alias')->filter()->toArray();
 
-        // Kiểm tra nếu user có role thuộc client portal
         $isClient = array_intersect($roleAliases, ['client-goads-portal-led', 'client-goads-portal-decal']);
-
-        // Kiểm tra nếu user có role thuộc driver
         $isDriver = array_intersect($roleAliases, [
             'driver-motocycle-led',
             'driver-motocycle-decal',
@@ -95,7 +120,6 @@ class AuthLogin extends Controller
             'driver-car-decal'
         ]);
 
-        // Dữ liệu cơ bản của user 
         $baseData = [
             'id' => $user->id,
             'name' => $user->name,
@@ -107,7 +131,6 @@ class AuthLogin extends Controller
             'minio_access_key' => $user->minio_access_key,
             'minio_secrect_key' => $user->minio_secrect_key,
             'minio_region' => $user->minio_region,
-
             'roles' => $user->roles->map(function ($role) {
                 return [
                     'id' => $role->id,
@@ -117,7 +140,6 @@ class AuthLogin extends Controller
             })->all(),
         ];
 
-        // Nếu user là client
         if ($isClient) {
             $baseData['campaigns'] = $user->campaigns->map(function ($campaign) {
                 return [
@@ -130,7 +152,6 @@ class AuthLogin extends Controller
                     'budget' => $campaign->budget,
                     'status' => $campaign->status,
                     'logo_url' => $campaign->logo_url,
-
                     'performance' => $campaign->performance ? [
                         'id' => $campaign->performance->id,
                         'reach' => $campaign->performance->reach,
@@ -144,7 +165,6 @@ class AuthLogin extends Controller
                         'actual_cost' => $campaign->performance->actual_cost,
                     ] : null,
                     'media' => $campaign->media->map(function ($media) {
-
                         $playlistIds = $media->playlists->pluck('id')->toArray();
                         $deviceCount = Display::whereIn('playlist_id', $playlistIds)
                             ->distinct('device_id')
@@ -162,13 +182,13 @@ class AuthLogin extends Controller
                             'created_at' => $media->created_at->toDateTimeString(),
                             'updated_at' => $media->updated_at->toDateTimeString(),
                             'device_count' => $deviceCount,
+                            'thumbnail_url' => $media->thumbnail_url,
                         ];
                     })->all(),
                 ];
             })->all();
         }
 
-        // Nếu user là driver
         if ($isDriver) {
             $baseData['devices'] = $user->devices->map(function ($device) {
                 return [
@@ -203,5 +223,4 @@ class AuthLogin extends Controller
 
         return $baseData;
     }
-
 }

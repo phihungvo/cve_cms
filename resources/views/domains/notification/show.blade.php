@@ -87,6 +87,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+
                 // Lấy trạng thái thiết bị
                 fetch("{{ route('notification.device-status', $notification['id']) }}", {
                     method: 'GET',
@@ -183,6 +184,7 @@
                         });
                 });
             });
+            updateNotificationBadge();
         </script>
     @endpush
 @endsection
