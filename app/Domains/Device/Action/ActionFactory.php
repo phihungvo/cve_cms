@@ -24,7 +24,7 @@ class ActionFactory extends ActionFactoryAbstract
      */
     public function create(): Model
     {
-        return $this->actionHandle(Create::class, $this->validate()->create());
+        return $this->actionHandleTransaction(Create::class, $this->validate()->create());
     }
 
     /**
@@ -40,7 +40,7 @@ class ActionFactory extends ActionFactoryAbstract
      */
     public function update(): Model
     {
-        return $this->actionHandle(Update::class, $this->validate()->update());
+        return $this->actionHandleTransaction(Update::class, $this->validate()->update());
     }
 
     /**

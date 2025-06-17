@@ -23,17 +23,15 @@ class UpdateInstanceRuleAction extends CreateUpdateInstanceRuleAbstractAction
      *
      * @throws Exception When any unexpected errors occur
      *
-     * @return InstanceRule
+     * @return void
      */
-    protected function save(): InstanceRule
+    protected function save(): void
     {
         $ruleId = $this->request->input('rule_id');
         $this->instanceRule = InstanceRule::where('id', $ruleId)->firstOrFail();
 
         try {
             $this->instanceRule->update($this->data);
-
-            return $this->instanceRule;
         } catch (QueryException $exception) {
             throw new Exception(
                 __('cvedixrt-instance-update.update.error.database', ['message' => $exception->getMessage()]),

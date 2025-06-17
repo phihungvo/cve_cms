@@ -11,7 +11,6 @@ use TypeError;
 
 class DeleteInstanceRule extends ActionAbstract
 {
-
     /**
      * @throws Exception
      */
@@ -29,6 +28,9 @@ class DeleteInstanceRule extends ActionAbstract
         try {
             $this->instanceRule->delete();
         } catch (QueryException $exception) {
+            if (str_contains($exception->getMessage(), 'foreign key constraint fails')) {
+                throw new Exception(__('rt-analytics-rules.error.in_use'), 0, $exception);
+            }
             throw new Exception(
                 __('rt-analytics-rules.error.database'),
                 0,

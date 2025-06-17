@@ -80,6 +80,6 @@ class VehicleGroupModel extends ModelAbstract
 
     public function enterprise(): BelongsTo
     {
-        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN, self::PRIMARY);
+        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN_KEY, self::PRIMARY);
     }
 }

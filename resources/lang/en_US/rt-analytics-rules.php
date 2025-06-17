@@ -29,6 +29,7 @@
     ],
     'error' => [
         'uuid_exists' => 'The UUID has already been taken.',
+        'in_use' => 'Cannot delete this Cvedixrt Instance becausee it is still in use.',
         'database' => 'An error occurred while saving the rule to the database. Please try again later.',
         'validation' => 'There were validation errors with the provided data. Please check your input and try again.',
         'type' => 'There was a type error with the provided data. Please check your input and try again.',

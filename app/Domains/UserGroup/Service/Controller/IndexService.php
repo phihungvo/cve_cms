@@ -34,7 +34,7 @@ class IndexService extends ControllerAbstract
             ->roleRoot()
             ->roleOwner()
             ->when($this->request->input('enterprise_id'), function ($query) {
-                $query->where(Enterprise::FOREIGN, $this->request->input('enterprise_id'));
+                $query->where(Enterprise::FOREIGN_KEY, $this->request->input('enterprise_id'));
             })
             ->getEnterpriseName()
             ->get();

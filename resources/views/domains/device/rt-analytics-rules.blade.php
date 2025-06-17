@@ -9,7 +9,7 @@
 @section('content-analytics')
     <div class="intro-y box p-5 mt-5">
         <!-- List rule đã thêm -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 border-r">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 border-1">
             <div class="col-span-2 flex flex-col rounded-md p-2">
                 <h3 class="px-4 py-1 font-semibold text-gray-800"> {{__('rt-analytics-rules.added-rules') }}</h3>
                 <ul id="ruleList" class="flex-1 px-2 space-y-1 overflow-y-auto max-h-80"
@@ -45,10 +45,11 @@
                 <!-- Content for the second column (2/3) -->
                 <!-- content left -->
                 <div class="w-full h-full flex flex-col border border-gray-300 rounded-md p-2">
-                    <!-- rules name -->
-                    <div class="w-full flex p-1">
-                        <div class="w-2/5 pr-4">
-                            <h3 class="text-sm font-bold w-full mb-1">{{__('rt-analytics-rules.rule-name')}}</h3>
+
+                    <div class="w-full h-full grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <div class="col-span-1">
+                            <!-- rules name -->
+                            <h2 class="text-sm font-bold py-2 w-full">{{__('rt-analytics-rules.rule-name')}}</h2>
                             <div>
                                 <input
                                     class="border border-gray-300 focous:border-blue-700 rounded-lg w-full p-2 text-sm"
@@ -60,8 +61,8 @@
                                 </span>
                             </div>
                             <div>
-                                <h3 class="text-sm font-bold pt-2 w-full">{{__('rt-analytics-rules.object-types')}}</h3>
-                                <div class="flex flex-col">
+                                <h3 class="mt-2 py-2 text-sm font-bold w-full">{{__('rt-analytics-rules.object-types')}}</h3>
+                                <div class="flex flex-col gap-4">
                                     @foreach(DetectedObject::cases() as $type)
                                         <div class="flex items-center gap-2">
                                             <input type="checkbox" name="detect_objects"
@@ -78,10 +79,10 @@
                             </div>
                         </div>
                         <!-- view camera -->
-                        <div class="w-3/5 pl-4">
-                            <h3 class="text-sm font-bold mb-1">{{ __('rt-analytics-rules.live-view-camera') }}</h3>
+                        <div class="col-span-2 flex flex-col">
+                            <h3 class="text-sm font-bold py-2">{{ __('rt-analytics-rules.live-view-camera') }}</h3>
                             <div
-                                class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black relative overflow-hidden">
+                                class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black relative overflow-hidden flex-grow">
                                 <div id="videoWrapperOutside" class="w-full h-full relative">
                                     <video id="videoElementOutside"
                                            class="absolute top-0 w-full h-full object-contain px-auto"
@@ -434,39 +435,45 @@
 
                 // Xử lý UI khi người dùng click vào một rule type.
                 handleRuleTypeClick(this);
-                // clear form chuẩn bị cho create rule mới.
 
                 if (selectedAddedRule) {
+                    // clear form chuẩn bị cho create rule mới.
                     // Clear rule name input
                     ruleNameEl.value = '';
                     // Clear detected object checkboxes
                     detectedObjectEl.forEach(checkbox => {
                         checkbox.checked = false;
                     });
+                    // Update value selectedAddedRule
+                    selectedRuleType = this.getAttribute('data-rule-type');
+
+                    // Clear rule item active
+                    ruleItemEls.forEach(el => {
+                        el.classList.remove('bg-blue-500', 'text-white');
+                        el.classList.add('bg-white');
+                    });
+
+                    resizeCanvasWithRuleId(null);
+
+                    window.tempShapesToSave = null;
+                    window.shapes = [];
+                    window.tempShapes = [];
+
+                    if (window.DrawingTool) {
+                        window.DrawingTool.loadShapesFromServer(null); // Xóa shapes hiện tại
+                        resizeCanvasWithRuleId(null); // Clear canvas khi chuyển rule type
+                    }
                 }
 
                 // Reset selectedAddedRule
                 selectedAddedRule = null;
 
-                // Update value selectedAddedRule
-                selectedRuleType = this.getAttribute('data-rule-type');
-
-                // Clear rule item active
-                ruleItemEls.forEach(el => {
-                    el.classList.remove('bg-blue-500', 'text-white');
-                    el.classList.add('bg-white');
-                });
                 // Update value button Update rule
                 btnSaveRuleEl.innerHTML = '+ Add';
 
-                window.tempShapesToSave = null;
-                window.shapes = [];
-                window.tempShapes = [];
 
-                if (window.DrawingTool) {
-                    window.DrawingTool.loadShapesFromServer(null); // Xóa shapes hiện tại
-                    resizeCanvasWithRuleId(null); // Clear canvas khi chuyển rule type
-                }
+
+
             })
         })
 
@@ -481,12 +488,12 @@
                 el.classList.add('bg-white');
             });
 
-            ruleNameEl.value = '';
-            detectedObjectEl.forEach(checkbox => {
-                checkbox.checked = false;
-            });
-
-            resizeCanvasWithRuleId(null); // Clear canvas khi chuyển rule type
+            // ruleNameEl.value = '';
+            // detectedObjectEl.forEach(checkbox => {
+            //     checkbox.checked = false;
+            // });
+            //
+            // resizeCanvasWithRuleId(null); // Clear canvas khi chuyển rule type
 
             if (item) {
                 // Thêm trạng thái active cho rule được chọn.
@@ -710,10 +717,13 @@
                                 rule_id: ruleId,
                             })
                         })
-                            .then(response => {
-                                if (response.ok) {
-                                    return response.json();
+                            .then(async response => {
+                                if (!response.ok) {
+                                    const data = await response.json();
+                                    throw new Error(data.message || 'Không thể xóa rule');
                                 }
+                                return response.json();
+
                             })
                             .then(data => {
                                 const parentRuleItemEl = document.querySelector(`.rule-item[data-rule-id="${ruleId}"]`)
@@ -748,18 +758,20 @@
                                 // Modal thông báo xóa thành công
                                 Swal.fire({
                                     title: '{{__("rt-analytics-rules.delete.modal.title-success")}}',
-                                    text: '{{__("rt-analytics-rules.delete.modal.text-error")}}',
+                                    text: data.message || '{{__("rt-analytics-rules.delete.modal.text-success")}}',
                                     icon: 'success',
-                                    time: 1200,
+                                    timer: 1200,
+                                    showConfirmButton: false,
                                 });
                             })
                             .catch(error => {
                                 //
                                 Swal.fire({
                                     title: '{{__("rt-analytics-rules.delete.modal.title-error")}}',
-                                    text: '{{__("rt-analytics-rules.delete.modal.text-error")}}',
+                                    text: error.message || '{{__("rt-analytics-rules.delete.modal.text-error")}}',
                                     icon: 'error',
-                                    time: 1200,
+                                    timer: 1200,
+                                    showConfirmButton: false,
                                 });
                             })
                     }

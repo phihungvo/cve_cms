@@ -46,6 +46,8 @@ class File extends ModelAbstract
     }
 
     /**
+     * Kiểm tra file có tồn tại không?
+     *
      * @return bool
      */
     public function fileExists(): bool
@@ -54,6 +56,8 @@ class File extends ModelAbstract
     }
 
     /**
+     * Lấy đường dẫn vật lý của file.
+     *
      * @return string
      */
     public function filePath(): string
@@ -62,6 +66,8 @@ class File extends ModelAbstract
     }
 
     /**
+     * Lấy nội dung file.
+     *
      * @return string
      */
     public function fileContentsGet(): string
@@ -70,6 +76,8 @@ class File extends ModelAbstract
     }
 
     /**
+     * Ghi nội dung vào file.
+     *
      * @param string $path
      * @param string $contents
      *
@@ -81,6 +89,8 @@ class File extends ModelAbstract
     }
 
     /**
+     * Xóa file.
+     *
      * @return void
      */
     public function fileDelete(): void
@@ -93,6 +103,6 @@ class File extends ModelAbstract
      */
     protected static function storage(): FilesystemAdapter
     {
-        return Storage::disk('private');
+        return Storage::disk('minio');
     }
 }

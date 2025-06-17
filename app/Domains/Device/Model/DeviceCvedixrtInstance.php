@@ -16,7 +16,7 @@ class DeviceCvedixrtInstance extends ModelAbstract
 
     public const TABLE = 'device_cvedixrt_instance';
 
-    public const ID = 'id';
+    public const PRIMARY_KEY = 'id';
 
     public const FOREIGN_KEY = 'device_cvedixrt_instance_id';
 

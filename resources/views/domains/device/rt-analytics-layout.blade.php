@@ -9,7 +9,7 @@
         <a
             href="{{route('device.runtime-analytics', $row->id ?? $device->id)}}"
             class="p-4
-            {{(Str::is('device.runtime-analytics*', $ROUTE)) ? 'active': ''}}">
+            {{(Str::is('device.runtime-analytics', $ROUTE) || Str::is('device.runtime-analytics.*', $ROUTE) && !Str::is('device.runtime-analytics.event', $ROUTE)) ? 'active': ''}}">
             All Instance
         </a>
         <!-- List all Solution-->
@@ -22,6 +22,11 @@
            class="p-4
            {{(Str::is('group.*', $ROUTE)) ? 'active': ''}}
            ">All Group</a>
+        <!-- Event -->
+        <a href="{{route('device.runtime-analytics.event', $row->id ?? $device->id)}}"
+           class="p-4
+           {{(Str::is('device.runtime-analytics.event', $ROUTE)) ? 'active': ''}}
+           ">Events</a>
     </div>
 @endsection
 

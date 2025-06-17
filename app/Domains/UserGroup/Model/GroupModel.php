@@ -41,7 +41,7 @@ class GroupModel extends ModelAbstract
     // 1 group chỉ thuộc về 1 enterprise
     public function enterprise(): BelongsTo
     {
-        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN, Enterprise::PRIMARY);
+        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN_KEY, Enterprise::PRIMARY);
     }
 
     public function userGroups(): HasMany

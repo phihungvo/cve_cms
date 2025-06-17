@@ -2,7 +2,6 @@
 
 namespace App\Domains\Cvedixrt\Instance\Action;
 
-use App\Domains\Cvedixrt\Instance\Model\CvedixrtInstanceModel as Model;
 use Exception;
 use Throwable;
 use Illuminate\Database\QueryException;
@@ -21,15 +20,15 @@ class UpdateAction extends CreateUpdateAbstractAction
      *
      * Updates the cvedixrt_instance with the provided data
      *
-     * @return Model
      * @throws Exception When any unexpected errors occur
+     *
+     * @return void
      */
-    protected function save(): Model
+    protected function save(): void
     {
         try {
             $this->row->update($this->data);
 
-            return $this->row;
         } catch (QueryException $exception) {
             // Lỗi xảy ra khi có vấn đề với truy vấn cơ sở dữ liệu (ví dụ: vi phạm ràng buộc khóa ngoại)
             throw new Exception(
@@ -61,4 +60,3 @@ class UpdateAction extends CreateUpdateAbstractAction
         }
     }
 }
-
