@@ -16,6 +16,8 @@ jobs:
         run: chmod +x ./docker/build.sh ./docker/run.sh
       - name: Build Docker Image and Run the Docker container
         run: ./docker/build.sh
+      - name: Build Docker Image
+        run: docker build -t your_dockerhub_username/cms-platform-app:latest -f docker/Dockerfile ..
       - name: Log in to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_HUB_USER }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
       - name: Push Docker Image
