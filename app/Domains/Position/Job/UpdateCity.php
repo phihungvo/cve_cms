@@ -12,6 +12,14 @@ class UpdateCity extends JobAbstract implements ShouldQueue
     public $tries = 3;
     public $timeout = 120;
 
+    public $uniqueFor = 600; // giữ job duy nhất trong 10 phút
+
+    public function uniqueId()
+    {
+        return $this->row()->id; // hoặc $this->id nếu truyền id
+    }
+
+
     public function handle(): void
     {
         try {
