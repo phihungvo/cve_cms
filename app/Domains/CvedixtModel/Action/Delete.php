@@ -7,7 +7,6 @@ namespace App\Domains\CvedixtModel\Action;
 use App\Domains\CvedixtModel\Model\CvedixtModel;
 use Exception;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 class Delete
 {
@@ -19,7 +18,7 @@ class Delete
             if (!$model) {
                 return [
                     'success' => false,
-                    'message' => __('model-delete.delete-error-not-found'),
+                    'message' => __('cvedixrt-model.delete.not_found'),
                 ];
             }
 
@@ -27,7 +26,7 @@ class Delete
             if (!$user->hasRole('root') && $model->enterprise_id !== $user->enterprise_id) {
                 return [
                     'success' => false,
-                    'message' => __('model-delete.no-permission'),
+                    'message' => __('cvedixrt-model.no_permission'),
                 ];
             }
 
@@ -36,13 +35,12 @@ class Delete
 
             return [
                 'success' => true,
-                'message' => __('model-delete.delete-success'),
+                'message' => __('cvedixrt-model.delete.success'),
             ];
         } catch (Exception $e) {
-            Log::error('Error soft deleting model: ', ['error' => $e->getMessage()]);
             return [
                 'success' => false,
-                'message' => __('model-delete.delete-error'),
+                'message' => __('cvedixrt-model.delete.error'),
                 'error' => $e->getMessage(),
                 'code' => $e->getCode() ?: 500,
             ];
@@ -56,7 +54,7 @@ class Delete
             if (!$user->hasRole('root')) {
                 return [
                     'success' => false,
-                    'message' => __('model-delete.no-permission'),
+                    'message' => __('cvedixrt-model.no_permission'),
                 ];
             }
 
@@ -66,7 +64,7 @@ class Delete
             $parsedUrl = parse_url($model->model_url, PHP_URL_PATH);
             $filePath = ltrim($parsedUrl, '/');
             $bucketName = config('filesystems.disks.minio.bucket');
-            $filePath = str_replace($bucketName . '/', '', $filePath);
+            $filePath = str_replace($bucketName.'/', '', $filePath);
 
             if (Storage::disk('minio')->exists($filePath)) {
                 Storage::disk('minio')->delete($filePath);
@@ -77,13 +75,12 @@ class Delete
 
             return [
                 'success' => true,
-                'message' => __('media-delete.force-delete-success'),
+                'message' => __('cvedixrt-model.force_delete.success'),
             ];
         } catch (Exception $e) {
-            Log::error('Error force deleting media: ', ['error' => $e->getMessage()]);
             return [
                 'success' => false,
-                'message' => __('media-delete.force-delete-error'),
+                'message' => __('cvedixrt-model.force_delete.error'),
                 'error' => $e->getMessage(),
                 'code' => $e->getCode() ?: 500,
             ];
@@ -97,7 +94,7 @@ class Delete
             if (!$user->hasRole('root')) {
                 return [
                     'success' => false,
-                    'message' => __('media-delete.no-permission'),
+                    'message' => __('cvedixrt-model.no_permission'),
                 ];
             }
 
@@ -106,13 +103,12 @@ class Delete
 
             return [
                 'success' => true,
-                'message' => __('media-delete.restore-success'),
+                'message' => __('cvedixrt-model.restore.success'),
             ];
         } catch (Exception $e) {
-            Log::error('Error restoring media: ', ['error' => $e->getMessage()]);
             return [
                 'success' => false,
-                'message' => __('media-delete.restore-error'),
+                'message' => __('cvedixrt-model.restore.error'),
                 'error' => $e->getMessage(),
                 'code' => $e->getCode() ?: 500,
             ];

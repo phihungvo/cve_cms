@@ -48,25 +48,34 @@ class Create
         try {
             // Validate request data
             $data = $this->request->validate([
-                'model_files' => 'required|array|max:10',
-                'media_files.*' => 'file|max:102400|mimes:mp4',
-                //'model_files.*' => 'file|mimes:pt,onnx,pth,h5,tflite,joblib,pkl,sav,ckpt',
+                'model_files' => 'sometimes|array|max:10', // Không bắt buộc nếu tạo thư mục
+                'model_files.*' => 'file|max:102400|mimes:pt,pth,pb,h5,ckpt,onnx,joblib,pkl',
+                'is_folder' => 'sometimes|boolean', // Thêm validation cho is_folder
+                'parent_id' => 'sometimes|nullable|integer|exists:cvedixt_model,id', // Thêm validation cho parent_id
                 'enterprise_id' => $this->auth->hasRole('root') ? 'nullable|integer|exists:enterprise,id' : 'required|integer|exists:enterprise,id',
             ]);
 
-            $files = $this->request->file('model_files');
-            $bucket_path = $this->request->input('bucket_path');
+            $files = $this->request->file('model_files') ?? [];
+            $isFolder = $data['is_folder'] ?? false;
+            $parentId = $data['parent_id'] ?? null;
             $totalSize = 0;
             $createdModel = [];
             $errors = [];
 
-            // Calculate total file size
-            foreach ($files as $file) {
-                $totalSize += $file->getSize();
+            // Nếu là thư mục, không xử lý file
+            if ($isFolder && !empty($files)) {
+                throw new \Exception('Cannot upload files when creating a folder.');
             }
 
-            if ($totalSize > 2147483648) {
-                throw new \Exception('Total file size exceeds 2GB limit.');
+            // Nếu là file, tính tổng kích thước
+            if (!$isFolder) {
+                foreach ($files as $file) {
+                    $totalSize += $file->getSize();
+                }
+
+                if ($totalSize > 2147483648) {
+                    throw new \Exception('Total file size exceeds 2GB limit.');
+                }
             }
 
             // Handle enterprise_id
@@ -95,63 +104,75 @@ class Create
 
             $action = new CreateAction();
 
-            // Process each file
-            foreach ($files as $index => $file) {
+            // Process each item (file or folder)
+            if ($isFolder) {
+                // Tạo thư mục
+                $folderName = $this->request->input('name', 'NewFolder_'.Str::random(5));
+                $folderPath = $this->auth->hasRole('root') ? $folderName : "{$enterpriseId}/{$folderName}";
+                $modelData = [
+                    'name' => $folderName,
+                    'file_name' => $folderName,
+                    'model_url' => '/'.$folderPath, // Đường dẫn thư mục (có thể cần điều chỉnh)
+                    'size' => 0,
+                    'type' => 'folder',
+                    'enterprise_id' => $this->auth->hasRole('root') ? null : $enterpriseId,
+                    'parent_id' => $parentId,
+                    'is_folder' => true,
+                ];
+
                 try {
-                    $originalFileName = $file->getClientOriginalName();
-                    $fileName = $this->sanitizeFileName($originalFileName);
-                    $mimeType = $file->getMimeType();
-
-                    // Handle file storage
-                    $path = $this->auth->hasRole('root') ? $fileName : "{$enterpriseId}/{$fileName}";
-                    $modelUrl = '/'.$path;
-
-                    // Check file existence
+                    $media = $action->handle($modelData);
+                    $createdModel[] = $media;
+                } catch (\Exception $e) {
+                    $errors[] = ['file' => $folderName, 'error' => $e->getMessage()];
+                }
+            } else {
+                // Process each file
+                foreach ($files as $index => $file) {
                     try {
+                        $originalFileName = $file->getClientOriginalName();
+                        $fileName = $this->sanitizeFileName($originalFileName);
+                        $mimeType = $file->getMimeType();
+
+                        // Handle file storage
+                        $path = $this->auth->hasRole('root') ? $fileName : "{$enterpriseId}/{$fileName}";
+                        $modelUrl = '/'.$path;
+
+                        // Check file existence
                         if (Storage::disk('minio')->exists($path) || CvedixtModel::where('model_url', $modelUrl)->exists()) {
                             throw new \Exception(__('model-create.model-exists', ['name' => $fileName]));
                         }
-                    } catch (\Exception $e) {
-                        throw new \Exception("Unable to check existence for: $fileName");
-                    }
 
-                    // Store file
-                    try {
-                        if ($this->auth->hasRole('root')) {
-                            $path = Storage::disk('minio')->putFileAs($bucket_path, $file, $fileName);
-                        } else {
-                            $path = Storage::disk('minio')->putFileAs("{$enterpriseId}", $file, $fileName);
+                        // Store file
+                        $path = $this->auth->hasRole('root')
+                            ? Storage::disk('minio')->putFileAs('', $file, $fileName)
+                            : Storage::disk('minio')->putFileAs("{$enterpriseId}", $file, $fileName);
+
+                        if (!Storage::disk('minio')->exists($path)) {
+                            throw new \Exception('File not found on MinIO after upload: '.$fileName);
                         }
+
+                        $modelUrl = '/'.$path;
+
+                        // Prepare media data
+                        $modelData = [
+                            'name' => pathinfo($fileName, PATHINFO_FILENAME),
+                            'file_name' => $fileName,
+                            'model_url' => $modelUrl,
+                            'size' => $file->getSize(),
+                            'type' => $mimeType,
+                            'enterprise_id' => $this->auth->hasRole('root') ? null : $enterpriseId,
+                            'parent_id' => $parentId,
+                            'is_folder' => false,
+                        ];
+
+                        // Save media
+                        $media = $action->handle($modelData);
+                        $createdModel[] = $media;
+
                     } catch (\Exception $e) {
-                        throw new \Exception("Failed to upload $fileName to storage.");
+                        $errors[] = ['file' => $originalFileName, 'error' => $e->getMessage()];
                     }
-
-                    if (!Storage::disk('minio')->exists($path)) {
-                        throw new \Exception('File not found on MinIO after upload: '.$fileName);
-                    }
-
-                    // $modelUrl = Storage::disk('minio')->url($path);
-                    $modelUrl = '/'.$path;
-
-                    // Prepare media data
-                    $modelData = [
-                        'name' => pathinfo($fileName, PATHINFO_FILENAME),
-                        'file_name' => $fileName,
-                        'model_url' => $modelUrl,
-                        'size' => $file->getSize(),
-                        'type' => $mimeType,
-                        'enterprise_id' => $this->auth->hasRole('root') ? null : $enterpriseId,
-                    ];
-
-                    // Save media
-                    $media = $action->handle($modelData);
-                    $createdModel[] = $media;
-
-                } catch (\Exception $e) {
-                    $errors[] = [
-                        'file' => $originalFileName,
-                        'error' => $e->getMessage(),
-                    ];
                 }
             }
 
@@ -159,7 +180,7 @@ class Create
             if (!empty($errors)) {
                 $response = [
                     'success' => false,
-                    'message' => 'Some files failed to upload.',
+                    'message' => 'Some files or folders failed to upload.',
                     'errors' => $errors,
                     'data' => $createdModel,
                 ];

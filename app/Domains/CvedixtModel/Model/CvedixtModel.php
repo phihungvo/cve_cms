@@ -41,16 +41,43 @@ class CvedixtModel extends ModelAbstract
         'size',
         'type',
         'enterprise_id',
+        'parent_id',
+        'is_folder',
     ];
 
     protected $dates = ['deleted_at'];
 
     protected $casts = [
         'size' => 'integer',
+        'is_folder' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Model có thể là một thư mục hoặc một tệp
+     * Nếu là thư mục, thì không có file_name và model_url
+     * Nếu là tệp, thì có file_name và model_url
+     *
+     * @var bool
+     */
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * Lấy tất cả các con của một Model
+     * Nếu là thư mục, thì sẽ có nhiều con
+     * Nếu là tệp, thì sẽ không có con
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
 
     /**
      * Một Model thuộc về một enterprise

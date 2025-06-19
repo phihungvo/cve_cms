@@ -7,10 +7,13 @@ namespace App\Domains\CvedixtModel\Controller;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['user-auth']], static function () {
-    Route::get('/cvedixt-model/index', Index::class)->name('cvedixt-model.index');
-    Route::post('/cvedixt-model/create', Create::class)->name('cvedixt-model.create');
-    Route::post('/cvedixt-model/{id}/restore', [Index::class, 'restore'])->name('cvedixt-model.restore');
-    Route::delete('/cvedixt-model/{id}/force-delete', [Index::class, 'forceDelete'])->name('cvedixt-model.force-delete');
-    Route::delete('/cvedixt-model/delete', [Index::class, 'destroy'])->name('cvedixt-model.delete');
-    Route::put('/cvedixt-model/rename', [Index::class, 'rename'])->name('cvedixt-model.rename');
+    Route::get('/cvedixrt-model/index', [Index::class, '__invoke'])->name('cvedixrt_model.index');
+    Route::post('/cvedixrt-model/create', Create::class)->name('cvedixrt_model.create');
+    Route::post('/cvedixrt-model/create-folder', [Index::class, 'createFolder'])->name('cvedixrt_model.create-folder');
+    Route::post('/cvedixrt-model/{id}/restore', [Index::class, 'restore'])->name('cvedixrt_model.restore');
+    Route::delete('/cvedixrt-model/{id}/force-delete', [Index::class, 'forceDelete'])->name('cvedixrt_model.force-delete');
+    Route::delete('/cvedixrt-model/delete', [Index::class, 'destroy'])->name('cvedixrt_model.delete');
+    Route::put('/cvedixrt-model/rename', [Index::class, 'rename'])->name('cvedixrt_model.rename');
+    Route::get('/cvedixrt-model/{id}/download', [Index::class, 'download'])->name('cvedixrt_model.download');
+    Route::get('/cvedixrt-model/folder/{path}', [Index::class, 'getFolderContents'])->name('cvedixrt_model.folder.contents');
 });

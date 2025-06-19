@@ -24,11 +24,11 @@ class Create extends ControllerAbstract
             $message = __('model-create.upload-success', ['count' => count($createdModel)]);
             $this->sessionMessage('success', $message);
 
-            return redirect()->route('cvedixt-model.index');
+            return redirect()->route('cvedixrt_model.index');
         } catch (\Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
-            return redirect()->route('cvedixt-model.index');
+            return redirect()->route('cvedixrt_model.index');
         }
     }
 }

@@ -37,10 +37,9 @@ class Rename
 
             return [
                 'success' => true,
-                'message' => __('model-rename.rename-success'),
+                'message' => __('cvedixrt-model.rename.success'),
             ];
         } catch (Exception $e) {
-            Log::error('Error renaming model: ', ['error' => $e->getMessage()]);
             return [
                 'success' => false,
                 'message' => __('model-rename.rename-error'),
