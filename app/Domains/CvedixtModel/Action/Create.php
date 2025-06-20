@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\CvedixtModel\Action;
 
-use App\Domains\CvedixtModel\Model\CvedixtModel;
+use App\Domains\CvedixtModel\Model\CvedixtModel as Model;
 use Illuminate\Support\Facades\Log;
 
 class Create
@@ -14,7 +14,7 @@ class Create
     public function handle(array $data): CvedixtModel
     {
         try {
-            return CvedixtModel::create($data);
+            return Model::create($data);
         } catch (\Exception $e) {
             throw $e;
         }

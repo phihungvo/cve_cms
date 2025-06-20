@@ -6,7 +6,6 @@ namespace App\Domains\CvedixtModel\Service\Controller;
 
 use App\Domains\CvedixtModel\Action\Create as CreateAction;
 use App\Domains\CvedixtModel\Model\CvedixtModel;
-use App\Domains\User\Enterprise\Model\Enterprise;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -40,27 +39,28 @@ class Create
         $baseName = pathinfo($fileName, PATHINFO_FILENAME);
         $sanitized = Str::slug($baseName, '-');
 
-        return $sanitized.'.'.strtolower($extension);
+        return $sanitized . '.' . strtolower($extension);
     }
 
     public function create()
     {
         try {
-            // Validate request data
             $data = $this->request->validate([
-                'model_files' => 'required|array|max:10',
-                'media_files.*' => 'file|max:102400|mimes:mp4',
-                //'model_files.*' => 'file|mimes:pt,onnx,pth,h5,tflite,joblib,pkl,sav,ckpt',
+                'model_files' => 'sometimes|array|max:10',
+                'parent_id' => 'sometimes|nullable|string',
                 'enterprise_id' => $this->auth->hasRole('root') ? 'nullable|integer|exists:enterprise,id' : 'required|integer|exists:enterprise,id',
             ]);
 
-            $files = $this->request->file('model_files');
-            $bucket_path = $this->request->input('bucket_path');
+            $files = $this->request->file('model_files') ?? [];
+            $parentPath = $data['parent_id'] ?? null;
             $totalSize = 0;
             $createdModel = [];
             $errors = [];
 
-            // Calculate total file size
+            if (empty($files)) {
+                throw new \Exception('No files uploaded.');
+            }
+
             foreach ($files as $file) {
                 $totalSize += $file->getSize();
             }
@@ -69,7 +69,6 @@ class Create
                 throw new \Exception('Total file size exceeds 2GB limit.');
             }
 
-            // Handle enterprise_id
             $enterpriseId = $this->auth->hasRole('root') ? ($data['enterprise_id'] ?? null) : ($this->auth->enterprise_id ?? null);
             if (!$this->auth->hasRole('root') && !$enterpriseId) {
                 throw new \Exception('User is not associated with any enterprise.');
@@ -79,10 +78,7 @@ class Create
             try {
                 $config = config('filesystems.disks.minio');
                 $s3Client = new S3Client([
-                    'credentials' => [
-                        'key' => $config['key'],
-                        'secret' => $config['secret'],
-                    ],
+                    'credentials' => ['key' => $config['key'], 'secret' => $config['secret']],
                     'region' => $config['region'],
                     'version' => 'latest',
                     'endpoint' => $config['endpoint'],
@@ -90,72 +86,51 @@ class Create
                 ]);
                 $s3Client->listBuckets();
             } catch (\Exception $e) {
-                throw new \Exception('Unable to connect to storage server: Invalid credentials or server configuration.');
+                throw new \Exception('Unable to connect to storage server: ' . $e->getMessage());
             }
 
             $action = new CreateAction();
 
-            // Process each file
             foreach ($files as $index => $file) {
                 try {
                     $originalFileName = $file->getClientOriginalName();
                     $fileName = $this->sanitizeFileName($originalFileName);
                     $mimeType = $file->getMimeType();
 
-                    // Handle file storage
-                    $path = $this->auth->hasRole('root') ? $fileName : "{$enterpriseId}/{$fileName}";
-                    $modelUrl = '/'.$path;
+                    $basePath = $parentPath ?: ($enterpriseId ? $enterpriseId : '');
+                    $path = $basePath ? "{$basePath}/{$fileName}" : $fileName;
+                    $modelUrl = '/' . trim($path, '/');
 
-                    // Check file existence
-                    try {
-                        if (Storage::disk('minio')->exists($path) || CvedixtModel::where('model_url', $modelUrl)->exists()) {
-                            throw new \Exception(__('model-create.model-exists', ['name' => $fileName]));
-                        }
-                    } catch (\Exception $e) {
-                        throw new \Exception("Unable to check existence for: $fileName");
+                    if (Storage::disk('minio')->exists($path) || CvedixtModel::where('model_url', $modelUrl)->exists()) {
+                        throw new \Exception(__('model-create.model-exists', ['name' => $fileName]));
                     }
 
-                    // Store file
-                    try {
-                        if ($this->auth->hasRole('root')) {
-                            $path = Storage::disk('minio')->putFileAs($bucket_path, $file, $fileName);
-                        } else {
-                            $path = Storage::disk('minio')->putFileAs("{$enterpriseId}", $file, $fileName);
-                        }
-                    } catch (\Exception $e) {
-                        throw new \Exception("Failed to upload $fileName to storage.");
+                    $storedPath = Storage::disk('minio')->putFileAs($basePath ?: '', $file, $fileName);
+                    if (!Storage::disk('minio')->exists($storedPath)) {
+                        throw new \Exception('File not found on MinIO after upload: ' . $fileName);
                     }
 
-                    if (!Storage::disk('minio')->exists($path)) {
-                        throw new \Exception('File not found on MinIO after upload: '.$fileName);
-                    }
+                    $modelUrl = '/' . trim($storedPath, '/');
 
-                    // $modelUrl = Storage::disk('minio')->url($path);
-                    $modelUrl = '/'.$path;
-
-                    // Prepare media data
                     $modelData = [
                         'name' => pathinfo($fileName, PATHINFO_FILENAME),
                         'file_name' => $fileName,
                         'model_url' => $modelUrl,
                         'size' => $file->getSize(),
                         'type' => $mimeType,
-                        'enterprise_id' => $this->auth->hasRole('root') ? null : $enterpriseId,
+                        'enterprise_id' => $enterpriseId,
+                        'parent_id' => $parentPath ? CvedixtModel::where('model_url', '/' . trim($parentPath, '/'))->first()?->id : null,
+                        'is_folder' => false,
                     ];
 
-                    // Save media
                     $media = $action->handle($modelData);
                     $createdModel[] = $media;
 
                 } catch (\Exception $e) {
-                    $errors[] = [
-                        'file' => $originalFileName,
-                        'error' => $e->getMessage(),
-                    ];
+                    $errors[] = ['file' => $originalFileName, 'error' => $e->getMessage()];
                 }
             }
 
-            // Handle partial success or errors
             if (!empty($errors)) {
                 $response = [
                     'success' => false,
@@ -169,7 +144,6 @@ class Create
                     : $createdModel;
             }
 
-            // Success response
             $response = [
                 'success' => true,
                 'message' => __('model-create.upload-success', ['count' => count($createdModel)]),
@@ -181,21 +155,13 @@ class Create
                 : $createdModel;
 
         } catch (ValidationException $e) {
-            $response = [
-                'success' => false,
-                'message' => 'Validation failed.',
-                'errors' => $e->errors(),
-            ];
+            $response = ['success' => false, 'message' => 'Validation failed.', 'errors' => $e->errors()];
 
             return $this->request->ajax() || $this->request->wantsJson()
                 ? response()->json($response, 422)
                 : throw $e;
-
         } catch (\Exception $e) {
-            $response = [
-                'success' => false,
-                'message' => $e->getMessage(),
-            ];
+            $response = ['success' => false, 'message' => $e->getMessage()];
 
             return $this->request->ajax() || $this->request->wantsJson()
                 ? response()->json($response, 500)

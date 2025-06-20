@@ -94,6 +94,19 @@ class CvedixtModel extends ModelAbstract
     }
 
     /**
+     * Đếm số file trực tiếp trong thư mục (không tính subfolder).
+     *
+     * @return int
+     */
+    public function countFilesInFolder(): int
+    {
+        return $this->children()
+            ->where('is_folder', false)
+            ->whereNull('deleted_at')
+            ->count();
+    }
+
+    /**
      * Tạo một instance của collection tùy chỉnh, thay vì sử dụng Collection mặc định
      * Không cần gọi phương thức này, Laravel sẽ tự động gọi khi cần thiết
      *

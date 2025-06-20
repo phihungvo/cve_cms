@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domains\CvedixtModel\Controller;
 
-use App\Domains\CvedixtModel\Action\Create;
 use App\Domains\CvedixtModel\Action\Delete;
 use App\Domains\CvedixtModel\Action\Rename;
+use App\Domains\CvedixtModel\Model\CvedixtModel;
 use App\Domains\CvedixtModel\Service\Controller\Download as DownloadService;
 use App\Domains\CvedixtModel\Service\Controller\Index as ControllerService;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
-use App\Domains\CvedixtModel\Model\CvedixtModel as Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
@@ -30,10 +29,12 @@ class Index extends ControllerAbstract
         return ControllerService::new($this->request, $this->auth)->data();
     }
 
-    public function getFolderContents($path)
+    public function getFolderContents($path): JsonResponse
     {
+        $decodedPath = urldecode($path);
+
         $service = ControllerService::new($this->request, $this->auth);
-        $children = $service->getChildren($path);
+        $children = $service->getChildren($decodedPath);
 
         return response()->json(['model' => $children->map(function ($item) {
             return [
@@ -46,35 +47,73 @@ class Index extends ControllerAbstract
                 'updated_at' => $item->updated_at ? $item->updated_at->timestamp : null,
                 'deleted_at' => $item->deleted_at ? $item->deleted_at->timestamp : null,
                 'enterprise_id' => $item->enterprise_id,
+                'is_folder' => $item->is_folder,
+                'file_count' => $item->is_folder ? $item->countFilesInFolder() : 0,
             ];
         })]);
     }
 
     public function createFolder(): JsonResponse
     {
-        $parentPath = $this->request->input('parent_id'); // Đường dẫn cha từ client
-        $folderName = $this->request->input('name', 'Folder_' . date('His')); // Tên thư mục với timestamp
-        $enterpriseId = $this->auth->hasRole('root') ? ($this->request->input('enterprise_id') ?? null) : $this->auth->enterprise_id;
-
-        // Xây dựng đường dẫn cho thư mục mới
-        $path = $parentPath ? "{$parentPath}/{$folderName}" : ($enterpriseId ? "{$enterpriseId}/{$folderName}" : $folderName);
-        $fullPath = '/' . trim($path, '/');
-
         try {
-            // Tạo thư mục trong MinIO
-            $disk = Storage::disk('minio');
-            $disk->makeDirectory($path); // Tạo thư mục trong bucket
+            $parentPath = $this->request->input('parent_id', '');
+            $folderName = trim($this->request->input('name'));
+            if (empty($folderName)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tên thư mục không được để trống',
+                ], 422);
+            }
 
-            // Trả về phản hồi để cập nhật giao diện
+            $enterpriseId = $this->auth->hasRole('root') ? null : ($this->auth->enterprise_id ?? null);
+            if (!$enterpriseId && !$this->auth->hasRole('root')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không có quyền tạo thư mục',
+                ], 403);
+            }
+
+            $basePath = $parentPath ?: ($enterpriseId ? $enterpriseId : '');
+            $path = $basePath ? "{$basePath}/{$folderName}" : $folderName;
+            $fullPath = '/' . trim($path, '/');
+
+            // Kiểm tra thư mục đã tồn tại
+            if (Storage::disk('minio')->exists($path) || CvedixtModel::where('model_url', $fullPath)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Thư mục đã tồn tại',
+                ], 422);
+            }
+
+            // Tạo thư mục trên MinIO
+            Storage::disk('minio')->makeDirectory($path);
+
+            // Lưu vào database với parent_id đúng
+            $parentId = $parentPath ? CvedixtModel::where('model_url', '/' . trim($parentPath, '/'))->first()?->id : null;
+            $model = CvedixtModel::create([
+                'name' => $folderName,
+                'file_name' => $folderName,
+                'model_url' => $fullPath,
+                'size' => 0,
+                'type' => 'folder',
+                'enterprise_id' => $enterpriseId,
+                'parent_id' => $parentId,
+                'is_folder' => true,
+            ]);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Thư mục đã được tạo',
-                'path' => $path,
-                'fullPath' => $fullPath,
-                'name' => $folderName,
-                'parentPath' => $parentPath, // Gửi lại parentPath để đồng bộ
-            ]);
+                'message' => 'Tạo thư mục thành công',
+                'data' => [
+                    'path' => $path,
+                    'fullPath' => $fullPath,
+                    'name' => $folderName,
+                    'parentPath' => $parentPath,
+                    'model_id' => $model->id,
+                ],
+            ], 201);
         } catch (\Exception $e) {
+
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi tạo thư mục: ' . $e->getMessage(),
@@ -82,42 +121,16 @@ class Index extends ControllerAbstract
         }
     }
 
-//    public function createFolder(): JsonResponse
-//    {
-//        $parentPath = $this->request->input('parent_id'); // Đường dẫn cha
-//        $folderName = $this->request->input('name', 'NewFolder_'.\Illuminate\Support\Str::random(5));
-//        $enterpriseId = $this->auth->hasRole('root') ? ($this->request->input('enterprise_id') ?? null) : $this->auth->enterprise_id;
-//
-//        // Xây dựng đường dẫn cho thư mục mới
-//        $path = $parentPath ? "{$parentPath}/{$folderName}" : ($enterpriseId ? "{$enterpriseId}/{$folderName}" : $folderName);
-//        $fullPath = '/'.trim($path, '/');
-//
-//        try {
-//            // Tạo thư mục trong MinIO
-//            $disk = Storage::disk('minio');
-//            $disk->makeDirectory($path); // Tạo thư mục trong bucket
-//
-//            // Trả về phản hồi để cập nhật giao diện
-//            return response()->json([
-//                'success' => true,
-//                'message' => 'Thư mục đã được tạo',
-//                'path' => $path,
-//                'fullPath' => $fullPath,
-//                'name' => $folderName,
-//            ]);
-//        } catch (\Exception $e) {
-//            return response()->json([
-//                'success' => false,
-//                'message' => 'Lỗi khi tạo thư mục: '.$e->getMessage(),
-//            ], 500);
-//        }
-//    }
-
     public function destroy(): RedirectResponse
     {
-        $mediaUrl = $this->request->input('model_url');
+        $modelId = $this->request->input('model_id'); // Lấy ID từ request
+        if (!$modelId || !is_numeric($modelId)) {
+            $this->sessionMessage('error', 'ID không hợp lệ');
+            return redirect()->route('cvedixrt_model.index');
+        }
+
         $action = new Delete();
-        $result = $action->handle($mediaUrl, $this->auth);
+        $result = $action->handle((int)$modelId, $this->auth);
 
         return $this->redirectResult($result, 'cvedixrt_model.index');
     }
