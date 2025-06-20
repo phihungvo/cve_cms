@@ -49,6 +49,8 @@ Route::group(['middleware' => ['user-auth']], static function () {
         ->name('device.check-rtsp-status');
     Route::any('/device/{id}/runtime-analytics/event', RTAnalyticsEvent::class)
         ->name('device.runtime-analytics.event');
+    // Broadcast events Test
+    Route::post('/device/{id}/event/broadcast', EventBroadcastController::class)->name('device.runtime-analytics.event.broadcast');
 });
 
 Route::group(['middleware' => ['user-auth-manager-mode']], static function () {

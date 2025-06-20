@@ -7,6 +7,18 @@ use App\Domains\Device\Model\Builder\DeviceCvedixrtEventBuilder as Builder;
 use App\Domains\Device\Model\Collection\DeviceCvedixrtEventCollection as Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property string $image_url
+ * @property string $video_url
+ * @property string $detected_object
+ * @property string $event_name
+ * @property string $event_value
+ * @property string $event_type
+ * @property int $instance_rule_id
+ * @property int $device_id
+ */
 class DeviceCvedixrtEvent extends ModelAbstract
 {
     protected $table = 'device_cvedixrt_event';

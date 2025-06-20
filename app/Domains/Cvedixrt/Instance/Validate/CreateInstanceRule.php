@@ -20,6 +20,7 @@ class CreateInstanceRule extends ValidateAbstract
             'drawing_object' => ['nullable', 'array'],
             'direction' => ['nullable', 'in:'.implode(',', array_column(Direction::cases(), 'value'))],
             'cvedixrt_instance_id' => ['required', 'integer', 'exists:cvedixrt_instance,id'],
+            'priority' => ['nullable', 'integer', 'min:1', 'max:5'],
         ];
     }
 }

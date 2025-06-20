@@ -77,6 +77,14 @@
                         <div id="detectObjectsError"
                              class="text-red-500 text-sm mt-1 hidden">{{ __('cvedixt-analytic.alert_no_object') }}</div>
                     </div>
+                    <!-- input range for priority -->
+                    <div class="flex justify-start items-center gap-2 mt-3">
+                        <label class="font-bold" for="priority">priority:</label>
+                        <input class="w-1/2" type="range" id="priority" name="priority" min="1" max="5"
+                               value="1" oninput="priorityOutput.value = priority.value"
+                        >
+                        <output id="priorityOutput">1</output>
+                    </div>
                 </div>
                 <!-- Right column: Camera live -->
                 <div class="w-1/2 pl-4 flex flex-col">
@@ -183,7 +191,24 @@
 
 
         @endsection
+        @push('styles')
+            <style>
+                input[type="range"]::-webkit-slider-runnable-track {
+                    background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+                    border-radius: 10px;
+                }
 
+                input[type="range"]::-webkit-slider-runnable-track {
+                    background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+                    border-radius: 10px;
+                }
+
+                input[type="range"]::-webkit-slider-runnable-track {
+                    background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+                    border-radius: 10px;
+                }
+            </style>
+        @endpush
         @push('scripts')
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script src="{{ asset('/js/drawing-tool.js') }}"></script>
@@ -194,11 +219,15 @@
                 let selectedAddedRule = null;
                 let instanceRules = [];
 
+                let priorityEl = document.getElementById('priority');
+                let priorityOutputEL = document.getElementById('priorityOutput');
+
                 const ruleList = document.getElementById('ruleList');
                 const ruleNameEl = document.getElementById('ruleNameInput');
                 const detectObjectsCheckboxes = document.querySelectorAll('input[name="detect_objects"]');
                 const ruleTypeButtons = document.querySelectorAll('.btn.form-control-lg');
                 let ruleItemsEl = document.querySelectorAll('.rule-item');
+                const btnSaveRule = document.getElementById('btn-save-rule');
 
                 const generalSettingBtn = document.getElementById('generalSettingBtn');
                 const generalSettingDiv = document.getElementById('generalSetting');
@@ -220,6 +249,7 @@
                         drawing_object: @json($rule->drawing_object),
                         direction: '{{ $rule->direction }}',
                         cvedixrt_instance_id: {{ $rule->cvedixrt_instance_id }},
+                        priority: {{ $rule->priority }},
                     });
                     @endforeach
                 }
@@ -381,21 +411,6 @@
                     return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
                 }
 
-                function loadInstanceRules() {
-                    @foreach($row->instanceRules as $rule)
-                    instanceRules.push({
-                        id: {{ $rule->id }},
-                        uuid: '{{ $rule->uuid }}',
-                        name: '{{ $rule->name }}',
-                        detected_object: @json($rule->detected_object),
-                        rule_type: '{{ $rule->rule_type }}',
-                        drawing_object: @json($rule->drawing_object),
-                        direction: '{{ $rule->direction }}',
-                        cvedixrt_instance_id: {{ $rule->cvedixrt_instance_id }},
-                    });
-                    @endforeach
-                }
-
                 loadInstanceRules();
 
                 function openDrawingTool() {
@@ -463,7 +478,6 @@
                     currentRuleItem.classList.remove('bg-white');
                     currentRuleItem.classList.add('bg-blue-500', 'text-white');
 
-                    const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Update +';
 
                     // Cập nhật form cấu hình
@@ -490,6 +504,7 @@
                         drawing_object: addedRule.drawing_object,
                         direction: addedRule.direction,
                         cvedixrt_instance_id: addedRule.cvedixrt_instance_id,
+                        priority: addedRule.priority
                     })
 
                     // Gọi lại hàm render thẻ li
@@ -517,7 +532,6 @@
                         this.classList.remove('bg-white');
                         this.classList.add('bg-blue-500', 'text-white');
 
-                        const btnSaveRule = document.getElementById('btn-save-rule');
                         btnSaveRule.innerText = 'Update +';
 
                         // Cập nhật form cấu hình
@@ -553,6 +567,7 @@
                     const drawingObject = window.tempShapesToSave?.drawing_object
                         || selectedAddedRule?.drawing_object || [];
                     const direction = window.tempShapesToSave?.direction || selectedAddedRule.direction;
+                    const priority = priorityEl.value
 
                     const requestData = {
                         _action: action,
@@ -562,7 +577,8 @@
                         rule_type: ruleType,
                         drawing_object: drawingObject,
                         direction: direction,
-                        cvedixrt_instance_id: instanceId
+                        cvedixrt_instance_id: instanceId,
+                        priority: priority
                     }
 
                     if (action === 'updateInstanceRule') {
@@ -611,7 +627,8 @@
                                     updateRuleConfiguration();
                                     ruleItemsEl = document.querySelectorAll('.rule-item');
                                     selectedAddedRule = null;
-                                    document.getElementById('btn-save-rule').innerText = 'Add +';
+
+                                    btnSaveRule.innerText = 'Add +';
 
                                     if (window.DrawingTool) {
                                         window.DrawingTool.loadShapesFromServer(null);
@@ -640,7 +657,6 @@
                         this.classList.remove('bg-white');
                         this.classList.add('bg-blue-500', 'text-white');
 
-                        const btnSaveRule = document.getElementById('btn-save-rule');
                         btnSaveRule.innerText = 'Update +';
 
                         selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
@@ -682,7 +698,6 @@
                             this.classList.remove('bg-white');
                             this.classList.add('bg-blue-500', 'text-white');
 
-                            const btnSaveRule = document.getElementById('btn-save-rule');
                             btnSaveRule.innerText = 'Update +';
 
                             updateRuleConfiguration(selectedAddedRule);
@@ -740,6 +755,8 @@
                                 item.classList.add('bg-white');
                             }
                         })
+                        priorityEl.value = dataCurrentRule.priority;
+                        priorityOutputEL.value = dataCurrentRule.priority;
                     } else {
                         ruleNameEl.value = '';
                         // Reset các checkbox của DetectedObject
@@ -763,6 +780,10 @@
                         selectedRuleType = ruleTypeButtons[0].dataset.ruleType;
 
                         resizeCanvasWithRuleId(null);
+
+                        priorityEl.value = 1
+                        priorityOutputEL.value = 1;
+
 
                         // // Reset video canvas
                         // if (videoWrapperOutside && videoElementOutside && canvasOverlayOutside) {
@@ -810,6 +831,8 @@
                                     selectedAddedRule = null;
                                     instanceRules = instanceRules.filter(rule => rule.id !== ruleId);
                                     updateRuleConfiguration(selectedAddedRule);
+
+                                    btnSaveRule.innerText = 'Add +';
 
                                     Swal.fire({
                                         icon: 'success',
@@ -882,12 +905,14 @@
                                 if (ctxOutside && canvasOverlayOutside) {
                                     ctxOutside.clearRect(0, 0, canvasOverlayOutside.width, canvasOverlayOutside.height);
                                 }
+
+                                priorityEl.value = 1;
+                                priorityOutputEL.value = 1;
                             }
 
                             // Reset trạng thái rule đã chọn
                             selectedAddedRule = null;
 
-                            const btnSaveRule = document.getElementById('btn-save-rule');
                             btnSaveRule.innerText = 'Add +';
 
                             // if (window.DrawingTool) {

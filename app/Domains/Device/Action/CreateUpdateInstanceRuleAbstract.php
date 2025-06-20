@@ -29,6 +29,7 @@ abstract class CreateUpdateInstanceRuleAbstract extends ActionAbstract
         $this->dataDrawingObject();
         $this->dataDirection();
         $this->dataInstanceId();
+        $this->dataPriority();
     }
 
     protected function check(): void
@@ -62,6 +63,10 @@ abstract class CreateUpdateInstanceRuleAbstract extends ActionAbstract
     }
 
     protected function dataRuleType()
+    {
+    }
+
+    protected function dataPriority()
     {
     }
 }

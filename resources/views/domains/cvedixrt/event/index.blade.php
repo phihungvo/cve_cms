@@ -131,7 +131,12 @@
                 </div>
             @endforeach
         </div>
-
+        <div class="fixed shadow shadow-md" style="right: 60px; bottom: 60px; z-index: 10;">
+            <button
+                class="btn btn-primary py-3 px-5" onclick="sendEventsDemo()">
+                Demo Events
+            </button>
+        </div>
     </div>
 @endsection
 @push('styles')
@@ -324,6 +329,51 @@
                 confirmButtonText: 'Close',
                 confirmButtonColor: '#0d6efd',
             });
+        }
+
+        function sendEventsDemo(){
+            fetch("{{route('cvedixrt_event.broadcast')}}",{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({_action: 'sendEvents'})
+            }).then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            }).then(data => {
+                if (data.success == 'ok') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                        confirmButtonText: 'Close',
+                        confirmButtonColor: '#0d6efd',
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'An error occurred while sending events.',
+                        confirmButtonText: 'Close',
+                        confirmButtonColor: '#dc3545',
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while sending events.',
+                    confirmButtonText: 'Close',
+                    confirmButtonColor: '#dc3545',
+                });
+            })
         }
     </script>
 @endpush
