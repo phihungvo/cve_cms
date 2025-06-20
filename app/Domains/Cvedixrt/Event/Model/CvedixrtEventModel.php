@@ -9,6 +9,17 @@ use App\Domains\Cvedixrt\Event\Model\Builder\EventBuilder;
 use App\Domains\Cvedixrt\Event\Model\Collection\EventCollection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property string $image_url
+ * @property string $video_url
+ * @property string $detected_object
+ * @property string $event_name
+ * @property string $event_value
+ * @property string $event_type
+ * @property int $instance_rule_id
+ */
 class CvedixrtEventModel extends ModelAbstract
 {
     use HasFactory;

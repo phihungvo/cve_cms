@@ -26,6 +26,7 @@ class DeviceCvedixrtInstanceRule extends ModelAbstract
         'rule_type',
         'drawing_object',
         'device_cvedixrt_instance_id',
+        'priority',
     ];
 
     protected $casts = [

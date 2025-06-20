@@ -13,4 +13,6 @@ Route::post('/device/status', DeviceStatus::class);
 Route::get('/device/status', GetDeviceStatusBySerial::class);
 Route::get('/device/media/capture/{id}', [GetListMediaCapture::class, 'data']);
 
+Route::get('device/{id}/cvedixrt/event', RTAnalyticsEvent::class)->name('device_cvedixrt_event.index');
+
 

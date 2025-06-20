@@ -1,14 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\Cvedixrt\Event\Controller;
+namespace App\Domains\Cvedixrt\Event\ControllerApi;
 
 use Illuminate\Support\Facades\Route;
 
 Route::group([], static function () {
     Route::get('/cvedixrt/event', IndexController::class)->name('cvedixrt_event.index');
-
-    // Broadcast events Test
-    Route::post('/event/broadcast', EventBroadcastController::class)->name('cvedixrt_event.broadcast');
-
-
 });

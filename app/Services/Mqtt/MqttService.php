@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Services\Mqtt;
 
@@ -22,7 +22,7 @@ class MqttService
 
     protected ConnectionSettings $connectionSettings;
 
-    protected bool $connected = false; // Biến kiểm tra kết nối.
+    public bool $connected = false; // Biến kiểm tra kết nối.
 
     /**
      * @throws Exception
@@ -30,7 +30,7 @@ class MqttService
     public function __construct()
     {
         $this->server = env('MQTT_SERVER', 'broker.emqx.io');
-        $this->port = env('MQTT_PORT', 1883);
+        $this->port = (int)env('MQTT_PORT', 1883);
         $this->clientId = 'cvedix-publisher-'.uniqid();
 
         $this->connectionSettings = (new ConnectionSettings())
@@ -40,15 +40,11 @@ class MqttService
 
         // Không kết nối ngay lập tức
         $this->mqtt = new MqttClient($this->server, $this->port, $this->clientId);
-
-        //        try {
-        //            $this->mqtt = new MqttClient($this->server, $this->port, $this->clientId);
-        //            $this->mqtt->connect($this->connectionSettings);
-        //        } catch (ProtocolNotSupportedException|ConfigurationInvalidException|ConnectingToBrokerFailedException $e) {
-        //            throw new Exception('MQTT connection failed: '.$e->getMessage());
-        //        }
     }
 
+    /**
+     * @throws Exception
+     */
     public function connect(): void
     {
         if (!$this->connected) {
@@ -56,7 +52,7 @@ class MqttService
                 $this->mqtt->connect($this->connectionSettings);
                 $this->connected = true; // Đánh dấu là đã kết nối
 
-            } catch (ProtocolNotSupportedException|ConfigurationInvalidException|ConnectingToBrokerFailedException $e) {
+            } catch (ConfigurationInvalidException|ConnectingToBrokerFailedException $e) {
                 throw new Exception('MQTT connection failed: '.$e->getMessage());
             }
         }
