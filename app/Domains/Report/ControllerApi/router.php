@@ -10,6 +10,8 @@ use App\Domains\Report\Service\ControllerApi\DeviceDistanceImpressionReach as De
 use App\Domains\Report\ControllerApi\DailyDistanceImpressionReach as DailyDistanceImpressionReachController;
 use App\Domains\Report\Service\ControllerApi\DailyDistanceImpressionReach as DailyDistanceImpressionReachService;
 
+use App\Domains\Report\ControllerApi\HealthSystem;
+
 // use App\Domains\Report\ControllerApi\GetScreenCaptureRecognition as GetScreenCaptureRecognitionController;
 // use App\Domains\Report\Service\ControllerApi\GetScreenCaptureRecognition as GetScreenCaptureRecognitionService;
 
@@ -32,3 +34,6 @@ Route::get('/report/image/vehicle', [GetImageReportByVehicleId::class, 'index'])
 Route::get('/report/image/recognition/fpp', [GetScreenCaptureRecognition::class, 'index']);
 
 Route::post('/report/image/node-red', [SaveImageNodeRed::class, 'store']);
+
+
+Route::get('/report/system/health', HealthSystem::class)->withoutMiddleware(['user-auth-api', 'auth:api']);
