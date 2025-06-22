@@ -31,14 +31,15 @@ if [ ! -f docker/docker-compose.yml.example ]; then
 fi
 ls -l docker/docker-compose.yml.example
 
-# Sao chép docker-compose.yml nếu chưa tồn tại
-if [ ! -f docker/docker-compose.yml ] && [ -f docker/docker-compose.yml.example ]; then
-    cp docker/docker-compose.yml.example docker/docker-compose.yml
-    echo "Copied docker-compose.yml.example to docker-compose.yml"
-elif [ ! -f docker/docker-compose.yml.example ]; then
+# Luôn sao chép file docker-compose.yml.example thành docker-compose.yml
+if [ -f docker/docker-compose.yml.example ]; then
+    cp -f docker/docker-compose.yml.example docker/docker-compose.yml
+    echo "Forced copy: docker-compose.yml.example → docker-compose.yml"
+else
     echo "Error: docker/docker-compose.yml.example not found"
     exit 1
 fi
+
 
 # Kiểm tra các file cần thiết
 echo "Checking required files..."
