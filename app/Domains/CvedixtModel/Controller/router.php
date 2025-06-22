@@ -15,5 +15,6 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::delete('/cvedixrt-model/delete', [Index::class, 'destroy'])->name('cvedixrt_model.delete');
     Route::put('/cvedixrt-model/rename', [Index::class, 'rename'])->name('cvedixrt_model.rename');
     Route::get('/cvedixrt-model/{id}/download', [Index::class, 'download'])->name('cvedixrt_model.download');
-    Route::get('/cvedixrt-model/folder/{path}', [Index::class, 'getFolderContents'])->name('cvedixrt_model.folder.contents');
-});
+    Route::get('/cvedixrt-model/folder/{path?}', [Index::class, 'getFolderContents'])
+        ->where('path', '.*')
+        ->name('cvedixrt_model.folder.contents');});

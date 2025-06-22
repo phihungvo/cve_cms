@@ -6,7 +6,7 @@ namespace App\Domains\CvedixtModel\Controller;
 
 use App\Domains\CvedixtModel\Action\Delete;
 use App\Domains\CvedixtModel\Action\Rename;
-use App\Domains\CvedixtModel\Model\CvedixtModel;
+use App\Domains\CvedixtModel\Model\CvedixtModel as Model;
 use App\Domains\CvedixtModel\Service\Controller\Download as DownloadService;
 use App\Domains\CvedixtModel\Service\Controller\Index as ControllerService;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
@@ -14,12 +14,13 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class Index extends ControllerAbstract
 {
     public function __invoke(): Response
     {
-        $this->meta('title', __('Cvedixt Model'));
+        $this->meta('title', __('cvedixt Model'));
 
         return $this->page('cvedixrt.model.index', $this->data());
     }
@@ -32,6 +33,7 @@ class Index extends ControllerAbstract
     public function getFolderContents($path): JsonResponse
     {
         $decodedPath = urldecode($path);
+        Log::info('Lấy nội dung thư mục', ['path' => $decodedPath]);
 
         $service = ControllerService::new($this->request, $this->auth);
         $children = $service->getChildren($decodedPath);
@@ -45,7 +47,6 @@ class Index extends ControllerAbstract
                 'type' => $item->type,
                 'created_at' => $item->created_at->timestamp,
                 'updated_at' => $item->updated_at ? $item->updated_at->timestamp : null,
-                'deleted_at' => $item->deleted_at ? $item->deleted_at->timestamp : null,
                 'enterprise_id' => $item->enterprise_id,
                 'is_folder' => $item->is_folder,
                 'file_count' => $item->is_folder ? $item->countFilesInFolder() : 0,
@@ -75,22 +76,19 @@ class Index extends ControllerAbstract
 
             $basePath = $parentPath ?: ($enterpriseId ? $enterpriseId : '');
             $path = $basePath ? "{$basePath}/{$folderName}" : $folderName;
-            $fullPath = '/' . trim($path, '/');
+            $fullPath = '/'.trim($path, '/');
 
-            // Kiểm tra thư mục đã tồn tại
-            if (Storage::disk('minio')->exists($path) || CvedixtModel::where('model_url', $fullPath)->exists()) {
+            if (Storage::disk('minio')->exists($path) || Model::where('model_url', $fullPath)->exists()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Thư mục đã tồn tại',
                 ], 422);
             }
 
-            // Tạo thư mục trên MinIO
             Storage::disk('minio')->makeDirectory($path);
 
-            // Lưu vào database với parent_id đúng
-            $parentId = $parentPath ? CvedixtModel::where('model_url', '/' . trim($parentPath, '/'))->first()?->id : null;
-            $model = CvedixtModel::create([
+            $parentId = $parentPath ? Model::where('model_url', '/'.trim($parentPath, '/'))->first()?->id : null;
+            $model = Model::create([
                 'name' => $folderName,
                 'file_name' => $folderName,
                 'model_url' => $fullPath,
@@ -113,47 +111,57 @@ class Index extends ControllerAbstract
                 ],
             ], 201);
         } catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi tạo thư mục: ' . $e->getMessage(),
+                'message' => 'Lỗi khi tạo thư mục: '.$e->getMessage(),
             ], 500);
         }
     }
 
-    public function destroy(): RedirectResponse
+    public function destroy(): JsonResponse
     {
-        $modelId = $this->request->input('model_id'); // Lấy ID từ request
-        if (!$modelId || !is_numeric($modelId)) {
-            $this->sessionMessage('error', 'ID không hợp lệ');
-            return redirect()->route('cvedixrt_model.index');
+        $modelIdInput = $this->request->input('model_id');
+        Log::info('Nhận yêu cầu xóa', ['model_id_input' => $modelIdInput]);
+
+        if (!$modelIdInput) {
+            Log::error('Không nhận được model_id', ['request' => $this->request->all()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'ID không hợp lệ',
+            ], 422);
+        }
+
+        $modelIds = array_filter(array_map('intval', is_array($modelIdInput) ? $modelIdInput : explode(',', $modelIdInput)));
+        if (empty($modelIds)) {
+            Log::error('Không có ID hợp lệ sau khi xử lý', ['model_id_input' => $modelIdInput]);
+            return response()->json([
+                'success' => false,
+                'message' => 'ID không hợp lệ',
+            ], 422);
         }
 
         $action = new Delete();
-        $result = $action->handle((int)$modelId, $this->auth);
+        $results = [];
+        foreach ($modelIds as $modelId) {
+            $result = $action->handle($modelId, $this->auth);
+            $results[] = $result;
+            if (!$result['success']) {
+                Log::error('Xóa thất bại cho model_id', ['model_id' => $modelId, 'message' => $result['message']]);
+            }
+        }
 
-        return $this->redirectResult($result, 'cvedixrt_model.index');
-    }
+        $allSuccess = array_reduce($results, fn ($carry, $result) => $carry && $result['success'], true);
+        $messages = array_column($results, 'message');
 
-    public function restore($id): RedirectResponse
-    {
-        $action = new Delete();
-        $result = $action->restore($id, $this->auth);
-
-        return $this->redirectResult($result, 'cvedixrt_model.index');
-    }
-
-    public function forceDelete($id): RedirectResponse
-    {
-        $action = new Delete();
-        $result = $action->forceDelete($id, $this->auth);
-
-        return $this->redirectResult($result, 'cvedixrt_model.index');
+        return response()->json([
+            'success' => $allSuccess,
+            'message' => $allSuccess ? 'Xóa thành công' : implode('; ', array_unique($messages)),
+        ]);
     }
 
     public function rename(): RedirectResponse
     {
-        $modelId = $this->request->input('model_id');
+        $modelId = (int) $this->request->input('model_id');
         $newName = $this->request->input('name');
         $action = new Rename();
         $result = $action->handle($modelId, $newName, $this->auth);
@@ -164,7 +172,6 @@ class Index extends ControllerAbstract
     public function download($id): Response
     {
         $service = DownloadService::new($this->request, $this->auth);
-
         return $service->download((int) $id);
     }
 
@@ -175,7 +182,6 @@ class Index extends ControllerAbstract
         } else {
             $this->sessionMessage('error', $result['message']);
         }
-
         return redirect()->route($route);
     }
 }

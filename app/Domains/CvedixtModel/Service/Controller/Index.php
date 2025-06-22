@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 class Index
 {
     protected $request;
-
     protected $auth;
 
     public function __construct($request, $auth)
@@ -37,14 +36,12 @@ class Index
     {
         $query = CvedixtModel::query();
 
-        if ($this->auth->hasRole('root')) {
-            $query->withTrashed();
-        } else {
+        if (!$this->auth->hasRole('root')) {
             $enterpriseId = $this->auth->enterprise_id ?? null;
             if (!$enterpriseId) {
                 return [];
             }
-            $query->where('enterprise_id', $enterpriseId)->whereNull('deleted_at');
+            $query->where('enterprise_id', $enterpriseId);
         }
 
         if ($search = $this->request->get('search')) {
@@ -55,7 +52,6 @@ class Index
         }
 
         $query->orderBy('created_at', 'asc');
-
         return $query->get();
     }
 
@@ -90,7 +86,6 @@ class Index
                         'file_count' => 0,
                         'is_folder' => $isFolder,
                         'model_id' => ($isFolder && $isLastPart && $model->is_folder && $path === $relativePath) ? $model->id : null,
-                        'deleted_at' => $model->deleted_at ? $model->deleted_at->timestamp : null,
                     ];
                 }
 
@@ -110,7 +105,6 @@ class Index
         // Đồng bộ với MinIO
         $disk = Storage::disk('minio');
         try {
-            // Lấy tất cả thư mục từ MinIO
             $objects = $disk->allDirectories($prefix);
             foreach ($objects as $objectPath) {
                 $relativePath = $enterpriseId ? str_replace("{$enterpriseId}/", '', $objectPath) : $objectPath;
@@ -131,14 +125,12 @@ class Index
                             'file_count' => $model ? $model->countFilesInFolder() : 0,
                             'is_folder' => true,
                             'model_id' => $model ? $model->id : null,
-                            'deleted_at' => $model && $model->deleted_at ? $model->deleted_at->timestamp : null,
                         ];
                     }
                     $current = &$current[$parts[$i]]['children'];
                 }
             }
 
-            // Lấy danh sách file từ MinIO
             $files = $disk->files($prefix);
             foreach ($files as $filePath) {
                 $relativePath = $enterpriseId ? str_replace("{$enterpriseId}/", '', $filePath) : $filePath;
@@ -160,7 +152,6 @@ class Index
                                 'file_count' => 0,
                                 'is_folder' => false,
                                 'model_id' => $model ? $model->id : null,
-                                'deleted_at' => $model && $model->deleted_at ? $model->deleted_at->timestamp : null,
                             ];
                         }
                         if ($i > 0) {
@@ -177,7 +168,6 @@ class Index
                                 'file_count' => $model ? $model->countFilesInFolder() : 0,
                                 'is_folder' => true,
                                 'model_id' => $model ? $model->id : null,
-                                'deleted_at' => $model && $model->deleted_at ? $model->deleted_at->timestamp : null,
                             ];
                         }
                         $current = &$current[$parts[$i]]['children'];
@@ -186,7 +176,7 @@ class Index
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('Lỗi đồng bộ MinIO: ' . $e->getMessage());
+            Log::error('Lỗi đồng bộ MinIO: ' . $e->getMessage());
         }
 
         return $tree;
@@ -196,114 +186,22 @@ class Index
     {
         $query = CvedixtModel::query();
 
-        if ($this->auth->hasRole('root')) {
-            $query->withTrashed();
-        } else {
+        if (!$this->auth->hasRole('root')) {
             $enterpriseId = $this->auth->enterprise_id ?? null;
             if (!$enterpriseId) {
                 return collect([]);
             }
-            $query->where('enterprise_id', $enterpriseId)->whereNull('deleted_at');
+            $query->where('enterprise_id', $enterpriseId);
         }
 
-        $fullPath = ($this->auth->hasRole('root') ? '' : ($this->auth->enterprise_id ?? '')).'/'.trim($path, '/');
-        $fullPath = '/'.trim($fullPath, '/');
+        // Xử lý đường dẫn đầy đủ
+        $fullPath = '/'.trim(($this->auth->hasRole('root') ? '' : ($this->auth->enterprise_id ?? '')).'/'.trim($path, '/'), '/');
 
-        // Lọc các bản ghi là con trực tiếp
-        $query->where('parent_id', function ($q) use ($fullPath) {
-            $q->select('id')->from('cvedixt_model')->where('model_url', $fullPath);
-        })->orWhere(function ($q) use ($fullPath) {
-            $q->where('model_url', $fullPath)->where('is_folder', true);
-        });
+        // Lấy tất cả bản ghi con trực tiếp (file và folder) trong subfolder
+        $query->where('model_url', 'like', $fullPath.'/%')
+            ->whereRaw('model_url NOT LIKE ?', [$fullPath.'/%/%']) // Chỉ lấy con trực tiếp
+            ->orWhere('model_url', $fullPath); // Bao gồm chính folder hiện tại
 
         return $query->get();
-    }
-
-    public function createFolder(): \Illuminate\Http\JsonResponse
-    {
-        try {
-            $parentPath = trim($this->request->input('parent_id', ''));
-            $folderName = trim($this->request->input('name'));
-            if (empty($folderName)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tên thư mục không được để trống',
-                ], 422);
-            }
-
-            // Kiểm tra ký tự không hợp lệ
-            if (preg_match('/[<>:"\/\\|?*]/', $folderName)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tên thư mục chứa ký tự không hợp lệ',
-                ], 422);
-            }
-
-            $enterpriseId = $this->auth->hasRole('root') ? null : ($this->auth->enterprise_id ?? null);
-            if (!$enterpriseId && !$this->auth->hasRole('root')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không có quyền tạo thư mục',
-                ], 403);
-            }
-
-            // Xây dựng đường dẫn đầy đủ
-            $basePath = $parentPath ? ($enterpriseId ? "{$enterpriseId}/{$parentPath}" : $parentPath) : ($enterpriseId ? $enterpriseId : '');
-            $path = $basePath ? "{$basePath}/{$folderName}" : $folderName;
-            $fullPath = '/'.trim($path, '/');
-
-            // Kiểm tra thư mục đã tồn tại
-            if (Storage::disk('minio')->exists($path) || CvedixtModel::where('model_url', $fullPath)->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Thư mục đã tồn tại',
-                ], 422);
-            }
-
-            // Tạo thư mục trên MinIO
-            Storage::disk('minio')->makeDirectory($path);
-
-            // Tìm parent_id
-            $parentId = null;
-            if ($parentPath) {
-                $parentFullPath = '/'.trim($enterpriseId ? "{$enterpriseId}/{$parentPath}" : $parentPath, '/');
-                $parentModel = CvedixtModel::where('model_url', $parentFullPath)->first();
-                if ($parentModel) {
-                    $parentId = $parentModel->id;
-                } else {
-                    Log::warning("Không tìm thấy thư mục cha với model_url: {$parentFullPath}");
-                }
-            }
-
-            // Lưu vào database
-            $model = CvedixtModel::create([
-                'name' => $folderName,
-                'file_name' => $folderName,
-                'model_url' => $fullPath,
-                'size' => 0,
-                'type' => 'folder',
-                'enterprise_id' => $enterpriseId,
-                'parent_id' => $parentId,
-                'is_folder' => true,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Tạo thư mục thành công',
-                'data' => [
-                    'path' => $path,
-                    'fullPath' => $fullPath,
-                    'name' => $folderName,
-                    'parentPath' => $parentPath,
-                    'model_id' => $model->id,
-                ],
-            ], 201);
-        } catch (\Exception $e) {
-            Log::error('Lỗi khi tạo thư mục: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi tạo thư mục: ' . $e->getMessage(),
-            ], 500);
-        }
     }
 }

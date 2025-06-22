@@ -13,7 +13,6 @@ use App\Domains\User\Enterprise\Model\Enterprise;
 
 class CvedixtModel extends ModelAbstract
 {
-    use SoftDeletes;
 
     /**
      * @const string

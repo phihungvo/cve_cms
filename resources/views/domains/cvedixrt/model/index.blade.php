@@ -24,12 +24,11 @@
             z-index: 1000;
         }
 
-        /* Cố định cột trong bảng */
         th.sticky, td.sticky {
             position: sticky;
             background: #fff;
             z-index: 10;
-            box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1); /* Bóng nhẹ để phân biệt */
+            box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
         }
 
         th.sticky.left-0, td.sticky.left-0 {
@@ -37,15 +36,14 @@
         }
 
         th.sticky.left-50, td.sticky.left-50 {
-            left: 50px; /* Cột Tên ở ngay sau cột Select */
+            left: 50px;
         }
 
         th.sticky.right-0, td.sticky.right-0 {
             right: 0;
-            box-shadow: -1px 0 2px rgba(0, 0, 0, 0.1); /* Bóng trái cho cột Hành động */
+            box-shadow: -1px 0 2px rgba(0, 0, 0, 0.1);
         }
 
-        /* Đảm bảo bảng có thể cuộn ngang */
         .table-container {
             overflow-x: auto;
             max-width: 100%;
@@ -53,7 +51,6 @@
     </style>
 
     <div class="intro-y box p-5">
-        <!-- Thông báo -->
         @if(session('success'))
             <div class="alert alert-success mb-4 p-4">{{ session('success') }}</div>
         @endif
@@ -61,7 +58,6 @@
             <div class="alert alert-danger mb-4 p-4">{{ session('error') }}</div>
         @endif
 
-        <!-- Thanh công cụ -->
         <div class="sm:flex sm:space-x-4 items-center mb-4">
             <button class="btn btn-success" onclick="document.getElementById('model-files').click();">
                 <i class="fas fa-upload mr-2"></i> Add File
@@ -86,7 +82,6 @@
             </form>
         </div>
 
-        <!-- Form upload file -->
         <form method="POST" action="{{ route('cvedixrt_model.create') }}" enctype="multipart/form-data"
               id="upload-form" class="hidden">
             @csrf
@@ -96,7 +91,6 @@
                    accept=".pt,.pth,.pb,.h5,.ckpt,.onnx,.joblib,.pkl,.mp4,.jpg,.jpeg,.png,.avif" multiple required>
         </form>
 
-        <!-- Thanh tiến trình upload -->
         <div id="progress-container" class="mt-4 hidden">
             <label>{{ __('Đang tải lên...') }}</label>
             <div class="w-full bg-gray-200 rounded-full h-4">
@@ -106,12 +100,9 @@
             <p id="progress-text" class="text-sm text-gray-600 mt-1">0%</p>
         </div>
 
-        <!-- Cây thư mục và bảng file -->
         <div class="flex mt-5 gap-4">
-            <!-- Cây thư mục -->
             <div class="relative overflow-x-auto w-1/3" id="model-tree"></div>
 
-            <!-- Bảng hiển thị file -->
             <div class="table-container mt-5 w-2/3">
                 <table id="model-list-table"
                        class="table table-report w-full font-medium text-center whitespace-nowrap border border-gray-200"
@@ -133,7 +124,6 @@
             </div>
         </div>
 
-        <!-- Modal tạo thư mục -->
         <div class="modal fade" id="create-folder-modal" tabindex="-1" aria-labelledby="createFolderModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
@@ -158,15 +148,13 @@
             </div>
         </div>
 
-        <!-- Modal xóa -->
         @include('molecules.delete-modal', [
             'method' => 'delete',
-            'route' => route('cvedixrt_model.delete', 0),
+            'route' => route('cvedixrt_model.delete'),
             'title' => __('Xóa mô hình'),
             'message' => __('Bạn có chắc chắn muốn xóa các mô hình đã chọn?'),
         ])
 
-        <!-- Modal đổi tên -->
         @include('molecules.rename-modal', [
             'method' => 'put',
             'route' => route('cvedixrt_model.rename'),
@@ -182,18 +170,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script>
         let treeData = @json($tree);
-        let selectedPath = ''; // Biến lưu đường dẫn thư mục đang chọn
-        let selectedModelId = null; // Biến lưu model_id của thư mục đang chọn
+        let selectedPath = '';
+        let selectedModelId = null;
 
-        // Hàm render cây thư mục
         function renderTree(tree, parentElement, level = 0, path = '') {
             Object.entries(tree).forEach(([name, node]) => {
                 const isFolder = node.is_folder;
-                if (!isFolder) return; // Chỉ hiển thị thư mục
+                if (!isFolder) return;
                 const currentPath = path ? `${path}/${name}` : name;
                 const fileCount = node.file_count || 0;
                 const itemDiv = document.createElement('div');
-                itemDiv.className = `tree-item folder ${node.deleted_at ? 'line-through' : ''} ${selectedPath === currentPath ? 'selected' : ''}`;
+                itemDiv.className = `tree-item folder ${selectedPath === currentPath ? 'selected' : ''}`;
                 itemDiv.style.marginLeft = `${level * 20}px`;
                 itemDiv.setAttribute('data-path', currentPath);
                 itemDiv.setAttribute('data-model-id', node.model_id || '');
@@ -244,7 +231,6 @@
             });
         }
 
-        // Hàm toggle thư mục
         function toggleFolder(path, modelId) {
             const item = document.querySelector(`.tree-item[data-path="${path}"]`);
             if (!item) return;
@@ -257,34 +243,27 @@
             children.style.display = isExpanded ? 'none' : 'block';
             toggle.textContent = isExpanded ? '▶' : '▼';
 
-            // Cập nhật thư mục được chọn
             document.querySelectorAll('.tree-item').forEach(item => item.classList.remove('selected'));
             item.classList.add('selected');
             selectedPath = path;
-            selectedModelId = modelId;
+            selectedModelId = modelId ? parseInt(modelId) : null;
 
-            // Kích hoạt hoặc vô hiệu hóa nút Sửa/Xóa thư mục
             const renameButton = document.getElementById('rename-folder');
             const deleteButton = document.getElementById('delete-folder');
-            if (selectedModelId) {
-                renameButton.disabled = false;
-                deleteButton.disabled = false;
-            } else {
-                renameButton.disabled = true;
-                deleteButton.disabled = true;
-            }
+            renameButton.disabled = !selectedModelId;
+            deleteButton.disabled = !selectedModelId;
 
             if (!isExpanded) {
                 fetchFiles(path);
             }
         }
 
-        // Hàm lấy danh sách file
         async function fetchFiles(path) {
             try {
-                const cleanPath = path.replace(/^\//, '').replace(/\/$/, '');
-                const encodedPath = encodeURIComponent(cleanPath).replace(/%2F/g, '/'); // Giữ dấu / trong subfolder
-                const url = `{{ route('cvedixrt_model.folder.contents', ['path' => ':path']) }}`.replace(':path', encodedPath);
+                // Xử lý đường dẫn để loại bỏ dấu / thừa
+                const cleanPath = path ? path.replace(/^\/|\/$/g, '') : '';
+                const encodedPath = encodeURIComponent(cleanPath).replace(/%2F/g, '/');
+                const url = `{{ route('cvedixrt_model.folder.contents', ['path' => ':path']) }}`.replace(':path', encodedPath || '');
                 console.log('Fetching files from:', url);
 
                 const response = await fetch(url, {
@@ -297,38 +276,33 @@
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText.substring(0, 100)}...`);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                if (!data.model) {
-                    throw new Error(data.message || 'Lỗi server');
-                }
-
                 const tableBody = document.getElementById('model-list-body');
                 tableBody.innerHTML = (data.model || [])
-                    .filter(item => !item.is_folder) // Chỉ hiển thị file
+                    .filter(item => !item.is_folder) // Chỉ hiển thị file, không hiển thị folder
                     .map(item => `
-                        <tr class="hover:bg-gray-50 ${item.deleted_at ? 'line-through' : ''}">
+                        <tr class="hover:bg-gray-50">
                             <td class="w-[50px] border border-gray-200 sticky left-0"><input type="checkbox" class="file-checkbox" data-id="${item.id}"></td>
                             <td class="w-[200px] border border-gray-200 sticky left-50">${item.name}</td>
                             <td class="w-[150px] border border-gray-200">${new Date(item.created_at * 1000).toLocaleDateString('vi-VN')}</td>
                             <td class="w-[100px] border border-gray-200">${(item.size / 1024).toFixed(2)} KB</td>
                             <td class="w-[150px] border border-gray-200">${item.type}</td>
                             <td class="w-[200px] border border-gray-200 sticky right-0">
-    <a href="{{ url('cvedixrt_model/download') }}/${item.id}" class="btn btn-success btn-sm mr-2" title="Tải xuống">
-        <i class="fas fa-download"></i>
-    </a>
-    <a href="javascript:;" class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#rename-modal"
-       onclick="document.getElementById('rename-model-id').value='${item.id}';document.getElementById('rename-model-name').value='${item.name}';" title="Sửa">
-        <i class="fas fa-edit"></i>
-    </a>
-    <a href="javascript:;" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete-modal"
-       onclick="document.getElementById('delete-model-id').value='${item.id}';document.getElementById('delete-model-name').innerText='${item.name}';" title="Xóa">
-        <i class="fas fa-trash-alt"></i>
-    </a>
-</td>
+                                <a href="{{ url('cvedixrt_model/download') }}/${item.id}" class="btn btn-success btn-sm mr-2" title="Tải xuống">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <a href="javascript:;" class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#rename-modal"
+                                   onclick="document.getElementById('rename-model-id').value='${item.id}';document.getElementById('rename-model-name').value='${item.name}';" title="Sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="javascript:;" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete-modal"
+                                   onclick="document.getElementById('delete-model-id').value='${item.id}';document.getElementById('delete-model-name').innerText='${item.name}';" title="Xóa">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
                         </tr>
                     `).join('');
             } catch (error) {
@@ -338,7 +312,6 @@
             }
         }
 
-        // Hàm tạo thư mục mới
         async function createNewFolder(parentPath) {
             const folderName = document.getElementById('new-folder-name').value.trim();
             if (!folderName) {
@@ -373,8 +346,8 @@
                     showSuccess(response.message || 'Tạo thư mục thành công');
                     $('#create-folder-modal').modal('hide');
                     document.getElementById('new-folder-name').value = '';
-                    refreshTree(parentPath);
-                    fetchFiles(parentPath);
+                    refreshTree(parentPath || selectedPath);
+                    fetchFiles(parentPath || selectedPath);
                 } else {
                     showError(response.message || 'Không thể tạo thư mục');
                 }
@@ -384,7 +357,6 @@
             }
         }
 
-        // Hàm làm mới cây
         function refreshTree(pathToExpand = '') {
             $.ajax({
                 url: '{{ route('cvedixrt_model.index') }}',
@@ -408,69 +380,59 @@
             });
         }
 
-        // Hàm hiển thị thông báo thành công
         function showSuccess(message) {
             const successDiv = document.createElement('div');
             successDiv.className = 'alert alert-success mb-4 p-4';
-            successDiv.style.display = 'block';
             successDiv.textContent = message;
-            document.querySelector('.intro-y .box').insertBefore(successDiv, document.querySelector('.intro-y .box').firstChild);
+            const box = document.querySelector('.intro-y .box');
+            box.insertBefore(successDiv, box.firstChild);
             setTimeout(() => successDiv.remove(), 2000);
         }
 
-        // Hàm hiển thị thông báo lỗi
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'alert alert-danger mb-4 p-4';
-            errorDiv.style.display = 'block';
             errorDiv.textContent = 'Lỗi: ' + message;
             const box = document.querySelector('.intro-y .box');
-            if (box) {
-                box.insertBefore(errorDiv, box.firstChild);
-            }
+            box.insertBefore(errorDiv, box.firstChild);
             setTimeout(() => errorDiv.remove(), 2000);
         }
 
-        // Hàm hiển thị modal tạo thư mục
         function showCreateFolderModal(parentPath = '') {
             document.getElementById('new-folder-parent-id').value = parentPath || selectedPath;
             document.getElementById('new-folder-name').value = '';
             $('#create-folder-modal').modal('show');
         }
 
-        // Khởi tạo khi trang được tải
         document.addEventListener('DOMContentLoaded', () => {
             const modelTree = document.getElementById('model-tree');
             renderTree(treeData, modelTree);
-            toggleFolder('', null); // Mở thư mục root mặc định
+            toggleFolder('', null);
 
-            // Xử lý nút Sửa thư mục
             document.getElementById('rename-folder').addEventListener('click', () => {
                 if (!selectedModelId) {
                     showError('Vui lòng chọn một thư mục để sửa');
                     return;
                 }
                 const selectedItem = document.querySelector(`.tree-item[data-model-id="${selectedModelId}"]`);
-                const folderName = selectedItem.querySelector('a').textContent.split(' (')[0]; // Loại bỏ số file count
+                const folderName = selectedItem.querySelector('a').textContent.split(' (')[0];
                 document.getElementById('rename-model-id').value = selectedModelId;
                 document.getElementById('rename-model-name').value = folderName;
                 $('#rename-modal').modal('show');
             });
 
-            // Xử lý nút Xóa thư mục
             document.getElementById('delete-folder').addEventListener('click', () => {
                 if (!selectedModelId) {
                     showError('Vui lòng chọn một thư mục để xóa');
                     return;
                 }
                 const selectedItem = document.querySelector(`.tree-item[data-model-id="${selectedModelId}"]`);
-                const folderName = selectedItem.querySelector('a').textContent.split(' (')[0]; // Loại bỏ số file count
+                const folderName = selectedItem.querySelector('a').textContent.split(' (')[0];
                 document.getElementById('delete-model-id').value = selectedModelId;
                 document.getElementById('delete-model-name').innerText = folderName;
                 $('#delete-modal').modal('show');
             });
 
-            // Xử lý upload file
             const fileInput = document.getElementById('model-files');
             const uploadForm = document.getElementById('upload-form');
             const progressContainer = document.getElementById('progress-container');
@@ -479,7 +441,6 @@
 
             fileInput.addEventListener('change', function () {
                 document.getElementById('upload-parent-id').value = selectedPath;
-
                 if (fileInput.files.length > 0) {
                     progressContainer.classList.remove('hidden');
                     progressBar.style.width = '0%';
@@ -527,20 +488,18 @@
                 }
             });
 
-            // Xử lý xóa nhiều file
             document.getElementById('delete-selected').addEventListener('click', () => {
                 const checkedIds = Array.from(document.querySelectorAll('.file-checkbox:checked'))
                     .map(checkbox => checkbox.getAttribute('data-id'));
-                if (checkedIds.length > 0) {
-                    document.getElementById('delete-model-id').value = checkedIds.join(',');
-                    document.getElementById('delete-model-name').innerText = `(${checkedIds.length} file đã chọn)`;
-                    $('#delete-modal').modal('show');
-                } else {
+                if (checkedIds.length === 0) {
                     showError('Vui lòng chọn ít nhất một file để xóa');
+                    return;
                 }
+                document.getElementById('delete-model-id').value = checkedIds.join(',');
+                document.getElementById('delete-model-name').innerText = `(${checkedIds.length} file đã chọn)`;
+                $('#delete-modal').modal('show');
             });
 
-            // Chọn tất cả
             document.getElementById('select-all').addEventListener('change', function () {
                 document.querySelectorAll('.file-checkbox').forEach(checkbox => {
                     checkbox.checked = this.checked;
