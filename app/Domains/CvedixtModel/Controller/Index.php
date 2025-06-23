@@ -17,8 +17,18 @@ use Illuminate\Http\Response;
 
 class Index extends ControllerAbstract
 {
-    public function __invoke(): Response
+    public function __invoke(): Response|JsonResponse
     {
+        // Nếu là yêu cầu AJAX hoặc yêu cầu JSON, trả về dữ liệu JSON
+        if ($this->request->ajax() || $this->request->wantsJson()) {
+            $service = ControllerService::new($this->request, $this->auth);
+
+            return response()->json([
+                'success' => true,
+                'data' => $service->data(),
+            ]);
+        }
+
         $this->meta('title', __('File Management'));
 
         return $this->page('cvedixrt.model.index', $this->data());

@@ -159,7 +159,7 @@ class Create
 
             $response = [
                 'success' => true,
-                'message' => __('model-create.upload-success', ['count' => count($createdModel)]),
+                'message' => __('cvedixrt-model.upload_success', ['count' => count($createdModel)]),
                 'data' => $createdModel,
             ];
 

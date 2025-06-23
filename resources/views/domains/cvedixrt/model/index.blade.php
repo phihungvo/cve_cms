@@ -23,7 +23,6 @@
         /* Kiểu cho bảng và các cột cố định */
         th.sticky, td.sticky {
             position: sticky;
-            background: #fff;
             z-index: 10;
             box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
         }
@@ -265,6 +264,21 @@
         #create-folder-modal.show .modal-dialog {
             transform: translateY(0);
         }
+
+        #model-list-table {
+            display: block;
+            width: 100%;
+        }
+        #model-list-table tbody {
+            display: block;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+        #model-list-table thead, #model-list-table tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
     </style>
 
     <div class="intro-y box p-5">
@@ -275,23 +289,38 @@
             <div class="alert alert-danger mb-4 p-4">{{ session('error') }}</div>
         @endif
 
-        <div class="sm:flex sm:space-x-4 items-center mb-4">
-            <button class="btn btn-success" onclick="document.getElementById('model-files').click();">
-                <i class="fas fa-upload mr-2"></i> Add File
+        <div class="flex flex-col sm:flex-row items-center gap-4 mb-4">
+            <button
+                class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600
+                 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
+                onclick="document.getElementById('model-files').click();">
+                <i class="fas fa-upload mr-2"></i> {{__('cvedixrt-model.upload')}}
             </button>
-            <button class="btn btn-primary" onclick="showCreateFolderModal()">
-                <i class="fas fa-folder-plus mr-2"></i> New Folder
+            <button
+                class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2
+                 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                onclick="showCreateFolderModal()">
+                <i class="fas fa-folder-plus mr-2"></i> {{__('cvedixrt-model.new_folder')}}
             </button>
-            <button class="btn btn-danger" id="delete-folder" disabled>
-                <i class="fas fa-trash-alt mr-2"></i> Delete Folder
+            <button
+                class="flex items-center justify-center w-full sm:w-auto px-4 py-2
+                 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors
+                  duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                id="delete-folder" disabled>
+                <i class="fas fa-trash-alt mr-2"></i> {{__('cvedixrt-model.delete_folder')}}
             </button>
-            <button class="btn btn-danger" id="delete-selected">
-                <i class="fas fa-trash mr-2"></i> Delete Selected Files
+            <button
+                class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2
+                 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+                id="delete-selected">
+                <i class="fas fa-trash mr-2"></i> {{__('cvedixrt-model.delete_selected_files')}}
             </button>
-            <div class="flex-grow"></div>
-            <form method="GET" class="flex-grow mt-2 sm:mt-0">
-                <input type="search" name="search" class="form-control form-control-lg"
-                       placeholder="{{__('cvedixrt-model.filter')}}" data-table-search="#model-list-table"
+            <div class="flex-grow hidden sm:block"></div>
+            <form method="GET" class="w-full sm:w-auto mt-2 sm:mt-0">
+                <input type="search" name="search"
+                       class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                       placeholder="{{__('cvedixrt-model.filter')}}"
+                       data-table-search="#model-list-table"
                        value="{{ request('search') }}"/>
             </form>
         </div>
@@ -314,48 +343,57 @@
             <p id="progress-text" class="text-sm text-gray-600 mt-1">0%</p>
         </div>
 
-        <div class="flex mt-5 gap-4">
-            <div class="relative overflow-x-auto w-1/3 mt-5" id="model-tree"></div>
+        <div class="flex flex-col lg:flex-row mt-5 gap-4">
+            <div class="w-full lg:w-1/3 overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-sm" id="model-tree"></div>
 
-            <div class="table-container mt-5 w-2/3">
+            <div class="w-full lg:w-2/3 overflow-x-auto max-h-[200px]">
                 <table id="model-list-table"
-                       class="table table-report w-full font-medium text-center whitespace-nowrap border border-gray-200"
+                       class="w-full text-sm text-center border border-gray-200 divide-y divide-gray-200 "
                        data-table-sort data-table-pagination data-table-pagination-limit="10">
-                    <thead class="bg-gray-100">
+                    <thead class="bg-gray-100 sticky top-0 z-10">
                     <tr>
-                        <th class="w-[50px] border border-gray-200 sticky left-0 bg-white z-10"><input type="checkbox"
-                                                                                                       id="select-all">
+                        <th class="w-12 border border-gray-200 sticky left-0 z-20">
+                            <input type="checkbox" id="select-all" class="h-4 w-4">
                         </th>
-                        <th class="border border-gray-200 sticky left-50 bg-white z-10 name-column">Name</th>
-                        <th class="w-[150px] border border-gray-200">Create At</th>
-                        <th class="w-[100px] border border-gray-200">Size</th>
-                        <th class="w-[150px] border border-gray-200">Type</th>
-                        <th class="action-column border border-gray-200 sticky right-0 bg-white z-10">Action</th>
+                        <th class="border border-gray-200 sticky left-12 z-20 max-w-[300px] text-left px-4 py-2">
+                            {{__('cvedixrt-model.table.name')}}
+                        </th>
+                        <th class="w-36 border border-gray-200 px-4 py-2">{{__('cvedixrt-model.table.created_at')}}</th>
+                        <th class="w-24 border border-gray-200 px-4 py-2">{{__('cvedixrt-model.table.size')}}</th>
+                        <th class="w-36 border border-gray-200 px-4 py-2">{{__('cvedixrt-model.table.type')}}</th>
+                        <th class="w-16 border border-gray-200 sticky right-0 z-20 px-4 py-2">
+                            {{__('cvedixrt-model.table.actions')}}</th>
                     </tr>
                     </thead>
-                    <tbody id="model-list-body"></tbody>
+                    <tbody id="model-list-body" class="divide-y divide-gray-200"></tbody>
                 </table>
             </div>
         </div>
 
         <div class="modal fade" id="create-folder-modal" tabindex="-1" aria-labelledby="createFolderModalLabel"
              aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createFolderModalLabel">Create new folder</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
+            <div class="modal-dialog max-w-md mx-auto">
+                <div class="modal-content rounded-lg shadow-lg">
+                    <div class="modal-header flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
+                        <h5 class="modal-title text-lg font-semibold text-gray-800" id="createFolderModalLabel">Tạo thư
+                            mục mới</h5>
+                        <button type="button" class="text-gray-600 hover:text-gray-800 text-2xl font-bold"
+                                data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <input type="text" id="new-folder-name" class="form-control" placeholder="Folder Name">
+                    <div class="modal-body p-6">
+                        <input type="text" id="new-folder-name"
+                               class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Tên thư mục">
                         <input type="hidden" id="new-folder-parent-id" value="">
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary"
-                                onclick="createNewFolder(document.getElementById('new-folder-parent-id').value)">Create
+                    <div class="modal-footer flex justify-end p-4 border-t border-gray-200">
+                        <button type="button" class="btn bg-gray-500 text-white hover:bg-gray-600 px-4 py-2 rounded-lg"
+                                data-dismiss="modal">Hủy
+                        </button>
+                        <button type="button" class="btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-lg"
+                                onclick="createNewFolder(document.getElementById('new-folder-parent-id').value)">Tạo
                         </button>
                     </div>
                 </div>
@@ -365,7 +403,7 @@
         @include('molecules.delete-modal', [
             'method' => 'delete',
             'route' => route('cvedixrt_model.delete'),
-            'title' => __('Xóa mô hình'),
+            'title' => __('Xóa file'),
             'message' => __('Bạn có chắc chắn muốn xóa các mô hình đã chọn?'),
         ])
     </div>
@@ -388,37 +426,33 @@
                 const currentPath = path ? `${path}/${name}` : name;
                 const fileCount = node.file_count || 0;
                 const itemDiv = document.createElement('div');
-                itemDiv.className = `tree-item folder ${selectedPath === currentPath ? 'selected' : ''}`;
+                itemDiv.className = `tree-item folder flex flex-col ${selectedPath === currentPath ? 'bg-blue-100 border-l-4 border-blue-500' : ''}`;
                 itemDiv.style.marginLeft = `${level * 20}px`;
                 itemDiv.setAttribute('data-path', currentPath);
                 itemDiv.setAttribute('data-model-id', node.model_id || '');
 
                 const contentDiv = document.createElement('div');
-                contentDiv.className = 'flex items-center justify-between p-2 border-b hover:bg-gray-100 transition-colors';
+                contentDiv.className = 'flex items-center justify-between p-2 border-b hover:bg-gray-100 transition-colors duration-200';
 
                 const span = document.createElement('span');
                 span.className = 'flex items-center';
 
                 const toggle = document.createElement('span');
-                toggle.className = 'tree-toggle expandable cursor-pointer mr-2';
+                toggle.className = 'tree-toggle expandable cursor-pointer mr-2 text-gray-600';
                 toggle.setAttribute('data-path', currentPath);
                 toggle.textContent = '▶';
                 toggle.addEventListener('click', () => toggleFolder(currentPath, node.model_id));
                 span.appendChild(toggle);
 
                 const icon = document.createElement('span');
-                icon.className = 'icon';
+                icon.className = 'icon text-yellow-500';
                 icon.textContent = `📂`;
                 span.appendChild(icon);
 
                 const link = document.createElement('a');
-                link.className = 'ml-2 text-sm font-semibold';
+                link.className = 'ml-2 text-sm font-semibold text-gray-800 truncate max-w-[200px]';
                 link.href = 'javascript:;';
                 link.title = name;
-                link.style.maxWidth = '200px';
-                link.style.overflow = 'hidden';
-                link.style.textOverflow = 'ellipsis';
-                link.style.whiteSpace = 'nowrap';
                 link.textContent = `${name} (${fileCount})`;
                 link.addEventListener('click', () => toggleFolder(currentPath, node.model_id));
                 span.appendChild(link);
@@ -428,8 +462,7 @@
                 itemDiv.appendChild(contentDiv);
 
                 const childrenDiv = document.createElement('div');
-                childrenDiv.className = 'children';
-                childrenDiv.style.display = 'none';
+                childrenDiv.className = 'children hidden';
                 itemDiv.appendChild(childrenDiv);
                 if (Object.keys(node.children).length > 0) {
                     renderTree(node.children, childrenDiv, level + 1, currentPath);
@@ -447,12 +480,13 @@
             const children = item.querySelector('.children');
             if (!children || !toggle) return;
 
-            const isExpanded = children.style.display === 'block';
-            children.style.display = isExpanded ? 'none' : 'block';
+            const isExpanded = children.classList.contains('block');
+            children.classList.toggle('hidden', isExpanded);
+            children.classList.toggle('block', !isExpanded);
             toggle.textContent = isExpanded ? '▶' : '▼';
 
-            document.querySelectorAll('.tree-item').forEach(item => item.classList.remove('selected'));
-            item.classList.add('selected');
+            document.querySelectorAll('.tree-item').forEach(item => item.classList.remove('bg-blue-100', 'border-l-4', 'border-blue-500'));
+            item.classList.add('bg-blue-100', 'border-l-4', 'border-blue-500');
             selectedPath = path;
             selectedModelId = modelId ? parseInt(modelId) : null;
 
@@ -497,9 +531,9 @@
             tableBody.innerHTML = data
                 .filter(item => !item.is_folder)
                 .map(item => `
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-200">
                         <td class="w-[50px] border border-gray-200 sticky left-0"><input type="checkbox" class="file-checkbox" data-id="${item.id}"></td>
-                        <td class="border border-gray-200 sticky left-50 name-column" title="${item.name}">${item.name}</td>
+                        <td class="border border-gray-200 sticky left-50 name-column pl-4" title="${item.name}">${item.name}</td>
                         <td class="w-[150px] border border-gray-200">${new Date(item.created_at * 1000).toLocaleDateString('vi-VN')}</td>
                         <td class="w-[100px] border border-gray-200">${(item.size / 1024).toFixed(2)} KB</td>
                         <td class="w-[150px] border border-gray-200">${item.type}</td>
@@ -608,7 +642,7 @@
                 title: message,
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 4000,
                 timerProgressBar: true,
                 didOpen: (toast) => {
                     toast.addEventListener('mouseenter', Swal.stopTimer)
