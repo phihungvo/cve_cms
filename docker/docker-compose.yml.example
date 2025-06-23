@@ -26,7 +26,7 @@ services:
     image: redis:7.0
     container_name: platform-redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 15gb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --maxmemory 10gb --maxmemory-policy noeviction
     volumes:
       - redis-data:/data
     networks:
@@ -63,7 +63,6 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: platform-worker
     restart: unless-stopped
     volumes:
       - ./../storage:/app/storage
