@@ -3,7 +3,9 @@
 namespace App\Domains\Device\Service\Controller;
 
 use App\Domains\CoreApp\Service\Controller\ControllerAbstract as ControllerAbstractCore;
+use App\Domains\Device\Model\Device;
 
 abstract class ControllerAbstract extends ControllerAbstractCore
 {
+    protected Device $row;
 }

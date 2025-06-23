@@ -123,4 +123,9 @@ class ActionFactory extends ActionFactoryAbstract
     {
         $this->actionHandle(DeleteInstanceRule::class, [], $instanceRule);
     }
+
+    public function sendEvents(): void
+    {
+        $this->actionHandle(SendEventsAction::class, data: $this->data);
+    }
 }

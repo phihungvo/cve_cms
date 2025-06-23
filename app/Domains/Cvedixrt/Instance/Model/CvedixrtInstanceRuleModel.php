@@ -42,6 +42,7 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
         'rule_type',
         'drawing_object',
         'cvedixrt_instance_id',
+        'priority',
     ];
 
     protected $casts = [

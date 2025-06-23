@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domains\Vehicle\Model;
 
-use App\Domains\VehicleGroup\Model\ScheduleGroupMap;
-use App\Domains\VehicleGroup\Model\ScheduleGroupModel;
+use App\Domains\ScheduleGroup\Model\ScheduleGroupMap;
+use App\Domains\ScheduleGroup\Model\ScheduleGroupModel;
+use App\Domains\VehicleGroup\Model\VehicleGroupMap;
+use App\Domains\VehicleGroup\Model\VehicleGroupModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -167,10 +169,10 @@ class Vehicle extends ModelAbstract
     public function vehicleGroups(): BelongsToMany
     {
         return $this->belongsToMany(
-            ScheduleGroupModel::class,
-            ScheduleGroupMap::TABLE,
+            Vehicle::class,
+            VehicleGroupMap::TABLE,
             self::FOREIGN,
-            ScheduleGroupModel::FOREIGN
+            VehicleGroupModel::FOREIGN
         );
     }
 }

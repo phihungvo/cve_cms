@@ -77,6 +77,14 @@
                                     Please select at least one object type to detect.
                                 </span>
                             </div>
+                            <!-- input range for priority -->
+                            <div class="flex justify-start items-center gap-2 mt-3">
+                                <label class="font-bold" for="priority">priority:</label>
+                                <input class="w-1/2" type="range" id="priority" name="priority" min="1" max="5"
+                                       value="1" oninput="priorityOutput.value = priority.value"
+                                >
+                                <output id="priorityOutput">1</output>
+                            </div>
                         </div>
                         <!-- view camera -->
                         <div class="col-span-2 flex flex-col">
@@ -132,6 +140,24 @@
     </div>
     </div>
 @stop
+@push('styles')
+    <style>
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+            border-radius: 10px;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+            border-radius: 10px;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+            border-radius: 10px;
+        }
+    </style>
+@endpush
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -145,6 +171,8 @@
         let selectedAddedRule = null;
         let instanceRules = [];
         let selectedRuleType = '{{ RuleType::LINE_CROSSING->value }}'; // Default rule type
+        let priorityEl = document.getElementById('priority');
+        let priorityOutputEL = document.getElementById('priorityOutput');
 
         const ruleList = document.getElementById('ruleList');
         const ruleNameEl = document.getElementById('rule_name');
@@ -323,6 +351,7 @@
                     drawing_object: @json($rule->drawing_object),
                     direction: '{{ $rule->direction }}',
                     cvedixrt_instance_id: {{ $rule->device_cvedixrt_instance_id }},
+                    priority: {{ $rule->priority }},
                 });
                 @endforeach
             }
@@ -416,6 +445,9 @@
                 const objectType = checkbox.value;
                 checkbox.checked = selectedAddedRule.detected_object.includes(objectType);
             });
+            // Priority
+            priorityEl.value = selectedAddedRule.priority || 1;
+            priorityOutputEL.value = selectedAddedRule.priority || 1;
             // Update value button Update rule
             btnSaveRuleEl.innerHTML = 'Update';
 
@@ -447,6 +479,9 @@
                     // Update value selectedAddedRule
                     selectedRuleType = this.getAttribute('data-rule-type');
 
+                    priorityEl.value = 1;
+                    priorityOutputEL.value = 1;
+
                     // Clear rule item active
                     ruleItemEls.forEach(el => {
                         el.classList.remove('bg-blue-500', 'text-white');
@@ -470,8 +505,6 @@
 
                 // Update value button Update rule
                 btnSaveRuleEl.innerHTML = '+ Add';
-
-
 
 
             })
@@ -526,6 +559,7 @@
             const drawing_object = window.tempShapesToSave?.drawing_object
                 || selectedAddedRule?.drawing_object || [];
             const direction = window.tempShapesToSave?.direction || selectedAddedRule.direction;
+            const priority = priorityEl.value;
 
             if (drawing_object.length === 0) return;
 
@@ -537,7 +571,8 @@
                 rule_id,
                 drawing_object,
                 device_cvedixrt_instance_id: instanceId,
-                direction
+                direction,
+                priority
             }
             if (_action === 'updateInstanceRule') {
                 requestData.rule_id = rule_id;
@@ -597,6 +632,9 @@
                                     el.classList.remove('bg-blue-500', 'text-white');
                                     el.classList.add('bg-white');
                                 });
+
+                                priorityEl.value = 1; // Reset priority to default
+                                priorityOutputEL.value = 1; // Reset priority output to default
 
                                 handleRuleTypeClick();
 

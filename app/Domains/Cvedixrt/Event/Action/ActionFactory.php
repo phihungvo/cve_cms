@@ -29,5 +29,9 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(DeleteAction::class);
     }
 
+    public function sendEvents(): void
+    {
+        $this->actionHandle(SendEventsAction::class, $this->data);
+    }
 
 }
