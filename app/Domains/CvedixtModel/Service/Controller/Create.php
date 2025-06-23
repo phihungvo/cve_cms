@@ -33,15 +33,26 @@ class Create
         return [];
     }
 
+    /**
+     * Sanitize the file name to ensure it is safe for storage.
+     *
+     * @param string $fileName
+     * @return string
+     */
     protected function sanitizeFileName(string $fileName): string
     {
         $extension = pathinfo($fileName, PATHINFO_EXTENSION);
         $baseName = pathinfo($fileName, PATHINFO_FILENAME);
         $sanitized = Str::slug($baseName, '-');
 
-        return $sanitized . '.' . strtolower($extension);
+        return $sanitized.'.'.strtolower($extension);
     }
 
+    /**
+     * Create a new model with uploaded files.
+     *
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
     public function create()
     {
         try {
@@ -69,6 +80,7 @@ class Create
                 throw new \Exception('Total file size exceeds 2GB limit.');
             }
 
+            // Validate enterprise ID
             $enterpriseId = $this->auth->hasRole('root') ? ($data['enterprise_id'] ?? null) : ($this->auth->enterprise_id ?? null);
             if (!$this->auth->hasRole('root') && !$enterpriseId) {
                 throw new \Exception('User is not associated with any enterprise.');
@@ -86,11 +98,12 @@ class Create
                 ]);
                 $s3Client->listBuckets();
             } catch (\Exception $e) {
-                throw new \Exception('Unable to connect to storage server: ' . $e->getMessage());
+                throw new \Exception('Unable to connect to storage server: '.$e->getMessage());
             }
 
             $action = new CreateAction();
 
+            // Prepare the base path for storage
             foreach ($files as $index => $file) {
                 try {
                     $originalFileName = $file->getClientOriginalName();
@@ -99,18 +112,18 @@ class Create
 
                     $basePath = $parentPath ?: ($enterpriseId ? $enterpriseId : '');
                     $path = $basePath ? "{$basePath}/{$fileName}" : $fileName;
-                    $modelUrl = '/' . trim($path, '/');
+                    $modelUrl = '/'.trim($path, '/');
 
                     if (Storage::disk('minio')->exists($path) || CvedixtModel::where('model_url', $modelUrl)->exists()) {
-                        throw new \Exception(__('model-create.model-exists', ['name' => $fileName]));
+                        throw new \Exception(__('File already existed!', ['name' => $fileName]));
                     }
 
                     $storedPath = Storage::disk('minio')->putFileAs($basePath ?: '', $file, $fileName);
                     if (!Storage::disk('minio')->exists($storedPath)) {
-                        throw new \Exception('File not found on MinIO after upload: ' . $fileName);
+                        throw new \Exception('File not found on MinIO after upload: '.$fileName);
                     }
 
-                    $modelUrl = '/' . trim($storedPath, '/');
+                    $modelUrl = '/'.trim($storedPath, '/');
 
                     $modelData = [
                         'name' => pathinfo($fileName, PATHINFO_FILENAME),
@@ -119,7 +132,7 @@ class Create
                         'size' => $file->getSize(),
                         'type' => $mimeType,
                         'enterprise_id' => $enterpriseId,
-                        'parent_id' => $parentPath ? CvedixtModel::where('model_url', '/' . trim($parentPath, '/'))->first()?->id : null,
+                        'parent_id' => $parentPath ? CvedixtModel::where('model_url', '/'.trim($parentPath, '/'))->first()?->id : null,
                         'is_folder' => false,
                     ];
 
@@ -134,7 +147,7 @@ class Create
             if (!empty($errors)) {
                 $response = [
                     'success' => false,
-                    'message' => 'Some files failed to upload.',
+                    'message' => $errors[0]['error'] ?? 'Some files failed to upload.',
                     'errors' => $errors,
                     'data' => $createdModel,
                 ];

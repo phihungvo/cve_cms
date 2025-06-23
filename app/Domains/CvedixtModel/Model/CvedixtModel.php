@@ -7,7 +7,6 @@ namespace App\Domains\CvedixtModel\Model;
 use App\Domains\CoreApp\Model\ModelAbstract;
 use App\Domains\CvedixtModel\Model\Builder\ModelBuilder;
 use App\Domains\CvedixtModel\Model\Collection\ModelCollection;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Domains\User\Enterprise\Model\Enterprise;
 

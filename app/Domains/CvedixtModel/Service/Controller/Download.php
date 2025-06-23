@@ -25,6 +25,13 @@ class Download
         return new self($request, $auth);
     }
 
+    /**
+     * Download a file from the CvedixtModel.
+     *
+     * @param int $id
+     * @return Response
+     * @throws \Exception
+     */
     public function download(int $id): Response
     {
         try {

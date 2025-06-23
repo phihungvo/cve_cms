@@ -21,7 +21,7 @@ class Create extends ControllerAbstract
             }
 
             // Đối với yêu cầu không AJAX, đếm số model đã tạo
-            $message = __('model-create.upload-success', ['count' => count($createdModel)]);
+            $message = __('cvedixrt-model.upload_success', ['count' => count($createdModel)]);
             $this->sessionMessage('success', $message);
 
             return redirect()->route('cvedixrt_model.index');

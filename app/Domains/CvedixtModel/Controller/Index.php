@@ -14,13 +14,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 
 class Index extends ControllerAbstract
 {
     public function __invoke(): Response
     {
-        $this->meta('title', __('cvedixt Model'));
+        $this->meta('title', __('File Management'));
 
         return $this->page('cvedixrt.model.index', $this->data());
     }
@@ -33,7 +32,6 @@ class Index extends ControllerAbstract
     public function getFolderContents($path): JsonResponse
     {
         $decodedPath = urldecode($path);
-        Log::info('Lấy nội dung thư mục', ['path' => $decodedPath]);
 
         $service = ControllerService::new($this->request, $this->auth);
         $children = $service->getChildren($decodedPath);
@@ -99,6 +97,8 @@ class Index extends ControllerAbstract
                 'is_folder' => true,
             ]);
 
+            $this->sessionMessage('success', 'Tạo thư mục thành công: '.$folderName);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Tạo thư mục thành công',
@@ -110,6 +110,7 @@ class Index extends ControllerAbstract
                     'model_id' => $model->id,
                 ],
             ], 201);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -121,10 +122,8 @@ class Index extends ControllerAbstract
     public function destroy(): JsonResponse
     {
         $modelIdInput = $this->request->input('model_id');
-        Log::info('Nhận yêu cầu xóa', ['model_id_input' => $modelIdInput]);
 
         if (!$modelIdInput) {
-            Log::error('Không nhận được model_id', ['request' => $this->request->all()]);
             return response()->json([
                 'success' => false,
                 'message' => 'ID không hợp lệ',
@@ -133,7 +132,6 @@ class Index extends ControllerAbstract
 
         $modelIds = array_filter(array_map('intval', is_array($modelIdInput) ? $modelIdInput : explode(',', $modelIdInput)));
         if (empty($modelIds)) {
-            Log::error('Không có ID hợp lệ sau khi xử lý', ['model_id_input' => $modelIdInput]);
             return response()->json([
                 'success' => false,
                 'message' => 'ID không hợp lệ',
@@ -145,9 +143,6 @@ class Index extends ControllerAbstract
         foreach ($modelIds as $modelId) {
             $result = $action->handle($modelId, $this->auth);
             $results[] = $result;
-            if (!$result['success']) {
-                Log::error('Xóa thất bại cho model_id', ['model_id' => $modelId, 'message' => $result['message']]);
-            }
         }
 
         $allSuccess = array_reduce($results, fn ($carry, $result) => $carry && $result['success'], true);
@@ -172,6 +167,7 @@ class Index extends ControllerAbstract
     public function download($id): Response
     {
         $service = DownloadService::new($this->request, $this->auth);
+
         return $service->download((int) $id);
     }
 
@@ -182,6 +178,7 @@ class Index extends ControllerAbstract
         } else {
             $this->sessionMessage('error', $result['message']);
         }
+
         return redirect()->route($route);
     }
 }

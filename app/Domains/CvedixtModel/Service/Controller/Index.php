@@ -52,6 +52,7 @@ class Index
         }
 
         $query->orderBy('created_at', 'asc');
+
         return $query->get();
     }
 
@@ -176,7 +177,7 @@ class Index
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Lỗi đồng bộ MinIO: ' . $e->getMessage());
+            Log::error('Lỗi đồng bộ MinIO: '.$e->getMessage());
         }
 
         return $tree;

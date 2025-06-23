@@ -19,10 +19,11 @@ class Rename
             if (!$user->hasRole('root') && $model->enterprise_id !== $user->enterprise_id) {
                 return [
                     'success' => false,
-                    'message' => __('model-rename.no-permission'),
+                    'message' => __('cvedixrt-model.no_permission'),
                 ];
             }
 
+            // Kiểm tra xem tên mới có hợp lệ không
             if (preg_match('/[<>:"\/\\|?*]/', $newName)) {
                 return [
                     'success' => false,
@@ -35,23 +36,14 @@ class Rename
                 // Sửa đường dẫn để bao gồm enterprise_id
                 $enterpriseId = $model->enterprise_id ?? 'default';
                 $oldPath = ltrim($model->model_url, '/'); // Ví dụ: 2/.NET 22222
-                $newPath = dirname($model->model_url) . '/' . $newName;
-                $newPath = '/' . trim($newPath, '/'); // Lưu vào DB: /2/.NET 22222_New
+                $newPath = dirname($model->model_url).'/'.$newName;
+                $newPath = '/'.trim($newPath, '/'); // Lưu vào DB: /2/.NET 22222_New
                 $minioNewPath = ltrim($newPath, '/'); // Dùng cho MinIO: 2/.NET 22222_New
 
-                // Kiểm tra đường dẫn cũ có tồn tại không
-                Log::info('Kiểm tra đường dẫn cũ trên MinIO', [
-                    'model_id' => $modelId,
-                    'old_path' => $oldPath,
-                ]);
+                // Nếu thư mục cũ không tồn tại, tạo nó
                 if (!Storage::disk('minio')->exists($oldPath)) {
-                    Log::error('Thư mục cũ không tồn tại trên MinIO', [
-                        'model_id' => $modelId,
-                        'old_path' => $oldPath,
-                    ]);
                     // Tạo thư mục nếu chưa tồn tại
                     Storage::disk('minio')->makeDirectory($oldPath);
-                    Log::info('Đã tạo thư mục cũ trên MinIO', ['old_path' => $oldPath]);
                 }
 
                 // Kiểm tra tên mới đã tồn tại chưa
@@ -63,18 +55,8 @@ class Rename
                 }
 
                 // Đổi tên trên MinIO
-                Log::info('Đổi tên thư mục trên MinIO', [
-                    'model_id' => $modelId,
-                    'old_path' => $oldPath,
-                    'new_path' => $minioNewPath,
-                ]);
                 $moved = Storage::disk('minio')->move($oldPath, $minioNewPath);
                 if (!$moved) {
-                    Log::error('Không thể đổi tên thư mục trên MinIO', [
-                        'model_id' => $modelId,
-                        'old_path' => $oldPath,
-                        'new_path' => $minioNewPath,
-                    ]);
                     return [
                         'success' => false,
                         'message' => 'Lỗi khi đổi tên thư mục trên MinIO',
@@ -86,45 +68,26 @@ class Rename
 
                 // Cập nhật bản ghi chính
                 $model->update($data);
-                Log::info('Đã cập nhật bản ghi chính', [
-                    'model_id' => $modelId,
-                    'new_name' => $newName,
-                    'new_model_url' => $newPath,
-                ]);
 
                 // Cập nhật model_url của các con
-                $children = CvedixtModel::where('model_url', 'like', $model->model_url . '/%')->get();
-                Log::info('Cập nhật model_url cho các con', [
-                    'parent_id' => $modelId,
-                    'child_count' => $children->count(),
-                ]);
+                $children = CvedixtModel::where('model_url', 'like', $model->model_url.'/%')->get();
+
                 foreach ($children as $child) {
                     $newChildPath = str_replace($model->model_url, $newPath, $child->model_url);
                     $child->update([
                         'model_url' => $newChildPath,
                     ]);
-                    Log::info('Đã cập nhật child', [
-                        'child_id' => $child->id,
-                        'new_model_url' => $newChildPath,
-                    ]);
                 }
             } else {
                 $extension = pathinfo($model->file_name, PATHINFO_EXTENSION);
-                $data['file_name'] = $newName . ($extension ? '.' . $extension : '');
-                $newPath = dirname($model->model_url) . '/' . $data['file_name'];
-                $newPath = '/' . trim($newPath, '/');
+                $data['file_name'] = $newName.($extension ? '.'.$extension : '');
+                $newPath = dirname($model->model_url).'/'.$data['file_name'];
+                $newPath = '/'.trim($newPath, '/');
                 $minioNewPath = ltrim($newPath, '/');
                 $oldPath = ltrim($model->model_url, '/');
 
-                Log::info('Kiểm tra file cũ trên MinIO', [
-                    'model_id' => $modelId,
-                    'old_path' => $oldPath,
-                ]);
+                // Kiểm tra xem file cũ có tồn tại trên MinIO không
                 if (!Storage::disk('minio')->exists($oldPath)) {
-                    Log::error('File cũ không tồn tại trên MinIO', [
-                        'model_id' => $modelId,
-                        'old_path' => $oldPath,
-                    ]);
                     return [
                         'success' => false,
                         'message' => 'File cũ không tồn tại trên MinIO',
@@ -138,18 +101,9 @@ class Rename
                     ];
                 }
 
-                Log::info('Đổi tên file trên MinIO', [
-                    'model_id' => $modelId,
-                    'old_path' => $oldPath,
-                    'new_path' => $minioNewPath,
-                ]);
+                // Đổi tên file trên MinIO
                 $moved = Storage::disk('minio')->move($oldPath, $minioNewPath);
                 if (!$moved) {
-                    Log::error('Không thể đổi tên file trên MinIO', [
-                        'model_id' => $modelId,
-                        'old_path' => $oldPath,
-                        'new_path' => $minioNewPath,
-                    ]);
                     return [
                         'success' => false,
                         'message' => 'Lỗi khi đổi tên file trên MinIO',
@@ -158,11 +112,6 @@ class Rename
 
                 $data['model_url'] = $newPath;
                 $model->update($data);
-                Log::info('Đã cập nhật bản ghi chính', [
-                    'model_id' => $modelId,
-                    'new_name' => $newName,
-                    'new_model_url' => $newPath,
-                ]);
             }
 
             return [
@@ -170,11 +119,6 @@ class Rename
                 'message' => __('cvedixrt-model.rename.success'),
             ];
         } catch (Exception $e) {
-            Log::error('Lỗi khi đổi tên', [
-                'model_id' => $modelId,
-                'new_name' => $newName,
-                'error' => $e->getMessage(),
-            ]);
             return [
                 'success' => false,
                 'message' => __('model-rename.rename-error'),
