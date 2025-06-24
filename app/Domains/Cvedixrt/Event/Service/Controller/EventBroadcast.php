@@ -31,4 +31,21 @@ class EventBroadcast extends ControllerAbstract
                 return $event;
             });
     }
+
+    /**
+     * @return Collection
+     */
+    public function dataSingle(): Collection
+    {
+        $instanceId = $this->request->input('instance_id');
+        if (!$instanceId) {
+            throw new \InvalidArgumentException('Instance ID is required');
+        }
+
+        return CvedixrtEventModel::query()
+            ->whereHas('instanceRule', function ($q) use ($instanceId) {
+                $q->where('cvedixrt_instance_id', $instanceId);
+            })
+            ->get();
+    }
 }

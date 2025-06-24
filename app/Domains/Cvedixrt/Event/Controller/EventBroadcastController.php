@@ -11,17 +11,44 @@ class EventBroadcastController extends ControllerAbstract
 {
     public function __invoke(): JsonResponse
     {
-        if ($response = $this->actionPost('sendEvents')) {
+
+        if ($response = $this->actions()) {
             return $response;
         }
 
         return response()->json(['error' => 'Unable to process request'], 400);
     }
 
+    protected function actions()
+    {
+        return $this->actionPost('sendSingleEvent')
+            ?: $this->actionPost('sendEvents');
+    }
+
+    protected function sendSingleEvent(): JsonResponse
+    {
+        try {
+            $this->action(domain: "Cvedixrt\Event")->sendSingleEvent($this->dataSingle()->toArray());
+
+            return response()->json([
+                'success' => 'ok',
+                'message' => 'Event has been sent.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json(
+                [
+                    'success' => 'error',
+                    'message' => $e->getMessage(),
+                ],
+                500
+            );
+        }
+    }
+
     protected function sendEvents(): JsonResponse
     {
         try {
-            $this->action(domain: "Cvedixrt\Event", data: $this->data()->toArray())->sendEvents();
+            $this->action(domain: "Cvedixrt\Event")->sendEvents($this->data()->toArray());
 
             return response()->json([
                 'success' => 'ok',
@@ -41,5 +68,10 @@ class EventBroadcastController extends ControllerAbstract
     protected function data(): Collection
     {
         return ControllerService::new($this->request, $this->auth)->data();
+    }
+
+    protected function dataSingle()
+    {
+        return ControllerService::new($this->request, $this->auth)->dataSingle();
     }
 }

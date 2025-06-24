@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace App\Domains\Cvedixrt\Event\Action;
+namespace App\Domains\Cvedixrt\Event\Service\Controller;
 
+use App\Domains\Cvedixrt\Event\Action\CreateUpdateAbstractAction;
 use App\Domains\Cvedixrt\Event\Model\CvedixrtEventModel as Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
