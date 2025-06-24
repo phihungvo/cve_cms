@@ -4,7 +4,7 @@ on:
   push:
     branches: ["**"] # Chạy khi push lên bất kỳ nhánh nào
   pull_request:
-    branches: ["main"] # Chạy khi tạo/cập nhật PR nhắm đến nhánh main
+    branches: ["main", "develop"] # Chạy khi tạo/cập nhật PR nhắm đến nhánh main hoặc develop
 
 jobs:
   build-and-test:
