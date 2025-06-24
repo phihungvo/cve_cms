@@ -181,6 +181,35 @@
             color: #333;
         }
 
+        .modal {
+            padding-left: 0 !important; /* Xóa padding-left bất thường */
+            padding-right: 0 !important; /* Đảm bảo không có padding-right bất thường */
+            display: none; /* Ẩn modal mặc định */
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .modal.show {
+            display: block; /* Hiển thị modal khi có class show */
+            padding-left: 0 !important; /* Đảm bảo không có padding-left khi modal mở */
+        }
+
+        .modal-dialog {
+            margin: 1.75rem auto; /* Căn giữa modal */
+            max-width: 400px; /* Giới hạn chiều rộng */
+            transform: translate(0, 0); /* Đảm bảo không bị lệch */
+        }
+
+        .modal.fade .modal-dialog {
+            transform: translate(0, -50px); /* Hiệu ứng ban đầu */
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .modal.show .modal-dialog {
+            transform: translate(0, 0); /* Căn giữa khi hiển thị */
+            opacity: 1;
+        }
+
         #create-folder-modal .close {
             position: absolute;
             top: 16px;
@@ -279,6 +308,8 @@
             width: 100%;
             table-layout: fixed;
         }
+
+
     </style>
 
     <div class="intro-y box p-5">
@@ -319,7 +350,7 @@
             <form method="GET" class="w-full sm:w-auto mt-2 sm:mt-0">
                 <input type="search" name="search"
                        class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                       placeholder="{{__('cvedixrt-model.filter')}}"
+                       placeholder="{{__('cvedixrt-model.filter')}}"f
                        data-table-search="#model-list-table"
                        value="{{ request('search') }}"/>
             </form>
@@ -842,6 +873,50 @@
                     }
                 });
             }
+
+
+            // Reset modal khi đóng
+            $('#create-folder-modal').on('hidden.bs.modal', function () {
+                const modal = this;
+                const modalDialog = modal.querySelector('.modal-dialog');
+
+                // Reset style của modal
+                modal.style.paddingLeft = '0';
+                modal.style.paddingRight = '0';
+                modal.style.marginLeft = '0';
+                modal.style.marginTop = '0';
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+
+                // Reset transform và opacity của modal-dialog
+                modalDialog.style.transform = 'translate(0, -50px)';
+                modalDialog.style.opacity = '0';
+
+                // Xóa modal backdrop và class modal-open khỏi body
+                document.body.classList.remove('modal-open');
+                document.body.style.paddingRight = '0'; // Reset padding-right của body
+                document.querySelector('.modal-backdrop')?.remove();
+            });
+
+            // Đảm bảo modal hiển thị đúng khi mở
+            $('#create-folder-modal').on('show.bs.modal', function () {
+                const modal = this;
+                const modalDialog = modal.querySelector('.modal-dialog');
+
+                // Reset style của modal
+                modal.style.paddingLeft = '0';
+                modal.style.paddingRight = '0';
+                modal.style.marginLeft = '0';
+                modal.style.marginTop = '0';
+                modal.style.display = 'block';
+
+                // Đảm bảo modal-dialog căn giữa
+                modalDialog.style.transform = 'translate(0, 0)';
+                modalDialog.style.opacity = '1';
+
+                // Đảm bảo body không bị thêm padding bất thường
+                document.body.style.paddingRight = '0';
+            });
         });
     </script>
 @endpush
