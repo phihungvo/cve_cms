@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\Dashboard\Service\Controller;
 
+use App\Domains\Notification\Model\Notification;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use App\Domains\Alarm\Model\Alarm as AlarmModel;
@@ -69,6 +70,9 @@ class Index extends ControllerAbstract
         //     'chartData' => $chartData,
         // ]);
 
+        // Fetch notifications with notification_type as 'system'
+        $notifications = $this->getNotifications($isRoot, $enterpriseId);
+
         return [
             'auth' => $this->auth,
             'user' => $this->user(),
@@ -97,6 +101,7 @@ class Index extends ControllerAbstract
             'enterprises' => $isRoot ? EnterpriseModel::query()->get() : collect(),
             'counts' => $counts,
             'chart_data' => $chartData,
+            'notifications' => $notifications, // Add notifications to the data array
         ];
     }
 
@@ -293,6 +298,32 @@ class Index extends ControllerAbstract
                 'datasets' => [],
             ];
         }
+    }
+
+    protected function getNotifications(bool $isRoot, ?int $enterpriseId): array
+    {
+        $query = Notification::query()
+            ->where('notification_type', 'system')
+            ->whereNull('deleted_at');
+
+        if ($enterpriseId !== null && ($isRoot || !$isRoot)) {
+            $query->where('enterprise_id', $enterpriseId);
+        }
+
+        $notifications = $query->orderBy('created_at', 'desc')
+            ->limit(5) // Limit to 5 recent notifications for the dropdown
+            ->get()
+            ->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'title' => $notification->title,
+                    'content' => $notification->content,
+                    'date' => $notification->created_at ? $notification->created_at->format('M d, Y h:i A') : null,
+                ];
+            })
+            ->toArray();
+
+        return $notifications;
     }
 
     protected function onboarding(): bool
