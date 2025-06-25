@@ -1,10 +1,13 @@
 name: Build and Publish image to Docker Hub
 
 on:
-  push:
-    branches: ["**"] # Chạy khi push lên bất kỳ nhánh nào
   pull_request:
-    branches: ["main", "develop"] # Chạy khi tạo/cập nhật PR nhắm đến nhánh main hoặc develop
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-test:
@@ -33,15 +36,9 @@ jobs:
           curl -f -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/report/system/health | grep -q 200 || { echo "GET API failed"; exit 1; }
           curl -f -o /dev/null -s -w "%{http_code}" -X POST "http://localhost:8091?id=2024112100100043&timestamp=1749548226&lat=10.8195025&lon=106.6913659&speed=1.57&bearing=157.52&altitude=13.3&accuracy=18.63&batt=26" | grep -q 200 || { echo "POST API failed"; exit 1; }
 
-      - name: Fail PR if build fails on non-main branch
-        if: github.event_name == 'pull_request' && github.ref != 'refs/heads/main' && failure()
-        run: |
-          echo "Build or tests failed on non-main branch. PR cannot be merged."
-          exit 1
-
   publish:
     runs-on: ubuntu-latest
-    needs: build-and-test # Chỉ chạy nếu build-and-test thành công
+    needs: build-and-test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout code
