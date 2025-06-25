@@ -118,7 +118,7 @@
                                             <input type="checkbox" name="classification_object" value="car"
                                                    id="object_type_car">
                                             <label class="cursor-pointer flex-grow hover:font-bold p-2"
-                                                   for="object_type_prisoner">Car</label>
+                                                   for="object_type_car">Car</label>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <input type="checkbox" name="classification_object" value="truck"
