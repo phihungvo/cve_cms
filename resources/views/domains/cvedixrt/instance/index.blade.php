@@ -199,15 +199,15 @@
         }
 
        function sendEvent(instanceId) {
-            Swal.fire({
-                title: 'Processing...',
-                text: 'Please wait while the event is being sent.',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+            // Swal.fire({
+            //     title: 'Processing...',
+            //     text: 'Please wait while the event is being sent.',
+            //     allowOutsideClick: false,
+            //     allowEscapeKey: false,
+            //     didOpen: () => {
+            //         Swal.showLoading();
+            //     }
+            // });
 
             fetch("{{route('cvedixrt_event.broadcast')}}", {
                 method: 'POST',
@@ -225,13 +225,13 @@
                 }
             }).then(data => {
                 Swal.close();
-                if (data.success == 'ok') {
+                if (data.success === 'ok') {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
                         text: data.message,
-                        confirmButtonText: 'Close',
-                        confirmButtonColor: '#0d6efd',
+                        showConfirmButton: false,
+                        timer: 750
                     });
                 } else {
                     Swal.fire({

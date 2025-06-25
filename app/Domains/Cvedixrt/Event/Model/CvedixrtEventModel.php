@@ -4,6 +4,7 @@ namespace App\Domains\Cvedixrt\Event\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
 use App\Domains\Cvedixrt\Instance\Model\CvedixrtInstanceRuleModel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Domains\Cvedixrt\Event\Model\Builder\EventBuilder;
 use App\Domains\Cvedixrt\Event\Model\Collection\EventCollection;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $event_value
  * @property string $event_type
  * @property int $instance_rule_id
+ * @property Carbon $created_at
  */
 class CvedixrtEventModel extends ModelAbstract
 {

@@ -2,26 +2,26 @@
 
 namespace App\Domains\Cvedixrt\Event\Action;
 
-use Exception;
 use App\Domains\Cvedixrt\Event\Job\SendEvent;
+use Exception;
 
-class SendEventsAction extends ActionAbstract
+class SendSingleEventAction extends ActionAbstract
 {
     /**
      * @throws Exception
      */
     public function handle(): void
     {
-        $this->sendEvents();
+        $this->sendSingleEvents();
     }
 
     /**
      * @throws Exception
      */
-    protected function sendEvents(): void
+    protected function sendSingleEvents(): void
     {
-        foreach ($this->data as $event) {
-            SendEvent::dispatch($event['id']);
+        foreach ($this->data as $data) {
+            SendEvent::dispatch($data['id']);
         }
     }
 }
