@@ -1,20 +1,57 @@
-name: Docker Image CI
+name: Build and Publish image to Docker Hub
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"] # Chạy khi push lên bất kỳ nhánh nào
   pull_request:
-    branches: [ "main" ]
+    branches: ["main", "develop"] # Chạy khi tạo/cập nhật PR nhắm đến nhánh main hoặc develop
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up executable permissions for scripts
-      run: chmod +x ./docker/build.sh ./docker/run.sh
-    - name: Build the Docker image
-      run: ./docker/build.sh
-    - name: Run the Docker container
-      run: ./docker/run.sh
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up executable permissions for scripts
+        run: chmod +x ./docker/build.sh ./docker/run.sh
+
+      - name: Build Docker Image and Run the Docker container
+        run: ./docker/build.sh
+
+      - name: Wait for container to start
+        run: |
+          for i in {1..10}; do
+            curl -s http://localhost:8080/api/report/system/health && break
+            echo "Waiting for container to start... Attempt $i"
+            sleep $((10 * i))
+          done
+          curl -f http://localhost:8080/api/report/system/health || { echo "Container failed to start after attempts"; exit 1; }
+
+      - name: Test APIs
+        run: |
+          curl -f -o /dev/null -s -w "%{http_code}" http://localhost:8080/api/report/system/health | grep -q 200 || { echo "GET API failed"; exit 1; }
+          curl -f -o /dev/null -s -w "%{http_code}" -X POST "http://localhost:8091?id=2024112100100043&timestamp=1749548226&lat=10.8195025&lon=106.6913659&speed=1.57&bearing=157.52&altitude=13.3&accuracy=18.63&batt=26" | grep -q 200 || { echo "POST API failed"; exit 1; }
+
+      - name: Fail PR if build fails on non-main branch
+        if: github.event_name == 'pull_request' && github.ref != 'refs/heads/main' && failure()
+        run: |
+          echo "Build or tests failed on non-main branch. PR cannot be merged."
+          exit 1
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build-and-test # Chỉ chạy nếu build-and-test thành công
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Retag image for Docker Hub
+        run: docker tag docker-platform-app:latest ${{ secrets.DOCKER_HUB_USER }}/cms-platform-app:latest
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+
+      - name: Push Docker Image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_HUB_USER }}/cms-platform-app:latest
