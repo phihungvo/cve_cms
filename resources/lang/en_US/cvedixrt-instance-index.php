@@ -7,6 +7,7 @@
     'lines' => 'Lines',
     'solutions' => 'Solutions',
     'groups' => 'Groups',
+    'events' => 'Play/Stop Events',
     'update-at' => 'Last update',
     'filter' => 'Filter...',
     'filter-solutions' => '-- Select Solution --',

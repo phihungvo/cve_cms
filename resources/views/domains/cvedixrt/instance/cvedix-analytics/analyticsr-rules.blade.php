@@ -38,7 +38,7 @@
             </a>
             <hr class="my-2 border-gray-300 ml-3">
             <h3 class="px-4 py-3 font-semibold">{{ __('cvedixt-analytic.analytics_rules') }}</h3>
-            <div class="flex flex-col justify-between flex-1 ml-3 mb-2">
+            <div class="flex flex-col justify-start gap-4 flex-1 ml-3 mb-2">
                 @foreach(RuleType::cases() as $rule)
                     <a href="#"
                        class="btn form-control-lg py-3 border-2 border-primary text-sm text-left justify-start
@@ -50,8 +50,8 @@
             </div>
         </div>
         <!-- Rule Configuration -->
-        <div id="ruleConfiguration" class="w-full p-6">
-            <div class="flex border border-gray-400 p-4">
+        <div id="ruleConfiguration" class="w-full p-6 " style="min-height: 800px;">
+            <div class="flex border border-gray-400 p-4 h-full">
                 <!-- Left column: Rule name + Object types -->
                 <div class="w-1/2 pr-4">
                     <div class="mb-4">
@@ -64,15 +64,100 @@
                     <div class="mb-4">
                         <div class="mb-2 font-medium">{{ __('cvedixt-analytic.object_detection') }}</div>
                         <div class="flex flex-col">
-                            @foreach(DetectedObject::cases() as $type)
-                                <div class="flex items-center gap-2 ">
-                                    <input type="checkbox" name="detect_objects"
-                                           id="object_type_{{ $type->value }}"
-                                           value="{{ $type->value }}">
-                                    <label class="cursor-pointer flex-grow hover:font-bold p-2"
-                                           for="object_type_{{ $type->value }}">{{ $type->value }}</label>
+                            <div class="flex flex-col">
+                                <!-- Person -->
+                                <div x-data="{open: false}">
+                                    <div class="flex items-center gap-2 ">
+                                        <input type="checkbox" name="detect_objects" id="object_type_person"
+                                               value="person"
+                                               x-on:change="open = $event.target.checked">
+                                        <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                               for="object_type_person">Person</label>
+                                    </div>
+                                    <!-- Subtype for Person -->
+
+                                    <div
+                                        x-show="open"
+                                        x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0 -translate-y-2"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-2"
+                                        class="pl-6 flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="prisoner"
+                                                   id="object_type_prisoner">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_prisoner">Prisoner</label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="wardener"
+                                                   id="object_type_wardener">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_wardener">Wardener</label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="policer"
+                                                   id="object_type_policer">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_policer">Policer</label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="laborer"
+                                                   id="object_type_laborer">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_laborer">Laborer</label>
+                                        </div>
+                                    </div>
                                 </div>
-                            @endforeach
+                                <!-- Vehicle -->
+                                <div x-data="{open: false}">
+                                    <div class="flex items-center gap-2 ">
+                                        <input type="checkbox" name="detect_objects" id="object_type_vehicle"
+                                               value="vehicle"
+                                               x-on:change="open = $event.target.checked">
+                                        <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                               for="object_type_vehicle">Vehicle</label>
+                                    </div>
+                                    <!-- Subtypes for Vehicle -->
+                                    <div
+                                        x-show="open"
+                                        x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0 -translate-y-2"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-2"
+                                        class="pl-6 flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="car"
+                                                   id="object_type_car">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_car">Car</label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="truck"
+                                                   id="object_type_truck">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_truck">Truck</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Animal -->
+                                <div class="flex items-center gap-2 ">
+                                    <input type="checkbox" name="detect_objects" id="object_type_animal" value="animal">
+                                    <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                           for="object_type_animal">Animal</label>
+                                </div>
+                                <!-- Unknown -->
+                                <div class="flex items-center gap-2 ">
+                                    <input type="checkbox" name="detect_objects" id="object_type_unknown"
+                                           value="unknown">
+                                    <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                           for="object_type_unknown">Unknown</label>
+                                </div>
+                            </div>
                         </div>
                         <div id="detectObjectsError"
                              class="text-red-500 text-sm mt-1 hidden">{{ __('cvedixt-analytic.alert_no_object') }}</div>
@@ -96,7 +181,7 @@
                                    class="absolute top-0 w-full h-full object-contain"
                                    style="z-index: 0;" autoplay loop muted playsinline>
                                 <source
-                                    src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
+                                    src="{{ $row->source }}"
                                     type="video/mp4">
                             </video>
                             <canvas id="canvasOverlayOutside" class="absolute inset-0 h-full"
@@ -213,6 +298,7 @@
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
             <script src="{{ asset('/js/drawing-tool.js') }}"></script>
             <script>
+                window.srcVideo = '{{ $row->source }}';
                 const instanceId = {{ $row->id }};
                 const instanceUuid = '{{ $row->uuid }}';
                 let selectedRuleType = 'line_crossing';
@@ -225,6 +311,8 @@
                 const ruleList = document.getElementById('ruleList');
                 const ruleNameEl = document.getElementById('ruleNameInput');
                 const detectObjectsCheckboxes = document.querySelectorAll('input[name="detect_objects"]');
+                const classificationObjectsCheckboxes = document.querySelectorAll('input[name="classification_object"]');
+
                 const ruleTypeButtons = document.querySelectorAll('.btn.form-control-lg');
                 let ruleItemsEl = document.querySelectorAll('.rule-item');
                 const btnSaveRule = document.getElementById('btn-save-rule');
@@ -559,8 +647,37 @@
                     const action = selectedAddedRule ? 'updateInstanceRule' : 'createInstanceRule';
 
                     const ruleName = document.getElementById('ruleNameInput').value.trim();
-                    const detectObjects = Array.from(document.querySelectorAll('input[name="detect_objects"]:checked'))
-                        .map(cb => cb.value);
+                    // Lấy dữ liệu detected_object theo mẫu yêu cầu
+                    const detectObjects = Array.from(document.querySelectorAll('input[name="detect_objects"]:checked')).map(cb => {
+                        const detected_object = cb.value;
+                        let classification_object = [];
+
+                        // Lấy các checkbox classification_object liên quan nếu có
+                        if (detected_object === 'person') {
+                            classification_object = Array.from(document.querySelectorAll('input[name="classification_object"]:checked'))
+                                .filter(subCb => ['prisoner', 'wardener', 'policer', 'laborer'].includes(subCb.value))
+                                .map(subCb => subCb.value);
+                        } else if (detected_object === 'vehicle') {
+                            classification_object = Array.from(document.querySelectorAll('input[name="classification_object"]:checked'))
+                                .filter(subCb => ['car', 'truck'].includes(subCb.value))
+                                .map(subCb => subCb.value);
+                        }
+
+                        return {
+                            detected_object,
+                            classification_object
+                        };
+                    });
+                    // detected_object: [
+                    //     {
+                    //         "detected_object": "person",
+                    //         "classification_object": ["prisoner", "wardener"]
+                    //     },
+                    //     {
+                    //         "detected_object": "vehicle",
+                    //         "classification_object": ["car", "truck"]
+                    //     }
+                    // ];
                     const ruleType = selectedRuleType;
                     const ruleId = selectedAddedRule ? selectedAddedRule.id : null;
                     const uuid = window.tempShapesToSave?.uuid || selectedAddedRule?.uuid || instanceUuid;
@@ -732,9 +849,19 @@
                 function updateRuleConfiguration(dataCurrentRule = null) {
                     if (dataCurrentRule) {
                         ruleNameEl.value = dataCurrentRule.name;
+
                         detectObjectsCheckboxes.forEach(checkbox => {
-                            checkbox.checked = dataCurrentRule.detected_object.includes(checkbox.value);
+                            const isChecked = Array.isArray(dataCurrentRule.detected_object) &&
+                                dataCurrentRule.detected_object.some(obj => obj.detected_object === checkbox.value);
+                            checkbox.checked = isChecked;
+
+                            if (checkbox.closest('[x-data]') && checkbox.closest('[x-data]')._x_dataStack[0]) {
+                                checkbox.closest('[x-data]')._x_dataStack[0].open = isChecked;
+                            }
                         });
+                        classificationObjectsCheckboxes.forEach(checkbox => {
+                            checkbox.checked = dataCurrentRule.detected_object.some(obj => obj.classification_object.includes(checkbox.value));
+                        })
                         ruleTypeButtons.forEach(btn => {
                             if (btn.dataset.ruleType === dataCurrentRule?.rule_type) {
                                 btn.classList.remove('bg-white');
@@ -763,6 +890,10 @@
                         detectObjectsCheckboxes.forEach(checkbox => {
                             checkbox.checked = false;
                         });
+
+                        classificationObjectsCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        })
 
                         // Cập nhật rule type
                         ruleTypeButtons.forEach(btn => {
@@ -855,6 +986,7 @@
                     });
                 }
 
+
                 document.addEventListener('DOMContentLoaded', () => {
                     const buttons = document.querySelectorAll('.btn.form-control-lg');
                     const generalSettingBtn = document.getElementById('generalSettingBtn');
@@ -908,6 +1040,13 @@
 
                                 priorityEl.value = 1;
                                 priorityOutputEL.value = 1;
+
+                                classificationObjectsCheckboxes.forEach(checkbox => {
+                                    checkbox.checked = false;
+                                    if (checkbox.closest('[x-data]') && checkbox.closest('[x-data]')._x_dataStack[0]) {
+                                        checkbox.closest('[x-data]')._x_dataStack[0].open = false;
+                                    }
+                                })
                             }
 
                             // Reset trạng thái rule đã chọn

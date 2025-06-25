@@ -7,7 +7,6 @@ use PhpMqtt\Client\ConnectionSettings;
 use PhpMqtt\Client\Exceptions\ConfigurationInvalidException;
 use PhpMqtt\Client\Exceptions\ConnectingToBrokerFailedException;
 use PhpMqtt\Client\Exceptions\DataTransferException;
-use PhpMqtt\Client\Exceptions\ProtocolNotSupportedException;
 use PhpMqtt\Client\MqttClient;
 
 class MqttService
@@ -48,6 +47,8 @@ class MqttService
     public function connect(): void
     {
         if (!$this->connected) {
+            // Nếu đã từng kết nối mà bị đóng, khởi tạo lại object MQTT
+            $this->mqtt = new MqttClient($this->server, $this->port, $this->clientId);
             try {
                 $this->mqtt->connect($this->connectionSettings);
                 $this->connected = true; // Đánh dấu là đã kết nối
@@ -70,6 +71,10 @@ class MqttService
      */
     public function publish(string $topic, mixed $message, int $qos = 0, bool $retain = false): void
     {
+        if (!$this->connected) {
+            $this->connect();
+        }
+
         try {
             $this->mqtt->publish($topic, $message, $qos, $retain);
             usleep(100000); // thêm delay để tránh quá tải.
@@ -87,8 +92,10 @@ class MqttService
     {
         try {
             $this->mqtt->disconnect();
+            $this->connected = false;
         } catch (DataTransferException $e) {
             // Handle disconnection error
+            $this->connected = false;
             throw new Exception('MQTT disconnection failed: '.$e->getMessage());
         }
     }

@@ -4,6 +4,7 @@ namespace App\Domains\Cvedixrt\Event\Action;
 
 use App\Domains\Core\Action\ActionFactoryAbstract;
 use App\Domains\Cvedixrt\Event\Model\CvedixrtEventModel as Model;
+use App\Domains\Cvedixrt\Event\Service\Controller\CreateAction;
 
 class ActionFactory extends ActionFactoryAbstract
 {
@@ -29,9 +30,18 @@ class ActionFactory extends ActionFactoryAbstract
         $this->actionHandle(DeleteAction::class);
     }
 
-    public function sendEvents(): void
+    public function sendEvents($data): void
     {
-        $this->actionHandle(SendEventsAction::class, $this->data);
+        $this->actionHandle(SendEventsAction::class, $data);
     }
 
+    public function sendSingleEvent($dataSingle): void
+    {
+        $this->actionHandle(SendSingleEventAction::class, $dataSingle);
+    }
+
+    public function sendEventByJob(): void
+    {
+        $this->actionHandle(SendEventByJob::class, $this->data);
+    }
 }

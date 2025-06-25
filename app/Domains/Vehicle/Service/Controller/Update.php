@@ -57,7 +57,7 @@ class Update extends CreateUpdateAbstract
 
         } else {
             // role owner
-            return VehicleGroupMap::query()
+            return VehicleGroupModel::query()
                 ->where('enterprise_id', $this->auth->enterprise->id)->get();
         }
     }
