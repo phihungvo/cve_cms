@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Action;
+namespace App\Domains\FileManager\Action;
 
-use App\Domains\CvedixtModel\Model\CvedixtModel;
+use App\Domains\FileManager\Model\FileManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -21,7 +21,7 @@ class Delete
                 ];
             }
 
-            $model = CvedixtModel::findOrFail($modelId);
+            $model = FileManager::findOrFail($modelId);
 
             if (!$user->hasRole('root') && $model->enterprise_id !== $user->enterprise_id) {
                 return [
@@ -47,7 +47,7 @@ class Delete
                 }
 
                 // Xóa vĩnh viễn các bản ghi con trong database
-                CvedixtModel::where('model_url', 'like', $model->model_url . '/%')->delete();
+                FileManager::where('model_url', 'like', $model->model_url.'/%')->delete();
             } else {
                 // Kiểm tra và xóa file trên MinIO
                 if (Storage::disk('minio')->exists($path)) {

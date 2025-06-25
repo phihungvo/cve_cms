@@ -9,83 +9,75 @@
             background-color: #e6f3ff;
             border-left: 4px solid #007bff;
         }
-
         .tree-item .tree-toggle {
             cursor: pointer;
             width: 20px;
             text-align: center;
         }
-
         .tree-item .children {
             margin-left: 20px;
         }
 
-        /* Kiểu cho bảng và các cột cố định */
-        th.sticky, td.sticky {
-            position: sticky;
-            z-index: 10;
-            box-shadow: 1px 0 2px rgba(0, 0, 0, 0.1);
+        /* Kiểu cho bảng */
+        #model-list-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
         }
-
-        th.sticky.left-0, td.sticky.left-0 {
-            left: 0;
-        }
-
-        th.sticky.left-50, td.sticky.left-50 {
-            left: 50px;
-        }
-
-        th.sticky.right-0, td.sticky.right-0 {
-            right: 0;
-            box-shadow: -1px 0 2px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Kiểu cho container bảng */
-        .table-container {
-            overflow: auto;
-            max-width: 100%;
-            max-height: 500px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Kiểu cho cột tên */
-        .name-column {
-            max-width: 300px !important;
-            width: 300px !important;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            text-align: left;
-        }
-
-        .name-column:hover {
-            cursor: pointer;
-        }
-
-        /* Kiểu cho header bảng */
         #model-list-table thead {
             position: sticky;
             top: 0;
             z-index: 20;
             background: #f1f5f9;
         }
-
-        /* Kiểu cho cột hành động và dropdown */
+        #model-list-table th, #model-list-table td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            vertical-align: middle;
+            text-align: center;
+        }
+        #model-list-table th {
+            font-weight: 600;
+        }
+        #model-list-table tbody {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        #model-list-table tr {
+            height: 40px;
+        }
+        th.sticky, td.sticky {
+            position: sticky;
+            z-index: 10;
+            background: inherit;
+        }
+        th.sticky.left-0, td.sticky.left-0 {
+            left: 0;
+        }
+        th.sticky.left-48, td.sticky.left-48 {
+            left: 48px;
+        }
+        th.sticky.right-0, td.sticky.right-0 {
+            right: 0;
+        }
+        .name-column {
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .name-column:hover {
+            cursor: pointer;
+        }
         .action-column {
-            width: 60px !important;
-            position: relative;
-            vertical-align: middle !important;
             padding: 0 !important;
         }
-
         .action-dropdown {
             position: relative;
             display: inline-flex;
             justify-content: center;
             align-items: center;
         }
-
         .dropdown-toggle {
             background: none !important;
             border: none !important;
@@ -100,11 +92,9 @@
             justify-content: center;
             cursor: pointer;
         }
-
         .dropdown-toggle:focus {
             outline: none !important;
         }
-
         .action-dropdown .dropdown-menu {
             position: absolute;
             top: 100%;
@@ -122,13 +112,11 @@
             transform: translateY(-10px);
             transition: opacity 0.2s ease, transform 0.2s ease;
         }
-
         .action-dropdown.show .dropdown-menu {
             display: flex;
             opacity: 1;
             transform: translateY(0);
         }
-
         .action-dropdown .dropdown-item {
             padding: 8px 16px;
             font-size: 14px;
@@ -137,179 +125,119 @@
             color: #333;
             text-decoration: none;
         }
-
         .action-dropdown .dropdown-item:hover {
             background-color: #f8f9fa;
         }
-
         .action-dropdown .dropdown-item i {
             margin-right: 8px;
         }
 
-        /* Đảm bảo dòng bảng đồng nhất */
-        #model-list-table tr {
-            height: 40px;
-            line-height: 40px;
-        }
-
-        #model-list-table td {
-            vertical-align: middle;
-        }
-
         /* Kiểu cho modal #create-folder-modal */
         #create-folder-modal .modal-dialog {
-            max-width: 400px; /* Giới hạn chiều rộng modal */
-            margin: 1.75rem auto; /* Căn giữa */
+            max-width: 400px;
+            margin: 1.75rem auto;
         }
-
         #create-folder-modal .modal-content {
-            border-radius: 8px; /* Bo góc */
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); /* Đổ bóng */
-            border: none; /* Loại bỏ viền mặc định */
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            border: none;
         }
-
         #create-folder-modal .modal-header {
             border-bottom: 1px solid #e9ecef;
             padding: 16px 24px;
-            background: #f8f9fa; /* Màu nền nhẹ */
+            background: #f8f9fa;
             align-items: center;
         }
-
         #create-folder-modal .modal-title {
             font-size: 18px;
             font-weight: 600;
             color: #333;
         }
-
         .modal {
-            padding-left: 0 !important; /* Xóa padding-left bất thường */
-            padding-right: 0 !important; /* Đảm bảo không có padding-right bất thường */
-            display: none; /* Ẩn modal mặc định */
+            padding: 0 !important;
+            display: none;
             overflow-x: hidden;
             overflow-y: auto;
         }
-
         .modal.show {
-            display: block; /* Hiển thị modal khi có class show */
-            padding-left: 0 !important; /* Đảm bảo không có padding-left khi modal mở */
+            display: block;
+            padding: 0 !important;
         }
-
         .modal-dialog {
-            margin: 1.75rem auto; /* Căn giữa modal */
-            max-width: 400px; /* Giới hạn chiều rộng */
-            transform: translate(0, 0); /* Đảm bảo không bị lệch */
+            margin: 1.75rem auto;
+            max-width: 400px;
+            transform: translate(0, 0);
         }
-
         .modal.fade .modal-dialog {
-            transform: translate(0, -50px); /* Hiệu ứng ban đầu */
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            transform: translate(0, -50px);
+            transition: transform 0.3s ease-out, opacity 0.3s ease;
         }
-
         .modal.show .modal-dialog {
-            transform: translate(0, 0); /* Căn giữa khi hiển thị */
+            transform: translate(0);
             opacity: 1;
         }
-
         #create-folder-modal .close {
-            position: absolute;
-            top: 16px;
-            right: 24px;
-            padding: 0;
-            background: none;
-            border: none;
-            font-size: 24px;
-            line-height: 1;
+            cursor: pointer;
+            background-color: transparent;
             color: #333;
             opacity: 0.7;
-            cursor: pointer;
         }
-
         #create-folder-modal .close:hover {
             opacity: 1;
         }
-
         #create-folder-modal .close span {
             display: inline-block;
         }
-
         #create-folder-modal .modal-body {
             padding: 24px;
         }
-
         #create-folder-modal .form-control {
             border-radius: 4px;
-            border: 1px solid #ced4da;
-            padding: 8px 12px;
+            border: 1px solid #ccc;
+            padding: 12px;
             font-size: 14px;
-            transition: border-color 0.2s ease;
+            transition: border-color 0.3s ease-in-out;
         }
-
         #create-folder-modal .form-control:focus {
             border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
         }
-
         #create-folder-modal .modal-footer {
             border-top: 1px solid #e9ecef;
             padding: 16px 24px;
             justify-content: flex-end;
         }
-
         #create-folder-modal .btn {
             padding: 8px 16px;
             font-size: 14px;
             border-radius: 4px;
             transition: background-color 0.2s ease;
         }
-
         #create-folder-modal .btn-secondary {
             background-color: #6c757d;
             border-color: #6c757d;
             color: #fff;
         }
-
         #create-folder-modal .btn-secondary:hover {
             background-color: #5a6268;
             border-color: #5a6268;
         }
-
         #create-folder-modal .btn-primary {
             background-color: #007bff;
             border-color: #007bff;
             color: #fff;
         }
-
         #create-folder-modal .btn-primary:hover {
             background-color: #0056b3;
             border-color: #0056b3;
         }
-
-        /* Hiệu ứng mở modal */
         #create-folder-modal.fade .modal-dialog {
             transform: translateY(-50px);
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
-
         #create-folder-modal.show .modal-dialog {
             transform: translateY(0);
         }
-
-        #model-list-table {
-            display: block;
-            width: 100%;
-        }
-        #model-list-table tbody {
-            display: block;
-            overflow-y: auto;
-            max-height: 600px;
-        }
-        #model-list-table thead, #model-list-table tbody tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-
     </style>
 
     <div class="intro-y box p-5">
@@ -321,111 +249,78 @@
         @endif
 
         <div class="flex flex-col sm:flex-row items-center gap-4 mb-4">
-            <button
-                class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600
-                 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
-                onclick="document.getElementById('model-files').click();">
+            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200" onclick="document.getElementById('model-files').click();">
                 <i class="fas fa-upload mr-2"></i> {{__('cvedixrt-model.upload')}}
             </button>
-            <button
-                class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2
-                 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-                onclick="showCreateFolderModal()">
+            <button class="flex items-center justify-center w-full sm:w-auto px-4 sm:w-auto py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200" onclick="showCreateFolderModal()">
                 <i class="fas fa-folder-plus mr-2"></i> {{__('cvedixrt-model.new_folder')}}
             </button>
-            <button
-                class="flex items-center justify-center w-full sm:w-auto px-4 py-2
-                 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors
-                  duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                id="delete-folder" disabled>
+            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" id="delete-folder" disabled>
                 <i class="fas fa-trash-alt mr-2"></i> {{__('cvedixrt-model.delete_folder')}}
             </button>
-            <button
-                class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2
-                 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
-                id="delete-selected">
+            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200" id="delete-selected">
                 <i class="fas fa-trash mr-2"></i> {{__('cvedixrt-model.delete_selected_files')}}
             </button>
             <div class="flex-grow hidden sm:block"></div>
             <form method="GET" class="w-full sm:w-auto mt-2 sm:mt-0">
-                <input type="search" name="search"
-                       class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                       placeholder="{{__('cvedixrt-model.filter')}}"f
-                       data-table-search="#model-list-table"
-                       value="{{ request('search') }}"/>
+                <input type="search" name="search" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" placeholder="{{__('cvedixrt-model.filter')}}" data-table-search="#model-list-table" value="{{ request('search') }}"/>
             </form>
         </div>
 
-        <form method="POST" action="{{ route('cvedixrt_model.create') }}" enctype="multipart/form-data"
-              id="upload-form" class="hidden">
+        <form method="POST" action="{{ route('file_management.create') }}" enctype="multipart/form-data" id="upload-form" class="hidden">
             @csrf
             <input type="hidden" name="name" value="Uploaded Model {{ now()->format('Y-m-d H:i:s') }}">
             <input type="hidden" name="parent_id" id="upload-parent-id">
-            <input type="file" name="model_files[]" id="model-files" class="hidden"
-                   accept=".pt,.pth,.pb,.h5,.ckpt,.onnx,.joblib,.pkl,.mp4,.jpg,.jpeg,.png,.avif" multiple required>
+            <input type="file" name="model_files[]" id="model-files" class="hidden" accept=".pt,.pth,.pb,.h5,.ckpt,.onnx,.joblib,.pkl,.mp4,.jpg,.jpeg,.png,.avif" multiple required>
         </form>
 
         <div id="progress-container" class="mt-4 hidden">
             <label>{{ __('Đang tải lên...') }}</label>
             <div class="w-full bg-gray-200 rounded-full h-4">
-                <div id="progress-bar" class="bg-blue-600 h-4 rounded-full"
-                     style="width: 0%; transition: width 0.3s ease;"></div>
+                <div id="progress-bar" class="bg-blue-600 h-4 rounded-full" style="width: 0%; transition: width 0.3s ease;"></div>
             </div>
             <p id="progress-text" class="text-sm text-gray-600 mt-1">0%</p>
         </div>
 
         <div class="flex flex-col lg:flex-row mt-5 gap-4">
             <div class="w-full lg:w-1/3 overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-sm" id="model-tree"></div>
-
-            <div class="w-full lg:w-2/3 overflow-x-auto max-h-[200px]">
-                <table id="model-list-table"
-                       class="w-full text-sm text-center border border-gray-200 divide-y divide-gray-200 "
-                       data-table-sort data-table-pagination data-table-pagination-limit="10">
-                    <thead class="bg-gray-100 sticky top-0 z-10">
-                    <tr>
-                        <th class="w-12 border border-gray-200 sticky left-0 z-20">
-                            <input type="checkbox" id="select-all" class="h-4 w-4">
-                        </th>
-                        <th class="border border-gray-200 sticky left-12 z-20 max-w-[300px] text-left px-4 py-2">
-                            {{__('cvedixrt-model.table.name')}}
-                        </th>
-                        <th class="w-36 border border-gray-200 px-4 py-2">{{__('cvedixrt-model.table.created_at')}}</th>
-                        <th class="w-24 border border-gray-200 px-4 py-2">{{__('cvedixrt-model.table.size')}}</th>
-                        <th class="w-36 border border-gray-200 px-4 py-2">{{__('cvedixrt-model.table.type')}}</th>
-                        <th class="w-16 border border-gray-200 sticky right-0 z-20 px-4 py-2">
-                            {{__('cvedixrt-model.table.actions')}}</th>
-                    </tr>
-                    </thead>
-                    <tbody id="model-list-body" class="divide-y divide-gray-200"></tbody>
-                </table>
+            <div class="w-full lg:w-2/3 overflow-x-auto">
+                <div class="table-container">
+                    <table id="model-list-table" class="w-full text-sm text-center border border-gray-200 divide-y divide-gray-200" data-table-sort data-table-pagination data-table-pagination-limit="10">
+                        <thead class="bg-gray-100 sticky top-0 z-10">
+                        <tr>
+                            <th class="sticky left-0 z-20 w-12 bg-gray-100">
+                                <input type="checkbox" id="select-all" class="h-4 w-4">
+                            </th>
+                            <th class="sticky left-48 z-20 w-[300px] text-left px-4 py-2 bg-gray-100 name-column">{{__('cvedixrt-model.table.name')}}</th>
+                            <th class="w-36 px-4 py-2">{{__('cvedixrt-model.table.created_at')}}</th>
+                            <th class="w-24 px-4 py-2">{{__('cvedixrt-model.table.size')}}</th>
+                            <th class="w-36 px-4 py-2">{{__('cvedixrt-model.table.type')}}</th>
+                            <th class="sticky right-0 z-20 w-16 px-4 py-2 bg-gray-100 action-column">{{__('cvedixrt-model.table.actions')}}</th>
+                        </tr>
+                        </thead>
+                        <tbody id="model-list-body" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="modal fade" id="create-folder-modal" tabindex="-1" aria-labelledby="createFolderModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="create-folder-modal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
             <div class="modal-dialog max-w-md mx-auto">
                 <div class="modal-content rounded-lg shadow-lg">
                     <div class="modal-header flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
-                        <h5 class="modal-title text-lg font-semibold text-gray-800" id="createFolderModalLabel">Tạo thư
-                            mục mới</h5>
-                        <button type="button" class="text-gray-600 hover:text-gray-800 text-2xl font-bold"
-                                data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                        <h5 class="modal-title text-lg font-semibold text-gray-800" id="createFolderModalLabel">Tạo thư mục mới</h5>
+                        <button type="button" class="text-gray-600 hover:text-gray-800 text-2xl font-bold" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
                         </button>
                     </div>
                     <div class="modal-body p-6">
-                        <input type="text" id="new-folder-name"
-                               class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="Tên thư mục">
+                        <input type="text" id="new-folder-name" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Tên thư mục">
                         <input type="hidden" id="new-folder-parent-id" value="">
                     </div>
                     <div class="modal-footer flex justify-end p-4 border-t border-gray-200">
-                        <button type="button" class="btn bg-gray-500 text-white hover:bg-gray-600 px-4 py-2 rounded-lg"
-                                data-dismiss="modal">Hủy
-                        </button>
-                        <button type="button" class="btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-lg"
-                                onclick="createNewFolder(document.getElementById('new-folder-parent-id').value)">Tạo
-                        </button>
+                        <button type="button" class="btn bg-gray-500 text-white hover:bg-gray-600 px-4 py-2 rounded-lg" data-dismiss="modal">Hủy</button>
+                        <button type="button" class="btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-lg" onclick="createNewFolder(document.getElementById('new-folder-parent-id').value)">Tạo</button>
                     </div>
                 </div>
             </div>
@@ -433,12 +328,13 @@
 
         @include('molecules.delete-modal', [
             'method' => 'delete',
-            'route' => route('cvedixrt_model.delete'),
+            'route' => route('file_management.delete'),
             'title' => __('Xóa file'),
             'message' => __('Bạn có chắc chắn muốn xóa các mô hình đã chọn?'),
         ])
     </div>
 @endsection
+
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -449,6 +345,7 @@
         let selectedPath = '';
         let selectedModelId = null;
         let originalData = [];
+        const downloadRouteBase = "{{ route('file_management.download', ['id' => ':id']) }}";
 
         function renderTree(tree, parentElement, level = 0, path = '') {
             Object.entries(tree).forEach(([name, node]) => {
@@ -472,7 +369,7 @@
                 toggle.className = 'tree-toggle expandable cursor-pointer mr-2 text-gray-600';
                 toggle.setAttribute('data-path', currentPath);
                 toggle.textContent = '▶';
-                toggle.addEventListener('click', () => toggleFolder(currentPath, node.model_id));
+                toggle.addEventListener('click', () => toggleChildren(currentPath));
                 span.appendChild(toggle);
 
                 const icon = document.createElement('span');
@@ -485,11 +382,10 @@
                 link.href = 'javascript:;';
                 link.title = name;
                 link.textContent = `${name} (${fileCount})`;
-                link.addEventListener('click', () => toggleFolder(currentPath, node.model_id));
+                link.addEventListener('click', () => selectFolder(currentPath, node.model_id));
                 span.appendChild(link);
 
                 contentDiv.appendChild(span);
-
                 itemDiv.appendChild(contentDiv);
 
                 const childrenDiv = document.createElement('div');
@@ -503,7 +399,7 @@
             });
         }
 
-        function toggleFolder(path, modelId) {
+        function toggleChildren(path) {
             const item = document.querySelector(`.tree-item[data-path="${path}"]`);
             if (!item) return;
 
@@ -515,25 +411,38 @@
             children.classList.toggle('hidden', isExpanded);
             children.classList.toggle('block', !isExpanded);
             toggle.textContent = isExpanded ? '▶' : '▼';
+        }
+
+        function selectFolder(path, modelId) {
+            const item = document.querySelector(`.tree-item[data-path="${path}"]`);
+            if (!item) return;
 
             document.querySelectorAll('.tree-item').forEach(item => item.classList.remove('bg-blue-100', 'border-l-4', 'border-blue-500'));
             item.classList.add('bg-blue-100', 'border-l-4', 'border-blue-500');
+
             selectedPath = path;
             selectedModelId = modelId ? parseInt(modelId) : null;
 
             const deleteButton = document.getElementById('delete-folder');
             deleteButton.disabled = !selectedModelId;
 
-            if (!isExpanded) {
-                fetchFiles(path);
+            const toggle = item.querySelector('.tree-toggle');
+            const children = item.querySelector('.children');
+            if (children && toggle) {
+                const isExpanded = children.classList.contains('block');
+                children.classList.toggle('hidden', isExpanded);
+                children.classList.toggle('block', !isExpanded);
+                toggle.textContent = isExpanded ? '▶' : '▼';
             }
+
+            fetchFiles(path);
         }
 
         async function fetchFiles(path) {
             try {
                 const cleanPath = path ? path.replace(/^\/|\/$/g, '') : '';
                 const encodedPath = encodeURIComponent(cleanPath).replace(/%2F/g, '/');
-                const url = `{{ route('cvedixrt_model.folder.contents', ['path' => ':path']) }}`.replace(':path', encodedPath || '');
+                const url = `{{ route('file_management.folder.contents', ['path' => ':path']) }}`.replace(':path', encodedPath || '');
 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -563,29 +472,35 @@
                 .filter(item => !item.is_folder)
                 .map(item => `
                     <tr class="hover:bg-gray-200">
-                        <td class="w-[50px] border border-gray-200 sticky left-0"><input type="checkbox" class="file-checkbox" data-id="${item.id}"></td>
-                        <td class="border border-gray-200 sticky left-50 name-column pl-4" title="${item.name}">${item.name}</td>
-                        <td class="w-[150px] border border-gray-200">${new Date(item.created_at * 1000).toLocaleDateString('vi-VN')}</td>
-                        <td class="w-[100px] border border-gray-200">${(item.size / 1024).toFixed(2)} KB</td>
-                        <td class="w-[150px] border border-gray-200">${item.type}</td>
-                        <td class="action-column border border-gray-200 right-0">
-                            <div class="action-dropdown dropdown d-inline-block" style="position: relative;">
-                                    <button class="btn btn-secondary btn-sm dropdown-toggle p-1" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="min-width: 28px; min-height: 28px; line-height: 1;">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-right" style="position: absolute; top: 100%; right: 0;">
-                                        <a class="dropdown-item text-success" href="{{ url('cvedixrt-model') }}/${item.id}/download">
-                                            <i class="fas fa-download"></i> Download
-                                        </a>
-                                        <a class="dropdown-item text-danger" href="javascript:;" data-toggle="modal" data-target="#delete-modal"
-                                           onclick="document.getElementById('delete-model-id').value='${item.id}';document.getElementById('delete-model-name').innerText='${item.name}';">
-                                            <i class="fas fa-trash-alt"></i> Delete
-                                        </a>
-                                    </div>
+                        <td class="sticky left-0 w-12 bg-white"><input type="checkbox" class="file-checkbox" data-id="${item.id}"></td>
+                        <td class="sticky left-48 w-[300px] name-column pl-4" title="${item.name}">${item.name}</td>
+                        <td class="w-36">${new Date(item.created_at * 1000).toLocaleDateString('vi-VN')}</td>
+                        <td class="w-24">${(item.size / 1024).toFixed(2)} KB</td>
+                        <td class="w-36">${item.type}</td>
+                        <td class="sticky right-0 w-16 action-column">
+                            <div class="action-dropdown dropdown d-inline-block">
+                                <button class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item text-success" href="${downloadRouteBase.replace(':id', item.id)}">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    <a class="dropdown-item text-danger" href="javascript:;" data-toggle="modal" data-target="#delete-modal" onclick="document.getElementById('delete-model-id').value='${item.id}';document.getElementById('delete-model-name').innerText='${item.name}';">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
                                 </div>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
+
+            document.querySelectorAll('[data-toggle="dropdown"]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const dropdown = button.nextElementSibling;
+                    dropdown.classList.toggle('show');
+                });
+            });
         }
 
         async function createNewFolder(parentPath) {
@@ -607,7 +522,7 @@
 
             try {
                 const response = await $.ajax({
-                    url: '{{ route('cvedixrt_model.create-folder') }}',
+                    url: '{{ route('file_management.create-folder') }}',
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -641,7 +556,7 @@
 
         function refreshTree(pathToExpand = '') {
             $.ajax({
-                url: '{{ route('cvedixrt_model.index') }}',
+                url: '{{ route('file_management.index') }}',
                 type: 'GET',
                 dataType: 'json',
                 headers: {
@@ -655,7 +570,7 @@
                         const modelTree = document.getElementById('model-tree');
                         modelTree.innerHTML = '';
                         renderTree(treeData, modelTree);
-                        toggleFolder(pathToExpand || '', null);
+                        selectFolder(pathToExpand || '', null);
                     } else {
                         showError('Cấu trúc dữ liệu phản hồi không hợp lệ');
                     }
@@ -670,15 +585,11 @@
             Swal.fire({
                 toast: true,
                 icon: 'success',
-                title: message,
+                title: message || 'Success',
                 position: 'top-end',
                 showConfirmButton: false,
                 timer: 4000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
+                timerProgressBar: true
             });
         }
 
@@ -690,11 +601,7 @@
                 position: 'top-end',
                 showConfirmButton: false,
                 timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
+                timerProgressBar: true
             });
         }
 
@@ -707,14 +614,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             const modelTree = document.getElementById('model-tree');
             renderTree(treeData, modelTree);
-            toggleFolder('', null);
+            selectFolder('', null);
 
             const searchInput = document.querySelector('input[name="search"]');
             searchInput.addEventListener('input', function () {
                 const searchValue = this.value.trim().toLowerCase();
-                const filteredData = originalData.filter(item =>
-                    !item.is_folder && item.name.toLowerCase().includes(searchValue)
-                );
+                const filteredData = originalData.filter(item => !item.is_folder && item.name.toLowerCase().includes(searchValue));
                 renderTable(filteredData);
             });
 
@@ -788,8 +693,7 @@
             });
 
             document.getElementById('delete-selected').addEventListener('click', () => {
-                const checkedIds = Array.from(document.querySelectorAll('.file-checkbox:checked'))
-                    .map(checkbox => checkbox.getAttribute('data-id'));
+                const checkedIds = Array.from(document.querySelectorAll('.file-checkbox:checked')).map(checkbox => checkbox.getAttribute('data-id'));
                 if (checkedIds.length === 0) {
                     showError('Vui lòng chọn ít nhất một file để xóa');
                     return;
@@ -800,122 +704,53 @@
             });
 
             document.getElementById('select-all').addEventListener('change', function () {
-                document.querySelectorAll('.file-checkbox').forEach(checkbox => {
-                    checkbox.checked = this.checked;
+                document.querySelectorAll('.file-checkbox').forEach(d => {
+                    d.checked = this.checked;
                 });
             });
 
-            // Xử lý sự kiện click vào biểu tượng 3 chấm
-            document.getElementById('model-list-table').addEventListener('click', function (e) {
-                const toggle = e.target.closest('.dropdown-toggle');
-                if (!toggle) return;
-
-                e.stopPropagation();
-
-                const dropdown = toggle.closest('.action-dropdown');
-                const isOpen = dropdown.classList.contains('show');
-
-                // Đóng tất cả dropdown khác
-                document.querySelectorAll('.action-dropdown').forEach(d => {
-                    d.classList.remove('show');
-                });
-
-                // Mở/đóng dropdown hiện tại
-                if (!isOpen) {
-                    dropdown.classList.add('show');
-                    $(toggle).dropdown();
-                }
-            });
-
-            // Đóng tất cả dropdown khi nhấn ra ngoài
-            document.addEventListener('click', function (e) {
-                if (!e.target.closest('.action-dropdown')) {
-                    document.querySelectorAll('.action-dropdown').forEach(d => {
-                        d.classList.remove('show');
-                    });
-                }
-            });
-
-            // Xử lý sự kiện khi nhấn nút xác nhận xóa trong modal
+            // Handle confirm button click in delete modal
             const deleteModal = document.getElementById('delete-modal');
             if (deleteModal) {
                 deleteModal.querySelector('.btn-primary').addEventListener('click', async () => {
-                    const modelId = document.getElementById('delete-model-id').value;
-                    if (!modelId) {
-                        showError('ID không hợp lệ');
+                    const modelIdValue = document.getElementById('delete-model-id').value;
+                    if (!modelIdValue) {
+                        showError('Invalid ID');
                         return;
                     }
 
                     try {
                         const response = await $.ajax({
-                            url: '{{ route('cvedixrt_model.delete') }}',
-                            type: 'DELETE',
+                            url: '{{ route('file_management.delete') }}',
+                            type: 'POST',
                             data: {
-                                model_id: modelId,
-                                _token: '{{ csrf_token() }}'
+                                model_id: modelIdValue,
+                                _token: '{{ csrf_token() }}',
                             },
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json'
+                                'Accept': 'application/json',
                             }
                         });
 
                         if (response.success) {
-                            showSuccess(response.message || 'Xóa thành công');
+                            showSuccess('Deleted successfully');
                             $('#delete-modal').modal('hide');
                             refreshTree(selectedPath);
                             fetchFiles(selectedPath);
                         } else {
-                            showError(response.message || 'Lỗi khi xóa');
+                            showError(response.message || 'Error deleting item');
                         }
                     } catch (error) {
-                        showError('Lỗi khi xóa: ' + (error.responseJSON?.message || error.message));
+                        showError('Error deleting item: ' + (error.responseJSON?.message || error.message));
                     }
                 });
             }
 
-
-            // Reset modal khi đóng
+            // Fix modal issues
             $('#create-folder-modal').on('hidden.bs.modal', function () {
-                const modal = this;
-                const modalDialog = modal.querySelector('.modal-dialog');
-
-                // Reset style của modal
-                modal.style.paddingLeft = '0';
-                modal.style.paddingRight = '0';
-                modal.style.marginLeft = '0';
-                modal.style.marginTop = '0';
-                modal.classList.remove('show');
-                modal.style.display = 'none';
-
-                // Reset transform và opacity của modal-dialog
-                modalDialog.style.transform = 'translate(0, -50px)';
-                modalDialog.style.opacity = '0';
-
-                // Xóa modal backdrop và class modal-open khỏi body
                 document.body.classList.remove('modal-open');
-                document.body.style.paddingRight = '0'; // Reset padding-right của body
                 document.querySelector('.modal-backdrop')?.remove();
-            });
-
-            // Đảm bảo modal hiển thị đúng khi mở
-            $('#create-folder-modal').on('show.bs.modal', function () {
-                const modal = this;
-                const modalDialog = modal.querySelector('.modal-dialog');
-
-                // Reset style của modal
-                modal.style.paddingLeft = '0';
-                modal.style.paddingRight = '0';
-                modal.style.marginLeft = '0';
-                modal.style.marginTop = '0';
-                modal.style.display = 'block';
-
-                // Đảm bảo modal-dialog căn giữa
-                modalDialog.style.transform = 'translate(0, 0)';
-                modalDialog.style.opacity = '1';
-
-                // Đảm bảo body không bị thêm padding bất thường
-                document.body.style.paddingRight = '0';
             });
         });
     </script>

@@ -2,17 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Controller;
+namespace App\Domains\FileManager\Controller;
 
-use App\Domains\CvedixtModel\Action\Delete;
-use App\Domains\CvedixtModel\Action\Rename;
-use App\Domains\CvedixtModel\Model\CvedixtModel as Model;
-use App\Domains\CvedixtModel\Service\Controller\Download as DownloadService;
-use App\Domains\CvedixtModel\Service\Controller\Index as ControllerService;
+use App\Domains\FileManager\Action\Delete;
+use App\Domains\FileManager\Model\FileManager as Model;
+use App\Domains\FileManager\Service\Controller\Download as DownloadService;
+use App\Domains\FileManager\Service\Controller\Index as ControllerService;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 
 class Index extends ControllerAbstract
@@ -31,7 +29,7 @@ class Index extends ControllerAbstract
 
         $this->meta('title', __('File Management'));
 
-        return $this->page('cvedixrt.model.index', $this->data());
+        return $this->page('file-manager.index', $this->data());
     }
 
     protected function data(): array
@@ -39,6 +37,13 @@ class Index extends ControllerAbstract
         return ControllerService::new($this->request, $this->auth)->data();
     }
 
+    /**
+     * Get the contents of a folder.
+     *
+     * @param string $path
+     *
+     * @return JsonResponse
+     */
     public function getFolderContents($path): JsonResponse
     {
         $decodedPath = urldecode($path);
@@ -62,6 +67,11 @@ class Index extends ControllerAbstract
         })]);
     }
 
+    /**
+     * Create a new folder.
+     *
+     * @return JsonResponse
+     */
     public function createFolder(): JsonResponse
     {
         try {
@@ -129,6 +139,11 @@ class Index extends ControllerAbstract
         }
     }
 
+    /**
+     * Delete files or folders.
+     *
+     * @return JsonResponse
+     */
     public function destroy(): JsonResponse
     {
         $modelIdInput = $this->request->input('model_id');
@@ -164,31 +179,10 @@ class Index extends ControllerAbstract
         ]);
     }
 
-    public function rename(): RedirectResponse
-    {
-        $modelId = (int) $this->request->input('model_id');
-        $newName = $this->request->input('name');
-        $action = new Rename();
-        $result = $action->handle($modelId, $newName, $this->auth);
-
-        return $this->redirectResult($result, 'cvedixrt_model.index');
-    }
-
     public function download($id): Response
     {
         $service = DownloadService::new($this->request, $this->auth);
 
         return $service->download((int) $id);
-    }
-
-    protected function redirectResult(array $result, string $route): RedirectResponse
-    {
-        if ($result['success']) {
-            $this->sessionMessage('success', $result['message']);
-        } else {
-            $this->sessionMessage('error', $result['message']);
-        }
-
-        return redirect()->route($route);
     }
 }

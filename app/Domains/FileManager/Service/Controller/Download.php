@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Service\Controller;
+namespace App\Domains\FileManager\Service\Controller;
 
-use App\Domains\CvedixtModel\Model\CvedixtModel;
+use App\Domains\FileManager\Model\FileManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
 
@@ -26,17 +26,19 @@ class Download
     }
 
     /**
-     * Download a file from the CvedixtModel.
+     * Download a file from the FileManager.
      *
      * @param int $id
-     * @return Response
+     *
      * @throws \Exception
+     *
+     * @return Response
      */
     public function download(int $id): Response
     {
         try {
             // Tìm model
-            $model = CvedixtModel::findOrFail($id);
+            $model = FileManager::findOrFail($id);
 
             // Kiểm tra quyền
             if (!$this->auth->hasRole('root') && $model->enterprise_id !== $this->auth->enterprise_id) {
