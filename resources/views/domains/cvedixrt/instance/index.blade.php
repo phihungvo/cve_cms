@@ -54,6 +54,7 @@
                     <th class="text-left w-1">{{ __('cvedixrt-instance-index.source') }}</th>
                     <th class="text-left w-1">{{ __('cvedixrt-instance-index.solutions') }}</th>
                     <th class="text-left w-1">{{ __('cvedixrt-instance-index.groups') }}</th>
+                    <th class="text-center w-1">{{ __('Action') }}</th>
                     <th class="text-center w-1">{{ __('cvedixrt-instance-index.events') }}</th>
                 </tr>
                 </thead>
@@ -113,13 +114,40 @@
                         <td class="text-left">
                             <a href="{{$link}}" class="block">{{$instance->group->name ?? '-'}}</a>
                         </td>
+                        <td class="flex justify-center  items-center">
+                            <!-- button Analytics rule -->
+                            <a href="{{ route('cvedixrt_instance.analytics', ['id' => $instance->id]) }}"
+                               class="inline-flex items-center justify-center transition p-2
+                            bg-transparent hover:bg-blue-900 hover:font-bold group rounded-md cursor-pointer"
+                               title="{{__('Analytics Rule')}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor"
+                                     class="size-6 transition-colors group-hover:stroke-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"/>
+                                </svg>
+                            </a>
+                            <!-- button export settings -->
+                            <a href="{{ route('cvedixrt_instance.export_settings', ['id' => $instance->id]) }}"
+                               class="inline-flex items-center justify-center transition p-2
+                            bg-transparent hover:bg-blue-900 hover:font-bold group rounded-md cursor-pointer"
+                               title="{{__('Analytics Rule')}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor"
+                                     class="size-6 transition-colors group-hover:stroke-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077 1.41-.513m14.095-5.13 1.41-.513M5.106 17.785l1.15-.964m11.49-9.642 1.149-.964M7.501 19.795l.75-1.3m7.5-12.99.75-1.3m-6.063 16.658.26-1.477m2.605-14.772.26-1.477m0 17.726-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205 12 12m6.894 5.785-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495"/>
+                                </svg>
+                            </a>
+
+                        </td>
                         <!-- Start/Stop -->
                         <td class="text-center" x-data="{ eventsCount: {{$instance->events_count ?? 0}} }">
                             <a href="#!"
                                class="inline-flex items-center justify-center rounded-md transition w-full py-1 px-2"
                                :class="eventsCount <= 0
                                         ? 'bg-gray-300 text-gray-400 cursor-not-allowed pointer-events-none'
-                                        : 'bg-transparent hover:bg-blue-600 hover:font-bold group border border-gray-500'"
+                                        : 'bg-transparent hover:bg-blue-900 hover:font-bold group border border-gray-500'"
                                :tabindex="eventsCount <= 0 ? -1 : 0"
                                :aria-disabled="eventsCount <= 0"
                                @click="if(eventsCount > 0) sendEvent({{$instance->id}})"
