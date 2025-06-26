@@ -10,7 +10,7 @@ use App\Domains\CoreApp\Action\ActionAbstract as ActionAbstractCore;
 abstract class ActionAbstract extends ActionAbstractCore
 {
     /**
-     * @var ?\App\Domains\FileManager\Model\FileManager
+     * @var ?Model
      */
     protected ?Model $row;
 }

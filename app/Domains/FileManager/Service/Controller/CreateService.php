@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domains\FileManager\Service\Controller;
 
-use App\Domains\FileManager\Action\Create as CreateAction;
+use App\Domains\FileManager\Action\CreateAction as CreateAction;
 use App\Domains\FileManager\Model\FileManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Aws\S3\S3Client;
 
-class Create
+class CreateService
 {
     protected $request;
 
@@ -50,7 +50,7 @@ class Create
     }
 
     /**
-     * Create a new model with uploaded files.
+     * CreateAction a new model with uploaded files.
      *
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */

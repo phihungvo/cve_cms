@@ -6,7 +6,7 @@ namespace App\Domains\FileManager\Action;
 
 use App\Domains\FileManager\Model\FileManager as Model;
 
-class Create
+class CreateAction
 {
     protected array $data;
 

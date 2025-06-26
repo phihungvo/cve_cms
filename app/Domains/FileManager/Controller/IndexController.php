@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domains\FileManager\Controller;
 
-use App\Domains\FileManager\Action\Delete;
+use App\Domains\FileManager\Action\DeleteAction;
 use App\Domains\FileManager\Model\FileManager as Model;
-use App\Domains\FileManager\Service\Controller\Download as DownloadService;
-use App\Domains\FileManager\Service\Controller\Index as ControllerService;
+use App\Domains\FileManager\Service\Controller\DownloadService as DownloadService;
+use App\Domains\FileManager\Service\Controller\IndexService as ControllerService;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
 
-class Index extends ControllerAbstract
+class IndexController extends ControllerAbstract
 {
     public function __invoke(): Response|JsonResponse
     {
@@ -68,79 +67,7 @@ class Index extends ControllerAbstract
     }
 
     /**
-     * Create a new folder.
-     *
-     * @return JsonResponse
-     */
-    public function createFolder(): JsonResponse
-    {
-        try {
-            $parentPath = $this->request->input('parent_id', '');
-            $folderName = trim($this->request->input('name'));
-            if (empty($folderName)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tên thư mục không được để trống',
-                ], 422);
-            }
-
-            $enterpriseId = $this->auth->hasRole('root') ? null : ($this->auth->enterprise_id ?? null);
-            if (!$enterpriseId && !$this->auth->hasRole('root')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không có quyền tạo thư mục',
-                ], 403);
-            }
-
-            $basePath = $parentPath ?: ($enterpriseId ? $enterpriseId : '');
-            $path = $basePath ? "{$basePath}/{$folderName}" : $folderName;
-            $fullPath = '/'.trim($path, '/');
-
-            if (Storage::disk('minio')->exists($path) || Model::where('model_url', $fullPath)->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Thư mục đã tồn tại',
-                ], 422);
-            }
-
-            Storage::disk('minio')->makeDirectory($path);
-
-            $parentId = $parentPath ? Model::where('model_url', '/'.trim($parentPath, '/'))->first()?->id : null;
-            $model = Model::create([
-                'name' => $folderName,
-                'file_name' => $folderName,
-                'model_url' => $fullPath,
-                'size' => 0,
-                'type' => 'folder',
-                'enterprise_id' => $enterpriseId,
-                'parent_id' => $parentId,
-                'is_folder' => true,
-            ]);
-
-            $this->sessionMessage('success', 'Tạo thư mục thành công: '.$folderName);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Tạo thư mục thành công',
-                'data' => [
-                    'path' => $path,
-                    'fullPath' => $fullPath,
-                    'name' => $folderName,
-                    'parentPath' => $parentPath,
-                    'model_id' => $model->id,
-                ],
-            ], 201);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi tạo thư mục: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Delete files or folders.
+     * DeleteAction files or folders.
      *
      * @return JsonResponse
      */
@@ -163,7 +90,7 @@ class Index extends ControllerAbstract
             ], 422);
         }
 
-        $action = new Delete();
+        $action = new DeleteAction();
         $results = [];
         foreach ($modelIds as $modelId) {
             $result = $action->handle($modelId, $this->auth);

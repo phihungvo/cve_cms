@@ -8,7 +8,7 @@ use App\Domains\FileManager\Model\FileManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
 
-class Download
+class DownloadService
 {
     protected $request;
 
@@ -26,7 +26,7 @@ class Download
     }
 
     /**
-     * Download a file from the FileManager.
+     * DownloadService a file from the FileManager.
      *
      * @param int $id
      *
@@ -42,7 +42,7 @@ class Download
 
             // Kiểm tra quyền
             if (!$this->auth->hasRole('root') && $model->enterprise_id !== $this->auth->enterprise_id) {
-                throw new \Exception(__('cvedixrt-model.no-permission'));
+                throw new \Exception(__('file-manager.no-permission'));
             }
 
             // Lấy đường dẫn file từ model_url
@@ -53,7 +53,7 @@ class Download
 
             // Kiểm tra file tồn tại trên MinIO
             if (!Storage::disk('minio')->exists($filePath)) {
-                throw new \Exception(__('cvedixrt-model.download-error-not-found'));
+                throw new \Exception(__('file-manager.download-error-not-found'));
             }
 
             // Lấy file content
@@ -67,7 +67,7 @@ class Download
                 'Content-Length' => $model->size,
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            throw new \Exception(__('cvedixrt-model.download-error-not-found'));
+            throw new \Exception(__('file-manager.download-error-not-found'));
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }

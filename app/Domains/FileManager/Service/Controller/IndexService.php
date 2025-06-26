@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domains\FileManager\Service\Controller;
 
-use App\Domains\FileManager\Model\FileManager;
 use Aws\S3\S3Client;
 use Illuminate\Support\Facades\Log;
+use App\Domains\FileManager\Model\FileManager;
 
-class Index
+class IndexService
 {
     protected $request;
 

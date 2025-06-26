@@ -9,11 +9,13 @@
             background-color: #e6f3ff;
             border-left: 4px solid #007bff;
         }
+
         .tree-item .tree-toggle {
             cursor: pointer;
             width: 20px;
             text-align: center;
         }
+
         .tree-item .children {
             margin-left: 20px;
         }
@@ -24,60 +26,74 @@
             table-layout: fixed;
             border-collapse: collapse;
         }
+
         #model-list-table thead {
             position: sticky;
             top: 0;
             z-index: 20;
             background: #f1f5f9;
         }
+
         #model-list-table th, #model-list-table td {
             border: 1px solid #e5e7eb;
             padding: 8px;
             vertical-align: middle;
             text-align: center;
         }
+
         #model-list-table th {
             font-weight: 600;
         }
+
         #model-list-table tbody {
             max-height: 500px;
             overflow-y: auto;
         }
+
         #model-list-table tr {
             height: 40px;
         }
+
         th.sticky, td.sticky {
             position: sticky;
             z-index: 10;
             background: inherit;
         }
+
         th.sticky.left-0, td.sticky.left-0 {
             left: 0;
         }
+
         th.sticky.left-48, td.sticky.left-48 {
             left: 48px;
         }
+
         th.sticky.right-0, td.sticky.right-0 {
             right: 0;
         }
+
         .name-column {
             text-align: left;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
         .name-column:hover {
             cursor: pointer;
         }
+
         .action-column {
             padding: 0 !important;
         }
+
         .action-dropdown {
             position: relative;
             display: inline-flex;
             justify-content: center;
             align-items: center;
         }
+
         .dropdown-toggle {
             background: none !important;
             border: none !important;
@@ -92,9 +108,11 @@
             justify-content: center;
             cursor: pointer;
         }
+
         .dropdown-toggle:focus {
             outline: none !important;
         }
+
         .action-dropdown .dropdown-menu {
             position: absolute;
             top: 100%;
@@ -112,11 +130,13 @@
             transform: translateY(-10px);
             transition: opacity 0.2s ease, transform 0.2s ease;
         }
+
         .action-dropdown.show .dropdown-menu {
             display: flex;
             opacity: 1;
             transform: translateY(0);
         }
+
         .action-dropdown .dropdown-item {
             padding: 8px 16px;
             font-size: 14px;
@@ -125,117 +145,152 @@
             color: #333;
             text-decoration: none;
         }
+
         .action-dropdown .dropdown-item:hover {
             background-color: #f8f9fa;
         }
+
         .action-dropdown .dropdown-item i {
             margin-right: 8px;
         }
 
-        /* Kiểu cho modal #create-folder-modal */
-        #create-folder-modal .modal-dialog {
+        /* Kiểu cho modal #create-folder-modal và #delete-confirm-modal */
+        .modal-dialog {
             max-width: 400px;
             margin: 1.75rem auto;
         }
-        #create-folder-modal .modal-content {
+
+        .modal-content {
             border-radius: 8px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
             border: none;
         }
-        #create-folder-modal .modal-header {
+
+        .modal-header {
             border-bottom: 1px solid #e9ecef;
             padding: 16px 24px;
             background: #f8f9fa;
             align-items: center;
         }
-        #create-folder-modal .modal-title {
+
+        .modal-title {
             font-size: 18px;
             font-weight: 600;
             color: #333;
         }
+
         .modal {
             padding: 0 !important;
             display: none;
             overflow-x: hidden;
             overflow-y: auto;
         }
+
         .modal.show {
             display: block;
             padding: 0 !important;
         }
+
         .modal-dialog {
             margin: 1.75rem auto;
             max-width: 400px;
             transform: translate(0, 0);
         }
+
         .modal.fade .modal-dialog {
             transform: translate(0, -50px);
             transition: transform 0.3s ease-out, opacity 0.3s ease;
         }
+
         .modal.show .modal-dialog {
             transform: translate(0);
             opacity: 1;
         }
-        #create-folder-modal .close {
+
+        .close {
             cursor: pointer;
             background-color: transparent;
             color: #333;
             opacity: 0.7;
         }
-        #create-folder-modal .close:hover {
+
+        .close:hover {
             opacity: 1;
         }
-        #create-folder-modal .close span {
+
+        .close span {
             display: inline-block;
         }
-        #create-folder-modal .modal-body {
+
+        .modal-body {
             padding: 24px;
         }
-        #create-folder-modal .form-control {
+
+        .form-control {
             border-radius: 4px;
             border: 1px solid #ccc;
             padding: 12px;
             font-size: 14px;
             transition: border-color 0.3s ease-in-out;
         }
-        #create-folder-modal .form-control:focus {
+
+        .form-control:focus {
             border-color: #007bff;
             box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
         }
-        #create-folder-modal .modal-footer {
+
+        .modal-footer {
             border-top: 1px solid #e9ecef;
             padding: 16px 24px;
             justify-content: flex-end;
         }
-        #create-folder-modal .btn {
+
+        .btn {
             padding: 8px 16px;
             font-size: 14px;
             border-radius: 4px;
             transition: background-color 0.2s ease;
         }
-        #create-folder-modal .btn-secondary {
+
+        .btn-secondary {
             background-color: #6c757d;
             border-color: #6c757d;
             color: #fff;
         }
-        #create-folder-modal .btn-secondary:hover {
+
+        .btn-secondary:hover {
             background-color: #5a6268;
             border-color: #5a6268;
         }
-        #create-folder-modal .btn-primary {
+
+        .btn-primary {
             background-color: #007bff;
             border-color: #007bff;
             color: #fff;
         }
-        #create-folder-modal .btn-primary:hover {
+
+        .btn-primary:hover {
             background-color: #0056b3;
             border-color: #0056b3;
         }
-        #create-folder-modal.fade .modal-dialog {
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        .modal.fade .modal-dialog {
             transform: translateY(-50px);
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
-        #create-folder-modal.show .modal-dialog {
+
+        .modal.show .modal-dialog {
             transform: translateY(0);
         }
     </style>
@@ -249,35 +304,49 @@
         @endif
 
         <div class="flex flex-col sm:flex-row items-center gap-4 mb-4">
-            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200" onclick="document.getElementById('model-files').click();">
-                <i class="fas fa-upload mr-2"></i> {{__('cvedixrt-model.upload')}}
+            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded-lg
+             hover:bg-green-600 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
+                    onclick="document.getElementById('model-files').click();">
+                <i class="fas fa-upload mr-2"></i> {{__('file-manager.upload')}}
             </button>
-            <button class="flex items-center justify-center w-full sm:w-auto px-4 sm:w-auto py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200" onclick="showCreateFolderModal()">
-                <i class="fas fa-folder-plus mr-2"></i> {{__('cvedixrt-model.new_folder')}}
+            <button class="flex items-center justify-center w-full px-4 sm:w-auto py-2 bg-blue-500 text-white rounded-lg
+             hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                    onclick="showCreateFolderModal()">
+                <i class="fas fa-folder-plus mr-2"></i> {{__('file-manager.new_folder')}}
             </button>
-            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" id="delete-folder" disabled>
-                <i class="fas fa-trash-alt mr-2"></i> {{__('cvedixrt-model.delete_folder')}}
+            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg
+            hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200
+            disabled:opacity-50 disabled:cursor-not-allowed" id="delete-folder" disabled>
+                <i class="fas fa-trash-alt mr-2"></i> {{__('file-manager.delete_folder')}}
             </button>
-            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200" id="delete-selected">
-                <i class="fas fa-trash mr-2"></i> {{__('cvedixrt-model.delete_selected_files')}}
+            <button class="flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-lg
+             hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+                    id="delete-selected">
+                <i class="fas fa-trash mr-2"></i> {{__('file-manager.delete_selected_files')}}
             </button>
             <div class="flex-grow hidden sm:block"></div>
             <form method="GET" class="w-full sm:w-auto mt-2 sm:mt-0">
-                <input type="search" name="search" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" placeholder="{{__('cvedixrt-model.filter')}}" data-table-search="#model-list-table" value="{{ request('search') }}"/>
+                <input type="search" name="search" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2
+                 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                       placeholder="{{__('file-manager.filter')}}" data-table-search="#model-list-table"
+                       value="{{ request('search') }}"/>
             </form>
         </div>
 
-        <form method="POST" action="{{ route('file_management.create') }}" enctype="multipart/form-data" id="upload-form" class="hidden">
+        <form method="POST" action="{{ route('file_management.create') }}" enctype="multipart/form-data"
+              id="upload-form" class="hidden">
             @csrf
             <input type="hidden" name="name" value="Uploaded Model {{ now()->format('Y-m-d H:i:s') }}">
             <input type="hidden" name="parent_id" id="upload-parent-id">
-            <input type="file" name="model_files[]" id="model-files" class="hidden" accept=".pt,.pth,.pb,.h5,.ckpt,.onnx,.joblib,.pkl,.mp4,.jpg,.jpeg,.png,.avif" multiple required>
+            <input type="file" name="model_files[]" id="model-files" class="hidden"
+                   accept=".pt,.pth,.pb,.h5,.ckpt,.onnx,.joblib,.pkl,.mp4,.jpg,.jpeg,.png,.avif" multiple required>
         </form>
 
         <div id="progress-container" class="mt-4 hidden">
             <label>{{ __('Đang tải lên...') }}</label>
             <div class="w-full bg-gray-200 rounded-full h-4">
-                <div id="progress-bar" class="bg-blue-600 h-4 rounded-full" style="width: 0%; transition: width 0.3s ease;"></div>
+                <div id="progress-bar" class="bg-blue-600 h-4 rounded-full"
+                     style="width: 0%; transition: width 0.3s ease;"></div>
             </div>
             <p id="progress-text" class="text-sm text-gray-600 mt-1">0%</p>
         </div>
@@ -286,17 +355,20 @@
             <div class="w-full lg:w-1/3 overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-sm" id="model-tree"></div>
             <div class="w-full lg:w-2/3 overflow-x-auto">
                 <div class="table-container">
-                    <table id="model-list-table" class="w-full text-sm text-center border border-gray-200 divide-y divide-gray-200" data-table-sort data-table-pagination data-table-pagination-limit="10">
+                    <table id="model-list-table" class="w-full text-sm text-center border border-gray-200 divide-y
+                     divide-gray-200" data-table-sort data-table-pagination data-table-pagination-limit="10">
                         <thead class="bg-gray-100 sticky top-0 z-10">
                         <tr>
                             <th class="sticky left-0 z-20 w-12 bg-gray-100">
                                 <input type="checkbox" id="select-all" class="h-4 w-4">
                             </th>
-                            <th class="sticky left-48 z-20 w-[300px] text-left px-4 py-2 bg-gray-100 name-column">{{__('cvedixrt-model.table.name')}}</th>
-                            <th class="w-36 px-4 py-2">{{__('cvedixrt-model.table.created_at')}}</th>
-                            <th class="w-24 px-4 py-2">{{__('cvedixrt-model.table.size')}}</th>
-                            <th class="w-36 px-4 py-2">{{__('cvedixrt-model.table.type')}}</th>
-                            <th class="sticky right-0 z-20 w-16 px-4 py-2 bg-gray-100 action-column">{{__('cvedixrt-model.table.actions')}}</th>
+                            <th class="sticky left-48 z-20 w-[300px] text-left px-4 py-2 bg-gray-100 name-column">
+                                {{__('file-manager.table.name')}}</th>
+                            <th class="w-36 px-4 py-2">{{__('file-manager.table.created_at')}}</th>
+                            <th class="w-24 px-4 py-2">{{__('file-manager.table.size')}}</th>
+                            <th class="w-36 px-4 py-2">{{__('file-manager.table.type')}}</th>
+                            <th class="sticky right-0 z-20 w-16 px-4 py-2 bg-gray-100 action-column">
+                                {{__('file-manager.table.actions')}}</th>
                         </tr>
                         </thead>
                         <tbody id="model-list-body" class="divide-y divide-gray-200"></tbody>
@@ -305,33 +377,66 @@
             </div>
         </div>
 
-        <div class="modal fade" id="create-folder-modal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+        <!-- Modal Tạo Thư Mục -->
+        <div class="modal fade" id="create-folder-modal" tabindex="-1" aria-labelledby="createFolderModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog max-w-md mx-auto">
                 <div class="modal-content rounded-lg shadow-lg">
                     <div class="modal-header flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
-                        <h5 class="modal-title text-lg font-semibold text-gray-800" id="createFolderModalLabel">Tạo thư mục mới</h5>
-                        <button type="button" class="text-gray-600 hover:text-gray-800 text-2xl font-bold" data-dismiss="modal" aria-label="Close">
+                        <h5 class="modal-title text-lg font-semibold text-gray-800" id="createFolderModalLabel">Tạo thư
+                            mục mới</h5>
+                        <button type="button" class="text-gray-600 hover:text-gray-800 text-2xl font-bold"
+                                data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
                     <div class="modal-body p-6">
-                        <input type="text" id="new-folder-name" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Tên thư mục">
+                        <input type="text" id="new-folder-name" class="w-full p-2 border border-gray-300 rounded-lg
+                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Tên thư mục">
                         <input type="hidden" id="new-folder-parent-id" value="">
                     </div>
                     <div class="modal-footer flex justify-end p-4 border-t border-gray-200">
-                        <button type="button" class="btn bg-gray-500 text-white hover:bg-gray-600 px-4 py-2 rounded-lg" data-dismiss="modal">Hủy</button>
-                        <button type="button" class="btn bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-lg" onclick="createNewFolder(document.getElementById('new-folder-parent-id').value)">Tạo</button>
+                        <button type="button" class="btn bg-gray-500 text-white hover:bg-gray-600 px-4
+                        py-2 rounded-lg" data-dismiss="modal">Hủy
+                        </button>
+                        <button type="button" class="btn bg-blue-500 text-white hover:bg-blue-600 px-4
+                        py-2 rounded-lg"
+                                onclick="createNewFolder(document.getElementById('new-folder-parent-id').value)">Tạo
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        @include('molecules.delete-modal', [
-            'method' => 'delete',
-            'route' => route('file_management.delete'),
-            'title' => __('Xóa file'),
-            'message' => __('Bạn có chắc chắn muốn xóa các mô hình đã chọn?'),
-        ])
+        <!-- Modal Xác Nhận Xóa -->
+        <div class="modal fade" id="delete-confirm-modal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog max-w-md mx-auto">
+                <div class="modal-content rounded-lg shadow-lg">
+                    <div class="modal-header flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
+                        <h5 class="modal-title text-lg font-semibold text-gray-800" id="deleteConfirmModalLabel">Xóa
+                            mục</h5>
+                        <button type="button" class="text-gray-600 hover:text-gray-800 text-2xl font-bold"
+                                data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body p-6">
+                        <p class="text-gray-700">Are you sure you want to delete <span id="delete-item-name"
+                                                                                 class="font-semibold"></span>?</p>
+                        <input type="hidden" id="delete-item-id" value="">
+                    </div>
+                    <div class="modal-footer flex justify-end p-4 border-t border-gray-200">
+                        <button type="button" class="btn bg-gray-500 text-white hover:bg-gray-600 px-4 py-2
+                        rounded-lg" data-dismiss="modal">{{__('file-manager.cancel')}}
+                        </button>
+                        <button type="button" class="btn bg-red-500 text-white hover:bg-red-700 px-4 py-2
+                        rounded-lg" id="confirm-delete-btn">{{__('file-manager.delete.title')}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -471,29 +576,29 @@
             tableBody.innerHTML = data
                 .filter(item => !item.is_folder)
                 .map(item => `
-                    <tr class="hover:bg-gray-200">
-                        <td class="sticky left-0 w-12 bg-white"><input type="checkbox" class="file-checkbox" data-id="${item.id}"></td>
-                        <td class="sticky left-48 w-[300px] name-column pl-4" title="${item.name}">${item.name}</td>
-                        <td class="w-36">${new Date(item.created_at * 1000).toLocaleDateString('vi-VN')}</td>
-                        <td class="w-24">${(item.size / 1024).toFixed(2)} KB</td>
-                        <td class="w-36">${item.type}</td>
-                        <td class="sticky right-0 w-16 action-column">
-                            <div class="action-dropdown dropdown d-inline-block">
-                                <button class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item text-success" href="${downloadRouteBase.replace(':id', item.id)}">
-                                        <i class="fas fa-download"></i> Download
-                                    </a>
-                                    <a class="dropdown-item text-danger" href="javascript:;" data-toggle="modal" data-target="#delete-modal" onclick="document.getElementById('delete-model-id').value='${item.id}';document.getElementById('delete-model-name').innerText='${item.name}';">
-                                        <i class="fas fa-trash-alt"></i> Delete
-                                    </a>
+                        <tr class="hover:bg-gray-200">
+                            <td class="sticky left-0 w-12 bg-white"><input type="checkbox" class="file-checkbox" data-id="${item.id}"></td>
+                            <td class="sticky left-48 w-[300px] name-column pl-4" title="${item.name}">${item.name}</td>
+                            <td class="w-36">${new Date(item.created_at * 1000).toLocaleDateString('vi-VN')}</td>
+                            <td class="w-24">${(item.size / 1024).toFixed(2)} KB</td>
+                            <td class="w-36">${item.type}</td>
+                            <td class="sticky right-0 w-16 action-column">
+                                <div class="action-dropdown dropdown d-inline-block">
+                                    <button class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item text-success" href="${downloadRouteBase.replace(':id', item.id)}">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                        <a class="dropdown-item text-danger" href="javascript:;" onclick="showDeleteConfirmModal('${item.id}', '${item.name}')">
+                                            <i class="fas fa-trash-alt"></i> Xóa
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
+                            </td>
+                        </tr>
+                    `).join('');
 
             document.querySelectorAll('[data-toggle="dropdown"]').forEach(button => {
                 button.addEventListener('click', () => {
@@ -506,12 +611,12 @@
         async function createNewFolder(parentPath) {
             const folderName = document.getElementById('new-folder-name').value.trim();
             if (!folderName) {
-                showError('Tên thư mục không được để trống');
+                showError('Folder name cannot be empty');
                 return;
             }
 
             if (/[<>:"/\\|?*]/.test(folderName)) {
-                showError('Tên thư mục chứa ký tự không hợp lệ');
+                showError('The folder name contains invalid characters');
                 return;
             }
 
@@ -536,8 +641,8 @@
                 if (response.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Thành công',
-                        text: response.message || 'Tạo thư mục thành công',
+                        title: 'Success',
+                        text: response.message || 'Create folder successfully',
                         timer: 2000,
                         showConfirmButton: false
                     });
@@ -547,7 +652,7 @@
                     refreshTree(refreshPath);
                     fetchFiles(refreshPath);
                 } else {
-                    showError(response.message || 'Không thể tạo thư mục');
+                    showError(response.message || "Can't create folder");
                 }
             } catch (error) {
                 showError('Lỗi khi tạo thư mục: ' + (error.responseJSON?.message || error.message));
@@ -585,7 +690,7 @@
             Swal.fire({
                 toast: true,
                 icon: 'success',
-                title: message || 'Success',
+                title: message || 'Thành công',
                 position: 'top-end',
                 showConfirmButton: false,
                 timer: 4000,
@@ -611,6 +716,12 @@
             $('#create-folder-modal').modal('show');
         }
 
+        function showDeleteConfirmModal(id, name) {
+            document.getElementById('delete-item-id').value = id;
+            document.getElementById('delete-item-name').innerText = name;
+            $('#delete-confirm-modal').modal('show');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const modelTree = document.getElementById('model-tree');
             renderTree(treeData, modelTree);
@@ -630,9 +741,57 @@
                 }
                 const selectedItem = document.querySelector(`.tree-item[data-model-id="${selectedModelId}"]`);
                 const folderName = selectedItem.querySelector('a').textContent.split(' (')[0];
-                document.getElementById('delete-model-id').value = selectedModelId;
-                document.getElementById('delete-model-name').innerText = folderName;
-                $('#delete-modal').modal('show');
+                showDeleteConfirmModal(selectedModelId, folderName);
+            });
+
+            document.getElementById('delete-selected').addEventListener('click', () => {
+                const checkedIds = Array.from(document.querySelectorAll('.file-checkbox:checked')).map(checkbox => checkbox.getAttribute('data-id'));
+                if (checkedIds.length === 0) {
+                    showError('Please select at least one file to delete');
+                    return;
+                }
+                showDeleteConfirmModal(checkedIds.join(','), `(${checkedIds.length} selected files)`);
+            });
+
+            document.getElementById('select-all').addEventListener('change', function () {
+                document.querySelectorAll('.file-checkbox').forEach(d => {
+                    d.checked = this.checked;
+                });
+            });
+
+            // Xử lý nút xác nhận xóa trong modal
+            document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+                const itemId = document.getElementById('delete-item-id').value;
+                if (!itemId) {
+                    showError('ID không hợp lệ');
+                    return;
+                }
+
+                try {
+                    const response = await $.ajax({
+                        url: '{{ route('file_management.delete') }}',
+                        type: 'DELETE',
+                        data: {
+                            model_id: itemId,
+                            _token: '{{ csrf_token() }}',
+                        },
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        }
+                    });
+
+                    if (response.success) {
+                        showSuccess('Delete successful');
+                        $('#delete-confirm-modal').modal('hide');
+                        refreshTree(selectedPath);
+                        fetchFiles(selectedPath);
+                    } else {
+                        showError(response.message || 'Lỗi khi xóa mục');
+                    }
+                } catch (error) {
+                    showError('Lỗi khi xóa mục: ' + (error.responseJSON?.message || error.message));
+                }
             });
 
             const fileInput = document.getElementById('model-files');
@@ -692,63 +851,8 @@
                 }
             });
 
-            document.getElementById('delete-selected').addEventListener('click', () => {
-                const checkedIds = Array.from(document.querySelectorAll('.file-checkbox:checked')).map(checkbox => checkbox.getAttribute('data-id'));
-                if (checkedIds.length === 0) {
-                    showError('Vui lòng chọn ít nhất một file để xóa');
-                    return;
-                }
-                document.getElementById('delete-model-id').value = checkedIds.join(',');
-                document.getElementById('delete-model-name').innerText = `(${checkedIds.length} file đã chọn)`;
-                $('#delete-modal').modal('show');
-            });
-
-            document.getElementById('select-all').addEventListener('change', function () {
-                document.querySelectorAll('.file-checkbox').forEach(d => {
-                    d.checked = this.checked;
-                });
-            });
-
-            // Handle confirm button click in delete modal
-            const deleteModal = document.getElementById('delete-modal');
-            if (deleteModal) {
-                deleteModal.querySelector('.btn-primary').addEventListener('click', async () => {
-                    const modelIdValue = document.getElementById('delete-model-id').value;
-                    if (!modelIdValue) {
-                        showError('Invalid ID');
-                        return;
-                    }
-
-                    try {
-                        const response = await $.ajax({
-                            url: '{{ route('file_management.delete') }}',
-                            type: 'POST',
-                            data: {
-                                model_id: modelIdValue,
-                                _token: '{{ csrf_token() }}',
-                            },
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'application/json',
-                            }
-                        });
-
-                        if (response.success) {
-                            showSuccess('Deleted successfully');
-                            $('#delete-modal').modal('hide');
-                            refreshTree(selectedPath);
-                            fetchFiles(selectedPath);
-                        } else {
-                            showError(response.message || 'Error deleting item');
-                        }
-                    } catch (error) {
-                        showError('Error deleting item: ' + (error.responseJSON?.message || error.message));
-                    }
-                });
-            }
-
-            // Fix modal issues
-            $('#create-folder-modal').on('hidden.bs.modal', function () {
+            // Sửa lỗi modal
+            $('#create-folder-modal, #delete-confirm-modal').on('hidden.bs.modal', function () {
                 document.body.classList.remove('modal-open');
                 document.querySelector('.modal-backdrop')?.remove();
             });
