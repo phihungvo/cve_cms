@@ -21,10 +21,13 @@ class CreateFolderAction
     public function handle(array $data): Model
     {
         try {
-            $parentPath = $data['parent_path'] ?? '';
-            $folderName = $data['folder_name'];
+            $folderName = trim($data['folder_name']);
             $enterpriseId = $data['enterprise_id'] ?? null;
+            $parentPath = $data['parent_path'] ?? '';
+
+            // Chuẩn hóa basePath để luôn bắt đầu bằng enterprise_id nếu có
             $basePath = $parentPath ?: ($enterpriseId ? $enterpriseId : '');
+//            $basePath = $enterpriseId ? "{$enterpriseId}/".ltrim($parentPath, '/') : ltrim($parentPath, '/');
             $path = $basePath ? "{$basePath}/{$folderName}" : $folderName;
             $fullPath = '/'.trim($path, '/');
 
@@ -33,13 +36,13 @@ class CreateFolderAction
                 throw new \Exception('Thư mục đã tồn tại');
             }
 
-            // CreateAction directory in MinIO
+            // Create directory in MinIO
             Storage::disk('minio')->makeDirectory($path);
 
             // Find parent folder ID
-            $parentId = $parentPath ? Model::where('model_url', '/'.trim($parentPath, '/'))->first()?->id : null;
+            $parentId = $parentPath ? Model::where('model_url', '/'.trim($basePath, '/'))->first()?->id : null;
 
-            // CreateAction folder record in database
+            // Create folder record in database
             return Model::create([
                 'name' => $folderName,
                 'file_name' => $folderName,

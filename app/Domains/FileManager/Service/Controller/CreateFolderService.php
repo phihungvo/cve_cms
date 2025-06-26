@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domains\FileManager\Service\Controller;
 
-use App\Domains\FileManager\Action\CreateFolderAction as CreateFolderAction;
+use App\Domains\FileManager\Action\CreateFolderAction;
 use Illuminate\Http\JsonResponse;
 
-class CreateFolder
+class CreateFolderService
 {
     protected $request;
     protected $auth;
@@ -18,23 +18,11 @@ class CreateFolder
         $this->auth = $auth;
     }
 
-    /**
-     * CreateAction a new instance of the service.
-     *
-     * @param mixed $request
-     * @param mixed $auth
-     * @return self
-     */
     public static function new($request, $auth): self
     {
         return new self($request, $auth);
     }
 
-    /**
-     * Handle folder creation logic.
-     *
-     * @return JsonResponse
-     */
     public function create(): JsonResponse
     {
         try {
@@ -46,19 +34,22 @@ class CreateFolder
                 ], 422);
             }
 
-            $enterpriseId = $this->auth->hasRole('root') ? null : ($this->auth->enterprise_id ?? null);
-            if (!$enterpriseId && !$this->auth->hasRole('root')) {
+            $enterpriseId = $this->auth->hasRole('root') ? null : $this->auth->enterprise_id;
+            if (!$this->auth->hasRole('root') && !$enterpriseId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không có quyền tạo thư mục',
+                    'message' => 'Người dùng không thuộc bất kỳ doanh nghiệp nào',
                 ], 403);
             }
 
             $parentPath = $this->request->input('parent_id', '');
+            // Chuẩn hóa parentPath để bao gồm enterprise_id
+            $fullParentPath = $enterpriseId && $parentPath ? "{$enterpriseId}/{$parentPath}" : ($enterpriseId ? $enterpriseId : $parentPath);
+
             $action = new CreateFolderAction();
             $model = $action->handle([
                 'folder_name' => $folderName,
-                'parent_path' => $parentPath,
+                'parent_path' => $fullParentPath,
                 'enterprise_id' => $enterpriseId,
             ]);
 
@@ -66,10 +57,10 @@ class CreateFolder
                 'success' => true,
                 'message' => 'Tạo thư mục thành công',
                 'data' => [
-                    'path' => $parentPath ? "{$parentPath}/{$folderName}" : $folderName,
+                    'path' => $fullParentPath ? "{$fullParentPath}/{$folderName}" : $folderName,
                     'fullPath' => $model->model_url,
                     'name' => $folderName,
-                    'parentPath' => $parentPath,
+                    'parentPath' => $fullParentPath,
                     'model_id' => $model->id,
                 ],
             ], 201);

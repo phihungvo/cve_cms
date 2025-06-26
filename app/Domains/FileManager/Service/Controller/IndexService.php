@@ -11,7 +11,6 @@ use App\Domains\FileManager\Model\FileManager;
 class IndexService
 {
     protected $request;
-
     protected $auth;
 
     public function __construct($request, $auth)
@@ -37,6 +36,7 @@ class IndexService
     {
         $query = FileManager::query();
 
+        // Chỉ lọc theo enterprise_id cho roleOwner
         if (!$this->auth->hasRole('root')) {
             $enterpriseId = $this->auth->enterprise_id ?? null;
             if (!$enterpriseId) {
@@ -112,11 +112,11 @@ class IndexService
 
                 if ($model->is_folder && $isLastPart && $path === $relativePath) {
                     $current[$parts[$i]]['file_count'] = $model->countFilesInFolder() ?? 0;
+                    $current[$parts[$i]]['model_id'] = $model->id; // Đảm bảo model_id được gán
                 } elseif (!$model->is_folder && $isFolder && $isLastPart && $i > 0) {
                     $parentName = $parts[$i - 1];
                     if (isset($current[$parentName])) {
                         $current[$parentName]['file_count'] = ($current[$parentName]['file_count'] ?? 0) + 1;
-
                     }
                 }
 
@@ -132,7 +132,7 @@ class IndexService
             do {
                 $params = [
                     'Bucket' => $config['bucket'],
-                    'Prefix' => $prefix, // Restrict to enterpriseId prefix
+                    'Prefix' => $prefix, // Restrict to enterpriseId prefix for roleOwner
                     'MaxKeys' => 1000,
                 ];
                 if ($continuationToken) {
@@ -143,7 +143,10 @@ class IndexService
 
                 if (isset($result['Contents'])) {
                     foreach ($result['Contents'] as $object) {
-                        $allPaths[] = $object['Key'];
+                        // Chỉ thêm các path thuộc enterprise_id cho roleOwner
+                        if (!$enterpriseId || strpos($object['Key'], $prefix) === 0) {
+                            $allPaths[] = $object['Key'];
+                        }
                     }
                 }
 
@@ -168,7 +171,7 @@ class IndexService
             for ($i = 0; $i < count($parts); $i++) {
                 $path .= ($i === 0 ? '' : '/').$parts[$i];
                 $isLastPart = $i === count($parts) - 1;
-                $isFolder = !$isLastPart || (substr($objectPath, -1) === '/'); // Folders end with '/'
+                $isFolder = !$isLastPart || (substr($objectPath, -1) === '/');
 
                 $modelUrl = "/{$prefix}{$path}";
                 $model = FileManager::where('model_url', $modelUrl)->first();
@@ -199,7 +202,10 @@ class IndexService
                     ];
                 }
 
-                // Update file_count for parent folder when processing a file
+                if ($model && $isFolder && $isLastPart) {
+                    $current[$parts[$i]]['model_id'] = $model->id; // Đảm bảo model_id được gán
+                }
+
                 if (!$isFolder && $isLastPart && $i > 0) {
                     $parentName = $parts[$i - 1];
                     if (isset($current[$parentName])) {

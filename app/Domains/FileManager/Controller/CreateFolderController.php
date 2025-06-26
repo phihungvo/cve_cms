@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domains\FileManager\Controller;
 
 use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
-use App\Domains\FileManager\Service\Controller\CreateFolder as CreateFolderService;
+use App\Domains\FileManager\Service\Controller\CreateFolderService as Service;
 use Illuminate\Http\JsonResponse;
 
 class CreateFolderController extends ControllerAbstract
@@ -17,12 +17,12 @@ class CreateFolderController extends ControllerAbstract
      */
     public function __invoke(): JsonResponse
     {
-        $service = CreateFolderService::new($this->request, $this->auth);
+        $service = Service::new($this->request, $this->auth);
         $response = $service->create();
 
         // Set session message if creation is successful
         if ($response->getStatusCode() === 201) {
-            $this->sessionMessage('success', 'Tạo thư mục thành công: ' . $this->request->input('name'));
+            $this->sessionMessage('success', 'Tạo thư mục thành công: '.$this->request->input('name'));
         }
 
         return $response;
