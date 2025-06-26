@@ -12,4 +12,6 @@ Route::group(['middleware' => ['user-auth']], static function () {
     Route::any('/cvedixrt/instance/{id}', UpdateController::class)->name('cvedixrt_instance.update');
 
     Route::any('/cvedixrt/instance/{id}/analytics', RTAnalyticsIndex::class)->name('cvedixrt_instance.analytics');
+
+    Route::get('/cvedixrt/instance/{id}/export-settings', ExportSettingsController::class)->name('cvedixrt_instance.export_settings');
 });
