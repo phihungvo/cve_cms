@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Service\Controller;
+namespace App\Domains\FileManager\Service\Controller;
 
-use App\Domains\CvedixtModel\Model\CvedixtModel;
+use App\Domains\FileManager\Model\FileManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
 
-class Download
+class DownloadService
 {
     protected $request;
 
@@ -26,21 +26,23 @@ class Download
     }
 
     /**
-     * Download a file from the CvedixtModel.
+     * DownloadService a file from the FileManager.
      *
      * @param int $id
-     * @return Response
+     *
      * @throws \Exception
+     *
+     * @return Response
      */
     public function download(int $id): Response
     {
         try {
             // Tìm model
-            $model = CvedixtModel::findOrFail($id);
+            $model = FileManager::findOrFail($id);
 
             // Kiểm tra quyền
             if (!$this->auth->hasRole('root') && $model->enterprise_id !== $this->auth->enterprise_id) {
-                throw new \Exception(__('cvedixrt-model.no-permission'));
+                throw new \Exception(__('file-manager.no-permission'));
             }
 
             // Lấy đường dẫn file từ model_url
@@ -51,7 +53,7 @@ class Download
 
             // Kiểm tra file tồn tại trên MinIO
             if (!Storage::disk('minio')->exists($filePath)) {
-                throw new \Exception(__('cvedixrt-model.download-error-not-found'));
+                throw new \Exception(__('file-manager.download-error-not-found'));
             }
 
             // Lấy file content
@@ -65,7 +67,7 @@ class Download
                 'Content-Length' => $model->size,
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            throw new \Exception(__('cvedixrt-model.download-error-not-found'));
+            throw new \Exception(__('file-manager.download-error-not-found'));
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }

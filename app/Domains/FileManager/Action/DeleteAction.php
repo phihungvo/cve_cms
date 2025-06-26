@@ -2,15 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Action;
+namespace App\Domains\FileManager\Action;
 
-use App\Domains\CvedixtModel\Model\CvedixtModel;
+use App\Domains\FileManager\Model\FileManager;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use Exception;
 
-class Delete
+class DeleteAction
 {
+    /**
+     * Xử lý xóa file hoặc thư mục từ MinIO và database.
+     *
+     * @param int $modelId ID của file hoặc thư mục cần xóa
+     * @param mixed $user Người dùng thực hiện hành động
+     * @return array Kết quả của hành động xóa
+     */
     public function handle(int $modelId, $user): array
     {
         try {
@@ -21,7 +27,7 @@ class Delete
                 ];
             }
 
-            $model = CvedixtModel::findOrFail($modelId);
+            $model = FileManager::findOrFail($modelId);
 
             if (!$user->hasRole('root') && $model->enterprise_id !== $user->enterprise_id) {
                 return [
@@ -43,11 +49,11 @@ class Delete
                         ];
                     }
                 } else {
-                    Log::warning('Thư mục không tồn tại trên MinIO', ['model_id' => $modelId, 'path' => $path]);
+                    throw new Exception('Thư mục không tồn tại trên MinIO: '.$path, 404);
                 }
 
                 // Xóa vĩnh viễn các bản ghi con trong database
-                CvedixtModel::where('model_url', 'like', $model->model_url . '/%')->delete();
+                FileManager::where('model_url', 'like', $model->model_url.'/%')->delete();
             } else {
                 // Kiểm tra và xóa file trên MinIO
                 if (Storage::disk('minio')->exists($path)) {
@@ -59,7 +65,7 @@ class Delete
                         ];
                     }
                 } else {
-                    Log::warning('File không tồn tại trên MinIO', ['model_id' => $modelId, 'path' => $path]);
+                    throw new Exception('File không tồn tại trên MinIO: '.$path, 404);
                 }
             }
 
@@ -68,12 +74,12 @@ class Delete
 
             return [
                 'success' => true,
-                'message' => __('cvedixrt-model.delete.success'),
+                'message' => __('file-manager.delete.success'),
             ];
         } catch (Exception $e) {
             return [
                 'success' => false,
-                'message' => __('model-delete.delete-error'),
+                'message' => __('file-manager.delete.error'),
                 'error' => $e->getMessage(),
                 'code' => $e->getCode() ?: 500,
             ];

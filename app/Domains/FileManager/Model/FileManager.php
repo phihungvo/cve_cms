@@ -2,33 +2,32 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Model;
+namespace App\Domains\FileManager\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
-use App\Domains\CvedixtModel\Model\Builder\ModelBuilder;
-use App\Domains\CvedixtModel\Model\Collection\ModelCollection;
+use App\Domains\FileManager\Model\Builder\FileManagerBuilder as Builder;
+use App\Domains\FileManager\Model\Collection\FileManagerCollection as Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Domains\User\Enterprise\Model\Enterprise;
 
-class CvedixtModel extends ModelAbstract
+class FileManager extends ModelAbstract
 {
-
     /**
      * @const string
      */
     const PRIMARY = 'id';
 
-    protected $table = 'cvedixt_model';
+    protected $table = 'file_manager';
 
     /**
      * @const string
      */
-    public const TABLE = 'cvedixt_model';
+    public const TABLE = 'file_manager';
 
     /**
      * @const string
      */
-    const FOREIGN = 'model_id';
+    const FOREIGN = 'file_manager_id';
 
     public $timestamps = true;
 
@@ -98,9 +97,8 @@ class CvedixtModel extends ModelAbstract
      */
     public function countFilesInFolder(): int
     {
-        return $this->children()
+        return FileManager::where('model_url', 'like', $this->model_url.'/%')
             ->where('is_folder', false)
-            ->whereNull('deleted_at')
             ->count();
     }
 
@@ -110,15 +108,15 @@ class CvedixtModel extends ModelAbstract
      *
      * @param array $models
      *
-     * @return ModelCollection
+     * @return Collection
      *
      * @see \Illuminate\Database\Eloquent\Model::newCollection()
      *
      * @overide
      */
-    public function newCollection(array $models = []): ModelCollection
+    public function newCollection(array $models = []): Collection
     {
-        return new ModelCollection($models);
+        return new Collection($models);
     }
 
     /**
@@ -127,14 +125,14 @@ class CvedixtModel extends ModelAbstract
      *
      * @param $query
      *
-     * @return ModelBuilder
+     * @return Builder
      *
      * @see \Illuminate\Database\Eloquent\Model::newEloquentBuilder()
      *
      * @override
      */
-    public function newEloquentBuilder($query): ModelBuilder
+    public function newEloquentBuilder($query): Builder
     {
-        return new ModelBuilder($query);
+        return new Builder($query);
     }
 }

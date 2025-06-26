@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Controller;
+namespace App\Domains\FileManager\Controller;
 
-use App\Domains\CvedixtModel\Service\Controller\Create as CreateService;
+use App\Domains\FileManager\Service\Controller\CreateService as CreateService;
 use App\Domains\CoreApp\Controller\ControllerWebAbstract as ControllerAbstract;
 
-class Create extends ControllerAbstract
+class CreateController extends ControllerAbstract
 {
     public function __invoke()
     {
@@ -21,14 +21,14 @@ class Create extends ControllerAbstract
             }
 
             // Đối với yêu cầu không AJAX, đếm số model đã tạo
-            $message = __('cvedixrt-model.upload_success', ['count' => count($createdModel)]);
+            $message = __('file-manager.upload_success', ['count' => count($createdModel)]);
             $this->sessionMessage('success', $message);
 
-            return redirect()->route('cvedixrt_model.index');
+            return redirect()->route('file_management.index');
         } catch (\Exception $e) {
             $this->sessionMessage('error', $e->getMessage());
 
-            return redirect()->route('cvedixrt_model.index');
+            return redirect()->route('file_management.index');
         }
     }
 }

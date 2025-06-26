@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Service\Controller;
+namespace App\Domains\FileManager\Service\Controller;
 
-use App\Domains\CvedixtModel\Action\Create as CreateAction;
-use App\Domains\CvedixtModel\Model\CvedixtModel;
+use App\Domains\FileManager\Action\CreateAction as CreateAction;
+use App\Domains\FileManager\Model\FileManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Aws\S3\S3Client;
 
-class Create
+class CreateService
 {
     protected $request;
 
@@ -37,6 +37,7 @@ class Create
      * Sanitize the file name to ensure it is safe for storage.
      *
      * @param string $fileName
+     *
      * @return string
      */
     protected function sanitizeFileName(string $fileName): string
@@ -49,7 +50,7 @@ class Create
     }
 
     /**
-     * Create a new model with uploaded files.
+     * CreateAction a new model with uploaded files.
      *
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
@@ -59,7 +60,8 @@ class Create
             $data = $this->request->validate([
                 'model_files' => 'sometimes|array|max:10',
                 'parent_id' => 'sometimes|nullable|string',
-                'enterprise_id' => $this->auth->hasRole('root') ? 'nullable|integer|exists:enterprise,id' : 'required|integer|exists:enterprise,id',
+                'enterprise_id' => $this->auth->hasRole('root') ? 'nullable|integer|exists:enterprise,id'
+                    : 'required|integer|exists:enterprise,id',
             ]);
 
             $files = $this->request->file('model_files') ?? [];
@@ -114,7 +116,7 @@ class Create
                     $path = $basePath ? "{$basePath}/{$fileName}" : $fileName;
                     $modelUrl = '/'.trim($path, '/');
 
-                    if (Storage::disk('minio')->exists($path) || CvedixtModel::where('model_url', $modelUrl)->exists()) {
+                    if (Storage::disk('minio')->exists($path) || FileManager::where('model_url', $modelUrl)->exists()) {
                         throw new \Exception(__('File already existed!', ['name' => $fileName]));
                     }
 
@@ -132,7 +134,7 @@ class Create
                         'size' => $file->getSize(),
                         'type' => $mimeType,
                         'enterprise_id' => $enterpriseId,
-                        'parent_id' => $parentPath ? CvedixtModel::where('model_url', '/'.trim($parentPath, '/'))->first()?->id : null,
+                        'parent_id' => $parentPath ? FileManager::where('model_url', '/'.trim($parentPath, '/'))->first()?->id : null,
                         'is_folder' => false,
                     ];
 

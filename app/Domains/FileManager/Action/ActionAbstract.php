@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Action;
+namespace App\Domains\FileManager\Action;
 
-use App\Domains\CvedixtModel\Model\CvedixtModel as Model;
+use App\Domains\FileManager\Model\FileManager as Model;
 use App\Domains\CoreApp\Action\ActionAbstract as ActionAbstractCore;
 
 abstract class ActionAbstract extends ActionAbstractCore
 {
     /**
-     * @var ?\App\Domains\CvedixtModel\Model\CvedixtModel
+     * @var ?Model
      */
     protected ?Model $row;
 }

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Model\Builder;
+namespace App\Domains\FileManager\Model\Builder;
 
 use App\Domains\CoreApp\Model\Builder\BuilderAbstract;
 use App\Domains\User\Enterprise\Model\Enterprise;
 
-class ModelBuilder extends BuilderAbstract
+class FileManagerBuilder extends BuilderAbstract
 {
     /**
      * Select all Models nếu User là Root

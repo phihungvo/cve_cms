@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Domains\CvedixtModel\Action;
+namespace App\Domains\FileManager\Action;
 
-use App\Domains\CvedixtModel\Model\CvedixtModel as Model;
+use App\Domains\FileManager\Model\FileManager as Model;
 
-class Create
+class CreateAction
 {
     protected array $data;
 
