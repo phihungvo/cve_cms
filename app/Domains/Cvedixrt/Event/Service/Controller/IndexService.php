@@ -41,6 +41,7 @@ class IndexService extends ControllerAbstract
             ->byDetectedObject($this->request->input('detected_object'))
             ->byStartAt($this->request->input('start_at'))
             ->byEndAt($this->request->input('end_at'))
+            ->orderByDesc('created_at')
             ->get();
     }
 
@@ -97,8 +98,8 @@ class IndexService extends ControllerAbstract
             ->unique('detected_object')
             ->map(function ($rule) {
                 return [
-                    'name' => $rule->detected_object,
-                    'value' => ucfirst(str_replace('_', ' ', $rule->detected_object)),
+                    'name' => json_decode($rule->detected_object, true)[0]['detected_object'] ?? null,
+                    'value' => ucfirst(str_replace('_', ' ', json_decode($rule->detected_object, true)[0]['detected_object'] ?? null)),
                 ];
             });
     }
