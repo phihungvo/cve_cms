@@ -126,4 +126,22 @@ class EventBuilder extends BuilderAbstract
 
         return $this;
     }
+
+    public function byUpperColor(?string $upperColor): self
+    {
+        if ($upperColor) {
+            $this->whereJsonContains('object_type->upper_clothing_color', $upperColor);
+        }
+
+        return $this;
+    }
+
+    public function byLowerColor(?string $lowerColor): self
+    {
+        if ($lowerColor) {
+            $this->whereJsonContains('object_type->lower_clothing_color', $lowerColor);
+        }
+
+        return $this;
+    }
 }

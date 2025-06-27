@@ -39,6 +39,8 @@ class IndexService extends ControllerAbstract
             ->byRule((int)$this->request->input('rule_id'))
             ->byRuleType($this->request->input('rule_type'))
             ->byDetectedObject($this->request->input('detected_object'))
+            ->byUpperColor($this->request->input('upper_color'))
+            ->byLowerColor($this->request->input('lower_color'))
             ->byStartAt($this->request->input('start_at'))
             ->byEndAt($this->request->input('end_at'))
             ->orderByDesc('created_at')
