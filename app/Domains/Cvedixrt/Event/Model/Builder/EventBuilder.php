@@ -83,7 +83,7 @@ class EventBuilder extends BuilderAbstract
     public function byDetectedObject(?string $detectedObject): self
     {
         if ($detectedObject) {
-            $this->where('detected_object', $detectedObject);
+            $this->whereJsonContains('detected_object', [['detected_object' => $detectedObject]]);
         }
 
         return $this;
