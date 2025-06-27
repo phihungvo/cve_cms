@@ -38,9 +38,9 @@ class SendEventByJob extends ActionAbstract
 
             // Nên kiểm tra bằng method nếu có, thay vì thuộc tính
             if (method_exists($mqtt, 'isConnected') ? $mqtt->isConnected() : $mqtt->connected) {
+                usleep($this->row->delay_time_ms ?? 0);
                 $mqtt->publish('camera/events', json_encode($data), 1);
                 $mqtt->disconnect();
-                sleep(rand(5, 10));
             } else {
                 Log::error('MQTT server is not connected.');
                 throw new Exception('MQTT server is not connected.');

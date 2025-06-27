@@ -143,14 +143,13 @@
                         </td>
                         <!-- Start/Stop -->
                         <td class="text-center" x-data="{ eventsCount: {{$instance->events_count ?? 0}} }">
-                            <a href="#!"
+                            <a href="{{ route('cvedixrt_instance.analytics', ['id' => $instance->id]) }}"
                                class="inline-flex items-center justify-center rounded-md transition w-full py-1 px-2"
                                :class="eventsCount <= 0
                                         ? 'bg-gray-300 text-gray-400 cursor-not-allowed pointer-events-none'
                                         : 'bg-transparent hover:bg-blue-900 hover:font-bold group border border-gray-500'"
                                :tabindex="eventsCount <= 0 ? -1 : 0"
                                :aria-disabled="eventsCount <= 0"
-                               @click="if(eventsCount > 0) sendEvent({{$instance->id}})"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor"
@@ -227,15 +226,6 @@
         }
 
        function sendEvent(instanceId) {
-            // Swal.fire({
-            //     title: 'Processing...',
-            //     text: 'Please wait while the event is being sent.',
-            //     allowOutsideClick: false,
-            //     allowEscapeKey: false,
-            //     didOpen: () => {
-            //         Swal.showLoading();
-            //     }
-            // });
 
             fetch("{{route('cvedixrt_event.broadcast')}}", {
                 method: 'POST',

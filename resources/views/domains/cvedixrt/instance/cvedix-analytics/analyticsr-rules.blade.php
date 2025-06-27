@@ -48,6 +48,7 @@
                     </a>
                 @endforeach
             </div>
+
         </div>
         <!-- Rule Configuration -->
         <div id="ruleConfiguration" class="w-full p-6 " style="min-height: 800px;">
@@ -179,17 +180,28 @@
                         <div id="videoWrapperOutside" class="w-full h-full relative">
                             <video id="videoElementOutside"
                                    class="absolute top-0 w-full h-full object-contain"
-                                   style="z-index: 0;" autoplay loop muted playsinline>
+                                   style="z-index: 0;" autoplay loop muted playsinline
+                                   onerror="
+                                   this.style.display='none';
+                                   document.getElementById('videoErrorMsg').style.display='flex';
+                                   document.getElementById('showDraw').attribute('disabled', 'disabled');
+                                   ">
                                 <source
                                     src="{{ $row->source }}"
-                                    type="video/mp4">
+                                    type="video/mp4"
+                                    onerror="this.parentElement.style.display='none';document.getElementById('videoErrorMsg').style.display='flex';">
                             </video>
+                            <div id="videoErrorMsg"
+                                 class="absolute inset-0 h-full w-full items-center justify-center text-red-600 bg-gray-100 hidden"
+                                 style="z-index:1;display:none;">
+                                <span>Video error: Unable to load video source.</span>
+                            </div>
                             <canvas id="canvasOverlayOutside" class="absolute inset-0 h-full"
                                     style="z-index: 10; pointer-events: none;"></canvas>
                         </div>
                     </div>
-                    <button type="button" class="p-2 cursor-pointer" onclick="openDrawingTool()">
-                        <svg fill="#000000" height="16px" width="16px" version="1.1" id="Capa_1"
+                    <button id="showDraw" type="button" class="p-2 cursor-pointer" onclick="openDrawingTool()">
+                        <svg fill="currentcolor" height="16px" width="16px" version="1.1" id="Capa_1"
                              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                              viewBox="0 0 469 469" xml:space="preserve">
                             <g>
@@ -273,8 +285,7 @@
                 </div>
             </div>
         </div>
-
-
+    </div>
         @endsection
         @push('styles')
             <style>
@@ -668,16 +679,7 @@
                             classification_object
                         };
                     });
-                    // detected_object: [
-                    //     {
-                    //         "detected_object": "person",
-                    //         "classification_object": ["prisoner", "wardener"]
-                    //     },
-                    //     {
-                    //         "detected_object": "vehicle",
-                    //         "classification_object": ["car", "truck"]
-                    //     }
-                    // ];
+
                     const ruleType = selectedRuleType;
                     const ruleId = selectedAddedRule ? selectedAddedRule.id : null;
                     const uuid = window.tempShapesToSave?.uuid || selectedAddedRule?.uuid || instanceUuid;
@@ -769,6 +771,8 @@
                         let ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
                         // gọi hàm
                         handleRuleItemClick(ruleId);
+                        // Gọi hàm sendEvent để gửi sự kiện ruleItem được chọn
+                        sendEvent({{$row->id}})
 
                         // Thêm trạng thái active cho rule được chọn
                         this.classList.remove('bg-white');
@@ -1061,5 +1065,69 @@
                         });
                     });
                 });
+                // Fake khi page load xong thì gọi api kích hoạt gửi events
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (ruleItemsEl.length > 0) {
+                        ruleItemsEl[0].click();
+                    }
+                })
+
+                function sendEvent(instanceId) {
+
+                    fetch("{{route('cvedixrt_event.broadcast')}}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({instance_id: instanceId, _action: 'sendSingleEvent'})
+                    }).then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Network response was not ok');
+                        }
+                    }).then(data => {
+                        Swal.close();
+                        if (data.success === 'ok') {
+                            Swal.fire({
+                                toast: true,
+                                position: 'bottom-end',
+                                icon: 'success',
+                                title: 'Success',
+                                text: data.message,
+                                showConfirmButton: false,
+                                timer: 1500,
+                                timerProgressBar: true,
+                            });
+                        } else {
+                            Swal.fire({
+                                toast: true,
+                                position: 'bottom-end',
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'An error occurred while sending events.',
+                                timer: 1500,
+                                timerProgressBar: true,
+                            });
+                        }
+                    }).catch(error => {
+                        Swal.close();
+                        console.error('Error:', error);
+                        Swal.fire({
+                            toast: true,
+                            position: 'bottom-end',
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while sending events.',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timmerProgressBar: true,
+                        });
+                    });
+                }
             </script>
+
+
     @endpush
