@@ -70,4 +70,5 @@ echo "Khởi động php artisan serve" | tee -a /tmp/init.log
 
 LOG="storage/logs/serve/$(date +"%Y/%m")/$(date +"%Y-%m-%d").log"
 install -d $(dirname "$LOG")
-php artisan serve --host=0.0.0.0 --port=80 --no-reload >> "$LOG" 2>&1
+php artisan serve --host=0.0.0.0 --port=80 --no-reload >> "$LOG" 2>&1 &
+
