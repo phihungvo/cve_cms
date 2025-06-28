@@ -14,7 +14,7 @@ class FileManagerBuilder extends BuilderAbstract
      *
      * @return $this
      */
-    public function roleRoot(): ModelBuilder
+    public function roleRoot(): FileManagerBuilder
     {
         return $this;
     }
@@ -24,7 +24,7 @@ class FileManagerBuilder extends BuilderAbstract
      *
      * @return $this
      */
-    public function roleOwner(): ModelBuilder
+    public function roleOwner(): FileManagerBuilder
     {
         if (auth()->user()?->isOwner() || auth()->user()?->enterprise_id) {
             return $this->where(Enterprise::FOREIGN_KEY, auth()->user()->enterprise_id);
