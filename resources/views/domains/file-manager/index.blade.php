@@ -338,6 +338,9 @@
             @csrf
             <input type="hidden" name="name" value="Uploaded Model {{ now()->format('Y-m-d H:i:s') }}">
             <input type="hidden" name="parent_id" id="upload-parent-id">
+            @if(!auth()->user()->hasRole('root'))
+                <input type="hidden" name="enterprise_id" value="{{ auth()->user()->enterprise_id }}">
+            @endif
             <input type="file" name="model_files[]" id="model-files" class="hidden"
                    accept=".pt,.pth,.pb,.h5,.ckpt,.onnx,.joblib,.pkl,.mp4,.jpg,.jpeg,.png,.avif" multiple required>
         </form>
@@ -354,7 +357,7 @@
         <div class="flex flex-col lg:flex-row mt-5 gap-4">
             <div class="w-full lg:w-1/3 overflow-x-auto bg-gray-50 p-4 rounded-lg shadow-sm" id="model-tree"></div>
             <div class="w-full lg:w-2/3 overflow-x-auto">
-                <div class="table-container">
+                <div class="table-container" style="max-height: 600px; overflow-y: auto;">
                     <table id="model-list-table" class="w-full text-sm text-center border border-gray-200 divide-y
                      divide-gray-200" data-table-sort data-table-pagination data-table-pagination-limit="10">
                         <thead class="bg-gray-100 sticky top-0 z-10">
@@ -578,7 +581,7 @@
                 .map(item => `
                         <tr class="hover:bg-gray-200">
                             <td class="sticky left-0 w-12 bg-white"><input type="checkbox" class="file-checkbox" data-id="${item.id}"></td>
-                            <td class="sticky left-48 w-[300px] name-column pl-4" title="${item.name}">${item.name}</td>
+                            <td class="sticky left-48 w-[250px] pl-4 text-left truncate font-medium" title="${item.name}">${item.name}</td>
                             <td class="w-36">${new Date(item.created_at * 1000).toLocaleDateString('vi-VN')}</td>
                             <td class="w-24">${(item.size / 1024).toFixed(2)} KB</td>
                             <td class="w-36">${item.type}</td>

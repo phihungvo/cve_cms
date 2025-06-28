@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\FileManager\Service\Controller;
 
-use App\Domains\FileManager\Action\CreateAction as CreateAction;
+use App\Domains\FileManager\Action\CreateAction;
 use App\Domains\FileManager\Model\FileManager;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -50,7 +50,7 @@ class CreateService
     }
 
     /**
-     * CreateAction a new model with uploaded files.
+     * Create a new model with uploaded files.
      *
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
@@ -65,13 +65,13 @@ class CreateService
             ]);
 
             $files = $this->request->file('model_files') ?? [];
-            $parentPath = $data['parent_id'] ?? null;
+            $parentPath = $data['parent_id'] ?? '';
             $totalSize = 0;
             $createdModel = [];
             $errors = [];
 
             if (empty($files)) {
-                throw new \Exception('No files uploaded.');
+                throw new \Exception('Không có file nào được tải lên.');
             }
 
             foreach ($files as $file) {
@@ -79,16 +79,25 @@ class CreateService
             }
 
             if ($totalSize > 2147483648) {
-                throw new \Exception('Total file size exceeds 2GB limit.');
+                throw new \Exception('Tổng kích thước file vượt quá giới hạn 2GB.');
             }
 
-            // Validate enterprise ID
-            $enterpriseId = $this->auth->hasRole('root') ? ($data['enterprise_id'] ?? null) : ($this->auth->enterprise_id ?? null);
-            if (!$this->auth->hasRole('root') && !$enterpriseId) {
-                throw new \Exception('User is not associated with any enterprise.');
+            // Xác định enterprise_id
+            $enterpriseId = $this->auth->hasRole('root') ? null : $this->auth->enterprise_id;
+            if ($parentPath && $this->auth->hasRole('root')) {
+                // Nếu là root và có parentPath, lấy enterprise_id từ thư mục cha
+                $parentModel = FileManager::where('model_url', '/'.trim($parentPath, '/'))
+                    ->where('is_folder', true)
+                    ->first();
+                if ($parentModel) {
+                    $enterpriseId = $parentModel->enterprise_id;
+                }
+            }
+            if (!$enterpriseId && !$this->auth->hasRole('root')) {
+                throw new \Exception('Người dùng không thuộc bất kỳ doanh nghiệp nào.');
             }
 
-            // Test MinIO connection
+            // Kiểm tra kết nối MinIO
             try {
                 $config = config('filesystems.disks.minio');
                 $s3Client = new S3Client([
@@ -100,31 +109,35 @@ class CreateService
                 ]);
                 $s3Client->listBuckets();
             } catch (\Exception $e) {
-                throw new \Exception('Unable to connect to storage server: '.$e->getMessage());
+                throw new \Exception('Không thể kết nối với server lưu trữ: '.$e->getMessage());
             }
 
             $action = new CreateAction();
 
-            // Prepare the base path for storage
+            // Xử lý từng file
             foreach ($files as $index => $file) {
                 try {
                     $originalFileName = $file->getClientOriginalName();
                     $fileName = $this->sanitizeFileName($originalFileName);
                     $mimeType = $file->getMimeType();
 
-                    $basePath = $parentPath ?: ($enterpriseId ? $enterpriseId : '');
+                    // Chuẩn hóa đường dẫn: luôn bắt đầu bằng enterprise_id nếu có
+                    $basePath = $enterpriseId ? $enterpriseId.($parentPath ? "/{$parentPath}" : '') : $parentPath;
                     $path = $basePath ? "{$basePath}/{$fileName}" : $fileName;
                     $modelUrl = '/'.trim($path, '/');
 
+                    // Kiểm tra file đã tồn tại
                     if (Storage::disk('minio')->exists($path) || FileManager::where('model_url', $modelUrl)->exists()) {
-                        throw new \Exception(__('File already existed!', ['name' => $fileName]));
+                        throw new \Exception(__('File đã tồn tại!', ['name' => $fileName]));
                     }
 
-                    $storedPath = Storage::disk('minio')->putFileAs($basePath ?: '', $file, $fileName);
+                    // Lưu file vào MinIO với đường dẫn chuẩn hóa
+                    $storedPath = Storage::disk('minio')->putFileAs($basePath, $file, $fileName);
                     if (!Storage::disk('minio')->exists($storedPath)) {
-                        throw new \Exception('File not found on MinIO after upload: '.$fileName);
+                        throw new \Exception('File không tồn tại trên MinIO sau khi upload: '.$fileName);
                     }
 
+                    // Cập nhật modelUrl với đường dẫn chính xác
                     $modelUrl = '/'.trim($storedPath, '/');
 
                     $modelData = [
@@ -134,7 +147,7 @@ class CreateService
                         'size' => $file->getSize(),
                         'type' => $mimeType,
                         'enterprise_id' => $enterpriseId,
-                        'parent_id' => $parentPath ? FileManager::where('model_url', '/'.trim($parentPath, '/'))->first()?->id : null,
+                        'parent_id' => $parentPath ? FileManager::where('model_url', '/'.trim($basePath, '/'))->first()?->id : null,
                         'is_folder' => false,
                     ];
 
@@ -149,7 +162,7 @@ class CreateService
             if (!empty($errors)) {
                 $response = [
                     'success' => false,
-                    'message' => $errors[0]['error'] ?? 'Some files failed to upload.',
+                    'message' => $errors[0]['error'] ?? 'Một số file không thể tải lên.',
                     'errors' => $errors,
                     'data' => $createdModel,
                 ];
@@ -161,7 +174,7 @@ class CreateService
 
             $response = [
                 'success' => true,
-                'message' => __('cvedixrt-model.upload_success', ['count' => count($createdModel)]),
+                'message' => __('file-manager.upload_success', ['count' => count($createdModel)]),
                 'data' => $createdModel,
             ];
 

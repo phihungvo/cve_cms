@@ -48,7 +48,6 @@
                     </a>
                 @endforeach
             </div>
-
         </div>
         <!-- Rule Configuration -->
         <div id="ruleConfiguration" class="w-full p-6 " style="min-height: 800px;">
@@ -436,11 +435,16 @@
                     ctxOutside.clearRect(0, 0, canvasOverlayOutside.width, canvasOverlayOutside.height);
                     if (!drawingObjects || !Array.isArray(drawingObjects)) return;
 
+                    // Increase shape size by a larger factor
+                    const ENLARGE_FACTOR = 4.1; // Tăng lên 1.5 lần (có thể chỉnh lớn hơn nếu muốn)
+                    const HEIGHT_OFFSET = -180; // Đẩy shape lên trên (giá trị âm là lên, dương là xuống, chỉnh số này để cao hơn nữa)
+                    const RIGHT_OFFSET = 1; // Đẩy shape qua phải (tăng số này để qua phải nhiều hơn)
+
                     drawingObjects.forEach(shape => {
                         ctxOutside.beginPath();
                         ctxOutside.strokeStyle = rgbToHex(shape.color || [255, 0, 0]);
                         ctxOutside.fillStyle = rgbToRgba(shape.color || [255, 0, 0], 0.12);
-                        ctxOutside.lineWidth = 1; // Tăng độ dày đường viền
+                        ctxOutside.lineWidth = 2; // Tăng độ dày đường viền
 
                         if (shape.type === 'line') {
                             const rotation = shape.rotation || 0;
@@ -448,29 +452,35 @@
                             const midY = (shape.startY + shape.endY) / 2;
 
                             ctxOutside.save();
-                            ctxOutside.translate((midX * scale * SHAPE_SCALE_FACTOR)
-                                + offsetX, (midY * scale * SHAPE_SCALE_FACTOR) + offsetY);
+                            ctxOutside.translate(
+                                (midX * scale * ENLARGE_FACTOR) + offsetX + RIGHT_OFFSET,
+                                (midY * scale * ENLARGE_FACTOR) + offsetY + HEIGHT_OFFSET
+                            );
                             ctxOutside.rotate(rotation);
-                            ctxOutside.moveTo((shape.startX - midX) * scale * SHAPE_SCALE_FACTOR,
-                                (shape.startY - midY) * scale * SHAPE_SCALE_FACTOR);
-                            ctxOutside.lineTo((shape.endX - midX) * scale * SHAPE_SCALE_FACTOR,
-                                (shape.endY - midY) * scale * SHAPE_SCALE_FACTOR);
+                            ctxOutside.moveTo((shape.startX - midX) * scale * ENLARGE_FACTOR,
+                                (shape.startY - midY) * scale * ENLARGE_FACTOR);
+                            ctxOutside.lineTo((shape.endX - midX) * scale * ENLARGE_FACTOR,
+                                (shape.endY - midY) * scale * ENLARGE_FACTOR);
                             ctxOutside.stroke();
                             ctxOutside.restore();
                         } else if (shape.type === 'rect') {
                             ctxOutside.rect(
-                                (shape.startX * scale * SHAPE_SCALE_FACTOR) + offsetX,
-                                (shape.startY * scale * SHAPE_SCALE_FACTOR) + offsetY,
-                                shape.width * scale * SHAPE_SCALE_FACTOR,
-                                shape.height * scale * SHAPE_SCALE_FACTOR
+                                (shape.startX * scale * ENLARGE_FACTOR) + offsetX + RIGHT_OFFSET,
+                                (shape.startY * scale * ENLARGE_FACTOR) + offsetY + HEIGHT_OFFSET,
+                                shape.width * scale * ENLARGE_FACTOR,
+                                shape.height * scale * ENLARGE_FACTOR
                             );
                             ctxOutside.fill();
                             ctxOutside.stroke();
                         } else if (shape.type === 'poly' && shape.points && shape.points.length > 0) {
-                            ctxOutside.moveTo((shape.points[0].x * scale * SHAPE_SCALE_FACTOR)
-                                + offsetX, (shape.points[0].y * scale * SHAPE_SCALE_FACTOR) + offsetY);
-                            shape.points.slice(1).forEach(point => ctxOutside.lineTo((point.x * scale * SHAPE_SCALE_FACTOR)
-                                + offsetX, (point.y * scale * SHAPE_SCALE_FACTOR) + offsetY));
+                            ctxOutside.moveTo(
+                                (shape.points[0].x * scale * ENLARGE_FACTOR) + offsetX + RIGHT_OFFSET,
+                                (shape.points[0].y * scale * ENLARGE_FACTOR) + offsetY + HEIGHT_OFFSET
+                            );
+                            shape.points.slice(1).forEach(point => ctxOutside.lineTo(
+                                (point.x * scale * ENLARGE_FACTOR) + offsetX + RIGHT_OFFSET,
+                                (point.y * scale * ENLARGE_FACTOR) + offsetY + HEIGHT_OFFSET
+                            ));
                             ctxOutside.closePath();
                             ctxOutside.fill();
                             ctxOutside.stroke();
@@ -1128,6 +1138,4 @@
                     });
                 }
             </script>
-
-
     @endpush

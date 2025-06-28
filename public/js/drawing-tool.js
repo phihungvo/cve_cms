@@ -413,16 +413,52 @@ let DrawingTool = (function () {
 
     const resizeCanvas = () => {
         const wrapper = document.getElementById('videoWrapper');
-        if (!wrapper || wrapper.offsetWidth === 0 || wrapper.offsetHeight === 0) {
+        const video = document.getElementById('videoElement');
+
+        if (!wrapper || !video || !canvas || wrapper.offsetWidth === 0 || wrapper.offsetHeight === 0) {
+            console.warn('Missing required elements or zero dimensions, retrying...');
             setTimeout(resizeCanvas, 100);
             return;
         }
-        canvas.width = wrapper.offsetWidth;
-        canvas.height = wrapper.offsetHeight;
-        canvas.style.width = wrapper.offsetWidth + 'px';
-        canvas.style.height = wrapper.offsetHeight + 'px';
-        videoElement.style.width = wrapper.offsetWidth + 'px';
-        videoElement.style.height = wrapper.offsetHeight + 'px';
+
+        // Đợi video tải metadata
+        if (!video.videoWidth || !video.videoHeight) {
+            video.addEventListener('loadedmetadata', resizeCanvas, { once: true });
+            return;
+        }
+
+        // Lấy kích thước wrapper và video gốc
+        const wrapperWidth = wrapper.offsetWidth;
+        const wrapperHeight = wrapper.offsetHeight;
+        const videoWidth = video.videoWidth;
+        const videoHeight = video.videoHeight;
+
+        // Tính tỷ lệ scale để khớp với wrapper
+        const scale = Math.min(wrapperWidth / videoWidth, wrapperHeight / videoHeight);
+        const scaledWidth = videoWidth * scale;
+        const scaledHeight = videoHeight * scale;
+
+        // Đặt kích thước canvas khớp với kích thước video hiển thị
+        canvas.width = scaledWidth;
+        canvas.height = scaledHeight;
+        canvas.style.width = `${scaledWidth}px`;
+        canvas.style.height = `${scaledHeight}px`;
+
+        // Đặt kích thước và vị trí video
+        video.style.width = `${scaledWidth}px`;
+        video.style.height = `${scaledHeight}px`;
+
+        // Căn giữa video và canvas trong wrapper
+        const offsetX = (wrapperWidth - scaledWidth) / 2;
+        const offsetY = (wrapperHeight - scaledHeight) / 2;
+        video.style.position = 'absolute';
+        video.style.left = `${offsetX}px`;
+        video.style.top = `${offsetY}px`;
+        canvas.style.position = 'absolute';
+        canvas.style.left = `${offsetX}px`;
+        canvas.style.top = `${offsetY}px`;
+
+        // Vẽ lại tất cả shapes
         redrawAll();
     };
 
