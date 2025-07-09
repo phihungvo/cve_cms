@@ -33,6 +33,7 @@ class UpdateCityEmpty extends ActionAbstract
         return Model::query()
             ->withoutCity()
             ->orderByDateAtDesc()
+            ->limit(1000)
             ->pluck('id')
             ->all();
     }

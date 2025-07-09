@@ -39,7 +39,7 @@
     'delete' => [
         'success' => 'Cvedixrt Instance deleted successfully.',
         'error' => [
-            'in-use' => 'Cannot delete this Cvedixrt Instance because it is still in use.',
+            'in-use' => 'Cannot delete this Instance Rule because it is still in use.',
             'model-not-found' => 'Delete failed: Model not found.',
             'query-error' => 'Delete failed: Database query error: :message',
             'unexpected-error' => 'Delete failed: Unexpected error: :message',

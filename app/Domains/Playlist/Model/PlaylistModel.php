@@ -190,7 +190,7 @@ class PlaylistModel extends ModelAbstract
      */
     public function enterprise(): BelongsTo
     {
-        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN, self::PRIMARY);
+        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN_KEY, self::PRIMARY);
     }
 
     /**
@@ -210,7 +210,7 @@ class PlaylistModel extends ModelAbstract
      */
     public function devices(): belongsToMany
     {
-        return $this->belongsToMany(Device::class, Display::TABLE, self::FOREIGN, Device::FOREIGN);
+        return $this->belongsToMany(Device::class, Display::TABLE, self::FOREIGN, Device::FOREIGN_KEY);
     }
 
     public function playlistGroups(): BelongsToMany

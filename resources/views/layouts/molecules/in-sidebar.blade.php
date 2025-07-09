@@ -1,6 +1,6 @@
 <nav class="side-nav">
     <ul>
-        <li>
+        <li style="display: none; visibility: hidden">
             <a href="{{ route('dashboard.index') }}"
                 class="logo {{ request()->routeIs('dashboard.*') ? 'active' : '' }}"
                 style="display: flex; justify-content: center; align-items: center; width: 200px; height: 50px;">

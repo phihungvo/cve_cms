@@ -83,7 +83,7 @@ class Schedule extends ModelAbstract // Kế thừa từ ModelAbstract thay vì 
      */
     public function devices(): BelongsToMany
     {
-        return $this->belongsToMany(DeviceModel::class, 'display', self::FOREIGN, Device::FOREIGN);
+        return $this->belongsToMany(DeviceModel::class, 'display', self::FOREIGN, Device::FOREIGN_KEY);
     }
 
     public function displays(): HasMany

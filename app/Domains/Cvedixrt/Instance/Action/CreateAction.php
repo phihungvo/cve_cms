@@ -15,16 +15,15 @@ class CreateAction extends CreateUpdateAbstractAction
     /**
      * Create CvedixrtInstance
      *
-     * @return Model
+     * @return void
      *
      * @override
      */
-    protected function save(): Model
+    protected function save(): void
     {
         try {
             $this->row = Model::query()->create($this->data);
 
-            return $this->row;
         } catch (AuthorizationException $e) {
             throw new RuntimeException(
                 __('cvedixrt-instance-create.error.unauthorized', ['message' => $e->getMessage()]),

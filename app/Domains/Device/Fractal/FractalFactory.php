@@ -4,13 +4,14 @@ namespace App\Domains\Device\Fractal;
 
 use App\Domains\Core\Fractal\FractalAbstract;
 use App\Domains\Device\Model\Device as Model;
+use App\Domains\Device\Model\DeviceCvedixrtEvent as Event;
 use App\Domains\Position\Model\Position as PositionModel;
 use App\Domains\Vehicle\Model\Vehicle as VehicleModel;
 
 class FractalFactory extends FractalAbstract
 {
     /**
-     * @param \App\Domains\Device\Model\Device $row
+     * @param Model $row
      *
      * @return array
      */
@@ -35,7 +36,7 @@ class FractalFactory extends FractalAbstract
     }
 
     /**
-     * @param \App\Domains\Device\Model\Device $row
+     * @param Model $row
      *
      * @return array
      */
@@ -50,7 +51,7 @@ class FractalFactory extends FractalAbstract
     }
 
     /**
-     * @param ?\App\Domains\Position\Model\Position $position
+     * @param ?PositionModel $position
      *
      * @return ?array
      */
@@ -75,7 +76,7 @@ class FractalFactory extends FractalAbstract
     }
 
     /**
-     * @param ?\App\Domains\Vehicle\Model\Vehicle $vehicle
+     * @param ?VehicleModel $vehicle
      *
      * @return ?array
      */
@@ -92,7 +93,7 @@ class FractalFactory extends FractalAbstract
     }
 
     /**
-     * @param \App\Domains\Device\Model\Device $row
+     * @param Model $row
      *
      * @return array
      */
@@ -105,12 +106,35 @@ class FractalFactory extends FractalAbstract
     }
 
     /**
-     * @param \App\Domains\Device\Model\Device $row
+     * @param Model $row
      *
      * @return array
      */
     protected function simple(Model $row): array
     {
         return $row->only('id', 'name', 'shared', 'shared_public');
+    }
+
+    /**
+     * @param Event|null $event
+     *
+     * @return array|null
+     */
+    protected function mapEvent(?Event $event): ?array
+    {
+        if ($event === null) {
+            return null;
+        }
+
+        return [
+            'id' => $event->id,
+            'uuid' => $event->uuid,
+            'image_url' => $event->image_url,
+            'video_url' => $event->video_url,
+            'detected_object' => $event->detected_object,
+            'event_name' => $event->event_name,
+            'event_type' => $event->event_type,
+            'priority' => $event->instanceRule->priority,
+        ];
     }
 }

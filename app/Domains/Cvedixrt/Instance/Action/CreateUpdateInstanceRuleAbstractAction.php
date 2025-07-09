@@ -6,7 +6,7 @@ use App\Domains\Cvedixrt\Instance\Model\CvedixrtInstanceRuleModel as InstanceRul
 
 abstract class CreateUpdateInstanceRuleAbstractAction extends ActionAbstract
 {
-    abstract protected function save(): InstanceRule;
+    abstract protected function save(): void;
 
     public function handle(): InstanceRule
     {
@@ -26,6 +26,7 @@ abstract class CreateUpdateInstanceRuleAbstractAction extends ActionAbstract
         $this->dataDrawingObject();
         $this->dataDirection();
         $this->dataInstanceId();
+        $this->dataPriority();
     }
 
     protected function check(): void
@@ -65,6 +66,10 @@ abstract class CreateUpdateInstanceRuleAbstractAction extends ActionAbstract
     protected function dataInstanceId(): void
     {
         $this->data['cvedixrt_instance_id'] = $this->row?->id;
+    }
+
+    protected function dataPriority()
+    {
     }
 
 }

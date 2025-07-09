@@ -19,7 +19,7 @@
 
                     <div class="px-5 pb-8 text-center">
                         <button type="button" data-dismiss="modal"
-                            class="btn btn-outline-secondary w-24 mr-1">{{ __('delete-modal.cancel') }}</button>
+                                class="btn btn-outline-secondary w-24 mr-1">{{ __('delete-modal.cancel') }}</button>
                         <button type="submit" class="btn btn-danger w-24">{{ __('delete-modal.delete') }}</button>
                     </div>
                 </form>

@@ -85,7 +85,7 @@ class Trip extends ModelAbstract
      */
     public function device(): BelongsTo
     {
-        return $this->belongsTo(DeviceModel::class, DeviceModel::FOREIGN)->withDefault();
+        return $this->belongsTo(DeviceModel::class, DeviceModel::FOREIGN_KEY)->withDefault();
     }
 
     /**

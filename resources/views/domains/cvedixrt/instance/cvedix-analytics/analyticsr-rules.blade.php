@@ -9,7 +9,7 @@
     <div class="flex rounded shadow bg-white min-h-[600px]">
         <!-- List Rule đã thêm -->
         <div class="w-1/3 flex flex-col bg-gray-50 border-r">
-            <h3 class="px-4 py-3 font-semibold text-gray-800">{{ __('cvedixt-analytic.added_rule') }}</h3>
+            <h3 class="px-4 py-3 font-semibold text-gray-800 mt-4">{{ __('cvedixt-analytic.added_rule') }}</h3>
             <ul id="ruleList" class="flex-1 py-4 px-2 space-y-1 overflow-y-auto max-h-[32rem]">
                 @foreach($row->instanceRules as $rule)
                     <div class="flex items-center justify-between">
@@ -38,10 +38,10 @@
             </a>
             <hr class="my-2 border-gray-300 ml-3">
             <h3 class="px-4 py-3 font-semibold">{{ __('cvedixt-analytic.analytics_rules') }}</h3>
-            <div class="flex flex-col flex-1 space-y-2 ml-3 mt-3">
+            <div class="flex flex-col justify-start gap-4 flex-1 ml-3 mb-2">
                 @foreach(RuleType::cases() as $rule)
                     <a href="#"
-                       class="btn form-control-lg mb-3 border-2 border-primary text-sm text-left justify-start
+                       class="btn form-control-lg py-3 border-2 border-primary text-sm text-left justify-start
                        bg-white hover:bg-blue-100 focus:text-white transition-colors cursor-pointer"
                        data-rule-type="{{ $rule->value }}">
                         {{ str_replace('_', ' ', ucfirst($rule->value)) }}
@@ -50,8 +50,8 @@
             </div>
         </div>
         <!-- Rule Configuration -->
-        <div id="ruleConfiguration" class="w-full p-6 hidden">
-            <div class="flex border border-gray-400 p-4">
+        <div id="ruleConfiguration" class="w-full p-6 " style="min-height: 800px;">
+            <div class="flex border border-gray-400 p-4 h-full">
                 <!-- Left column: Rule name + Object types -->
                 <div class="w-1/2 pr-4">
                     <div class="mb-4">
@@ -64,39 +64,143 @@
                     <div class="mb-4">
                         <div class="mb-2 font-medium">{{ __('cvedixt-analytic.object_detection') }}</div>
                         <div class="flex flex-col">
-                            @foreach(DetectedObject::cases() as $type)
-                                <div class="flex items-center gap-2">
-                                    <input type="checkbox" name="detect_objects"
-                                           id="object_type_{{ $type->value }}"
-                                           value="{{ $type->value }}">
-                                    <label class="cursor-pointer flex-grow hover:font-bold py-1"
-                                           for="object_type_{{ $type->value }}">{{ $type->value }}</label>
+                            <div class="flex flex-col">
+                                <!-- Person -->
+                                <div x-data="{open: false}">
+                                    <div class="flex items-center gap-2 ">
+                                        <input type="checkbox" name="detect_objects" id="object_type_person"
+                                               value="person"
+                                               x-on:change="open = $event.target.checked">
+                                        <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                               for="object_type_person">Person</label>
+                                    </div>
+                                    <!-- Subtype for Person -->
+
+                                    <div
+                                        x-show="open"
+                                        x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0 -translate-y-2"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-2"
+                                        class="pl-6 flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="prisoner"
+                                                   id="object_type_prisoner">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_prisoner">Prisoner</label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="wardener"
+                                                   id="object_type_wardener">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_wardener">Wardener</label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="policer"
+                                                   id="object_type_policer">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_policer">Policer</label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="laborer"
+                                                   id="object_type_laborer">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_laborer">Laborer</label>
+                                        </div>
+                                    </div>
                                 </div>
-                            @endforeach
+                                <!-- Vehicle -->
+                                <div x-data="{open: false}">
+                                    <div class="flex items-center gap-2 ">
+                                        <input type="checkbox" name="detect_objects" id="object_type_vehicle"
+                                               value="vehicle"
+                                               x-on:change="open = $event.target.checked">
+                                        <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                               for="object_type_vehicle">Vehicle</label>
+                                    </div>
+                                    <!-- Subtypes for Vehicle -->
+                                    <div
+                                        x-show="open"
+                                        x-transition:enter="transition ease-out duration-300"
+                                        x-transition:enter-start="opacity-0 -translate-y-2"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-2"
+                                        class="pl-6 flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="car"
+                                                   id="object_type_car">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_car">Car</label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input type="checkbox" name="classification_object" value="truck"
+                                                   id="object_type_truck">
+                                            <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                                   for="object_type_truck">Truck</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Animal -->
+                                <div class="flex items-center gap-2 ">
+                                    <input type="checkbox" name="detect_objects" id="object_type_animal" value="animal">
+                                    <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                           for="object_type_animal">Animal</label>
+                                </div>
+                                <!-- Unknown -->
+                                <div class="flex items-center gap-2 ">
+                                    <input type="checkbox" name="detect_objects" id="object_type_unknown"
+                                           value="unknown">
+                                    <label class="cursor-pointer flex-grow hover:font-bold p-2"
+                                           for="object_type_unknown">Unknown</label>
+                                </div>
+                            </div>
                         </div>
                         <div id="detectObjectsError"
                              class="text-red-500 text-sm mt-1 hidden">{{ __('cvedixt-analytic.alert_no_object') }}</div>
                     </div>
+                    <!-- input range for priority -->
+                    <div class="flex justify-start items-center gap-2 mt-3">
+                        <label class="font-bold" for="priority">priority:</label>
+                        <input class="w-1/2" type="range" id="priority" name="priority" min="1" max="5"
+                               value="1" oninput="priorityOutput.value = priority.value"
+                        >
+                        <output id="priorityOutput">1</output>
+                    </div>
                 </div>
                 <!-- Right column: Camera live -->
-                <div class="w-1/2 pl-4">
+                <div class="w-1/2 pl-4 flex flex-col">
                     <h3 class="text-sm font-bold mb-1">{{ __('rt-analytics-rules.live-view-camera') }}</h3>
                     <div
-                            class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black relative overflow-hidden">
+                        class="border border-gray-300 rounded bg-white h-40 w-full flex items-center justify-center text-black relative overflow-hidden flex-grow">
                         <div id="videoWrapperOutside" class="w-full h-full relative">
                             <video id="videoElementOutside"
                                    class="absolute top-0 w-full h-full object-contain"
-                                   style="z-index: 0;" autoplay loop muted playsinline>
+                                   style="z-index: 0;" autoplay loop muted playsinline
+                                   onerror="
+                                   this.style.display='none';
+                                   document.getElementById('videoErrorMsg').style.display='flex';
+                                   document.getElementById('showDraw').attribute('disabled', 'disabled');
+                                   ">
                                 <source
-                                        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4"
-                                        type="video/mp4">
+                                    src="{{ $row->source }}"
+                                    type="video/mp4"
+                                    onerror="this.parentElement.style.display='none';document.getElementById('videoErrorMsg').style.display='flex';">
                             </video>
+                            <div id="videoErrorMsg"
+                                 class="absolute inset-0 h-full w-full items-center justify-center text-red-600 bg-gray-100 hidden"
+                                 style="z-index:1;display:none;">
+                                <span>Video error: Unable to load video source.</span>
+                            </div>
                             <canvas id="canvasOverlayOutside" class="absolute inset-0 h-full"
                                     style="z-index: 10; pointer-events: none;"></canvas>
                         </div>
                     </div>
-                    <button type="button" class="p-2 cursor-pointer" onclick="openDrawingTool()">
-                        <svg fill="#000000" height="16px" width="16px" version="1.1" id="Capa_1"
+                    <button id="showDraw" type="button" class="p-2 cursor-pointer" onclick="openDrawingTool()">
+                        <svg fill="currentcolor" height="16px" width="16px" version="1.1" id="Capa_1"
                              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                              viewBox="0 0 469 469" xml:space="preserve">
                             <g>
@@ -119,17 +223,9 @@
                     {{ __('cvedixt-analytic.add') }}
                 </a>
             </div>
-            <div class="flex justify-end space-x-4 mt-4">
-                <a href="#"
-                   class="w-32 text-center py-2 rounded bg-cyan-100 text-black border border-cyan-400 hover:bg-cyan-200">{{ __('cvedixt-analytic.ok') }}</a>
-                <a href="#"
-                   class="w-32 text-center py-2 rounded bg-cyan-100 text-black border border-cyan-400 hover:bg-cyan-200">{{ __('cvedixt-analytic.apply') }}</a>
-                <a href="#"
-                   class="w-32 text-center py-2 rounded border border-gray-400 hover:bg-gray-100">{{ __('cvedixt-analytic.cancel') }}</a>
-            </div>
         </div>
 
-        <div id="generalSetting" class="w-full p-6">
+        <div id="generalSetting" class="w-full p-6 hidden">
             <div>
                 <h3 class="text-lg font-semibold mb-4">{{ __('cvedixt-analytic.general_settings') }}</h3>
                 <div class="gap-x-6 gap-y-6 items-start">
@@ -188,51 +284,75 @@
                 </div>
             </div>
         </div>
+    </div>
+@endsection
+@push('styles')
+    <style>
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+            border-radius: 10px;
+        }
 
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+            border-radius: 10px;
+        }
 
-        @endsection
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #05FF03, #96FF03, #FFF601, #FE9401, #FD0300);
+            border-radius: 10px;
+        }
+    </style>
+@endpush
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('/js/drawing-tool.js') }}"></script>
+    <script>
+        window.srcVideo = '{{ $row->source }}';
+        const instanceId = {{ $row->id }};
+        const instanceUuid = '{{ $row->uuid }}';
+        let selectedRuleType = 'line_crossing';
+        let selectedAddedRule = null;
+        let instanceRules = [];
 
-        @push('scripts')
-            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-            <script src="{{ asset('/js/drawing-tool.js') }}"></script>
-            <script>
-                const instanceId = {{ $row->id }};
-                const instanceUuid = '{{ $row->uuid }}';
-                let selectedRuleType = 'line_crossing';
-                let selectedAddedRule = null;
-                let instanceRules = [];
+        let priorityEl = document.getElementById('priority');
+        let priorityOutputEL = document.getElementById('priorityOutput');
 
-                const ruleList = document.getElementById('ruleList');
-                const ruleNameEl = document.getElementById('ruleNameInput');
-                const detectObjectsCheckboxes = document.querySelectorAll('input[name="detect_objects"]');
-                const ruleTypeButtons = document.querySelectorAll('.btn.form-control-lg');
-                let ruleItemsEl = document.querySelectorAll('.rule-item');
+        const ruleList = document.getElementById('ruleList');
+        const ruleNameEl = document.getElementById('ruleNameInput');
+        const detectObjectsCheckboxes = document.querySelectorAll('input[name="detect_objects"]');
+        const classificationObjectsCheckboxes = document.querySelectorAll('input[name="classification_object"]');
 
-                const generalSettingBtn = document.getElementById('generalSettingBtn');
-                const generalSettingDiv = document.getElementById('generalSetting');
+        const ruleTypeButtons = document.querySelectorAll('.btn.form-control-lg');
+        let ruleItemsEl = document.querySelectorAll('.rule-item');
+        const btnSaveRule = document.getElementById('btn-save-rule');
 
-                generalSettingBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    generalSettingDiv.classList.remove('hidden');
-                    document.getElementById('ruleConfiguration').classList.add('hidden');
-                });
+        const generalSettingBtn = document.getElementById('generalSettingBtn');
+        const generalSettingDiv = document.getElementById('generalSetting');
 
-                function loadInstanceRules() {
-                    @foreach($row->instanceRules as $rule)
-                    instanceRules.push({
-                        id: {{ $rule->id }},
-                        uuid: '{{ $rule->uuid }}',
-                        name: '{{ $rule->name }}',
-                        detected_object: @json($rule->detected_object),
-                        rule_type: '{{ $rule->rule_type }}',
-                        drawing_object: @json($rule->drawing_object),
-                        direction: '{{ $rule->direction }}',
-                        cvedixrt_instance_id: {{ $rule->cvedixrt_instance_id }},
-                    });
-                    @endforeach
-                }
+        generalSettingBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            generalSettingDiv.classList.remove('hidden');
+            document.getElementById('ruleConfiguration').classList.add('hidden');
+        });
+
+        function loadInstanceRules() {
+            @foreach($row->instanceRules as $rule)
+            instanceRules.push({
+                id: {{ $rule->id }},
+                uuid: '{{ $rule->uuid }}',
+                name: '{{ $rule->name }}',
+                detected_object: @json($rule->detected_object),
+                rule_type: '{{ $rule->rule_type }}',
+                drawing_object: @json($rule->drawing_object),
+                direction: '{{ $rule->direction }}',
+                cvedixrt_instance_id: {{ $rule->cvedixrt_instance_id }},
+                priority: {{ $rule->priority }},
+            });
+            @endforeach
+        }
+
         let videoWrapperOutside, videoElementOutside, canvasOverlayOutside, ctxOutside;
-        const SHAPE_SCALE_FACTOR = 1.2; // Tăng kích thước shape lên 1.2 lần
 
         /**
          * Resize canvas khớp kích thước video ngoài và vẽ lại shapes cho rule đã chọn.
@@ -269,14 +389,14 @@
                 return false;
             }
 
-            // Tính tỷ lệ scale giống như trong DrawingTool
+            // Tính tỷ lệ scale để khớp với wrapper
             const scale = Math.min(wrapperWidth / videoWidth, wrapperHeight / videoHeight);
             const scaledWidth = videoWidth * scale;
             const scaledHeight = videoHeight * scale;
 
             // Đặt kích thước canvas khớp với kích thước video hiển thị
-            canvasOverlayOutside.width = scaledWidth;
-            canvasOverlayOutside.height = scaledHeight;
+            canvasOverlayOutside.width = videoWidth;
+            canvasOverlayOutside.height = videoHeight;
             canvasOverlayOutside.style.width = `${scaledWidth}px`;
             canvasOverlayOutside.style.height = `${scaledHeight}px`;
 
@@ -286,7 +406,7 @@
 
             // Căn giữa video và canvas trong wrapper
             const offsetX = (wrapperWidth - scaledWidth) / 2;
-            const offsetY = (wrapperHeight - scaledHeight) / 2; // Giảm 10px để căn chỉnh với viền
+            const offsetY = (wrapperHeight - scaledHeight) / 2;
             videoElementOutside.style.position = 'absolute';
             videoElementOutside.style.left = `${offsetX}px`;
             videoElementOutside.style.top = `${offsetY}px`;
@@ -294,10 +414,13 @@
             canvasOverlayOutside.style.left = `${offsetX}px`;
             canvasOverlayOutside.style.top = `${offsetY}px`;
 
-            // Vẽ lại shapes với scale và offset
+            // Lưu scale để sử dụng khi vẽ
+            canvasOverlayOutside.dataset.scale = scale;
+
+            // Vẽ lại shapes với scale
             selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
             if (selectedAddedRule && selectedAddedRule.drawing_object) {
-                drawShapesOnOutsideCanvas(selectedAddedRule.drawing_object, scale, offsetX, offsetY);
+                drawShapesOnOutsideCanvas(selectedAddedRule.drawing_object, scale);
             } else {
                 ctxOutside.clearRect(0, 0, canvasOverlayOutside.width, canvasOverlayOutside.height);
             }
@@ -310,50 +433,111 @@
          * @param {Array} drawingObjects - Danh sách shape để vẽ.
          * @param {number} scale - Tỉ lệ khớp với video.
          */
-        function drawShapesOnOutsideCanvas(drawingObjects, scale, offsetX, offsetY) {
+        function drawShapesOnOutsideCanvas(drawingObjects, scale) {
             ctxOutside.clearRect(0, 0, canvasOverlayOutside.width, canvasOverlayOutside.height);
-            if (!drawingObjects || !Array.isArray(drawingObjects)) return;
+            if (!drawingObjects || !Array.isArray(drawingObjects)) {
+                console.warn('No valid drawing objects provided');
+                return;
+            }
+
+            ctxOutside.save();
+            const SHAPE_SCALE_FACTOR = 4.18; // Increase the shape size by 4.18 times
+
+            // Lấy kích thước video gốc
+            const videoWidth = videoElementOutside.videoWidth;
+            const videoHeight = videoElementOutside.videoHeight;
+
+            // Kiểm tra sự tồn tại của canvasOverlay
+            const canvasOverlay = document.getElementById('canvasOverlay');
+            let canvasScale = 1; // Mặc định scale là 1 nếu không có canvasOverlay
+
+            if (canvasOverlay && canvasOverlay.width && canvasOverlay.height) {
+                const canvasWidth = canvasOverlay.width;
+                const canvasHeight = canvasOverlay.height;
+                canvasScale = Math.min(canvasWidth / videoWidth, canvasHeight / videoHeight);
+            } else {
+                console.warn('CanvasOverlay not found or has invalid dimensions, using default scale');
+            }
 
             drawingObjects.forEach(shape => {
+                // Kiểm tra dữ liệu shape hợp lệ
+                if (!shape || !shape.type) {
+                    console.warn('Invalid shape data:', shape);
+                    return;
+                }
+
                 ctxOutside.beginPath();
                 ctxOutside.strokeStyle = rgbToHex(shape.color || [255, 0, 0]);
                 ctxOutside.fillStyle = rgbToRgba(shape.color || [255, 0, 0], 0.12);
-                ctxOutside.lineWidth = 1; // Tăng độ dày đường viền
+                ctxOutside.lineWidth = 1 / scale; // Điều chỉnh độ dày đường viền theo scale
+                ctxOutside.font = `${12 / scale}px Arial`; // Điều chỉnh kích thước font theo scale
 
                 if (shape.type === 'line') {
+                    // Kiểm tra tọa độ hợp lệ
+                    if (isNaN(shape.startX) || isNaN(shape.startY) || isNaN(shape.endX) || isNaN(shape.endY)) {
+                        console.warn('Invalid line coordinates:', shape);
+                        return;
+                    }
+
+                    // Chuyển đổi tọa độ từ không gian canvas sang không gian video gốc
+                    const startX = shape.startX / canvasScale * SHAPE_SCALE_FACTOR;
+                    const startY = shape.startY / canvasScale * SHAPE_SCALE_FACTOR;
+                    const endX = shape.endX / canvasScale * SHAPE_SCALE_FACTOR;
+                    const endY = shape.endY / canvasScale * SHAPE_SCALE_FACTOR;
+
                     const rotation = shape.rotation || 0;
-                    const midX = (shape.startX + shape.endX) / 2;
-                    const midY = (shape.startY + shape.endY) / 2;
+                    const midX = (startX + endX) / 2;
+                    const midY = (startY + endY) / 2;
 
                     ctxOutside.save();
-                    ctxOutside.translate((midX * scale * SHAPE_SCALE_FACTOR)
-                        + offsetX, (midY * scale * SHAPE_SCALE_FACTOR) + offsetY);
+                    ctxOutside.translate(midX, midY);
                     ctxOutside.rotate(rotation);
-                    ctxOutside.moveTo((shape.startX - midX) * scale * SHAPE_SCALE_FACTOR,
-                        (shape.startY - midY) * scale * SHAPE_SCALE_FACTOR);
-                    ctxOutside.lineTo((shape.endX - midX) * scale * SHAPE_SCALE_FACTOR,
-                        (shape.endY - midY) * scale * SHAPE_SCALE_FACTOR);
+                    ctxOutside.moveTo(startX - midX, startY - midY);
+                    ctxOutside.lineTo(endX - midX, endY - midY);
                     ctxOutside.stroke();
                     ctxOutside.restore();
+
                 } else if (shape.type === 'rect') {
-                    ctxOutside.rect(
-                        (shape.startX * scale * SHAPE_SCALE_FACTOR) + offsetX,
-                        (shape.startY * scale * SHAPE_SCALE_FACTOR) + offsetY,
-                        shape.width * scale * SHAPE_SCALE_FACTOR,
-                        shape.height * scale * SHAPE_SCALE_FACTOR
-                    );
+                    // Kiểm tra tọa độ và kích thước hợp lệ
+                    if (isNaN(shape.startX) || isNaN(shape.startY) || isNaN(shape.width) || isNaN(shape.height)) {
+                        console.warn('Invalid rect data:', shape);
+                        return;
+                    }
+
+                    // Chuyển đổi tọa độ và kích thước
+                    const startX = shape.startX / canvasScale * SHAPE_SCALE_FACTOR;
+                    const startY = shape.startY / canvasScale * SHAPE_SCALE_FACTOR;
+                    const width = shape.width / canvasScale * SHAPE_SCALE_FACTOR;
+                    const height = shape.height / canvasScale * SHAPE_SCALE_FACTOR;
+
+                    ctxOutside.rect(startX, startY, width, height);
                     ctxOutside.fill();
                     ctxOutside.stroke();
-                } else if (shape.type === 'poly' && shape.points && shape.points.length > 0) {
-                    ctxOutside.moveTo((shape.points[0].x * scale * SHAPE_SCALE_FACTOR)
-                        + offsetX, (shape.points[0].y * scale * SHAPE_SCALE_FACTOR) + offsetY);
-                    shape.points.slice(1).forEach(point => ctxOutside.lineTo((point.x * scale * SHAPE_SCALE_FACTOR)
-                        + offsetX, (point.y * scale * SHAPE_SCALE_FACTOR) + offsetY));
+
+                } else if (shape.type === 'poly' && shape.points && Array.isArray(shape.points) && shape.points.length > 0) {
+                    // Kiểm tra điểm hợp lệ
+                    if (shape.points.some(point => isNaN(point.x) || isNaN(point.y))) {
+                        console.warn('Invalid poly points:', shape);
+                        return;
+                    }
+
+                    // Chuyển đổi tọa độ các điểm
+                    const points = shape.points.map(point => ({
+                        x: point.x / canvasScale * SHAPE_SCALE_FACTOR,
+                        y: point.y / canvasScale * SHAPE_SCALE_FACTOR
+                    }));
+
+                    ctxOutside.moveTo(points[0].x, points[0].y);
+                    points.slice(1).forEach(point => {
+                        ctxOutside.lineTo(point.x, point.y);
+                    });
                     ctxOutside.closePath();
                     ctxOutside.fill();
                     ctxOutside.stroke();
                 }
             });
+
+            ctxOutside.restore();
         }
 
         /**
@@ -388,22 +572,7 @@
             return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
         }
 
-        function loadInstanceRules() {
-            @foreach($row->instanceRules as $rule)
-            instanceRules.push({
-                id: {{ $rule->id }},
-                uuid: '{{ $rule->uuid }}',
-                name: '{{ $rule->name }}',
-                detected_object: @json($rule->detected_object),
-                rule_type: '{{ $rule->rule_type }}',
-                drawing_object: @json($rule->drawing_object),
-                direction: '{{ $rule->direction }}',
-                cvedixrt_instance_id: {{ $rule->cvedixrt_instance_id }},
-            });
-            @endforeach
-        }
-
-                loadInstanceRules();
+        loadInstanceRules();
 
         function openDrawingTool() {
             if (!instanceId || !instanceUuid) {
@@ -470,7 +639,6 @@
             currentRuleItem.classList.remove('bg-white');
             currentRuleItem.classList.add('bg-blue-500', 'text-white');
 
-            const btnSaveRule = document.getElementById('btn-save-rule');
             btnSaveRule.innerText = 'Update +';
 
             // Cập nhật form cấu hình
@@ -497,6 +665,7 @@
                 drawing_object: addedRule.drawing_object,
                 direction: addedRule.direction,
                 cvedixrt_instance_id: addedRule.cvedixrt_instance_id,
+                priority: addedRule.priority
             })
 
             // Gọi lại hàm render thẻ li
@@ -524,7 +693,6 @@
                 this.classList.remove('bg-white');
                 this.classList.add('bg-blue-500', 'text-white');
 
-                const btnSaveRule = document.getElementById('btn-save-rule');
                 btnSaveRule.innerText = 'Update +';
 
                 // Cập nhật form cấu hình
@@ -552,14 +720,35 @@
             const action = selectedAddedRule ? 'updateInstanceRule' : 'createInstanceRule';
 
             const ruleName = document.getElementById('ruleNameInput').value.trim();
-            const detectObjects = Array.from(document.querySelectorAll('input[name="detect_objects"]:checked'))
-                .map(cb => cb.value);
+            // Lấy dữ liệu detected_object theo mẫu yêu cầu
+            const detectObjects = Array.from(document.querySelectorAll('input[name="detect_objects"]:checked')).map(cb => {
+                const detected_object = cb.value;
+                let classification_object = [];
+
+                // Lấy các checkbox classification_object liên quan nếu có
+                if (detected_object === 'person') {
+                    classification_object = Array.from(document.querySelectorAll('input[name="classification_object"]:checked'))
+                        .filter(subCb => ['prisoner', 'wardener', 'policer', 'laborer'].includes(subCb.value))
+                        .map(subCb => subCb.value);
+                } else if (detected_object === 'vehicle') {
+                    classification_object = Array.from(document.querySelectorAll('input[name="classification_object"]:checked'))
+                        .filter(subCb => ['car', 'truck'].includes(subCb.value))
+                        .map(subCb => subCb.value);
+                }
+
+                return {
+                    detected_object,
+                    classification_object
+                };
+            });
+
             const ruleType = selectedRuleType;
             const ruleId = selectedAddedRule ? selectedAddedRule.id : null;
             const uuid = window.tempShapesToSave?.uuid || selectedAddedRule?.uuid || instanceUuid;
             const drawingObject = window.tempShapesToSave?.drawing_object
                 || selectedAddedRule?.drawing_object || [];
             const direction = window.tempShapesToSave?.direction || selectedAddedRule.direction;
+            const priority = priorityEl.value
 
             const requestData = {
                 _action: action,
@@ -569,7 +758,8 @@
                 rule_type: ruleType,
                 drawing_object: drawingObject,
                 direction: direction,
-                cvedixrt_instance_id: instanceId
+                cvedixrt_instance_id: instanceId,
+                priority: priority
             }
 
             if (action === 'updateInstanceRule') {
@@ -618,7 +808,8 @@
                             updateRuleConfiguration();
                             ruleItemsEl = document.querySelectorAll('.rule-item');
                             selectedAddedRule = null;
-                            document.getElementById('btn-save-rule').innerText = 'Add +';
+
+                            btnSaveRule.innerText = 'Add +';
 
                             if (window.DrawingTool) {
                                 window.DrawingTool.loadShapesFromServer(null);
@@ -642,12 +833,13 @@
                 let ruleId = parseInt(this.getAttribute('data-rule-id'), 10);
                 // gọi hàm
                 handleRuleItemClick(ruleId);
+                // Gọi hàm sendEvent để gửi sự kiện ruleItem được chọn
+                sendEvent({{$row->id}})
 
                 // Thêm trạng thái active cho rule được chọn
                 this.classList.remove('bg-white');
                 this.classList.add('bg-blue-500', 'text-white');
 
-                const btnSaveRule = document.getElementById('btn-save-rule');
                 btnSaveRule.innerText = 'Update +';
 
                 selectedAddedRule = instanceRules.find(rule => rule.id === ruleId);
@@ -689,7 +881,6 @@
                     this.classList.remove('bg-white');
                     this.classList.add('bg-blue-500', 'text-white');
 
-                    const btnSaveRule = document.getElementById('btn-save-rule');
                     btnSaveRule.innerText = 'Update +';
 
                     updateRuleConfiguration(selectedAddedRule);
@@ -724,9 +915,19 @@
         function updateRuleConfiguration(dataCurrentRule = null) {
             if (dataCurrentRule) {
                 ruleNameEl.value = dataCurrentRule.name;
+
                 detectObjectsCheckboxes.forEach(checkbox => {
-                    checkbox.checked = dataCurrentRule.detected_object.includes(checkbox.value);
+                    const isChecked = Array.isArray(dataCurrentRule.detected_object) &&
+                        dataCurrentRule.detected_object.some(obj => obj.detected_object === checkbox.value);
+                    checkbox.checked = isChecked;
+
+                    if (checkbox.closest('[x-data]') && checkbox.closest('[x-data]')._x_dataStack[0]) {
+                        checkbox.closest('[x-data]')._x_dataStack[0].open = isChecked;
+                    }
                 });
+                classificationObjectsCheckboxes.forEach(checkbox => {
+                    checkbox.checked = dataCurrentRule.detected_object.some(obj => obj.classification_object.includes(checkbox.value));
+                })
                 ruleTypeButtons.forEach(btn => {
                     if (btn.dataset.ruleType === dataCurrentRule?.rule_type) {
                         btn.classList.remove('bg-white');
@@ -747,12 +948,18 @@
                         item.classList.add('bg-white');
                     }
                 })
+                priorityEl.value = dataCurrentRule.priority;
+                priorityOutputEL.value = dataCurrentRule.priority;
             } else {
                 ruleNameEl.value = '';
                 // Reset các checkbox của DetectedObject
                 detectObjectsCheckboxes.forEach(checkbox => {
                     checkbox.checked = false;
                 });
+
+                classificationObjectsCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                })
 
                 // Cập nhật rule type
                 ruleTypeButtons.forEach(btn => {
@@ -770,6 +977,10 @@
                 selectedRuleType = ruleTypeButtons[0].dataset.ruleType;
 
                 resizeCanvasWithRuleId(null);
+
+                priorityEl.value = 1
+                priorityOutputEL.value = 1;
+
 
                 // // Reset video canvas
                 // if (videoWrapperOutside && videoElementOutside && canvasOverlayOutside) {
@@ -800,9 +1011,10 @@
                             rule_id: ruleId,
                         })
                     })
-                        .then(response => {
+                        .then(async response => {
                             if (!response.ok) {
-                                throw new Error('Network response was not ok');
+                                const data = await response.json();
+                                throw new Error(data.message || 'Không thể xóa rule');
                             }
                             return response.json();
                         })
@@ -817,86 +1029,165 @@
                             instanceRules = instanceRules.filter(rule => rule.id !== ruleId);
                             updateRuleConfiguration(selectedAddedRule);
 
+                            btnSaveRule.innerText = 'Add +';
+
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Thành công',
                                 text: 'Đã xóa rule',
-                                timer: 1200
+                                timer: 1200,
+                                showConfirmButton: false
                             });
                         })
                         .catch(error => {
                             Swal.fire({
                                 icon: 'error',
-                                title: '{{ __('cvedixt-analytic.error_deleting_rule') }}',
+                                title: "Delete Rule Error",
+                                text: error.message,
+                                timer: 1200,
+                                showConfirmButton: false
                             });
                         });
                 }
             });
         }
 
-                document.addEventListener('DOMContentLoaded', () => {
-                    const buttons = document.querySelectorAll('.btn.form-control-lg');
-                    const generalSettingBtn = document.getElementById('generalSettingBtn');
-                    const generalSettingDiv = document.getElementById('generalSetting');
-                    const ruleConfiguration = document.getElementById('ruleConfiguration');
 
-                    // Set initial active state for the first rule type button
-                    if (buttons.length > 0) {
-                        buttons[0].classList.remove('bg-white');
-                        buttons[0].classList.add('bg-blue-500', 'text-white');
-                        selectedRuleType = buttons[0].dataset.ruleType;
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.btn.form-control-lg');
+            const generalSettingBtn = document.getElementById('generalSettingBtn');
+            const generalSettingDiv = document.getElementById('generalSetting');
+            const ruleConfiguration = document.getElementById('ruleConfiguration');
+
+            // Set initial active state for the first rule type button
+            if (buttons.length > 0) {
+                buttons[0].classList.remove('bg-white');
+                buttons[0].classList.add('bg-blue-500', 'text-white');
+                selectedRuleType = buttons[0].dataset.ruleType;
+            }
+
+            // Event listener for rule type buttons
+            buttons.forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.preventDefault();
+                    // Show ruleConfiguration and hide generalSetting
+                    ruleConfiguration.classList.remove('hidden');
+                    generalSettingDiv.classList.add('hidden');
+
+                    // Update button styles
+                    buttons.forEach(b => {
+                        b.classList.remove('bg-blue-500', 'text-white');
+                        b.classList.add('bg-white');
+                    });
+                    btn.classList.remove('bg-white');
+                    btn.classList.add('bg-blue-500', 'text-white');
+                    selectedRuleType = btn.dataset.ruleType;
+
+                    if (selectedAddedRule) {
+                        // Reset form and UI state
+                        ruleNameEl.value = '';
+                        detectObjectsCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                        // Reset active state of rule items
+                        ruleItemsEl.forEach(el => {
+                            el.classList.remove('bg-blue-500', 'text-white');
+                            el.classList.add('bg-white');
+                        });
+                        // Xóa shapes trong canvas
+                        window.shapes = [];
+                        window.tempShapes = [];
+                        window.tempShapesToSave = null;
+
+                        // Reset và xóa canvas ngoài
+                        if (ctxOutside && canvasOverlayOutside) {
+                            ctxOutside.clearRect(0, 0, canvasOverlayOutside.width, canvasOverlayOutside.height);
+                        }
+
+                        priorityEl.value = 1;
+                        priorityOutputEL.value = 1;
+
+                        classificationObjectsCheckboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                            if (checkbox.closest('[x-data]') && checkbox.closest('[x-data]')._x_dataStack[0]) {
+                                checkbox.closest('[x-data]')._x_dataStack[0].open = false;
+                            }
+                        })
                     }
 
-                    // Event listener for rule type buttons
-                    buttons.forEach(btn => {
-                        btn.addEventListener('click', e => {
-                            e.preventDefault();
-                            // Reset selected rule
-                            selectedAddedRule = null;
+                    // Reset trạng thái rule đã chọn
+                    selectedAddedRule = null;
 
-                            // Show ruleConfiguration and hide generalSetting
-                            ruleConfiguration.classList.remove('hidden');
-                            generalSettingDiv.classList.add('hidden');
+                    btnSaveRule.innerText = 'Add +';
 
-                            // Update button styles
-                            buttons.forEach(b => {
-                                b.classList.remove('bg-blue-500', 'text-white');
-                                b.classList.add('bg-white');
-                            });
-                            btn.classList.remove('bg-white');
-                            btn.classList.add('bg-blue-500', 'text-white');
-                            selectedRuleType = btn.dataset.ruleType;
-
-                            // Reset form and UI state
-                            ruleNameEl.value = '';
-                            detectObjectsCheckboxes.forEach(checkbox => {
-                                checkbox.checked = false;
-                            });
-
-                            // Reset active state of rule items
-                            ruleItemsEl.forEach(el => {
-                                el.classList.remove('bg-blue-500', 'text-white');
-                                el.classList.add('bg-white');
-                            });
-
-                            const btnSaveRule = document.getElementById('btn-save-rule');
-                            btnSaveRule.innerText = 'Add +';
-
-                    // Xóa shapes trong canvas
-                    window.shapes = [];
-                    window.tempShapes = [];
-                    window.tempShapesToSave = null;
                     // if (window.DrawingTool) {
                     //     window.DrawingTool.loadShapesFromServer(null);
                     // }
-
-                    // Reset và xóa canvas ngoài
-                    if (ctxOutside && canvasOverlayOutside) {
-                        ctxOutside.clearRect(0, 0, canvasOverlayOutside.width, canvasOverlayOutside.height);
-                    }
                     resizeCanvasWithRuleId(null);
                 });
             });
         });
+        // Fake khi page load xong thì gọi api kích hoạt gửi events
+        document.addEventListener('DOMContentLoaded', () => {
+            if (ruleItemsEl.length > 0) {
+                ruleItemsEl[0].click();
+            }
+        })
+
+        function sendEvent(instanceId) {
+
+            fetch("{{route('cvedixrt_event.broadcast')}}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({instance_id: instanceId, _action: 'sendSingleEvent'})
+            }).then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            }).then(data => {
+                Swal.close();
+                if (data.success === 'ok') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-end',
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
+                    });
+                } else {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-end',
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'An error occurred while sending events.',
+                        timer: 1500,
+                        timerProgressBar: true,
+                    });
+                }
+            }).catch(error => {
+                Swal.close();
+                console.error('Error:', error);
+                Swal.fire({
+                    toast: true,
+                    position: 'bottom-end',
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while sending events.',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timmerProgressBar: true,
+                });
+            });
+        }
     </script>
 @endpush

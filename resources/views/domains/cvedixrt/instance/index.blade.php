@@ -42,7 +42,7 @@
         {{-- Table show list instance --}}
         <div class="overflow-auto scroll-visible header-sticky">
             <table id="device-cvedix-instance-list-table"
-                   class="table table-report sm:mt-2 font-medium font-semibold text-center whitespace-nowrap"
+                   class="table sm:mt-2 font-medium font-semibold text-center whitespace-nowrap"
                    data-table-sort
                    data-table-pagination data-table-pagination-limit="10">
                 <thead>
@@ -52,10 +52,10 @@
                     <th class="text-center w-1">{{ __('cvedixrt-instance-index.instance-id') }}</th>
                     <th class="text-left w-1">{{ __('cvedixrt-instance-index.name') }}</th>
                     <th class="text-left w-1">{{ __('cvedixrt-instance-index.source') }}</th>
-                    <th class="text-left w-1">{{ __('cvedixrt-instance-index.zones') }}</th>
-                    <th class="text-left w-1">{{ __('cvedixrt-instance-index.lines') }}</th>
                     <th class="text-left w-1">{{ __('cvedixrt-instance-index.solutions') }}</th>
                     <th class="text-left w-1">{{ __('cvedixrt-instance-index.groups') }}</th>
+                    <th class="text-center w-1">{{ __('Action') }}</th>
+                    <th class="text-center w-1">{{ __('cvedixrt-instance-index.events') }}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -106,34 +106,6 @@
                                 title="{{$instance->input_source ?? '-'}}"
                                 class="block text-ellipsis">{{$instance->source ?? '-'}}</a>
                         </td>
-                        <!-- Zones -->
-                        <td class="text-left">
-                            <a href="{{$link}}" class="block">
-                                @if(isset($instance->zones) && is_array($instance->zones))
-                                    <div style="max-width: 300px; white-space: nowrap; overflow: hidden;
-                                                text-overflow: ellipsis; background-color: #f8f8f8; padding: 5px;
-                                                border: 1px solid #ccc; border-radius: 4px;">
-                                        {{ json_encode($instance->zones, JSON_UNESCAPED_UNICODE) }}
-                                    </div>
-                                @else
-                                    <div>—</div>
-                                @endif
-
-                            </a>
-                        </td>
-                        <!-- Lines -->
-                        <td class="text-left">
-                            <a href="{{$link}}" class="block">
-                                @if(isset($instance->lines) && is_array($instance->lines))
-                                    <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-                                                background-color: #f8f8f8; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
-                                        {{ json_encode($instance->lines, JSON_UNESCAPED_UNICODE) }}
-                                    </div>
-                                @else
-                                    <div>—</div>
-                                @endif
-                            </a>
-                        </td>
                         <!-- Solutions -->
                         <td class="text-left">
                             <a href="{{$link}}" class="block">{{$instance->solution->name ?? '-'}}</a>
@@ -141,6 +113,51 @@
                         <!-- Groups -->
                         <td class="text-left">
                             <a href="{{$link}}" class="block">{{$instance->group->name ?? '-'}}</a>
+                        </td>
+                        <td class="flex justify-center  items-center">
+                            <!-- button Analytics rule -->
+                            <a href="{{ route('cvedixrt_instance.analytics', ['id' => $instance->id]) }}"
+                               class="inline-flex items-center justify-center transition p-2
+                            bg-transparent hover:bg-blue-900 hover:font-bold group rounded-md cursor-pointer"
+                               title="{{__('Analytics Rule')}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor"
+                                     class="size-6 transition-colors group-hover:stroke-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"/>
+                                </svg>
+                            </a>
+                            <!-- button export settings -->
+                            <a href="{{ route('cvedixrt_instance.export_settings', ['id' => $instance->id]) }}"
+                               class="inline-flex items-center justify-center transition p-2
+                            bg-transparent hover:bg-blue-900 hover:font-bold group rounded-md cursor-pointer"
+                               title="{{__('Analytics Rule')}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor"
+                                     class="size-6 transition-colors group-hover:stroke-white">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077 1.41-.513m14.095-5.13 1.41-.513M5.106 17.785l1.15-.964m11.49-9.642 1.149-.964M7.501 19.795l.75-1.3m7.5-12.99.75-1.3m-6.063 16.658.26-1.477m2.605-14.772.26-1.477m0 17.726-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205 12 12m6.894 5.785-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495"/>
+                                </svg>
+                            </a>
+
+                        </td>
+                        <!-- Start/Stop -->
+                        <td class="text-center" x-data="{ eventsCount: {{$instance->events_count ?? 0}} }">
+                            <a href="{{ route('cvedixrt_instance.analytics', ['id' => $instance->id]) }}"
+                               class="inline-flex items-center justify-center rounded-md transition w-full py-1 px-2"
+                               :class="eventsCount <= 0
+                                        ? 'bg-gray-300 text-gray-400 cursor-not-allowed pointer-events-none'
+                                        : 'bg-transparent hover:bg-blue-900 hover:font-bold group border border-gray-500'"
+                               :tabindex="eventsCount <= 0 ? -1 : 0"
+                               :aria-disabled="eventsCount <= 0"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor"
+                                     class="size-6 transition-colors group-hover:stroke-white group-hover:stroke-2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M21 7.5V18M15 7.5V18M3 16.811V8.69c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811Z"/>
+                                </svg>
+                            </a>
                         </td>
                     </tr>
                 @endforeach
@@ -153,6 +170,7 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function showToast(message) {
             const toast = document.createElement('div');
@@ -205,6 +223,54 @@
                 }
                 document.body.removeChild(tempInput);
             }
+        }
+
+       function sendEvent(instanceId) {
+
+            fetch("{{route('cvedixrt_event.broadcast')}}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({instance_id: instanceId, _action: 'sendSingleEvent'})
+            }).then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            }).then(data => {
+                Swal.close();
+                if (data.success === 'ok') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 750
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'An error occurred while sending events.',
+                        confirmButtonText: 'Close',
+                        confirmButtonColor: '#dc3545',
+                    });
+                }
+            }).catch(error => {
+                Swal.close();
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while sending events.',
+                    confirmButtonText: 'Close',
+                    confirmButtonColor: '#dc3545',
+                });
+            });
         }
     </script>
 @endpush

@@ -6,5 +6,11 @@ use App\Domains\CoreApp\Model\Builder\BuilderAbstract;
 
 class CvedixrtInstanceRuleBuilder extends BuilderAbstract
 {
-
+    /**
+     * @return self
+     */
+    public function listSimple(): self
+    {
+        return $this->select('id', 'name')->orderBy('name', 'ASC');
+    }
 }

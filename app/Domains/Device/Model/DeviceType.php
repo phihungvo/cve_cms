@@ -12,6 +12,12 @@ class DeviceType extends Model
 
     protected $table = 'device_type';
 
+    public const TABLE = 'device_type';
+
+    public const PRIMARY_KEY = 'id';
+
+    public const FOREIGN_KEY = 'device_type_id';
+
     protected $fillable = ['name', 'description', 'alias'];
 
     /**

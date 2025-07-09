@@ -3,10 +3,12 @@
 namespace App\Domains\Cvedixrt\Instance\Model;
 
 use App\Domains\CoreApp\Model\ModelAbstract;
+use App\Domains\Cvedixrt\Event\Model\CvedixrtEventModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Domains\Cvedixrt\Instance\Model\Builder\CvedixrtInstanceRuleBuilder as Builder;
 use App\Domains\Cvedixrt\Instance\Model\Collection\CvedixrtInstanceRuleCollection as Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CvedixrtInstanceRuleModel extends ModelAbstract
 {
@@ -15,7 +17,7 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
     /**
      * @const string
      */
-    const PRIMARY = 'id';
+    const PRIMARY_KEY = 'id';
 
     /**
      * @var string
@@ -30,7 +32,7 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
     /**
      * @const string
      */
-    public const FOREIGN = 'cvedixrt_instance_rule_id';
+    public const FOREIGN_KEY = 'instance_rule_id';
 
     public $timestamps = true;
 
@@ -42,6 +44,7 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
         'rule_type',
         'drawing_object',
         'cvedixrt_instance_id',
+        'priority',
     ];
 
     protected $casts = [
@@ -87,9 +90,13 @@ class CvedixrtInstanceRuleModel extends ModelAbstract
         return $this->belongsTo(CvedixrtInstanceModel::class, 'cvedixrt_instance_id');
     }
 
-    /*
-     * $objects = $model->detected_object; // array từ DB
+    /**
+     * Khai báo quan hệ 1-n với bảng cvedixrt_event
      *
-     *   $objectEnums = array_map(fn($type) => DetectedObject::from($type), $objects);
+     * @return HasMany
      */
+    public function events(): HasMany
+    {
+        return $this->hasMany(CvedixrtEventModel::class, 'instance_rule_id');
+    }
 }

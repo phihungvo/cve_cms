@@ -37,7 +37,12 @@ class IndexService extends ControllerAbstract
             ->whereBySolution((int)$this->request->input('cvedixrt_solution_id'))
             ->whereByGroup((int)$this->request->input('cvedixrt_group_id'))
             ->with(['group:id,name', 'solution:id,name'])
-            ->get();
+            ->get()
+            ->each(function ($instance) {
+                $instance->events_count = $instance->instanceRules->flatMap(function ($rule) {
+                    return $rule->events;
+                })->count();
+            });
     }
 
     protected function solutions(): Collection

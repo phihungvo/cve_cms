@@ -24,7 +24,7 @@ class DeviceGroupModel extends ModelAbstract
     /**
      * @const string
      */
-    const PRIMARY = 'id';
+    const PRIMARY_KEY = 'id';
 
     /**
      * @var string
@@ -39,7 +39,7 @@ class DeviceGroupModel extends ModelAbstract
     /**
      * @const string
      */
-    public const FOREIGN = 'device_group_id';
+    public const FOREIGN_KEY = 'device_group_id';
 
     public $timestamps = true;
 
@@ -65,12 +65,12 @@ class DeviceGroupModel extends ModelAbstract
      */
     public function enterprise(): BelongsTo
     {
-        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN, Enterprise::PRIMARY);
+        return $this->belongsTo(Enterprise::class, Enterprise::FOREIGN_KEY, Enterprise::PRIMARY);
     }
 
     public function deviceGroupMaps(): HasMany
     {
-        return $this->hasMany(DeviceGroupMap::class, DeviceGroupModel::FOREIGN, DeviceGroupModel::PRIMARY);
+        return $this->hasMany(DeviceGroupMap::class, DeviceGroupModel::FOREIGN_KEY, DeviceGroupModel::PRIMARY_KEY);
     }
 
     /**

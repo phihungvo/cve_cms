@@ -26,7 +26,7 @@ class MediaBuilder extends BuilderAbstract
     public function roleOwner(): MediaBuilder
     {
         if (auth()->user()?->isOwner() || auth()->user()?->enterprise_id) {
-            return $this->where(Enterprise::FOREIGN, auth()->user()->enterprise_id);
+            return $this->where(Enterprise::FOREIGN_KEY, auth()->user()->enterprise_id);
         }
 
         return $this;

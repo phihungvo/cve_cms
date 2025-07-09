@@ -186,7 +186,7 @@ class Media extends ModelAbstract
     {
         return $this->belongsTo(
             Enterprise::class,
-            Enterprise::FOREIGN,
+            Enterprise::FOREIGN_KEY,
             self::PRIMARY
         );
     }

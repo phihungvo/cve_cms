@@ -43,8 +43,6 @@ class Create extends CreateUpdateAbstract
 
     protected function dataRoleIds(): void
     {
-        info('Test function info');
-        echo 'Test function echo';
         $this->data['roles'] = $this->request->input('roles');
     }
 }

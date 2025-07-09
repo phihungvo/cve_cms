@@ -63,7 +63,7 @@ class Enterprise extends ModelAbstract
 
     public const PRIMARY = 'id';
 
-    public const FOREIGN = 'enterprise_id';
+    public const FOREIGN_KEY = 'enterprise_id';
 
     protected $fillable = [
         'name',
